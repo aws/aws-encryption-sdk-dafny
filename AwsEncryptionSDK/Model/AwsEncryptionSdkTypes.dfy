@@ -31,9 +31,10 @@ include "../../StandardLibrary/src/Index.dfy"
  // add it in your constructor function:
  // Modifies := {your, fields, here, History};
  // If you do not need to mutate anything:
- // Modifies := {History};
+// Modifies := {History};
+
  ghost const Modifies: set<object>
- // For an unassigned const field defined in a trait,
+ // For an unassigned field defined in a trait,
  // Dafny can only assign a value in the constructor.
  // This means that for Dafny to reason about this value,
  // it needs some way to know (an invariant),
@@ -45,12 +46,12 @@ include "../../StandardLibrary/src/Index.dfy"
  // This means that the correctness of this requires
  // MUST only be evaluated by the class itself.
  // If you require any additional mutation,
- // Then you MUST ensure everything you need in ValidState.
+ // then you MUST ensure everything you need in ValidState.
  // You MUST also ensure ValidState in your constructor.
  predicate ValidState()
  ensures ValidState() ==> History in Modifies
   ghost const History: IAwsEncryptionSdkClientCallHistory
- predicate EncryptEnsuresPublicly(input: EncryptInput, output: Result<EncryptOutput, Error>)
+ predicate EncryptEnsuresPublicly(input: EncryptInput , output: Result<EncryptOutput, Error>)
  // The public method to be called by library consumers
  method Encrypt ( input: EncryptInput )
  returns (output: Result<EncryptOutput, Error>)
@@ -75,7 +76,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures EncryptEnsuresPublicly(input, output)
  ensures History.Encrypt == old(History.Encrypt) + [DafnyCallEvent(input, output)]
  
- predicate DecryptEnsuresPublicly(input: DecryptInput, output: Result<DecryptOutput, Error>)
+ predicate DecryptEnsuresPublicly(input: DecryptInput , output: Result<DecryptOutput, Error>)
  // The public method to be called by library consumers
  method Decrypt ( input: DecryptInput )
  returns (output: Result<DecryptOutput, Error>)
@@ -167,7 +168,7 @@ include "../../StandardLibrary/src/Index.dfy"
  // || (!exit(A(I)) && !exit(B(I)))
  // || (!access(A(I)) && !exit(B(I)))
  // || (!exit(A(I)) && !access(B(I)))
- | Collection(list: seq<Error>)
+ | CollectionOfErrors(list: seq<Error>)
  // The Opaque error, used for native, extern, wrapped or unknown errors
  | Opaque(obj: object)
  type OpaqueError = e: Error | e.Opaque? witness *
@@ -187,6 +188,7 @@ include "../../StandardLibrary/src/Index.dfy"
  && fresh(res.value.Modifies)
  && fresh(res.value.History)
  && res.value.ValidState()
+
  class ESDKClient extends IAwsEncryptionSdkClient
  {
  constructor(config: Operations.InternalConfig)
@@ -201,7 +203,7 @@ include "../../StandardLibrary/src/Index.dfy"
  && Operations.ValidInternalConfig?(config)
  && History !in Operations.ModifiesInternalConfig(config)
  && Modifies == Operations.ModifiesInternalConfig(config) + {History}
- predicate EncryptEnsuresPublicly(input: EncryptInput, output: Result<EncryptOutput, Error>)
+ predicate EncryptEnsuresPublicly(input: EncryptInput , output: Result<EncryptOutput, Error>)
  {Operations.EncryptEnsuresPublicly(input, output)}
  // The public method to be called by library consumers
  method Encrypt ( input: EncryptInput )
@@ -231,7 +233,7 @@ include "../../StandardLibrary/src/Index.dfy"
  History.Encrypt := History.Encrypt + [DafnyCallEvent(input, output)];
 }
  
- predicate DecryptEnsuresPublicly(input: DecryptInput, output: Result<DecryptOutput, Error>)
+ predicate DecryptEnsuresPublicly(input: DecryptInput , output: Result<DecryptOutput, Error>)
  {Operations.DecryptEnsuresPublicly(input, output)}
  // The public method to be called by library consumers
  method Decrypt ( input: DecryptInput )
@@ -271,11 +273,11 @@ include "../../StandardLibrary/src/Index.dfy"
  type InternalConfig
  predicate ValidInternalConfig?(config: InternalConfig)
  function ModifiesInternalConfig(config: InternalConfig): set<object>
- predicate EncryptEnsuresPublicly(input: EncryptInput, output: Result<EncryptOutput, Error>)
+ predicate EncryptEnsuresPublicly(input: EncryptInput , output: Result<EncryptOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method Encrypt ( config: InternalConfig,  input: EncryptInput )
+ method Encrypt ( config: InternalConfig , input: EncryptInput )
  returns (output: Result<EncryptOutput, Error>)
  requires
  && ValidInternalConfig?(config) && ( input.materialsManager.Some? ==>
@@ -295,11 +297,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures EncryptEnsuresPublicly(input, output)
 
 
- predicate DecryptEnsuresPublicly(input: DecryptInput, output: Result<DecryptOutput, Error>)
+ predicate DecryptEnsuresPublicly(input: DecryptInput , output: Result<DecryptOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method Decrypt ( config: InternalConfig,  input: DecryptInput )
+ method Decrypt ( config: InternalConfig , input: DecryptInput )
  returns (output: Result<DecryptOutput, Error>)
  requires
  && ValidInternalConfig?(config) && ( input.materialsManager.Some? ==>

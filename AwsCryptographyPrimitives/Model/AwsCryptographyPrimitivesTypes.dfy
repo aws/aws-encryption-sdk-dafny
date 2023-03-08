@@ -508,6 +508,7 @@ include "../../StandardLibrary/src/Index.dfy"
  && fresh(res.value.Modifies)
  && fresh(res.value.History)
  && res.value.ValidState()
+
  class AtomicPrimitivesClient extends IAwsCryptographicPrimitivesClient
  {
  constructor(config: Operations.InternalConfig)

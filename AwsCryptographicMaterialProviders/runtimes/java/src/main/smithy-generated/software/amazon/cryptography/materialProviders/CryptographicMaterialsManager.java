@@ -24,18 +24,18 @@ public final class CryptographicMaterialsManager implements ICryptographicMateri
     this._impl = iCryptographicMaterialsManager;
   }
 
-  public static CryptographicMaterialsManager create(
+  public static CryptographicMaterialsManager wrap(
       Dafny.Aws.Cryptography.MaterialProviders.Types.ICryptographicMaterialsManager iCryptographicMaterialsManager) {
     return new CryptographicMaterialsManager(iCryptographicMaterialsManager);
   }
 
-  public static <I extends ICryptographicMaterialsManager> CryptographicMaterialsManager create(
+  public static <I extends ICryptographicMaterialsManager> CryptographicMaterialsManager wrap(
       I iCryptographicMaterialsManager) {
     Objects.requireNonNull(iCryptographicMaterialsManager, "Missing value for required argument `iCryptographicMaterialsManager`");
     if (iCryptographicMaterialsManager instanceof software.amazon.cryptography.materialProviders.CryptographicMaterialsManager) {
       return ((CryptographicMaterialsManager) iCryptographicMaterialsManager);
     }
-    return CryptographicMaterialsManager.create(new NativeWrapper(iCryptographicMaterialsManager));
+    return CryptographicMaterialsManager.wrap(new NativeWrapper(iCryptographicMaterialsManager));
   }
 
   public Dafny.Aws.Cryptography.MaterialProviders.Types.ICryptographicMaterialsManager impl() {

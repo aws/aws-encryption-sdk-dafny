@@ -57,7 +57,7 @@ public class CreateAwsKmsMrkDiscoveryMultiKeyringInput {
 
     DiscoveryFilter discoveryFilter();
 
-    <I extends IClientSupplier> Builder clientSupplier(I clientSupplier);
+    Builder clientSupplier(IClientSupplier clientSupplier);
 
     ClientSupplier clientSupplier();
 
@@ -105,8 +105,8 @@ public class CreateAwsKmsMrkDiscoveryMultiKeyringInput {
       return this.discoveryFilter;
     }
 
-    public <I extends IClientSupplier> Builder clientSupplier(I clientSupplier) {
-      this.clientSupplier = ClientSupplier.create(clientSupplier);
+    public Builder clientSupplier(IClientSupplier clientSupplier) {
+      this.clientSupplier = ClientSupplier.wrap(clientSupplier);
       return this;
     }
 

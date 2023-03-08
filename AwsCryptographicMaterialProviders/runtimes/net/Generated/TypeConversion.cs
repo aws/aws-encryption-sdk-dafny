@@ -1925,6 +1925,7 @@ throw new System.ArgumentException("Invalid AWS.Cryptography.Primitives.ECDSASig
  public static System.Exception FromDafny_CommonError(Dafny.Aws.Cryptography.MaterialProviders.Types._IError value) {
  switch(value)
  {
+
  case Dafny.Aws.Cryptography.MaterialProviders.Types.Error_AwsCryptographicMaterialProvidersException dafnyVal:
 return FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S42_AwsCryptographicMaterialProvidersException(dafnyVal);
  case Dafny.Aws.Cryptography.MaterialProviders.Types.Error_InvalidAlgorithmSuiteInfo dafnyVal:
@@ -1951,6 +1952,7 @@ return FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S36_InvalidEnc
 }
 }
  public static Dafny.Aws.Cryptography.MaterialProviders.Types._IError ToDafny_CommonError(System.Exception value) {
+
  switch (value)
  {
  case AWS.Cryptography.MaterialProviders.AwsCryptographicMaterialProvidersException exception:

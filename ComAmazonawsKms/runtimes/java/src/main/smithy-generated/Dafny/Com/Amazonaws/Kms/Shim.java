@@ -83,113 +83,82 @@ import Dafny.Com.Amazonaws.Kms.Types.UpdatePrimaryRegionRequest;
 import Dafny.Com.Amazonaws.Kms.Types.VerifyRequest;
 import Dafny.Com.Amazonaws.Kms.Types.VerifyResponse;
 import Wrappers_Compile.Result;
-import com.amazonaws.services.kms.AWSKMS;
-import com.amazonaws.services.kms.model.AWSKMSException;
-import com.amazonaws.services.kms.model.AlreadyExistsException;
-import com.amazonaws.services.kms.model.CancelKeyDeletionResult;
-import com.amazonaws.services.kms.model.CloudHsmClusterInUseException;
-import com.amazonaws.services.kms.model.CloudHsmClusterInvalidConfigurationException;
-import com.amazonaws.services.kms.model.CloudHsmClusterNotActiveException;
-import com.amazonaws.services.kms.model.CloudHsmClusterNotFoundException;
-import com.amazonaws.services.kms.model.CloudHsmClusterNotRelatedException;
-import com.amazonaws.services.kms.model.ConnectCustomKeyStoreResult;
-import com.amazonaws.services.kms.model.CreateCustomKeyStoreResult;
-import com.amazonaws.services.kms.model.CreateGrantResult;
-import com.amazonaws.services.kms.model.CreateKeyResult;
-import com.amazonaws.services.kms.model.CustomKeyStoreHasCMKsException;
-import com.amazonaws.services.kms.model.CustomKeyStoreInvalidStateException;
-import com.amazonaws.services.kms.model.CustomKeyStoreNameInUseException;
-import com.amazonaws.services.kms.model.CustomKeyStoreNotFoundException;
-import com.amazonaws.services.kms.model.DecryptResult;
-import com.amazonaws.services.kms.model.DeleteCustomKeyStoreResult;
-import com.amazonaws.services.kms.model.DependencyTimeoutException;
-import com.amazonaws.services.kms.model.DescribeCustomKeyStoresResult;
-import com.amazonaws.services.kms.model.DescribeKeyResult;
-import com.amazonaws.services.kms.model.DisabledException;
-import com.amazonaws.services.kms.model.DisconnectCustomKeyStoreResult;
-import com.amazonaws.services.kms.model.EncryptResult;
-import com.amazonaws.services.kms.model.ExpiredImportTokenException;
-import com.amazonaws.services.kms.model.GenerateDataKeyPairResult;
-import com.amazonaws.services.kms.model.GenerateDataKeyPairWithoutPlaintextResult;
-import com.amazonaws.services.kms.model.GenerateDataKeyResult;
-import com.amazonaws.services.kms.model.GenerateDataKeyWithoutPlaintextResult;
-import com.amazonaws.services.kms.model.GenerateRandomResult;
-import com.amazonaws.services.kms.model.GetKeyPolicyResult;
-import com.amazonaws.services.kms.model.GetKeyRotationStatusResult;
-import com.amazonaws.services.kms.model.GetParametersForImportResult;
-import com.amazonaws.services.kms.model.GetPublicKeyResult;
-import com.amazonaws.services.kms.model.ImportKeyMaterialResult;
-import com.amazonaws.services.kms.model.IncorrectKeyException;
-import com.amazonaws.services.kms.model.IncorrectKeyMaterialException;
-import com.amazonaws.services.kms.model.IncorrectTrustAnchorException;
-import com.amazonaws.services.kms.model.InvalidAliasNameException;
-import com.amazonaws.services.kms.model.InvalidArnException;
-import com.amazonaws.services.kms.model.InvalidCiphertextException;
-import com.amazonaws.services.kms.model.InvalidGrantIdException;
-import com.amazonaws.services.kms.model.InvalidGrantTokenException;
-import com.amazonaws.services.kms.model.InvalidImportTokenException;
-import com.amazonaws.services.kms.model.InvalidKeyUsageException;
-import com.amazonaws.services.kms.model.InvalidMarkerException;
-import com.amazonaws.services.kms.model.KMSInternalException;
-import com.amazonaws.services.kms.model.KMSInvalidSignatureException;
-import com.amazonaws.services.kms.model.KMSInvalidStateException;
-import com.amazonaws.services.kms.model.KeyUnavailableException;
-import com.amazonaws.services.kms.model.LimitExceededException;
-import com.amazonaws.services.kms.model.ListAliasesResult;
-import com.amazonaws.services.kms.model.ListGrantsResult;
-import com.amazonaws.services.kms.model.ListKeyPoliciesResult;
-import com.amazonaws.services.kms.model.ListResourceTagsResult;
-import com.amazonaws.services.kms.model.MalformedPolicyDocumentException;
-import com.amazonaws.services.kms.model.NotFoundException;
-import com.amazonaws.services.kms.model.ReEncryptResult;
-import com.amazonaws.services.kms.model.ReplicateKeyResult;
-import com.amazonaws.services.kms.model.ScheduleKeyDeletionResult;
-import com.amazonaws.services.kms.model.SignResult;
-import com.amazonaws.services.kms.model.TagException;
-import com.amazonaws.services.kms.model.UnsupportedOperationException;
-import com.amazonaws.services.kms.model.UpdateCustomKeyStoreResult;
-import com.amazonaws.services.kms.model.VerifyResult;
 import dafny.Tuple0;
 import java.lang.Override;
 import java.lang.String;
+import software.amazon.awssdk.services.kms.KmsClient;
+import software.amazon.awssdk.services.kms.model.AlreadyExistsException;
+import software.amazon.awssdk.services.kms.model.CloudHsmClusterInUseException;
+import software.amazon.awssdk.services.kms.model.CloudHsmClusterInvalidConfigurationException;
+import software.amazon.awssdk.services.kms.model.CloudHsmClusterNotActiveException;
+import software.amazon.awssdk.services.kms.model.CloudHsmClusterNotFoundException;
+import software.amazon.awssdk.services.kms.model.CloudHsmClusterNotRelatedException;
+import software.amazon.awssdk.services.kms.model.CustomKeyStoreHasCmKsException;
+import software.amazon.awssdk.services.kms.model.CustomKeyStoreInvalidStateException;
+import software.amazon.awssdk.services.kms.model.CustomKeyStoreNameInUseException;
+import software.amazon.awssdk.services.kms.model.CustomKeyStoreNotFoundException;
+import software.amazon.awssdk.services.kms.model.DependencyTimeoutException;
+import software.amazon.awssdk.services.kms.model.DisabledException;
+import software.amazon.awssdk.services.kms.model.ExpiredImportTokenException;
+import software.amazon.awssdk.services.kms.model.IncorrectKeyException;
+import software.amazon.awssdk.services.kms.model.IncorrectKeyMaterialException;
+import software.amazon.awssdk.services.kms.model.IncorrectTrustAnchorException;
+import software.amazon.awssdk.services.kms.model.InvalidAliasNameException;
+import software.amazon.awssdk.services.kms.model.InvalidArnException;
+import software.amazon.awssdk.services.kms.model.InvalidCiphertextException;
+import software.amazon.awssdk.services.kms.model.InvalidGrantIdException;
+import software.amazon.awssdk.services.kms.model.InvalidGrantTokenException;
+import software.amazon.awssdk.services.kms.model.InvalidImportTokenException;
+import software.amazon.awssdk.services.kms.model.InvalidKeyUsageException;
+import software.amazon.awssdk.services.kms.model.InvalidMarkerException;
+import software.amazon.awssdk.services.kms.model.KeyUnavailableException;
+import software.amazon.awssdk.services.kms.model.KmsException;
+import software.amazon.awssdk.services.kms.model.KmsInternalException;
+import software.amazon.awssdk.services.kms.model.KmsInvalidSignatureException;
+import software.amazon.awssdk.services.kms.model.KmsInvalidStateException;
+import software.amazon.awssdk.services.kms.model.LimitExceededException;
+import software.amazon.awssdk.services.kms.model.MalformedPolicyDocumentException;
+import software.amazon.awssdk.services.kms.model.NotFoundException;
+import software.amazon.awssdk.services.kms.model.TagException;
+import software.amazon.awssdk.services.kms.model.UnsupportedOperationException;
 
 public class Shim implements IKeyManagementServiceClient {
-  private final AWSKMS _impl;
+  private final KmsClient _impl;
 
   private final String region;
 
-  public Shim(final AWSKMS impl, final String region) {
+  public Shim(final KmsClient impl, final String region) {
     this._impl = impl;
     this.region = region;
+  }
+
+  public KmsClient impl() {
+    return this._impl;
   }
 
   public String region() {
     return this.region;
   }
 
-  public AWSKMS impl() {
-    return this._impl;
-  }
-
   @Override
   public Result<CancelKeyDeletionResponse, Error> CancelKeyDeletion(
       CancelKeyDeletionRequest input) {
-    com.amazonaws.services.kms.model.CancelKeyDeletionRequest converted = ToNative.CancelKeyDeletionRequest(input);
+    software.amazon.awssdk.services.kms.model.CancelKeyDeletionRequest converted = ToNative.CancelKeyDeletionRequest(input);
     try {
-      CancelKeyDeletionResult result = _impl.cancelKeyDeletion(converted);
+      software.amazon.awssdk.services.kms.model.CancelKeyDeletionResponse result = _impl.cancelKeyDeletion(converted);
       CancelKeyDeletionResponse dafnyResponse = ToDafny.CancelKeyDeletionResponse(result);
       return Result.create_Success(dafnyResponse);
     } catch (DependencyTimeoutException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (InvalidArnException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInternalException ex) {
+    } catch (KmsInternalException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInvalidStateException ex) {
+    } catch (KmsInvalidStateException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (NotFoundException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (AWSKMSException ex) {
+    } catch (KmsException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     }
   }
@@ -197,9 +166,9 @@ public class Shim implements IKeyManagementServiceClient {
   @Override
   public Result<ConnectCustomKeyStoreResponse, Error> ConnectCustomKeyStore(
       ConnectCustomKeyStoreRequest input) {
-    com.amazonaws.services.kms.model.ConnectCustomKeyStoreRequest converted = ToNative.ConnectCustomKeyStoreRequest(input);
+    software.amazon.awssdk.services.kms.model.ConnectCustomKeyStoreRequest converted = ToNative.ConnectCustomKeyStoreRequest(input);
     try {
-      ConnectCustomKeyStoreResult result = _impl.connectCustomKeyStore(converted);
+      software.amazon.awssdk.services.kms.model.ConnectCustomKeyStoreResponse result = _impl.connectCustomKeyStore(converted);
       ConnectCustomKeyStoreResponse dafnyResponse = ToDafny.ConnectCustomKeyStoreResponse(result);
       return Result.create_Success(dafnyResponse);
     } catch (CloudHsmClusterInvalidConfigurationException ex) {
@@ -210,16 +179,16 @@ public class Shim implements IKeyManagementServiceClient {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (CustomKeyStoreNotFoundException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInternalException ex) {
+    } catch (KmsInternalException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (AWSKMSException ex) {
+    } catch (KmsException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     }
   }
 
   @Override
   public Result<Tuple0, Error> CreateAlias(CreateAliasRequest input) {
-    com.amazonaws.services.kms.model.CreateAliasRequest converted = ToNative.CreateAliasRequest(input);
+    software.amazon.awssdk.services.kms.model.CreateAliasRequest converted = ToNative.CreateAliasRequest(input);
     try {
       _impl.createAlias(converted);
       return Result.create_Success(Tuple0.create());
@@ -229,15 +198,15 @@ public class Shim implements IKeyManagementServiceClient {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (InvalidAliasNameException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInternalException ex) {
+    } catch (KmsInternalException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInvalidStateException ex) {
+    } catch (KmsInvalidStateException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (LimitExceededException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (NotFoundException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (AWSKMSException ex) {
+    } catch (KmsException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     }
   }
@@ -245,9 +214,9 @@ public class Shim implements IKeyManagementServiceClient {
   @Override
   public Result<CreateCustomKeyStoreResponse, Error> CreateCustomKeyStore(
       CreateCustomKeyStoreRequest input) {
-    com.amazonaws.services.kms.model.CreateCustomKeyStoreRequest converted = ToNative.CreateCustomKeyStoreRequest(input);
+    software.amazon.awssdk.services.kms.model.CreateCustomKeyStoreRequest converted = ToNative.CreateCustomKeyStoreRequest(input);
     try {
-      CreateCustomKeyStoreResult result = _impl.createCustomKeyStore(converted);
+      software.amazon.awssdk.services.kms.model.CreateCustomKeyStoreResponse result = _impl.createCustomKeyStore(converted);
       CreateCustomKeyStoreResponse dafnyResponse = ToDafny.CreateCustomKeyStoreResponse(result);
       return Result.create_Success(dafnyResponse);
     } catch (CloudHsmClusterInUseException ex) {
@@ -262,18 +231,18 @@ public class Shim implements IKeyManagementServiceClient {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (IncorrectTrustAnchorException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInternalException ex) {
+    } catch (KmsInternalException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (AWSKMSException ex) {
+    } catch (KmsException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     }
   }
 
   @Override
   public Result<CreateGrantResponse, Error> CreateGrant(CreateGrantRequest input) {
-    com.amazonaws.services.kms.model.CreateGrantRequest converted = ToNative.CreateGrantRequest(input);
+    software.amazon.awssdk.services.kms.model.CreateGrantRequest converted = ToNative.CreateGrantRequest(input);
     try {
-      CreateGrantResult result = _impl.createGrant(converted);
+      software.amazon.awssdk.services.kms.model.CreateGrantResponse result = _impl.createGrant(converted);
       CreateGrantResponse dafnyResponse = ToDafny.CreateGrantResponse(result);
       return Result.create_Success(dafnyResponse);
     } catch (DependencyTimeoutException ex) {
@@ -284,24 +253,24 @@ public class Shim implements IKeyManagementServiceClient {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (InvalidGrantTokenException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInternalException ex) {
+    } catch (KmsInternalException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInvalidStateException ex) {
+    } catch (KmsInvalidStateException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (LimitExceededException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (NotFoundException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (AWSKMSException ex) {
+    } catch (KmsException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     }
   }
 
   @Override
   public Result<CreateKeyResponse, Error> CreateKey(CreateKeyRequest input) {
-    com.amazonaws.services.kms.model.CreateKeyRequest converted = ToNative.CreateKeyRequest(input);
+    software.amazon.awssdk.services.kms.model.CreateKeyRequest converted = ToNative.CreateKeyRequest(input);
     try {
-      CreateKeyResult result = _impl.createKey(converted);
+      software.amazon.awssdk.services.kms.model.CreateKeyResponse result = _impl.createKey(converted);
       CreateKeyResponse dafnyResponse = ToDafny.CreateKeyResponse(result);
       return Result.create_Success(dafnyResponse);
     } catch (CloudHsmClusterInvalidConfigurationException ex) {
@@ -314,7 +283,7 @@ public class Shim implements IKeyManagementServiceClient {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (InvalidArnException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInternalException ex) {
+    } catch (KmsInternalException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (LimitExceededException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
@@ -324,16 +293,16 @@ public class Shim implements IKeyManagementServiceClient {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (UnsupportedOperationException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (AWSKMSException ex) {
+    } catch (KmsException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     }
   }
 
   @Override
   public Result<DecryptResponse, Error> Decrypt(DecryptRequest input) {
-    com.amazonaws.services.kms.model.DecryptRequest converted = ToNative.DecryptRequest(input);
+    software.amazon.awssdk.services.kms.model.DecryptRequest converted = ToNative.DecryptRequest(input);
     try {
-      DecryptResult result = _impl.decrypt(converted);
+      software.amazon.awssdk.services.kms.model.DecryptResponse result = _impl.decrypt(converted);
       DecryptResponse dafnyResponse = ToDafny.DecryptResponse(result);
       return Result.create_Success(dafnyResponse);
     } catch (DependencyTimeoutException ex) {
@@ -350,32 +319,32 @@ public class Shim implements IKeyManagementServiceClient {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (KeyUnavailableException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInternalException ex) {
+    } catch (KmsInternalException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInvalidStateException ex) {
+    } catch (KmsInvalidStateException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (NotFoundException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (AWSKMSException ex) {
+    } catch (KmsException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     }
   }
 
   @Override
   public Result<Tuple0, Error> DeleteAlias(DeleteAliasRequest input) {
-    com.amazonaws.services.kms.model.DeleteAliasRequest converted = ToNative.DeleteAliasRequest(input);
+    software.amazon.awssdk.services.kms.model.DeleteAliasRequest converted = ToNative.DeleteAliasRequest(input);
     try {
       _impl.deleteAlias(converted);
       return Result.create_Success(Tuple0.create());
     } catch (DependencyTimeoutException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInternalException ex) {
+    } catch (KmsInternalException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInvalidStateException ex) {
+    } catch (KmsInvalidStateException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (NotFoundException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (AWSKMSException ex) {
+    } catch (KmsException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     }
   }
@@ -383,27 +352,27 @@ public class Shim implements IKeyManagementServiceClient {
   @Override
   public Result<DeleteCustomKeyStoreResponse, Error> DeleteCustomKeyStore(
       DeleteCustomKeyStoreRequest input) {
-    com.amazonaws.services.kms.model.DeleteCustomKeyStoreRequest converted = ToNative.DeleteCustomKeyStoreRequest(input);
+    software.amazon.awssdk.services.kms.model.DeleteCustomKeyStoreRequest converted = ToNative.DeleteCustomKeyStoreRequest(input);
     try {
-      DeleteCustomKeyStoreResult result = _impl.deleteCustomKeyStore(converted);
+      software.amazon.awssdk.services.kms.model.DeleteCustomKeyStoreResponse result = _impl.deleteCustomKeyStore(converted);
       DeleteCustomKeyStoreResponse dafnyResponse = ToDafny.DeleteCustomKeyStoreResponse(result);
       return Result.create_Success(dafnyResponse);
-    } catch (CustomKeyStoreHasCMKsException ex) {
+    } catch (CustomKeyStoreHasCmKsException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (CustomKeyStoreInvalidStateException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (CustomKeyStoreNotFoundException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInternalException ex) {
+    } catch (KmsInternalException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (AWSKMSException ex) {
+    } catch (KmsException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     }
   }
 
   @Override
   public Result<Tuple0, Error> DeleteImportedKeyMaterial(DeleteImportedKeyMaterialRequest input) {
-    com.amazonaws.services.kms.model.DeleteImportedKeyMaterialRequest converted = ToNative.DeleteImportedKeyMaterialRequest(input);
+    software.amazon.awssdk.services.kms.model.DeleteImportedKeyMaterialRequest converted = ToNative.DeleteImportedKeyMaterialRequest(input);
     try {
       _impl.deleteImportedKeyMaterial(converted);
       return Result.create_Success(Tuple0.create());
@@ -411,15 +380,15 @@ public class Shim implements IKeyManagementServiceClient {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (InvalidArnException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInternalException ex) {
+    } catch (KmsInternalException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInvalidStateException ex) {
+    } catch (KmsInvalidStateException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (NotFoundException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (UnsupportedOperationException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (AWSKMSException ex) {
+    } catch (KmsException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     }
   }
@@ -427,45 +396,45 @@ public class Shim implements IKeyManagementServiceClient {
   @Override
   public Result<DescribeCustomKeyStoresResponse, Error> DescribeCustomKeyStores(
       DescribeCustomKeyStoresRequest input) {
-    com.amazonaws.services.kms.model.DescribeCustomKeyStoresRequest converted = ToNative.DescribeCustomKeyStoresRequest(input);
+    software.amazon.awssdk.services.kms.model.DescribeCustomKeyStoresRequest converted = ToNative.DescribeCustomKeyStoresRequest(input);
     try {
-      DescribeCustomKeyStoresResult result = _impl.describeCustomKeyStores(converted);
+      software.amazon.awssdk.services.kms.model.DescribeCustomKeyStoresResponse result = _impl.describeCustomKeyStores(converted);
       DescribeCustomKeyStoresResponse dafnyResponse = ToDafny.DescribeCustomKeyStoresResponse(result);
       return Result.create_Success(dafnyResponse);
     } catch (CustomKeyStoreNotFoundException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (InvalidMarkerException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInternalException ex) {
+    } catch (KmsInternalException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (AWSKMSException ex) {
+    } catch (KmsException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     }
   }
 
   @Override
   public Result<DescribeKeyResponse, Error> DescribeKey(DescribeKeyRequest input) {
-    com.amazonaws.services.kms.model.DescribeKeyRequest converted = ToNative.DescribeKeyRequest(input);
+    software.amazon.awssdk.services.kms.model.DescribeKeyRequest converted = ToNative.DescribeKeyRequest(input);
     try {
-      DescribeKeyResult result = _impl.describeKey(converted);
+      software.amazon.awssdk.services.kms.model.DescribeKeyResponse result = _impl.describeKey(converted);
       DescribeKeyResponse dafnyResponse = ToDafny.DescribeKeyResponse(result);
       return Result.create_Success(dafnyResponse);
     } catch (DependencyTimeoutException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (InvalidArnException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInternalException ex) {
+    } catch (KmsInternalException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (NotFoundException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (AWSKMSException ex) {
+    } catch (KmsException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     }
   }
 
   @Override
   public Result<Tuple0, Error> DisableKey(DisableKeyRequest input) {
-    com.amazonaws.services.kms.model.DisableKeyRequest converted = ToNative.DisableKeyRequest(input);
+    software.amazon.awssdk.services.kms.model.DisableKeyRequest converted = ToNative.DisableKeyRequest(input);
     try {
       _impl.disableKey(converted);
       return Result.create_Success(Tuple0.create());
@@ -473,20 +442,20 @@ public class Shim implements IKeyManagementServiceClient {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (InvalidArnException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInternalException ex) {
+    } catch (KmsInternalException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInvalidStateException ex) {
+    } catch (KmsInvalidStateException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (NotFoundException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (AWSKMSException ex) {
+    } catch (KmsException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     }
   }
 
   @Override
   public Result<Tuple0, Error> DisableKeyRotation(DisableKeyRotationRequest input) {
-    com.amazonaws.services.kms.model.DisableKeyRotationRequest converted = ToNative.DisableKeyRotationRequest(input);
+    software.amazon.awssdk.services.kms.model.DisableKeyRotationRequest converted = ToNative.DisableKeyRotationRequest(input);
     try {
       _impl.disableKeyRotation(converted);
       return Result.create_Success(Tuple0.create());
@@ -496,15 +465,15 @@ public class Shim implements IKeyManagementServiceClient {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (InvalidArnException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInternalException ex) {
+    } catch (KmsInternalException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInvalidStateException ex) {
+    } catch (KmsInvalidStateException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (NotFoundException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (UnsupportedOperationException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (AWSKMSException ex) {
+    } catch (KmsException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     }
   }
@@ -512,25 +481,25 @@ public class Shim implements IKeyManagementServiceClient {
   @Override
   public Result<DisconnectCustomKeyStoreResponse, Error> DisconnectCustomKeyStore(
       DisconnectCustomKeyStoreRequest input) {
-    com.amazonaws.services.kms.model.DisconnectCustomKeyStoreRequest converted = ToNative.DisconnectCustomKeyStoreRequest(input);
+    software.amazon.awssdk.services.kms.model.DisconnectCustomKeyStoreRequest converted = ToNative.DisconnectCustomKeyStoreRequest(input);
     try {
-      DisconnectCustomKeyStoreResult result = _impl.disconnectCustomKeyStore(converted);
+      software.amazon.awssdk.services.kms.model.DisconnectCustomKeyStoreResponse result = _impl.disconnectCustomKeyStore(converted);
       DisconnectCustomKeyStoreResponse dafnyResponse = ToDafny.DisconnectCustomKeyStoreResponse(result);
       return Result.create_Success(dafnyResponse);
     } catch (CustomKeyStoreInvalidStateException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (CustomKeyStoreNotFoundException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInternalException ex) {
+    } catch (KmsInternalException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (AWSKMSException ex) {
+    } catch (KmsException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     }
   }
 
   @Override
   public Result<Tuple0, Error> EnableKey(EnableKeyRequest input) {
-    com.amazonaws.services.kms.model.EnableKeyRequest converted = ToNative.EnableKeyRequest(input);
+    software.amazon.awssdk.services.kms.model.EnableKeyRequest converted = ToNative.EnableKeyRequest(input);
     try {
       _impl.enableKey(converted);
       return Result.create_Success(Tuple0.create());
@@ -538,22 +507,22 @@ public class Shim implements IKeyManagementServiceClient {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (InvalidArnException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInternalException ex) {
+    } catch (KmsInternalException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInvalidStateException ex) {
+    } catch (KmsInvalidStateException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (LimitExceededException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (NotFoundException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (AWSKMSException ex) {
+    } catch (KmsException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     }
   }
 
   @Override
   public Result<Tuple0, Error> EnableKeyRotation(EnableKeyRotationRequest input) {
-    com.amazonaws.services.kms.model.EnableKeyRotationRequest converted = ToNative.EnableKeyRotationRequest(input);
+    software.amazon.awssdk.services.kms.model.EnableKeyRotationRequest converted = ToNative.EnableKeyRotationRequest(input);
     try {
       _impl.enableKeyRotation(converted);
       return Result.create_Success(Tuple0.create());
@@ -563,24 +532,24 @@ public class Shim implements IKeyManagementServiceClient {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (InvalidArnException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInternalException ex) {
+    } catch (KmsInternalException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInvalidStateException ex) {
+    } catch (KmsInvalidStateException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (NotFoundException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (UnsupportedOperationException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (AWSKMSException ex) {
+    } catch (KmsException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     }
   }
 
   @Override
   public Result<EncryptResponse, Error> Encrypt(EncryptRequest input) {
-    com.amazonaws.services.kms.model.EncryptRequest converted = ToNative.EncryptRequest(input);
+    software.amazon.awssdk.services.kms.model.EncryptRequest converted = ToNative.EncryptRequest(input);
     try {
-      EncryptResult result = _impl.encrypt(converted);
+      software.amazon.awssdk.services.kms.model.EncryptResponse result = _impl.encrypt(converted);
       EncryptResponse dafnyResponse = ToDafny.EncryptResponse(result);
       return Result.create_Success(dafnyResponse);
     } catch (DependencyTimeoutException ex) {
@@ -593,22 +562,22 @@ public class Shim implements IKeyManagementServiceClient {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (KeyUnavailableException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInternalException ex) {
+    } catch (KmsInternalException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInvalidStateException ex) {
+    } catch (KmsInvalidStateException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (NotFoundException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (AWSKMSException ex) {
+    } catch (KmsException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     }
   }
 
   @Override
   public Result<GenerateDataKeyResponse, Error> GenerateDataKey(GenerateDataKeyRequest input) {
-    com.amazonaws.services.kms.model.GenerateDataKeyRequest converted = ToNative.GenerateDataKeyRequest(input);
+    software.amazon.awssdk.services.kms.model.GenerateDataKeyRequest converted = ToNative.GenerateDataKeyRequest(input);
     try {
-      GenerateDataKeyResult result = _impl.generateDataKey(converted);
+      software.amazon.awssdk.services.kms.model.GenerateDataKeyResponse result = _impl.generateDataKey(converted);
       GenerateDataKeyResponse dafnyResponse = ToDafny.GenerateDataKeyResponse(result);
       return Result.create_Success(dafnyResponse);
     } catch (DependencyTimeoutException ex) {
@@ -621,13 +590,13 @@ public class Shim implements IKeyManagementServiceClient {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (KeyUnavailableException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInternalException ex) {
+    } catch (KmsInternalException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInvalidStateException ex) {
+    } catch (KmsInvalidStateException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (NotFoundException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (AWSKMSException ex) {
+    } catch (KmsException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     }
   }
@@ -635,9 +604,9 @@ public class Shim implements IKeyManagementServiceClient {
   @Override
   public Result<GenerateDataKeyPairResponse, Error> GenerateDataKeyPair(
       GenerateDataKeyPairRequest input) {
-    com.amazonaws.services.kms.model.GenerateDataKeyPairRequest converted = ToNative.GenerateDataKeyPairRequest(input);
+    software.amazon.awssdk.services.kms.model.GenerateDataKeyPairRequest converted = ToNative.GenerateDataKeyPairRequest(input);
     try {
-      GenerateDataKeyPairResult result = _impl.generateDataKeyPair(converted);
+      software.amazon.awssdk.services.kms.model.GenerateDataKeyPairResponse result = _impl.generateDataKeyPair(converted);
       GenerateDataKeyPairResponse dafnyResponse = ToDafny.GenerateDataKeyPairResponse(result);
       return Result.create_Success(dafnyResponse);
     } catch (DependencyTimeoutException ex) {
@@ -650,15 +619,15 @@ public class Shim implements IKeyManagementServiceClient {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (KeyUnavailableException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInternalException ex) {
+    } catch (KmsInternalException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInvalidStateException ex) {
+    } catch (KmsInvalidStateException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (NotFoundException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (UnsupportedOperationException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (AWSKMSException ex) {
+    } catch (KmsException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     }
   }
@@ -666,9 +635,9 @@ public class Shim implements IKeyManagementServiceClient {
   @Override
   public Result<GenerateDataKeyPairWithoutPlaintextResponse, Error> GenerateDataKeyPairWithoutPlaintext(
       GenerateDataKeyPairWithoutPlaintextRequest input) {
-    com.amazonaws.services.kms.model.GenerateDataKeyPairWithoutPlaintextRequest converted = ToNative.GenerateDataKeyPairWithoutPlaintextRequest(input);
+    software.amazon.awssdk.services.kms.model.GenerateDataKeyPairWithoutPlaintextRequest converted = ToNative.GenerateDataKeyPairWithoutPlaintextRequest(input);
     try {
-      GenerateDataKeyPairWithoutPlaintextResult result = _impl.generateDataKeyPairWithoutPlaintext(converted);
+      software.amazon.awssdk.services.kms.model.GenerateDataKeyPairWithoutPlaintextResponse result = _impl.generateDataKeyPairWithoutPlaintext(converted);
       GenerateDataKeyPairWithoutPlaintextResponse dafnyResponse = ToDafny.GenerateDataKeyPairWithoutPlaintextResponse(result);
       return Result.create_Success(dafnyResponse);
     } catch (DependencyTimeoutException ex) {
@@ -681,15 +650,15 @@ public class Shim implements IKeyManagementServiceClient {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (KeyUnavailableException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInternalException ex) {
+    } catch (KmsInternalException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInvalidStateException ex) {
+    } catch (KmsInvalidStateException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (NotFoundException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (UnsupportedOperationException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (AWSKMSException ex) {
+    } catch (KmsException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     }
   }
@@ -697,9 +666,9 @@ public class Shim implements IKeyManagementServiceClient {
   @Override
   public Result<GenerateDataKeyWithoutPlaintextResponse, Error> GenerateDataKeyWithoutPlaintext(
       GenerateDataKeyWithoutPlaintextRequest input) {
-    com.amazonaws.services.kms.model.GenerateDataKeyWithoutPlaintextRequest converted = ToNative.GenerateDataKeyWithoutPlaintextRequest(input);
+    software.amazon.awssdk.services.kms.model.GenerateDataKeyWithoutPlaintextRequest converted = ToNative.GenerateDataKeyWithoutPlaintextRequest(input);
     try {
-      GenerateDataKeyWithoutPlaintextResult result = _impl.generateDataKeyWithoutPlaintext(converted);
+      software.amazon.awssdk.services.kms.model.GenerateDataKeyWithoutPlaintextResponse result = _impl.generateDataKeyWithoutPlaintext(converted);
       GenerateDataKeyWithoutPlaintextResponse dafnyResponse = ToDafny.GenerateDataKeyWithoutPlaintextResponse(result);
       return Result.create_Success(dafnyResponse);
     } catch (DependencyTimeoutException ex) {
@@ -712,22 +681,22 @@ public class Shim implements IKeyManagementServiceClient {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (KeyUnavailableException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInternalException ex) {
+    } catch (KmsInternalException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInvalidStateException ex) {
+    } catch (KmsInvalidStateException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (NotFoundException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (AWSKMSException ex) {
+    } catch (KmsException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     }
   }
 
   @Override
   public Result<GenerateRandomResponse, Error> GenerateRandom(GenerateRandomRequest input) {
-    com.amazonaws.services.kms.model.GenerateRandomRequest converted = ToNative.GenerateRandomRequest(input);
+    software.amazon.awssdk.services.kms.model.GenerateRandomRequest converted = ToNative.GenerateRandomRequest(input);
     try {
-      GenerateRandomResult result = _impl.generateRandom(converted);
+      software.amazon.awssdk.services.kms.model.GenerateRandomResponse result = _impl.generateRandom(converted);
       GenerateRandomResponse dafnyResponse = ToDafny.GenerateRandomResponse(result);
       return Result.create_Success(dafnyResponse);
     } catch (CustomKeyStoreInvalidStateException ex) {
@@ -736,31 +705,31 @@ public class Shim implements IKeyManagementServiceClient {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (DependencyTimeoutException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInternalException ex) {
+    } catch (KmsInternalException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (AWSKMSException ex) {
+    } catch (KmsException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     }
   }
 
   @Override
   public Result<GetKeyPolicyResponse, Error> GetKeyPolicy(GetKeyPolicyRequest input) {
-    com.amazonaws.services.kms.model.GetKeyPolicyRequest converted = ToNative.GetKeyPolicyRequest(input);
+    software.amazon.awssdk.services.kms.model.GetKeyPolicyRequest converted = ToNative.GetKeyPolicyRequest(input);
     try {
-      GetKeyPolicyResult result = _impl.getKeyPolicy(converted);
+      software.amazon.awssdk.services.kms.model.GetKeyPolicyResponse result = _impl.getKeyPolicy(converted);
       GetKeyPolicyResponse dafnyResponse = ToDafny.GetKeyPolicyResponse(result);
       return Result.create_Success(dafnyResponse);
     } catch (DependencyTimeoutException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (InvalidArnException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInternalException ex) {
+    } catch (KmsInternalException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInvalidStateException ex) {
+    } catch (KmsInvalidStateException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (NotFoundException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (AWSKMSException ex) {
+    } catch (KmsException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     }
   }
@@ -768,24 +737,24 @@ public class Shim implements IKeyManagementServiceClient {
   @Override
   public Result<GetKeyRotationStatusResponse, Error> GetKeyRotationStatus(
       GetKeyRotationStatusRequest input) {
-    com.amazonaws.services.kms.model.GetKeyRotationStatusRequest converted = ToNative.GetKeyRotationStatusRequest(input);
+    software.amazon.awssdk.services.kms.model.GetKeyRotationStatusRequest converted = ToNative.GetKeyRotationStatusRequest(input);
     try {
-      GetKeyRotationStatusResult result = _impl.getKeyRotationStatus(converted);
+      software.amazon.awssdk.services.kms.model.GetKeyRotationStatusResponse result = _impl.getKeyRotationStatus(converted);
       GetKeyRotationStatusResponse dafnyResponse = ToDafny.GetKeyRotationStatusResponse(result);
       return Result.create_Success(dafnyResponse);
     } catch (DependencyTimeoutException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (InvalidArnException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInternalException ex) {
+    } catch (KmsInternalException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInvalidStateException ex) {
+    } catch (KmsInvalidStateException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (NotFoundException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (UnsupportedOperationException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (AWSKMSException ex) {
+    } catch (KmsException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     }
   }
@@ -793,33 +762,33 @@ public class Shim implements IKeyManagementServiceClient {
   @Override
   public Result<GetParametersForImportResponse, Error> GetParametersForImport(
       GetParametersForImportRequest input) {
-    com.amazonaws.services.kms.model.GetParametersForImportRequest converted = ToNative.GetParametersForImportRequest(input);
+    software.amazon.awssdk.services.kms.model.GetParametersForImportRequest converted = ToNative.GetParametersForImportRequest(input);
     try {
-      GetParametersForImportResult result = _impl.getParametersForImport(converted);
+      software.amazon.awssdk.services.kms.model.GetParametersForImportResponse result = _impl.getParametersForImport(converted);
       GetParametersForImportResponse dafnyResponse = ToDafny.GetParametersForImportResponse(result);
       return Result.create_Success(dafnyResponse);
     } catch (DependencyTimeoutException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (InvalidArnException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInternalException ex) {
+    } catch (KmsInternalException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInvalidStateException ex) {
+    } catch (KmsInvalidStateException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (NotFoundException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (UnsupportedOperationException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (AWSKMSException ex) {
+    } catch (KmsException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     }
   }
 
   @Override
   public Result<GetPublicKeyResponse, Error> GetPublicKey(GetPublicKeyRequest input) {
-    com.amazonaws.services.kms.model.GetPublicKeyRequest converted = ToNative.GetPublicKeyRequest(input);
+    software.amazon.awssdk.services.kms.model.GetPublicKeyRequest converted = ToNative.GetPublicKeyRequest(input);
     try {
-      GetPublicKeyResult result = _impl.getPublicKey(converted);
+      software.amazon.awssdk.services.kms.model.GetPublicKeyResponse result = _impl.getPublicKey(converted);
       GetPublicKeyResponse dafnyResponse = ToDafny.GetPublicKeyResponse(result);
       return Result.create_Success(dafnyResponse);
     } catch (DependencyTimeoutException ex) {
@@ -834,15 +803,15 @@ public class Shim implements IKeyManagementServiceClient {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (KeyUnavailableException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInternalException ex) {
+    } catch (KmsInternalException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInvalidStateException ex) {
+    } catch (KmsInvalidStateException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (NotFoundException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (UnsupportedOperationException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (AWSKMSException ex) {
+    } catch (KmsException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     }
   }
@@ -850,9 +819,9 @@ public class Shim implements IKeyManagementServiceClient {
   @Override
   public Result<ImportKeyMaterialResponse, Error> ImportKeyMaterial(
       ImportKeyMaterialRequest input) {
-    com.amazonaws.services.kms.model.ImportKeyMaterialRequest converted = ToNative.ImportKeyMaterialRequest(input);
+    software.amazon.awssdk.services.kms.model.ImportKeyMaterialRequest converted = ToNative.ImportKeyMaterialRequest(input);
     try {
-      ImportKeyMaterialResult result = _impl.importKeyMaterial(converted);
+      software.amazon.awssdk.services.kms.model.ImportKeyMaterialResponse result = _impl.importKeyMaterial(converted);
       ImportKeyMaterialResponse dafnyResponse = ToDafny.ImportKeyMaterialResponse(result);
       return Result.create_Success(dafnyResponse);
     } catch (DependencyTimeoutException ex) {
@@ -867,24 +836,24 @@ public class Shim implements IKeyManagementServiceClient {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (InvalidImportTokenException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInternalException ex) {
+    } catch (KmsInternalException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInvalidStateException ex) {
+    } catch (KmsInvalidStateException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (NotFoundException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (UnsupportedOperationException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (AWSKMSException ex) {
+    } catch (KmsException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     }
   }
 
   @Override
   public Result<ListAliasesResponse, Error> ListAliases(ListAliasesRequest input) {
-    com.amazonaws.services.kms.model.ListAliasesRequest converted = ToNative.ListAliasesRequest(input);
+    software.amazon.awssdk.services.kms.model.ListAliasesRequest converted = ToNative.ListAliasesRequest(input);
     try {
-      ListAliasesResult result = _impl.listAliases(converted);
+      software.amazon.awssdk.services.kms.model.ListAliasesResponse result = _impl.listAliases(converted);
       ListAliasesResponse dafnyResponse = ToDafny.ListAliasesResponse(result);
       return Result.create_Success(dafnyResponse);
     } catch (DependencyTimeoutException ex) {
@@ -893,20 +862,20 @@ public class Shim implements IKeyManagementServiceClient {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (InvalidMarkerException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInternalException ex) {
+    } catch (KmsInternalException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (NotFoundException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (AWSKMSException ex) {
+    } catch (KmsException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     }
   }
 
   @Override
   public Result<ListGrantsResponse, Error> ListGrants(ListGrantsRequest input) {
-    com.amazonaws.services.kms.model.ListGrantsRequest converted = ToNative.ListGrantsRequest(input);
+    software.amazon.awssdk.services.kms.model.ListGrantsRequest converted = ToNative.ListGrantsRequest(input);
     try {
-      ListGrantsResult result = _impl.listGrants(converted);
+      software.amazon.awssdk.services.kms.model.ListGrantsResponse result = _impl.listGrants(converted);
       ListGrantsResponse dafnyResponse = ToDafny.ListGrantsResponse(result);
       return Result.create_Success(dafnyResponse);
     } catch (DependencyTimeoutException ex) {
@@ -917,62 +886,62 @@ public class Shim implements IKeyManagementServiceClient {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (InvalidMarkerException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInternalException ex) {
+    } catch (KmsInternalException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInvalidStateException ex) {
+    } catch (KmsInvalidStateException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (NotFoundException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (AWSKMSException ex) {
+    } catch (KmsException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     }
   }
 
   @Override
   public Result<ListKeyPoliciesResponse, Error> ListKeyPolicies(ListKeyPoliciesRequest input) {
-    com.amazonaws.services.kms.model.ListKeyPoliciesRequest converted = ToNative.ListKeyPoliciesRequest(input);
+    software.amazon.awssdk.services.kms.model.ListKeyPoliciesRequest converted = ToNative.ListKeyPoliciesRequest(input);
     try {
-      ListKeyPoliciesResult result = _impl.listKeyPolicies(converted);
+      software.amazon.awssdk.services.kms.model.ListKeyPoliciesResponse result = _impl.listKeyPolicies(converted);
       ListKeyPoliciesResponse dafnyResponse = ToDafny.ListKeyPoliciesResponse(result);
       return Result.create_Success(dafnyResponse);
     } catch (DependencyTimeoutException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (InvalidArnException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInternalException ex) {
+    } catch (KmsInternalException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInvalidStateException ex) {
+    } catch (KmsInvalidStateException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (NotFoundException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (AWSKMSException ex) {
+    } catch (KmsException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     }
   }
 
   @Override
   public Result<ListResourceTagsResponse, Error> ListResourceTags(ListResourceTagsRequest input) {
-    com.amazonaws.services.kms.model.ListResourceTagsRequest converted = ToNative.ListResourceTagsRequest(input);
+    software.amazon.awssdk.services.kms.model.ListResourceTagsRequest converted = ToNative.ListResourceTagsRequest(input);
     try {
-      ListResourceTagsResult result = _impl.listResourceTags(converted);
+      software.amazon.awssdk.services.kms.model.ListResourceTagsResponse result = _impl.listResourceTags(converted);
       ListResourceTagsResponse dafnyResponse = ToDafny.ListResourceTagsResponse(result);
       return Result.create_Success(dafnyResponse);
     } catch (InvalidArnException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (InvalidMarkerException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInternalException ex) {
+    } catch (KmsInternalException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (NotFoundException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (AWSKMSException ex) {
+    } catch (KmsException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     }
   }
 
   @Override
   public Result<Tuple0, Error> PutKeyPolicy(PutKeyPolicyRequest input) {
-    com.amazonaws.services.kms.model.PutKeyPolicyRequest converted = ToNative.PutKeyPolicyRequest(input);
+    software.amazon.awssdk.services.kms.model.PutKeyPolicyRequest converted = ToNative.PutKeyPolicyRequest(input);
     try {
       _impl.putKeyPolicy(converted);
       return Result.create_Success(Tuple0.create());
@@ -980,9 +949,9 @@ public class Shim implements IKeyManagementServiceClient {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (InvalidArnException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInternalException ex) {
+    } catch (KmsInternalException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInvalidStateException ex) {
+    } catch (KmsInvalidStateException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (LimitExceededException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
@@ -992,16 +961,16 @@ public class Shim implements IKeyManagementServiceClient {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (UnsupportedOperationException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (AWSKMSException ex) {
+    } catch (KmsException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     }
   }
 
   @Override
   public Result<ReEncryptResponse, Error> ReEncrypt(ReEncryptRequest input) {
-    com.amazonaws.services.kms.model.ReEncryptRequest converted = ToNative.ReEncryptRequest(input);
+    software.amazon.awssdk.services.kms.model.ReEncryptRequest converted = ToNative.ReEncryptRequest(input);
     try {
-      ReEncryptResult result = _impl.reEncrypt(converted);
+      software.amazon.awssdk.services.kms.model.ReEncryptResponse result = _impl.reEncrypt(converted);
       ReEncryptResponse dafnyResponse = ToDafny.ReEncryptResponse(result);
       return Result.create_Success(dafnyResponse);
     } catch (DependencyTimeoutException ex) {
@@ -1018,22 +987,22 @@ public class Shim implements IKeyManagementServiceClient {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (KeyUnavailableException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInternalException ex) {
+    } catch (KmsInternalException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInvalidStateException ex) {
+    } catch (KmsInvalidStateException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (NotFoundException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (AWSKMSException ex) {
+    } catch (KmsException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     }
   }
 
   @Override
   public Result<ReplicateKeyResponse, Error> ReplicateKey(ReplicateKeyRequest input) {
-    com.amazonaws.services.kms.model.ReplicateKeyRequest converted = ToNative.ReplicateKeyRequest(input);
+    software.amazon.awssdk.services.kms.model.ReplicateKeyRequest converted = ToNative.ReplicateKeyRequest(input);
     try {
-      ReplicateKeyResult result = _impl.replicateKey(converted);
+      software.amazon.awssdk.services.kms.model.ReplicateKeyResponse result = _impl.replicateKey(converted);
       ReplicateKeyResponse dafnyResponse = ToDafny.ReplicateKeyResponse(result);
       return Result.create_Success(dafnyResponse);
     } catch (AlreadyExistsException ex) {
@@ -1042,9 +1011,9 @@ public class Shim implements IKeyManagementServiceClient {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (InvalidArnException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInternalException ex) {
+    } catch (KmsInternalException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInvalidStateException ex) {
+    } catch (KmsInvalidStateException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (LimitExceededException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
@@ -1056,14 +1025,14 @@ public class Shim implements IKeyManagementServiceClient {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (UnsupportedOperationException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (AWSKMSException ex) {
+    } catch (KmsException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     }
   }
 
   @Override
   public Result<Tuple0, Error> RetireGrant(RetireGrantRequest input) {
-    com.amazonaws.services.kms.model.RetireGrantRequest converted = ToNative.RetireGrantRequest(input);
+    software.amazon.awssdk.services.kms.model.RetireGrantRequest converted = ToNative.RetireGrantRequest(input);
     try {
       _impl.retireGrant(converted);
       return Result.create_Success(Tuple0.create());
@@ -1075,20 +1044,20 @@ public class Shim implements IKeyManagementServiceClient {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (InvalidGrantTokenException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInternalException ex) {
+    } catch (KmsInternalException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInvalidStateException ex) {
+    } catch (KmsInvalidStateException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (NotFoundException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (AWSKMSException ex) {
+    } catch (KmsException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     }
   }
 
   @Override
   public Result<Tuple0, Error> RevokeGrant(RevokeGrantRequest input) {
-    com.amazonaws.services.kms.model.RevokeGrantRequest converted = ToNative.RevokeGrantRequest(input);
+    software.amazon.awssdk.services.kms.model.RevokeGrantRequest converted = ToNative.RevokeGrantRequest(input);
     try {
       _impl.revokeGrant(converted);
       return Result.create_Success(Tuple0.create());
@@ -1098,13 +1067,13 @@ public class Shim implements IKeyManagementServiceClient {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (InvalidGrantIdException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInternalException ex) {
+    } catch (KmsInternalException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInvalidStateException ex) {
+    } catch (KmsInvalidStateException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (NotFoundException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (AWSKMSException ex) {
+    } catch (KmsException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     }
   }
@@ -1112,31 +1081,31 @@ public class Shim implements IKeyManagementServiceClient {
   @Override
   public Result<ScheduleKeyDeletionResponse, Error> ScheduleKeyDeletion(
       ScheduleKeyDeletionRequest input) {
-    com.amazonaws.services.kms.model.ScheduleKeyDeletionRequest converted = ToNative.ScheduleKeyDeletionRequest(input);
+    software.amazon.awssdk.services.kms.model.ScheduleKeyDeletionRequest converted = ToNative.ScheduleKeyDeletionRequest(input);
     try {
-      ScheduleKeyDeletionResult result = _impl.scheduleKeyDeletion(converted);
+      software.amazon.awssdk.services.kms.model.ScheduleKeyDeletionResponse result = _impl.scheduleKeyDeletion(converted);
       ScheduleKeyDeletionResponse dafnyResponse = ToDafny.ScheduleKeyDeletionResponse(result);
       return Result.create_Success(dafnyResponse);
     } catch (DependencyTimeoutException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (InvalidArnException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInternalException ex) {
+    } catch (KmsInternalException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInvalidStateException ex) {
+    } catch (KmsInvalidStateException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (NotFoundException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (AWSKMSException ex) {
+    } catch (KmsException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     }
   }
 
   @Override
   public Result<SignResponse, Error> Sign(SignRequest input) {
-    com.amazonaws.services.kms.model.SignRequest converted = ToNative.SignRequest(input);
+    software.amazon.awssdk.services.kms.model.SignRequest converted = ToNative.SignRequest(input);
     try {
-      SignResult result = _impl.sign(converted);
+      software.amazon.awssdk.services.kms.model.SignResponse result = _impl.sign(converted);
       SignResponse dafnyResponse = ToDafny.SignResponse(result);
       return Result.create_Success(dafnyResponse);
     } catch (DependencyTimeoutException ex) {
@@ -1149,28 +1118,28 @@ public class Shim implements IKeyManagementServiceClient {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (KeyUnavailableException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInternalException ex) {
+    } catch (KmsInternalException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInvalidStateException ex) {
+    } catch (KmsInvalidStateException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (NotFoundException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (AWSKMSException ex) {
+    } catch (KmsException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     }
   }
 
   @Override
   public Result<Tuple0, Error> TagResource(TagResourceRequest input) {
-    com.amazonaws.services.kms.model.TagResourceRequest converted = ToNative.TagResourceRequest(input);
+    software.amazon.awssdk.services.kms.model.TagResourceRequest converted = ToNative.TagResourceRequest(input);
     try {
       _impl.tagResource(converted);
       return Result.create_Success(Tuple0.create());
     } catch (InvalidArnException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInternalException ex) {
+    } catch (KmsInternalException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInvalidStateException ex) {
+    } catch (KmsInvalidStateException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (LimitExceededException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
@@ -1178,49 +1147,49 @@ public class Shim implements IKeyManagementServiceClient {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (TagException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (AWSKMSException ex) {
+    } catch (KmsException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     }
   }
 
   @Override
   public Result<Tuple0, Error> UntagResource(UntagResourceRequest input) {
-    com.amazonaws.services.kms.model.UntagResourceRequest converted = ToNative.UntagResourceRequest(input);
+    software.amazon.awssdk.services.kms.model.UntagResourceRequest converted = ToNative.UntagResourceRequest(input);
     try {
       _impl.untagResource(converted);
       return Result.create_Success(Tuple0.create());
     } catch (InvalidArnException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInternalException ex) {
+    } catch (KmsInternalException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInvalidStateException ex) {
+    } catch (KmsInvalidStateException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (NotFoundException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (TagException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (AWSKMSException ex) {
+    } catch (KmsException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     }
   }
 
   @Override
   public Result<Tuple0, Error> UpdateAlias(UpdateAliasRequest input) {
-    com.amazonaws.services.kms.model.UpdateAliasRequest converted = ToNative.UpdateAliasRequest(input);
+    software.amazon.awssdk.services.kms.model.UpdateAliasRequest converted = ToNative.UpdateAliasRequest(input);
     try {
       _impl.updateAlias(converted);
       return Result.create_Success(Tuple0.create());
     } catch (DependencyTimeoutException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInternalException ex) {
+    } catch (KmsInternalException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInvalidStateException ex) {
+    } catch (KmsInvalidStateException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (LimitExceededException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (NotFoundException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (AWSKMSException ex) {
+    } catch (KmsException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     }
   }
@@ -1228,9 +1197,9 @@ public class Shim implements IKeyManagementServiceClient {
   @Override
   public Result<UpdateCustomKeyStoreResponse, Error> UpdateCustomKeyStore(
       UpdateCustomKeyStoreRequest input) {
-    com.amazonaws.services.kms.model.UpdateCustomKeyStoreRequest converted = ToNative.UpdateCustomKeyStoreRequest(input);
+    software.amazon.awssdk.services.kms.model.UpdateCustomKeyStoreRequest converted = ToNative.UpdateCustomKeyStoreRequest(input);
     try {
-      UpdateCustomKeyStoreResult result = _impl.updateCustomKeyStore(converted);
+      software.amazon.awssdk.services.kms.model.UpdateCustomKeyStoreResponse result = _impl.updateCustomKeyStore(converted);
       UpdateCustomKeyStoreResponse dafnyResponse = ToDafny.UpdateCustomKeyStoreResponse(result);
       return Result.create_Success(dafnyResponse);
     } catch (CloudHsmClusterInvalidConfigurationException ex) {
@@ -1247,16 +1216,16 @@ public class Shim implements IKeyManagementServiceClient {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (CustomKeyStoreNotFoundException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInternalException ex) {
+    } catch (KmsInternalException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (AWSKMSException ex) {
+    } catch (KmsException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     }
   }
 
   @Override
   public Result<Tuple0, Error> UpdateKeyDescription(UpdateKeyDescriptionRequest input) {
-    com.amazonaws.services.kms.model.UpdateKeyDescriptionRequest converted = ToNative.UpdateKeyDescriptionRequest(input);
+    software.amazon.awssdk.services.kms.model.UpdateKeyDescriptionRequest converted = ToNative.UpdateKeyDescriptionRequest(input);
     try {
       _impl.updateKeyDescription(converted);
       return Result.create_Success(Tuple0.create());
@@ -1264,20 +1233,20 @@ public class Shim implements IKeyManagementServiceClient {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (InvalidArnException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInternalException ex) {
+    } catch (KmsInternalException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInvalidStateException ex) {
+    } catch (KmsInvalidStateException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (NotFoundException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (AWSKMSException ex) {
+    } catch (KmsException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     }
   }
 
   @Override
   public Result<Tuple0, Error> UpdatePrimaryRegion(UpdatePrimaryRegionRequest input) {
-    com.amazonaws.services.kms.model.UpdatePrimaryRegionRequest converted = ToNative.UpdatePrimaryRegionRequest(input);
+    software.amazon.awssdk.services.kms.model.UpdatePrimaryRegionRequest converted = ToNative.UpdatePrimaryRegionRequest(input);
     try {
       _impl.updatePrimaryRegion(converted);
       return Result.create_Success(Tuple0.create());
@@ -1285,24 +1254,24 @@ public class Shim implements IKeyManagementServiceClient {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (InvalidArnException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInternalException ex) {
+    } catch (KmsInternalException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInvalidStateException ex) {
+    } catch (KmsInvalidStateException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (NotFoundException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (UnsupportedOperationException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (AWSKMSException ex) {
+    } catch (KmsException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     }
   }
 
   @Override
   public Result<VerifyResponse, Error> Verify(VerifyRequest input) {
-    com.amazonaws.services.kms.model.VerifyRequest converted = ToNative.VerifyRequest(input);
+    software.amazon.awssdk.services.kms.model.VerifyRequest converted = ToNative.VerifyRequest(input);
     try {
-      VerifyResult result = _impl.verify(converted);
+      software.amazon.awssdk.services.kms.model.VerifyResponse result = _impl.verify(converted);
       VerifyResponse dafnyResponse = ToDafny.VerifyResponse(result);
       return Result.create_Success(dafnyResponse);
     } catch (DependencyTimeoutException ex) {
@@ -1315,15 +1284,15 @@ public class Shim implements IKeyManagementServiceClient {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (KeyUnavailableException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInternalException ex) {
+    } catch (KmsInternalException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInvalidSignatureException ex) {
+    } catch (KmsInvalidSignatureException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (KMSInvalidStateException ex) {
+    } catch (KmsInvalidStateException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (NotFoundException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
-    } catch (AWSKMSException ex) {
+    } catch (KmsException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     }
   }

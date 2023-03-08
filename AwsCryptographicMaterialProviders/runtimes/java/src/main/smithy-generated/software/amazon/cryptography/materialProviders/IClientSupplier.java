@@ -3,9 +3,9 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.materialProviders;
 
-import com.amazonaws.services.kms.AWSKMS;
+import software.amazon.awssdk.services.kms.KmsClient;
 import software.amazon.cryptography.materialProviders.model.GetClientInput;
 
 public interface IClientSupplier {
-  AWSKMS GetClient(GetClientInput nativeValue);
+  KmsClient GetClient(GetClientInput nativeValue);
 }
