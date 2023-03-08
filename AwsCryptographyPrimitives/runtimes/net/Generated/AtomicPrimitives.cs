@@ -7,7 +7,7 @@ using System;
  using AWS.Cryptography.Primitives;
  using Dafny.Aws.Cryptography.Primitives.Types; namespace AWS.Cryptography.Primitives {
  public class AtomicPrimitives {
- private readonly IAwsCryptographicPrimitivesClient _impl;
+ private readonly Dafny.Aws.Cryptography.Primitives.Types.IAwsCryptographicPrimitivesClient _impl;
  public AtomicPrimitives(AWS.Cryptography.Primitives.CryptoConfig input)
  {
  Dafny.Aws.Cryptography.Primitives.Types._ICryptoConfig internalInput = TypeConversion.ToDafny_N3_aws__N12_cryptography__N10_primitives__S12_CryptoConfig(input);

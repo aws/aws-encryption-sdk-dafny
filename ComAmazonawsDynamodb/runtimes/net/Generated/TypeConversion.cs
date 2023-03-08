@@ -4488,18 +4488,18 @@ throw new System.ArgumentException("Invalid Amazon.DynamoDBv2.TimeToLiveStatus v
 }
  internal static Amazon.DynamoDBv2.Model.ConsumedCapacity FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_ConsumedCapacity (Dafny.Com.Amazonaws.Dynamodb.Types._IConsumedCapacity value) {
  Dafny.Com.Amazonaws.Dynamodb.Types.ConsumedCapacity concrete = (Dafny.Com.Amazonaws.Dynamodb.Types.ConsumedCapacity)value; Amazon.DynamoDBv2.Model.ConsumedCapacity converted = new Amazon.DynamoDBv2.Model.ConsumedCapacity(); if (concrete._TableName.is_Some) converted.TableName = (string) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_ConsumedCapacity__M9_TableName(concrete._TableName);
- if (concrete._CapacityUnits.is_Some) converted.CapacityUnits = (int) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_ConsumedCapacity__M13_CapacityUnits(concrete._CapacityUnits);
- if (concrete._ReadCapacityUnits.is_Some) converted.ReadCapacityUnits = (int) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_ConsumedCapacity__M17_ReadCapacityUnits(concrete._ReadCapacityUnits);
- if (concrete._WriteCapacityUnits.is_Some) converted.WriteCapacityUnits = (int) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_ConsumedCapacity__M18_WriteCapacityUnits(concrete._WriteCapacityUnits);
+ if (concrete._CapacityUnits.is_Some) converted.CapacityUnits = (double) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_ConsumedCapacity__M13_CapacityUnits(concrete._CapacityUnits);
+ if (concrete._ReadCapacityUnits.is_Some) converted.ReadCapacityUnits = (double) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_ConsumedCapacity__M17_ReadCapacityUnits(concrete._ReadCapacityUnits);
+ if (concrete._WriteCapacityUnits.is_Some) converted.WriteCapacityUnits = (double) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_ConsumedCapacity__M18_WriteCapacityUnits(concrete._WriteCapacityUnits);
  if (concrete._Table.is_Some) converted.Table = (Amazon.DynamoDBv2.Model.Capacity) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_ConsumedCapacity__M5_Table(concrete._Table);
  if (concrete._LocalSecondaryIndexes.is_Some) converted.LocalSecondaryIndexes = (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.Capacity>) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_ConsumedCapacity__M21_LocalSecondaryIndexes(concrete._LocalSecondaryIndexes);
  if (concrete._GlobalSecondaryIndexes.is_Some) converted.GlobalSecondaryIndexes = (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.Capacity>) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_ConsumedCapacity__M22_GlobalSecondaryIndexes(concrete._GlobalSecondaryIndexes); return converted;
 }
  internal static Dafny.Com.Amazonaws.Dynamodb.Types._IConsumedCapacity ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_ConsumedCapacity (Amazon.DynamoDBv2.Model.ConsumedCapacity value) {
  string var_tableName = value.TableName;
- int? var_capacityUnits = (int) value.CapacityUnits;
- int? var_readCapacityUnits = (int) value.ReadCapacityUnits;
- int? var_writeCapacityUnits = (int) value.WriteCapacityUnits;
+ double? var_capacityUnits = value.CapacityUnits;
+ double? var_readCapacityUnits = value.ReadCapacityUnits;
+ double? var_writeCapacityUnits = value.WriteCapacityUnits;
  Amazon.DynamoDBv2.Model.Capacity var_table = value.Table;
  System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.Capacity> var_localSecondaryIndexes = value.LocalSecondaryIndexes;
  System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.Capacity> var_globalSecondaryIndexes = value.GlobalSecondaryIndexes;
@@ -4511,7 +4511,7 @@ throw new System.ArgumentException("Invalid Amazon.DynamoDBv2.TimeToLiveStatus v
 }
  internal static Dafny.Com.Amazonaws.Dynamodb.Types._IItemCollectionMetrics ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S21_ItemCollectionMetrics (Amazon.DynamoDBv2.Model.ItemCollectionMetrics value) {
  System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> var_itemCollectionKey = value.ItemCollectionKey;
- System.Collections.Generic.List<int> var_sizeEstimateRangeGB = value.SizeEstimateRangeGB.Select(i => (int) i).ToList();
+ System.Collections.Generic.List<double> var_sizeEstimateRangeGB = value.SizeEstimateRangeGB;
  return new Dafny.Com.Amazonaws.Dynamodb.Types.ItemCollectionMetrics ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S21_ItemCollectionMetrics__M17_ItemCollectionKey(var_itemCollectionKey) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S21_ItemCollectionMetrics__M19_SizeEstimateRangeGB(var_sizeEstimateRangeGB) ) ;
 }
  internal static Amazon.DynamoDBv2.Model.ContinuousBackupsDescription FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S28_ContinuousBackupsDescription (Dafny.Com.Amazonaws.Dynamodb.Types._IContinuousBackupsDescription value) {
@@ -5620,23 +5620,23 @@ return Dafny.Sequence<char>.FromString(timestampString);
  internal static Wrappers_Compile._IOption<Dafny.ISequence<char>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_ConsumedCapacity__M9_TableName (string value) {
  return value == null ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S9_TableName((string) value));
 }
- internal static int? FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_ConsumedCapacity__M13_CapacityUnits (Wrappers_Compile._IOption<int> value) {
- return value.is_None ? (int?) null : FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S21_ConsumedCapacityUnits(value.Extract());
+ internal static double? FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_ConsumedCapacity__M13_CapacityUnits (Wrappers_Compile._IOption<Dafny.ISequence<byte>> value) {
+ return value.is_None ? (double?) null : FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S21_ConsumedCapacityUnits(value.Extract());
 }
- internal static Wrappers_Compile._IOption<int> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_ConsumedCapacity__M13_CapacityUnits (int? value) {
- return value == null ? Wrappers_Compile.Option<int>.create_None() : Wrappers_Compile.Option<int>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S21_ConsumedCapacityUnits((int) value));
+ internal static Wrappers_Compile._IOption<Dafny.ISequence<byte>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_ConsumedCapacity__M13_CapacityUnits (double? value) {
+ return value == null ? Wrappers_Compile.Option<Dafny.ISequence<byte>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<byte>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S21_ConsumedCapacityUnits((double) value));
 }
- internal static int? FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_ConsumedCapacity__M17_ReadCapacityUnits (Wrappers_Compile._IOption<int> value) {
- return value.is_None ? (int?) null : FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S21_ConsumedCapacityUnits(value.Extract());
+ internal static double? FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_ConsumedCapacity__M17_ReadCapacityUnits (Wrappers_Compile._IOption<Dafny.ISequence<byte>> value) {
+ return value.is_None ? (double?) null : FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S21_ConsumedCapacityUnits(value.Extract());
 }
- internal static Wrappers_Compile._IOption<int> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_ConsumedCapacity__M17_ReadCapacityUnits (int? value) {
- return value == null ? Wrappers_Compile.Option<int>.create_None() : Wrappers_Compile.Option<int>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S21_ConsumedCapacityUnits((int) value));
+ internal static Wrappers_Compile._IOption<Dafny.ISequence<byte>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_ConsumedCapacity__M17_ReadCapacityUnits (double? value) {
+ return value == null ? Wrappers_Compile.Option<Dafny.ISequence<byte>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<byte>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S21_ConsumedCapacityUnits((double) value));
 }
- internal static int? FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_ConsumedCapacity__M18_WriteCapacityUnits (Wrappers_Compile._IOption<int> value) {
- return value.is_None ? (int?) null : FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S21_ConsumedCapacityUnits(value.Extract());
+ internal static double? FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_ConsumedCapacity__M18_WriteCapacityUnits (Wrappers_Compile._IOption<Dafny.ISequence<byte>> value) {
+ return value.is_None ? (double?) null : FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S21_ConsumedCapacityUnits(value.Extract());
 }
- internal static Wrappers_Compile._IOption<int> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_ConsumedCapacity__M18_WriteCapacityUnits (int? value) {
- return value == null ? Wrappers_Compile.Option<int>.create_None() : Wrappers_Compile.Option<int>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S21_ConsumedCapacityUnits((int) value));
+ internal static Wrappers_Compile._IOption<Dafny.ISequence<byte>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_ConsumedCapacity__M18_WriteCapacityUnits (double? value) {
+ return value == null ? Wrappers_Compile.Option<Dafny.ISequence<byte>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<byte>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S21_ConsumedCapacityUnits((double) value));
 }
  internal static Amazon.DynamoDBv2.Model.Capacity FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_ConsumedCapacity__M5_Table (Wrappers_Compile._IOption<Dafny.Com.Amazonaws.Dynamodb.Types._ICapacity> value) {
  return value.is_None ? (Amazon.DynamoDBv2.Model.Capacity) null : FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S8_Capacity(value.Extract());
@@ -5662,11 +5662,11 @@ return Dafny.Sequence<char>.FromString(timestampString);
  internal static Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, Dafny.Com.Amazonaws.Dynamodb.Types._IAttributeValue>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S21_ItemCollectionMetrics__M17_ItemCollectionKey (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> value) {
  return value == null ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.Com.Amazonaws.Dynamodb.Types._IAttributeValue>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.Com.Amazonaws.Dynamodb.Types._IAttributeValue>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S29_ItemCollectionKeyAttributeMap((System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>) value));
 }
- internal static System.Collections.Generic.List<int> FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S21_ItemCollectionMetrics__M19_SizeEstimateRangeGB (Wrappers_Compile._IOption<Dafny.ISequence<int>> value) {
- return value.is_None ? (System.Collections.Generic.List<int>) null : FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S31_ItemCollectionSizeEstimateRange(value.Extract());
+ internal static System.Collections.Generic.List<double> FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S21_ItemCollectionMetrics__M19_SizeEstimateRangeGB (Wrappers_Compile._IOption<Dafny.ISequence<Dafny.ISequence<byte>>> value) {
+ return value.is_None ? (System.Collections.Generic.List<double>) null : FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S31_ItemCollectionSizeEstimateRange(value.Extract());
 }
- internal static Wrappers_Compile._IOption<Dafny.ISequence<int>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S21_ItemCollectionMetrics__M19_SizeEstimateRangeGB (System.Collections.Generic.List<int> value) {
- return value == null ? Wrappers_Compile.Option<Dafny.ISequence<int>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<int>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S31_ItemCollectionSizeEstimateRange((System.Collections.Generic.List<int>) value));
+ internal static Wrappers_Compile._IOption<Dafny.ISequence<Dafny.ISequence<byte>>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S21_ItemCollectionMetrics__M19_SizeEstimateRangeGB (System.Collections.Generic.List<double> value) {
+ return value == null ? Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<byte>>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<byte>>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S31_ItemCollectionSizeEstimateRange((System.Collections.Generic.List<double>) value));
 }
  internal static Amazon.DynamoDBv2.ContinuousBackupsStatus FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S28_ContinuousBackupsDescription__M23_ContinuousBackupsStatus (Dafny.Com.Amazonaws.Dynamodb.Types._IContinuousBackupsStatus value) {
  return FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S23_ContinuousBackupsStatus(value);
@@ -6569,21 +6569,21 @@ return Dafny.Sequence<char>.FromString(timestampString);
  internal static Dafny.ISequence<char> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S32_ExpressionAttributeValueVariable (string value) {
  return Dafny.Sequence<char>.FromString(value);
 }
- internal static int FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S21_ConsumedCapacityUnits (int value) {
- return value;
+ internal static double FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S21_ConsumedCapacityUnits (Dafny.ISequence<byte> value) {
+ return BitConverter.ToDouble(value.CloneAsArray(), 0);
 }
- internal static int ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S21_ConsumedCapacityUnits (int value) {
- return value;
+ internal static Dafny.ISequence<byte> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S21_ConsumedCapacityUnits (double value) {
+ return Dafny.Sequence<byte>.FromArray(BitConverter.GetBytes(value));
 }
  internal static Amazon.DynamoDBv2.Model.Capacity FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S8_Capacity (Dafny.Com.Amazonaws.Dynamodb.Types._ICapacity value) {
- Dafny.Com.Amazonaws.Dynamodb.Types.Capacity concrete = (Dafny.Com.Amazonaws.Dynamodb.Types.Capacity)value; Amazon.DynamoDBv2.Model.Capacity converted = new Amazon.DynamoDBv2.Model.Capacity(); if (concrete._ReadCapacityUnits.is_Some) converted.ReadCapacityUnits = (int) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S8_Capacity__M17_ReadCapacityUnits(concrete._ReadCapacityUnits);
- if (concrete._WriteCapacityUnits.is_Some) converted.WriteCapacityUnits = (int) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S8_Capacity__M18_WriteCapacityUnits(concrete._WriteCapacityUnits);
- if (concrete._CapacityUnits.is_Some) converted.CapacityUnits = (int) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S8_Capacity__M13_CapacityUnits(concrete._CapacityUnits); return converted;
+ Dafny.Com.Amazonaws.Dynamodb.Types.Capacity concrete = (Dafny.Com.Amazonaws.Dynamodb.Types.Capacity)value; Amazon.DynamoDBv2.Model.Capacity converted = new Amazon.DynamoDBv2.Model.Capacity(); if (concrete._ReadCapacityUnits.is_Some) converted.ReadCapacityUnits = (double) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S8_Capacity__M17_ReadCapacityUnits(concrete._ReadCapacityUnits);
+ if (concrete._WriteCapacityUnits.is_Some) converted.WriteCapacityUnits = (double) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S8_Capacity__M18_WriteCapacityUnits(concrete._WriteCapacityUnits);
+ if (concrete._CapacityUnits.is_Some) converted.CapacityUnits = (double) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S8_Capacity__M13_CapacityUnits(concrete._CapacityUnits); return converted;
 }
  internal static Dafny.Com.Amazonaws.Dynamodb.Types._ICapacity ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S8_Capacity (Amazon.DynamoDBv2.Model.Capacity value) {
- int? var_readCapacityUnits = (int) value.ReadCapacityUnits;
- int? var_writeCapacityUnits = (int) value.WriteCapacityUnits;
- int? var_capacityUnits = (int) value.CapacityUnits;
+ double? var_readCapacityUnits = value.ReadCapacityUnits;
+ double? var_writeCapacityUnits = value.WriteCapacityUnits;
+ double? var_capacityUnits = value.CapacityUnits;
  return new Dafny.Com.Amazonaws.Dynamodb.Types.Capacity ( ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S8_Capacity__M17_ReadCapacityUnits(var_readCapacityUnits) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S8_Capacity__M18_WriteCapacityUnits(var_writeCapacityUnits) , ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S8_Capacity__M13_CapacityUnits(var_capacityUnits) ) ;
 }
  internal static System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.Capacity> FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S27_SecondaryIndexesCapacityMap (Dafny.IMap<Dafny.ISequence<char>, Dafny.Com.Amazonaws.Dynamodb.Types._ICapacity> value) {
@@ -6602,11 +6602,11 @@ return Dafny.Sequence<char>.FromString(timestampString);
     new Dafny.Pair<Dafny.ISequence<char>, Dafny.Com.Amazonaws.Dynamodb.Types._IAttributeValue>(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S29_ItemCollectionKeyAttributeMap__M3_key(pair.Key), ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S29_ItemCollectionKeyAttributeMap__M5_value(pair.Value))
 ));
 }
- internal static System.Collections.Generic.List<int> FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S31_ItemCollectionSizeEstimateRange (Dafny.ISequence<int> value) {
- return new System.Collections.Generic.List<int>(value.Elements.Select(FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S31_ItemCollectionSizeEstimateRange__M6_member));
+ internal static System.Collections.Generic.List<double> FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S31_ItemCollectionSizeEstimateRange (Dafny.ISequence<Dafny.ISequence<byte>> value) {
+ return new System.Collections.Generic.List<double>(value.Elements.Select(FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S31_ItemCollectionSizeEstimateRange__M6_member));
 }
- internal static Dafny.ISequence<int> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S31_ItemCollectionSizeEstimateRange (System.Collections.Generic.List<int> value) {
- return Dafny.Sequence<int>.FromArray(value.Select(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S31_ItemCollectionSizeEstimateRange__M6_member).ToArray());
+ internal static Dafny.ISequence<Dafny.ISequence<byte>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S31_ItemCollectionSizeEstimateRange (System.Collections.Generic.List<double> value) {
+ return Dafny.Sequence<Dafny.ISequence<byte>>.FromArray(value.Select(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S31_ItemCollectionSizeEstimateRange__M6_member).ToArray());
 }
  internal static Amazon.DynamoDBv2.Model.PointInTimeRecoveryDescription FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S30_PointInTimeRecoveryDescription (Dafny.Com.Amazonaws.Dynamodb.Types._IPointInTimeRecoveryDescription value) {
  Dafny.Com.Amazonaws.Dynamodb.Types.PointInTimeRecoveryDescription concrete = (Dafny.Com.Amazonaws.Dynamodb.Types.PointInTimeRecoveryDescription)value; Amazon.DynamoDBv2.Model.PointInTimeRecoveryDescription converted = new Amazon.DynamoDBv2.Model.PointInTimeRecoveryDescription(); if (concrete._PointInTimeRecoveryStatus.is_Some) converted.PointInTimeRecoveryStatus = (Amazon.DynamoDBv2.PointInTimeRecoveryStatus) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S30_PointInTimeRecoveryDescription__M25_PointInTimeRecoveryStatus(concrete._PointInTimeRecoveryStatus);
@@ -7447,23 +7447,23 @@ return Dafny.Sequence<char>.FromString(timestampString);
  internal static Wrappers_Compile._IOption<Dafny.ISequence<Dafny.Com.Amazonaws.Dynamodb.Types._IAttributeValue>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S22_ExpectedAttributeValue__M18_AttributeValueList (System.Collections.Generic.List<Amazon.DynamoDBv2.Model.AttributeValue> value) {
  return value == null ? Wrappers_Compile.Option<Dafny.ISequence<Dafny.Com.Amazonaws.Dynamodb.Types._IAttributeValue>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<Dafny.Com.Amazonaws.Dynamodb.Types._IAttributeValue>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S18_AttributeValueList((System.Collections.Generic.List<Amazon.DynamoDBv2.Model.AttributeValue>) value));
 }
- internal static int? FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S8_Capacity__M17_ReadCapacityUnits (Wrappers_Compile._IOption<int> value) {
- return value.is_None ? (int?) null : FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S21_ConsumedCapacityUnits(value.Extract());
+ internal static double? FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S8_Capacity__M17_ReadCapacityUnits (Wrappers_Compile._IOption<Dafny.ISequence<byte>> value) {
+ return value.is_None ? (double?) null : FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S21_ConsumedCapacityUnits(value.Extract());
 }
- internal static Wrappers_Compile._IOption<int> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S8_Capacity__M17_ReadCapacityUnits (int? value) {
- return value == null ? Wrappers_Compile.Option<int>.create_None() : Wrappers_Compile.Option<int>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S21_ConsumedCapacityUnits((int) value));
+ internal static Wrappers_Compile._IOption<Dafny.ISequence<byte>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S8_Capacity__M17_ReadCapacityUnits (double? value) {
+ return value == null ? Wrappers_Compile.Option<Dafny.ISequence<byte>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<byte>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S21_ConsumedCapacityUnits((double) value));
 }
- internal static int? FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S8_Capacity__M18_WriteCapacityUnits (Wrappers_Compile._IOption<int> value) {
- return value.is_None ? (int?) null : FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S21_ConsumedCapacityUnits(value.Extract());
+ internal static double? FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S8_Capacity__M18_WriteCapacityUnits (Wrappers_Compile._IOption<Dafny.ISequence<byte>> value) {
+ return value.is_None ? (double?) null : FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S21_ConsumedCapacityUnits(value.Extract());
 }
- internal static Wrappers_Compile._IOption<int> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S8_Capacity__M18_WriteCapacityUnits (int? value) {
- return value == null ? Wrappers_Compile.Option<int>.create_None() : Wrappers_Compile.Option<int>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S21_ConsumedCapacityUnits((int) value));
+ internal static Wrappers_Compile._IOption<Dafny.ISequence<byte>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S8_Capacity__M18_WriteCapacityUnits (double? value) {
+ return value == null ? Wrappers_Compile.Option<Dafny.ISequence<byte>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<byte>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S21_ConsumedCapacityUnits((double) value));
 }
- internal static int? FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S8_Capacity__M13_CapacityUnits (Wrappers_Compile._IOption<int> value) {
- return value.is_None ? (int?) null : FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S21_ConsumedCapacityUnits(value.Extract());
+ internal static double? FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S8_Capacity__M13_CapacityUnits (Wrappers_Compile._IOption<Dafny.ISequence<byte>> value) {
+ return value.is_None ? (double?) null : FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S21_ConsumedCapacityUnits(value.Extract());
 }
- internal static Wrappers_Compile._IOption<int> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S8_Capacity__M13_CapacityUnits (int? value) {
- return value == null ? Wrappers_Compile.Option<int>.create_None() : Wrappers_Compile.Option<int>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S21_ConsumedCapacityUnits((int) value));
+ internal static Wrappers_Compile._IOption<Dafny.ISequence<byte>> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S8_Capacity__M13_CapacityUnits (double? value) {
+ return value == null ? Wrappers_Compile.Option<Dafny.ISequence<byte>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<byte>>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S21_ConsumedCapacityUnits((double) value));
 }
  internal static string FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S27_SecondaryIndexesCapacityMap__M3_key (Dafny.ISequence<char> value) {
  return FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S9_IndexName(value);
@@ -7489,10 +7489,10 @@ return Dafny.Sequence<char>.FromString(timestampString);
  internal static Dafny.Com.Amazonaws.Dynamodb.Types._IAttributeValue ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S29_ItemCollectionKeyAttributeMap__M5_value (Amazon.DynamoDBv2.Model.AttributeValue value) {
  return ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S14_AttributeValue(value);
 }
- internal static int FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S31_ItemCollectionSizeEstimateRange__M6_member (int value) {
+ internal static double FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S31_ItemCollectionSizeEstimateRange__M6_member (Dafny.ISequence<byte> value) {
  return FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S31_ItemCollectionSizeEstimateBound(value);
 }
- internal static int ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S31_ItemCollectionSizeEstimateRange__M6_member (int value) {
+ internal static Dafny.ISequence<byte> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S31_ItemCollectionSizeEstimateRange__M6_member (double value) {
  return ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S31_ItemCollectionSizeEstimateBound(value);
 }
  internal static Amazon.DynamoDBv2.PointInTimeRecoveryStatus FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S30_PointInTimeRecoveryDescription__M25_PointInTimeRecoveryStatus (Wrappers_Compile._IOption<Dafny.Com.Amazonaws.Dynamodb.Types._IPointInTimeRecoveryStatus> value) {
@@ -8155,11 +8155,11 @@ return Dafny.Sequence<char>.FromString(timestampString);
  internal static Dafny.ISequence<Dafny.Com.Amazonaws.Dynamodb.Types._IAttributeValue> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S18_AttributeValueList (System.Collections.Generic.List<Amazon.DynamoDBv2.Model.AttributeValue> value) {
  return Dafny.Sequence<Dafny.Com.Amazonaws.Dynamodb.Types._IAttributeValue>.FromArray(value.Select(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S18_AttributeValueList__M6_member).ToArray());
 }
- internal static int FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S31_ItemCollectionSizeEstimateBound (int value) {
- return value;
+ internal static double FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S31_ItemCollectionSizeEstimateBound (Dafny.ISequence<byte> value) {
+ return BitConverter.ToDouble(value.CloneAsArray(), 0);
 }
- internal static int ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S31_ItemCollectionSizeEstimateBound (int value) {
- return value;
+ internal static Dafny.ISequence<byte> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S31_ItemCollectionSizeEstimateBound (double value) {
+ return Dafny.Sequence<byte>.FromArray(BitConverter.GetBytes(value));
 }
  internal static Amazon.DynamoDBv2.Model.AutoScalingSettingsDescription FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S30_AutoScalingSettingsDescription (Dafny.Com.Amazonaws.Dynamodb.Types._IAutoScalingSettingsDescription value) {
  Dafny.Com.Amazonaws.Dynamodb.Types.AutoScalingSettingsDescription concrete = (Dafny.Com.Amazonaws.Dynamodb.Types.AutoScalingSettingsDescription)value; Amazon.DynamoDBv2.Model.AutoScalingSettingsDescription converted = new Amazon.DynamoDBv2.Model.AutoScalingSettingsDescription(); if (concrete._MinimumUnits.is_Some) converted.MinimumUnits = (long) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S30_AutoScalingSettingsDescription__M12_MinimumUnits(concrete._MinimumUnits);
@@ -8310,7 +8310,7 @@ return Dafny.Sequence<char>.FromString(timestampString);
  Dafny.Com.Amazonaws.Dynamodb.Types.AutoScalingTargetTrackingScalingPolicyConfigurationUpdate concrete = (Dafny.Com.Amazonaws.Dynamodb.Types.AutoScalingTargetTrackingScalingPolicyConfigurationUpdate)value; Amazon.DynamoDBv2.Model.AutoScalingTargetTrackingScalingPolicyConfigurationUpdate converted = new Amazon.DynamoDBv2.Model.AutoScalingTargetTrackingScalingPolicyConfigurationUpdate(); if (concrete._DisableScaleIn.is_Some) converted.DisableScaleIn = (bool) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S57_AutoScalingTargetTrackingScalingPolicyConfigurationUpdate__M14_DisableScaleIn(concrete._DisableScaleIn);
  if (concrete._ScaleInCooldown.is_Some) converted.ScaleInCooldown = (int) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S57_AutoScalingTargetTrackingScalingPolicyConfigurationUpdate__M15_ScaleInCooldown(concrete._ScaleInCooldown);
  if (concrete._ScaleOutCooldown.is_Some) converted.ScaleOutCooldown = (int) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S57_AutoScalingTargetTrackingScalingPolicyConfigurationUpdate__M16_ScaleOutCooldown(concrete._ScaleOutCooldown);
-  converted.TargetValue = (int) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S57_AutoScalingTargetTrackingScalingPolicyConfigurationUpdate__M11_TargetValue(concrete._TargetValue); return converted;
+  converted.TargetValue = (double) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S57_AutoScalingTargetTrackingScalingPolicyConfigurationUpdate__M11_TargetValue(concrete._TargetValue); return converted;
 }
  internal static Dafny.Com.Amazonaws.Dynamodb.Types._IAutoScalingTargetTrackingScalingPolicyConfigurationUpdate ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S57_AutoScalingTargetTrackingScalingPolicyConfigurationUpdate (Amazon.DynamoDBv2.Model.AutoScalingTargetTrackingScalingPolicyConfigurationUpdate value) {
  bool? var_disableScaleIn = value.DisableScaleIn;
@@ -8870,10 +8870,10 @@ return Dafny.Sequence<char>.FromString(timestampString);
  internal static Wrappers_Compile._IOption<int> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S57_AutoScalingTargetTrackingScalingPolicyConfigurationUpdate__M16_ScaleOutCooldown (int? value) {
  return value == null ? Wrappers_Compile.Option<int>.create_None() : Wrappers_Compile.Option<int>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S13_IntegerObject((int) value));
 }
- internal static int FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S57_AutoScalingTargetTrackingScalingPolicyConfigurationUpdate__M11_TargetValue (int value) {
+ internal static double FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S57_AutoScalingTargetTrackingScalingPolicyConfigurationUpdate__M11_TargetValue (Dafny.ISequence<byte> value) {
  return FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S6_Double(value);
 }
- internal static int ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S57_AutoScalingTargetTrackingScalingPolicyConfigurationUpdate__M11_TargetValue (int value) {
+ internal static Dafny.ISequence<byte> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S57_AutoScalingTargetTrackingScalingPolicyConfigurationUpdate__M11_TargetValue (double value) {
  return ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S6_Double(value);
 }
  internal static Amazon.DynamoDBv2.Model.ReplicaGlobalSecondaryIndexSettingsUpdate FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S45_ReplicaGlobalSecondaryIndexSettingsUpdateList__M6_member (Dafny.Com.Amazonaws.Dynamodb.Types._IReplicaGlobalSecondaryIndexSettingsUpdate value) {
@@ -9111,11 +9111,11 @@ return Dafny.Sequence<char>.FromString(timestampString);
  internal static int ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S13_IntegerObject (int value) {
  return value;
 }
- internal static int FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S6_Double (int value) {
- return value;
+ internal static double FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S6_Double (Dafny.ISequence<byte> value) {
+ return BitConverter.ToDouble(value.CloneAsArray(), 0);
 }
- internal static int ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S6_Double (int value) {
- return value;
+ internal static Dafny.ISequence<byte> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S6_Double (double value) {
+ return Dafny.Sequence<byte>.FromArray(BitConverter.GetBytes(value));
 }
  internal static Amazon.DynamoDBv2.Model.ReplicaGlobalSecondaryIndexSettingsUpdate FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S41_ReplicaGlobalSecondaryIndexSettingsUpdate (Dafny.Com.Amazonaws.Dynamodb.Types._IReplicaGlobalSecondaryIndexSettingsUpdate value) {
  Dafny.Com.Amazonaws.Dynamodb.Types.ReplicaGlobalSecondaryIndexSettingsUpdate concrete = (Dafny.Com.Amazonaws.Dynamodb.Types.ReplicaGlobalSecondaryIndexSettingsUpdate)value; Amazon.DynamoDBv2.Model.ReplicaGlobalSecondaryIndexSettingsUpdate converted = new Amazon.DynamoDBv2.Model.ReplicaGlobalSecondaryIndexSettingsUpdate();  converted.IndexName = (string) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S41_ReplicaGlobalSecondaryIndexSettingsUpdate__M9_IndexName(concrete._IndexName);
@@ -9407,7 +9407,7 @@ return Dafny.Sequence<char>.FromString(timestampString);
  Dafny.Com.Amazonaws.Dynamodb.Types.AutoScalingTargetTrackingScalingPolicyConfigurationDescription concrete = (Dafny.Com.Amazonaws.Dynamodb.Types.AutoScalingTargetTrackingScalingPolicyConfigurationDescription)value; Amazon.DynamoDBv2.Model.AutoScalingTargetTrackingScalingPolicyConfigurationDescription converted = new Amazon.DynamoDBv2.Model.AutoScalingTargetTrackingScalingPolicyConfigurationDescription(); if (concrete._DisableScaleIn.is_Some) converted.DisableScaleIn = (bool) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S62_AutoScalingTargetTrackingScalingPolicyConfigurationDescription__M14_DisableScaleIn(concrete._DisableScaleIn);
  if (concrete._ScaleInCooldown.is_Some) converted.ScaleInCooldown = (int) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S62_AutoScalingTargetTrackingScalingPolicyConfigurationDescription__M15_ScaleInCooldown(concrete._ScaleInCooldown);
  if (concrete._ScaleOutCooldown.is_Some) converted.ScaleOutCooldown = (int) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S62_AutoScalingTargetTrackingScalingPolicyConfigurationDescription__M16_ScaleOutCooldown(concrete._ScaleOutCooldown);
-  converted.TargetValue = (int) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S62_AutoScalingTargetTrackingScalingPolicyConfigurationDescription__M11_TargetValue(concrete._TargetValue); return converted;
+  converted.TargetValue = (double) FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S62_AutoScalingTargetTrackingScalingPolicyConfigurationDescription__M11_TargetValue(concrete._TargetValue); return converted;
 }
  internal static Dafny.Com.Amazonaws.Dynamodb.Types._IAutoScalingTargetTrackingScalingPolicyConfigurationDescription ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S62_AutoScalingTargetTrackingScalingPolicyConfigurationDescription (Amazon.DynamoDBv2.Model.AutoScalingTargetTrackingScalingPolicyConfigurationDescription value) {
  bool? var_disableScaleIn = value.DisableScaleIn;
@@ -9433,10 +9433,10 @@ return Dafny.Sequence<char>.FromString(timestampString);
  internal static Wrappers_Compile._IOption<int> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S62_AutoScalingTargetTrackingScalingPolicyConfigurationDescription__M16_ScaleOutCooldown (int? value) {
  return value == null ? Wrappers_Compile.Option<int>.create_None() : Wrappers_Compile.Option<int>.create_Some(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S13_IntegerObject((int) value));
 }
- internal static int FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S62_AutoScalingTargetTrackingScalingPolicyConfigurationDescription__M11_TargetValue (int value) {
+ internal static double FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S62_AutoScalingTargetTrackingScalingPolicyConfigurationDescription__M11_TargetValue (Dafny.ISequence<byte> value) {
  return FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S6_Double(value);
 }
- internal static int ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S62_AutoScalingTargetTrackingScalingPolicyConfigurationDescription__M11_TargetValue (int value) {
+ internal static Dafny.ISequence<byte> ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S62_AutoScalingTargetTrackingScalingPolicyConfigurationDescription__M11_TargetValue (double value) {
  return ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S6_Double(value);
 }
  internal static string FromDafny_N6_smithy__N3_api__S6_String (Dafny.ISequence<char> value) {

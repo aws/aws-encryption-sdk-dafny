@@ -15,3 +15,4 @@ specification_compliance_report.html
 
 */**/.idea/
 /compliance
+/.smithy.lsp.log

@@ -1,18 +1,19 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
+// Extern code for AWS SDK for Java V2
 package Dafny.Com.Amazonaws.Kms;
 
-import com.amazonaws.regions.DefaultAwsRegionProviderChain;
-import com.amazonaws.services.kms.AWSKMS;
-import com.amazonaws.services.kms.AWSKMSClient;
-import com.amazonaws.services.kms.AWSKMSClientBuilder;
+import dafny.DafnySequence;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.regions.providers.AwsRegionProviderChain;
+import software.amazon.awssdk.regions.providers.DefaultAwsRegionProviderChain;
+import software.amazon.awssdk.services.kms.KmsClient;
+import software.amazon.awssdk.services.kms.KmsClientBuilder;
 
 import Dafny.Com.Amazonaws.Kms.Types.Error;
 import Dafny.Com.Amazonaws.Kms.Types.IKeyManagementServiceClient;
 import Wrappers_Compile.Option;
 import Wrappers_Compile.Result;
-import dafny.DafnySequence;
-
 
 import static software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence;
 import static software.amazon.dafny.conversion.ToNative.Simple.String;
@@ -20,29 +21,38 @@ import static software.amazon.dafny.conversion.ToNative.Simple.String;
 public class __default extends Dafny.Com.Amazonaws.Kms._ExternBase___default{
     public static Result<IKeyManagementServiceClient, Error> KMSClient() {
         try {
-            // TODO This assumes that the SDK will continue to default to using the DefaulAwsRegionProviderChain.
-            // If this is ever not true in the future, then the behavior here may be surprising.
-            // Determine the likelihood/impact of this changing, and if this is the correct tradeoff to make.
-            String region = new DefaultAwsRegionProviderChain().getRegion();
-
-            AWSKMS client = AWSKMSClientBuilder.standard()
-                                               .withRegion(region)
-                                               .build();
+            KmsClientBuilder builder = KmsClient.builder();
+            AwsRegionProviderChain regionProvider = DefaultAwsRegionProviderChain.builder().build();
+            String region = regionProvider.getRegion().toString();
+            KmsClient client = builder.build();
             IKeyManagementServiceClient shim = new Shim(client, region);
             return Result.create_Success(shim);
         } catch (Exception e) {
             Error dafny_error = Error.create_KMSInternalException(
-                    Option.create_Some(CharacterSequence(e.getMessage())));
+              Option.create_Some(CharacterSequence(e.getMessage())));
+            return Result.create_Failure(dafny_error);
+        }
+    }
+
+    public static Result<IKeyManagementServiceClient, Error> KMSClient(final String region) {
+        try {
+            KmsClientBuilder builder = KmsClient.builder();
+            KmsClient client = builder.region(Region.of(region)).build();
+            IKeyManagementServiceClient shim = new Shim(client, region);
+            return Result.create_Success(shim);
+        } catch (Exception e) {
+            Error dafny_error = Error.create_KMSInternalException(
+              Option.create_Some(CharacterSequence(e.getMessage())));
             return Result.create_Failure(dafny_error);
         }
     }
 
     public static Wrappers_Compile.Option<Boolean> RegionMatch(
-            final IKeyManagementServiceClient client,
-            final DafnySequence<? extends Character> region
+      final IKeyManagementServiceClient client,
+      final DafnySequence<? extends Character> region
     ) {
         // We should never be passing anything other than Shim as the 'client'.
-        // If this cast fails, that indicates that there is something wrong with
+        // If this cast fails, that indicates that there is something wrong withß
         // our code generation.
         Shim shim = (Shim) client;
 

@@ -23,16 +23,16 @@ public final class Keyring implements IKeyring {
     this._impl = iKeyring;
   }
 
-  public static Keyring create(Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring iKeyring) {
+  public static Keyring wrap(Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring iKeyring) {
     return new Keyring(iKeyring);
   }
 
-  public static <I extends IKeyring> Keyring create(I iKeyring) {
+  public static <I extends IKeyring> Keyring wrap(I iKeyring) {
     Objects.requireNonNull(iKeyring, "Missing value for required argument `iKeyring`");
     if (iKeyring instanceof software.amazon.cryptography.materialProviders.Keyring) {
       return ((Keyring) iKeyring);
     }
-    return Keyring.create(new NativeWrapper(iKeyring));
+    return Keyring.wrap(new NativeWrapper(iKeyring));
   }
 
   public Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring impl() {

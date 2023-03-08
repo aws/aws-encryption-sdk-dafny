@@ -295,7 +295,10 @@ include "../../StandardLibrary/src/Index.dfy"
  nameonly GlobalSecondaryIndexes: Option<SecondaryIndexesCapacityMap>
  )
  type ConsumedCapacityMultiple = seq<ConsumedCapacity>
- type ConsumedCapacityUnits = int32
+ type ConsumedCapacityUnits = x: seq<uint8> | IsValid_ConsumedCapacityUnits(x) witness *
+ predicate method IsValid_ConsumedCapacityUnits(x: seq<uint8>) {
+ ( 8 <= |x| <= 8 )
+}
  datatype ContinuousBackupsDescription = | ContinuousBackupsDescription (
  nameonly ContinuousBackupsStatus: ContinuousBackupsStatus ,
  nameonly PointInTimeRecoveryDescription: Option<PointInTimeRecoveryDescription>
@@ -535,7 +538,10 @@ include "../../StandardLibrary/src/Index.dfy"
  nameonly StreamArn: Option<StreamArn> ,
  nameonly DestinationStatus: Option<DestinationStatus>
  )
- type Double = int32
+ type Double = x: seq<uint8> | IsValid_Double(x) witness *
+ predicate method IsValid_Double(x: seq<uint8>) {
+ ( 8 <= |x| <= 8 )
+}
  class IDynamoDB_20120810ClientCallHistory {
  ghost constructor() {
  BatchExecuteStatement := [];
@@ -1760,7 +1766,10 @@ include "../../StandardLibrary/src/Index.dfy"
  )
  type ItemCollectionMetricsMultiple = seq<ItemCollectionMetrics>
  type ItemCollectionMetricsPerTable = map<TableName, ItemCollectionMetricsMultiple>
- type ItemCollectionSizeEstimateBound = int32
+ type ItemCollectionSizeEstimateBound = x: seq<uint8> | IsValid_ItemCollectionSizeEstimateBound(x) witness *
+ predicate method IsValid_ItemCollectionSizeEstimateBound(x: seq<uint8>) {
+ ( 8 <= |x| <= 8 )
+}
  type ItemCollectionSizeEstimateRange = seq<ItemCollectionSizeEstimateBound>
  type ItemCount = x: int64 | IsValid_ItemCount(x) witness *
  predicate method IsValid_ItemCount(x: int64) {

@@ -1,4 +1,4 @@
-# ERATA
+# ERRATA
 
 This AWS-DDB module is a work in progress, and currently requires some updates in order to successfully build a model and corresponding types with Polymorph.
 
@@ -57,13 +57,13 @@ Have the same definition as:
 
 ### Smithy->Java Missing Union Support
 
-The Smithy->Java codegen does not currently handle Union types.
-ToNative and ToDafny were modified to include correct conversions for DDB Union types.
+Smithy-Polymorph has since been updated to support Union.
 
 ### Smithy->Java ToDafny/ToNative missing conversion for Outputs/Inputs
 
-Currently the generated ToDafny only converts DDB Inputs nad ToNative only converts DDB Outputs.
-ToNative and ToDanfy were modified so that both performed conversions for both Inputs and Outputs.
+Smithy-Polymorph has since been updated to support:
+- ToDafny conversion for Outputs.
+- ToNative conversion for Inputs.
 
 ### Java type name inconsistencies
 
@@ -85,19 +85,31 @@ Note that this means that currently information is lost when converting from Jav
 The API reference specifies that this should be a Double, so this is a case were we should
 instead fix the DDB model.
 
-### Not generating CancellationReason/CancellationReasonList
+([Since 2020/10/05, the DDB Smithy model has declared `ConsumedCapacityUnits` a double](
+https://github.com/aws/aws-models/blame/bf750f19766048467c676f6841053f9da6c87bf3/dynamodb/smithy/model.json#L1491).
+It is probable that WE changed it to integer, and did not document that change.)
 
-Smithy->Java was not generating CancellationReason/CancellationReasonList, which are modelled in the TransactionCanceledException.
-Code to handle this type was manually added.
+#### All Integer/Double inconsistencies
+This matter was not limited to just Java, 
+as the model was changed. 
+- `com.amazonaws.dynamodb#ConsumedCapacityUnits`
+- `com.amazonaws.dynamodb#ItemCollectionSizeEstimateBound`
+- `com.amazonaws.dynamodb#Double`:
+  - `com.amazonaws.dynamodb#AutoScalingTargetTrackingScalingPolicyConfigurationDescription$TargetValue`
+  - `com.amazonaws.dynamodb#AutoScalingTargetTrackingScalingPolicyConfigurationUpdate$TargetValue`
+
+We are un-doing these undocumented changes right now (2023/02/20),
+so that we can consistently generate the correct behavior
+(throw a Runtime Exception).
+
+### Not generating CancellationReason/CancellationReasonList (in Java Only)
+
+Smithy-Polymorph's Java has since been updated to generate all Shapes related to
+the error shapes of a Service or it's operations.
 
 ### AWS SDK Java v2
 
-Smithy->Java did not immediately support v2 names and convensions.
-The following changes were made:
-
-- com.amazonaws.services.dynamodbv2 -> software.amazon.awssdk.services.dynamodb
-- AmazonDynamoDB -> DynamoDbClient
-- Java SDK v2 method name conventions for objects and object Builders (i.e. no "get" or "set).
+Smithy-Polymorph has since been updated to support AWS SDK V2 Naming conventions.
 
 ### AWS SDK Java types for "null" Maps and Lists
 
@@ -115,4 +127,3 @@ ToDafny conversions were manually updated to check the type information on Maps 
 if the input was this type, and if so represent it as "None" in Dafny.
 
 There may be a better way to handle this discrepency going forward, we should confirm with the SDK team.
-

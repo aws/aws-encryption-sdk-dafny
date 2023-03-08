@@ -3,12 +3,12 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.materialProviders.model;
 
-import com.amazonaws.services.kms.AWSKMS;
 import java.util.List;
 import java.util.Objects;
+import software.amazon.awssdk.services.kms.KmsClient;
 
 public class CreateAwsKmsDiscoveryKeyringInput {
-  private final AWSKMS kmsClient;
+  private final KmsClient kmsClient;
 
   private final DiscoveryFilter discoveryFilter;
 
@@ -20,7 +20,7 @@ public class CreateAwsKmsDiscoveryKeyringInput {
     this.grantTokens = builder.grantTokens();
   }
 
-  public AWSKMS kmsClient() {
+  public KmsClient kmsClient() {
     return this.kmsClient;
   }
 
@@ -41,9 +41,9 @@ public class CreateAwsKmsDiscoveryKeyringInput {
   }
 
   public interface Builder {
-    Builder kmsClient(AWSKMS kmsClient);
+    Builder kmsClient(KmsClient kmsClient);
 
-    AWSKMS kmsClient();
+    KmsClient kmsClient();
 
     Builder discoveryFilter(DiscoveryFilter discoveryFilter);
 
@@ -57,7 +57,7 @@ public class CreateAwsKmsDiscoveryKeyringInput {
   }
 
   static class BuilderImpl implements Builder {
-    protected AWSKMS kmsClient;
+    protected KmsClient kmsClient;
 
     protected DiscoveryFilter discoveryFilter;
 
@@ -72,12 +72,12 @@ public class CreateAwsKmsDiscoveryKeyringInput {
       this.grantTokens = model.grantTokens();
     }
 
-    public Builder kmsClient(AWSKMS kmsClient) {
+    public Builder kmsClient(KmsClient kmsClient) {
       this.kmsClient = kmsClient;
       return this;
     }
 
-    public AWSKMS kmsClient() {
+    public KmsClient kmsClient() {
       return this.kmsClient;
     }
 

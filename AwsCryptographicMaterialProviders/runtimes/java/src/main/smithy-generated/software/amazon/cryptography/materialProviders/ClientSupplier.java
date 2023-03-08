@@ -7,10 +7,10 @@ import Dafny.Aws.Cryptography.MaterialProviders.Types.Error;
 import Dafny.Com.Amazonaws.Kms.Shim;
 import Dafny.Com.Amazonaws.Kms.Types.IKeyManagementServiceClient;
 import Wrappers_Compile.Result;
-import com.amazonaws.services.kms.AWSKMS;
 import java.lang.Exception;
 import java.lang.IllegalArgumentException;
 import java.util.Objects;
+import software.amazon.awssdk.services.kms.KmsClient;
 import software.amazon.cryptography.materialProviders.model.GetClientInput;
 import software.amazon.cryptography.materialProviders.model.NativeError;
 import software.amazon.cryptography.materialProviders.model.OpaqueError;
@@ -24,30 +24,30 @@ public final class ClientSupplier implements IClientSupplier {
     this._impl = iClientSupplier;
   }
 
-  public static ClientSupplier create(
+  public static ClientSupplier wrap(
       Dafny.Aws.Cryptography.MaterialProviders.Types.IClientSupplier iClientSupplier) {
     return new ClientSupplier(iClientSupplier);
   }
 
-  public static <I extends IClientSupplier> ClientSupplier create(I iClientSupplier) {
+  public static <I extends IClientSupplier> ClientSupplier wrap(I iClientSupplier) {
     Objects.requireNonNull(iClientSupplier, "Missing value for required argument `iClientSupplier`");
     if (iClientSupplier instanceof software.amazon.cryptography.materialProviders.ClientSupplier) {
       return ((ClientSupplier) iClientSupplier);
     }
-    return ClientSupplier.create(new NativeWrapper(iClientSupplier));
+    return ClientSupplier.wrap(new NativeWrapper(iClientSupplier));
   }
 
   public Dafny.Aws.Cryptography.MaterialProviders.Types.IClientSupplier impl() {
     return this._impl;
   }
 
-  public AWSKMS GetClient(GetClientInput nativeValue) {
+  public KmsClient GetClient(GetClientInput nativeValue) {
     Dafny.Aws.Cryptography.MaterialProviders.Types.GetClientInput dafnyValue = ToDafny.GetClientInput(nativeValue);
     Result<IKeyManagementServiceClient, Error> result = this._impl.GetClient(dafnyValue);
     if (result.is_Failure()) {
       throw ToNative.Error(result.dtor_error());
     }
-    return ((Shim) result.dtor_value()).impl();
+    return Dafny.Com.Amazonaws.Kms.ToNative.KeyManagementService(result.dtor_value());
   }
 
   private static final class NativeWrapper implements Dafny.Aws.Cryptography.MaterialProviders.Types.IClientSupplier {
@@ -64,8 +64,8 @@ public final class ClientSupplier implements IClientSupplier {
         Dafny.Aws.Cryptography.MaterialProviders.Types.GetClientInput dafnyInput) {
       GetClientInput nativeInput = ToNative.GetClientInput(dafnyInput);
       try {
-        AWSKMS nativeOutput = this._impl.GetClient(nativeInput);
-        IKeyManagementServiceClient dafnyOutput = new Shim(nativeOutput, nativeInput.region());
+        KmsClient nativeOutput = this._impl.GetClient(nativeInput);
+        IKeyManagementServiceClient dafnyOutput = new Shim(nativeOutput, null);
         return Result.create_Success(dafnyOutput);
       } catch (NativeError ex) {
         return Result.create_Failure(ToDafny.Error(ex));

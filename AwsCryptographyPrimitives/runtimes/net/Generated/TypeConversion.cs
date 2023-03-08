@@ -869,6 +869,7 @@ throw new System.ArgumentException("Invalid AWS.Cryptography.Primitives.RSAPaddi
  public static System.Exception FromDafny_CommonError(Dafny.Aws.Cryptography.Primitives.Types._IError value) {
  switch(value)
  {
+
  case Dafny.Aws.Cryptography.Primitives.Types.Error_AwsCryptographicPrimitivesError dafnyVal:
 return FromDafny_N3_aws__N12_cryptography__N10_primitives__S31_AwsCryptographicPrimitivesError(dafnyVal);
  case Dafny.Aws.Cryptography.Primitives.Types.Error_CollectionOfErrors dafnyVal:
@@ -881,6 +882,7 @@ return FromDafny_N3_aws__N12_cryptography__N10_primitives__S31_AwsCryptographicP
 }
 }
  public static Dafny.Aws.Cryptography.Primitives.Types._IError ToDafny_CommonError(System.Exception value) {
+
  switch (value)
  {
  case AWS.Cryptography.Primitives.AwsCryptographicPrimitivesError exception:

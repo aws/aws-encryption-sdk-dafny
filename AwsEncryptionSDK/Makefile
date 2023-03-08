@@ -12,4 +12,6 @@ MAX_RESOURCE_COUNT=200000000
 LIBRARIES := \
 	StandardLibrary \
 	AwsCryptographyPrimitives \
-	AwsCryptographicMaterialProviders
+	AwsCryptographicMaterialProviders \
+	ComAmazonawsKms \
+	ComAmazonawsDynamodb
