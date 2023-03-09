@@ -32,6 +32,7 @@ module AwsKmsHierarchicalKeyring {
   import KMS = ComAmazonawsKmsTypes
   import DDB = ComAmazonawsDynamodbTypes
   import UTF8
+  import UUID
   import HKDF
   import HMAC
   import opened AESEncryption
@@ -66,8 +67,8 @@ module AwsKmsHierarchicalKeyring {
     ivLength := AES_256_ENC_IV_LENGTH
   );
 
-  const EXPECTED_EDK_CIPHERTEXT_LENGTH := 112;
-  const EDK_CIPHERTEXT_VERSION_LENGTH: int32 := 36;
+  const EXPECTED_EDK_CIPHERTEXT_LENGTH := 92;
+  const EDK_CIPHERTEXT_VERSION_LENGTH: int32 := 16;
   const EDK_CIPHERTEXT_BRANCH_KEY_VERSION_INDEX := H_WRAP_SALT_LEN + H_WRAP_NONCE_LEN; 
   const EDK_CIPHERTEXT_VERSION_INDEX := EDK_CIPHERTEXT_BRANCH_KEY_VERSION_INDEX + EDK_CIPHERTEXT_VERSION_LENGTH;
   const EDK_CIPHERTEXT_KEY_INDEX := EDK_CIPHERTEXT_VERSION_INDEX + AES_256_ENC_KEY_LENGTH;
@@ -277,14 +278,16 @@ module AwsKmsHierarchicalKeyring {
       //# 1. [encryption context](structures.md#encryption-context-1) from the input
       //#   [encryption materials](../structures.md#encryption-materials) in the same format as the serialization of
       //#   [message header AAD key value pairs](../../data-format/message-header.md#key-value-pairs).
-      var wrappingAad := WrappingAad(branchKeyIdUtf8, branchKeyVersion, aad);
+      var branchKeyVersionAsString :- UTF8.Decode(branchKeyVersion).MapFailure(WrapStringToError);
+      var branchKeyVersionAsBytes :- UUID.ToByteArray(branchKeyVersionAsString).MapFailure(WrapStringToError);
+      var wrappingAad := WrappingAad(branchKeyIdUtf8, branchKeyVersionAsBytes, aad);
       
       var wrappedPdk :- BranchKeyWrapping(hierarchicalMaterials, plaintextDataKey, nonce, salt, wrappingAad, cryptoPrimitives);
 
+
       // TODO above we wrapped a key according to the standard ESDK Hierarchy Spec
       // For DBE we have to perform additional wrapping - coming in a followup PR
-      // TODO decode branchKeyVersion to get the plain bytes here instead of the UTF8 Bytes
-      var serializedEdk := salt + nonce + branchKeyVersion + wrappedPdk.cipherText + wrappedPdk.authTag;
+      var serializedEdk := salt + nonce + branchKeyVersionAsBytes + wrappedPdk.cipherText + wrappedPdk.authTag;
 
       var edk := Types.EncryptedDataKey(
         //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-hierarchical-keyring.md#onencrypt
@@ -922,7 +925,7 @@ module AwsKmsHierarchicalKeyring {
       ensures Ensures(edk, res, attemptsState)
     {
       :- Need (
-        // Salt = 16, IV = 12, Version = 36, Encrypted Key = 32, Authentication Tag = 16
+        // Salt = 16, IV = 12, Version = 16, Encrypted Key = 32, Authentication Tag = 16
         && |edk.ciphertext| == EXPECTED_EDK_CIPHERTEXT_LENGTH
         && UTF8.ValidUTF8Seq(edk.keyProviderInfo),
         Types.AwsCryptographicMaterialProvidersException(message := "Received EDK Ciphertext of incorrect length.")
@@ -942,9 +945,11 @@ module AwsKmsHierarchicalKeyring {
       
       var hierarchicalMaterials :- GetHierarchicalMaterialsVersion(branchKeyId, branchKeyIdUtf8, branchKeyVersionUuid);
       var branchKey := hierarchicalMaterials.branchKey;
-      var branchKeyVersionUtf8 := hierarchicalMaterials.branchKeyVersion;
+      var branchKeyVersion := hierarchicalMaterials.branchKeyVersion;
+      var branchKeyVersionAsString :- UTF8.Decode(branchKeyVersion).MapFailure(WrapStringToError);
+      var branchKeyVersionAsBytes :- UUID.ToByteArray(branchKeyVersionAsString).MapFailure(WrapStringToError);
       
-      var wrappingAad := WrappingAad(branchKeyIdUtf8, branchKeyVersionUtf8, aad);
+      var wrappingAad := WrappingAad(branchKeyIdUtf8, branchKeyVersionAsBytes, aad);
       var pdk :- BranchKeyUnwrapping(hierarchicalMaterials, wrappedKey, iv, salt, wrappingAad, authTag, cryptoPrimitives);
 
       :- Need(
@@ -969,12 +974,13 @@ module AwsKmsHierarchicalKeyring {
     )
       returns (material: Result<Types.HierarchicalMaterials, Types.Error>)
       // TODO Define valid HierarchicalMaterials such that we can ensure they are correct
+      requires |branchKeyVersion| == 16
       requires Invariant()
       requires ddbClient.ValidState() && kmsClient.ValidState() && cryptoPrimitives.ValidState()
       modifies ddbClient.Modifies, kmsClient.Modifies, cryptoPrimitives.Modifies
       ensures ddbClient.ValidState() && kmsClient.ValidState() && cryptoPrimitives.ValidState()
     {
-      var version :- UTF8.Decode(branchKeyVersion).MapFailure(WrapStringToError);
+      var version :- UUID.FromByteArray(branchKeyVersion).MapFailure(WrapStringToError);
 
       var dynamoDbKey: DDB.Key := map[
         BRANCH_KEY_IDENTIFIER_FIELD := DDB.AttributeValue.S(branchKeyId),
