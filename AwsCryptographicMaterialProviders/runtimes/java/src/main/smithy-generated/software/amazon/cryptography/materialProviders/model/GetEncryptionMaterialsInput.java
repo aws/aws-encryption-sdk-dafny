@@ -3,6 +3,7 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.materialProviders.model;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -15,11 +16,14 @@ public class GetEncryptionMaterialsInput {
 
   private final Long maxPlaintextLength;
 
+  private final List<String> requiredEncryptionContextKeys;
+
   protected GetEncryptionMaterialsInput(BuilderImpl builder) {
     this.encryptionContext = builder.encryptionContext();
     this.commitmentPolicy = builder.commitmentPolicy();
     this.algorithmSuiteId = builder.algorithmSuiteId();
     this.maxPlaintextLength = builder.maxPlaintextLength();
+    this.requiredEncryptionContextKeys = builder.requiredEncryptionContextKeys();
   }
 
   public Map<String, String> encryptionContext() {
@@ -36,6 +40,10 @@ public class GetEncryptionMaterialsInput {
 
   public Long maxPlaintextLength() {
     return this.maxPlaintextLength;
+  }
+
+  public List<String> requiredEncryptionContextKeys() {
+    return this.requiredEncryptionContextKeys;
   }
 
   public Builder toBuilder() {
@@ -63,6 +71,10 @@ public class GetEncryptionMaterialsInput {
 
     Long maxPlaintextLength();
 
+    Builder requiredEncryptionContextKeys(List<String> requiredEncryptionContextKeys);
+
+    List<String> requiredEncryptionContextKeys();
+
     GetEncryptionMaterialsInput build();
   }
 
@@ -75,6 +87,8 @@ public class GetEncryptionMaterialsInput {
 
     protected Long maxPlaintextLength;
 
+    protected List<String> requiredEncryptionContextKeys;
+
     protected BuilderImpl() {
     }
 
@@ -83,6 +97,7 @@ public class GetEncryptionMaterialsInput {
       this.commitmentPolicy = model.commitmentPolicy();
       this.algorithmSuiteId = model.algorithmSuiteId();
       this.maxPlaintextLength = model.maxPlaintextLength();
+      this.requiredEncryptionContextKeys = model.requiredEncryptionContextKeys();
     }
 
     public Builder encryptionContext(Map<String, String> encryptionContext) {
@@ -119,6 +134,15 @@ public class GetEncryptionMaterialsInput {
 
     public Long maxPlaintextLength() {
       return this.maxPlaintextLength;
+    }
+
+    public Builder requiredEncryptionContextKeys(List<String> requiredEncryptionContextKeys) {
+      this.requiredEncryptionContextKeys = requiredEncryptionContextKeys;
+      return this;
+    }
+
+    public List<String> requiredEncryptionContextKeys() {
+      return this.requiredEncryptionContextKeys;
     }
 
     public GetEncryptionMaterialsInput build() {

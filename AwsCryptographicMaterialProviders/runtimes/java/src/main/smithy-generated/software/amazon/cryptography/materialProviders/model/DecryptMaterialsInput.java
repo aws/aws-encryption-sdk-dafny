@@ -16,11 +16,14 @@ public class DecryptMaterialsInput {
 
   private final Map<String, String> encryptionContext;
 
+  private final Map<String, String> reproducedEncryptionContext;
+
   protected DecryptMaterialsInput(BuilderImpl builder) {
     this.algorithmSuiteId = builder.algorithmSuiteId();
     this.commitmentPolicy = builder.commitmentPolicy();
     this.encryptedDataKeys = builder.encryptedDataKeys();
     this.encryptionContext = builder.encryptionContext();
+    this.reproducedEncryptionContext = builder.reproducedEncryptionContext();
   }
 
   public AlgorithmSuiteId algorithmSuiteId() {
@@ -37,6 +40,10 @@ public class DecryptMaterialsInput {
 
   public Map<String, String> encryptionContext() {
     return this.encryptionContext;
+  }
+
+  public Map<String, String> reproducedEncryptionContext() {
+    return this.reproducedEncryptionContext;
   }
 
   public Builder toBuilder() {
@@ -64,6 +71,10 @@ public class DecryptMaterialsInput {
 
     Map<String, String> encryptionContext();
 
+    Builder reproducedEncryptionContext(Map<String, String> reproducedEncryptionContext);
+
+    Map<String, String> reproducedEncryptionContext();
+
     DecryptMaterialsInput build();
   }
 
@@ -76,6 +87,8 @@ public class DecryptMaterialsInput {
 
     protected Map<String, String> encryptionContext;
 
+    protected Map<String, String> reproducedEncryptionContext;
+
     protected BuilderImpl() {
     }
 
@@ -84,6 +97,7 @@ public class DecryptMaterialsInput {
       this.commitmentPolicy = model.commitmentPolicy();
       this.encryptedDataKeys = model.encryptedDataKeys();
       this.encryptionContext = model.encryptionContext();
+      this.reproducedEncryptionContext = model.reproducedEncryptionContext();
     }
 
     public Builder algorithmSuiteId(AlgorithmSuiteId algorithmSuiteId) {
@@ -120,6 +134,15 @@ public class DecryptMaterialsInput {
 
     public Map<String, String> encryptionContext() {
       return this.encryptionContext;
+    }
+
+    public Builder reproducedEncryptionContext(Map<String, String> reproducedEncryptionContext) {
+      this.reproducedEncryptionContext = reproducedEncryptionContext;
+      return this;
+    }
+
+    public Map<String, String> reproducedEncryptionContext() {
+      return this.reproducedEncryptionContext;
     }
 
     public DecryptMaterialsInput build() {

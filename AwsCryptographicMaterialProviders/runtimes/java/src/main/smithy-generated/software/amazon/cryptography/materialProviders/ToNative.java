@@ -205,6 +205,7 @@ public class ToNative {
     InitializeDecryptionMaterialsInput.Builder nativeBuilder = InitializeDecryptionMaterialsInput.builder();
     nativeBuilder.algorithmSuiteId(ToNative.AlgorithmSuiteId(dafnyValue.dtor_algorithmSuiteId()));
     nativeBuilder.encryptionContext(ToNative.EncryptionContext(dafnyValue.dtor_encryptionContext()));
+    nativeBuilder.requiredEncryptionContextKeys(ToNative.EncryptionContextKeys(dafnyValue.dtor_requiredEncryptionContextKeys()));
     return nativeBuilder.build();
   }
 
@@ -219,6 +220,7 @@ public class ToNative {
     nativeBuilder.algorithmSuite(ToNative.AlgorithmSuiteInfo(dafnyValue.dtor_algorithmSuite()));
     nativeBuilder.encryptionContext(ToNative.EncryptionContext(dafnyValue.dtor_encryptionContext()));
     nativeBuilder.encryptedDataKeys(ToNative.EncryptedDataKeyList(dafnyValue.dtor_encryptedDataKeys()));
+    nativeBuilder.requiredEncryptionContextKeys(ToNative.EncryptionContextKeys(dafnyValue.dtor_requiredEncryptionContextKeys()));
     if (dafnyValue.dtor_plaintextDataKey().is_Some()) {
       nativeBuilder.plaintextDataKey(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_plaintextDataKey().dtor_value()));
     }
@@ -340,6 +342,9 @@ public class ToNative {
     nativeBuilder.commitmentPolicy(ToNative.CommitmentPolicy(dafnyValue.dtor_commitmentPolicy()));
     nativeBuilder.encryptedDataKeys(ToNative.EncryptedDataKeyList(dafnyValue.dtor_encryptedDataKeys()));
     nativeBuilder.encryptionContext(ToNative.EncryptionContext(dafnyValue.dtor_encryptionContext()));
+    if (dafnyValue.dtor_reproducedEncryptionContext().is_Some()) {
+      nativeBuilder.reproducedEncryptionContext(ToNative.EncryptionContext(dafnyValue.dtor_reproducedEncryptionContext().dtor_value()));
+    }
     return nativeBuilder.build();
   }
 
@@ -485,6 +490,7 @@ public class ToNative {
     DecryptionMaterials.Builder nativeBuilder = DecryptionMaterials.builder();
     nativeBuilder.algorithmSuite(ToNative.AlgorithmSuiteInfo(dafnyValue.dtor_algorithmSuite()));
     nativeBuilder.encryptionContext(ToNative.EncryptionContext(dafnyValue.dtor_encryptionContext()));
+    nativeBuilder.requiredEncryptionContextKeys(ToNative.EncryptionContextKeys(dafnyValue.dtor_requiredEncryptionContextKeys()));
     if (dafnyValue.dtor_plaintextDataKey().is_Some()) {
       nativeBuilder.plaintextDataKey(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_plaintextDataKey().dtor_value()));
     }
@@ -553,6 +559,7 @@ public class ToNative {
     InitializeEncryptionMaterialsInput.Builder nativeBuilder = InitializeEncryptionMaterialsInput.builder();
     nativeBuilder.algorithmSuiteId(ToNative.AlgorithmSuiteId(dafnyValue.dtor_algorithmSuiteId()));
     nativeBuilder.encryptionContext(ToNative.EncryptionContext(dafnyValue.dtor_encryptionContext()));
+    nativeBuilder.requiredEncryptionContextKeys(ToNative.EncryptionContextKeys(dafnyValue.dtor_requiredEncryptionContextKeys()));
     if (dafnyValue.dtor_signingKey().is_Some()) {
       nativeBuilder.signingKey(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_signingKey().dtor_value()));
     }
@@ -587,6 +594,9 @@ public class ToNative {
     }
     if (dafnyValue.dtor_maxPlaintextLength().is_Some()) {
       nativeBuilder.maxPlaintextLength((dafnyValue.dtor_maxPlaintextLength().dtor_value()));
+    }
+    if (dafnyValue.dtor_requiredEncryptionContextKeys().is_Some()) {
+      nativeBuilder.requiredEncryptionContextKeys(ToNative.EncryptionContextKeys(dafnyValue.dtor_requiredEncryptionContextKeys().dtor_value()));
     }
     return nativeBuilder.build();
   }
@@ -852,6 +862,13 @@ public class ToNative {
     return software.amazon.dafny.conversion.ToNative.Aggregate.GenericToList(
         dafnyValue, 
         software.amazon.dafny.conversion.ToNative.Simple::ByteBuffer);
+  }
+
+  public static List<String> EncryptionContextKeys(
+      DafnySequence<? extends DafnySequence<? extends Byte>> dafnyValue) {
+    return software.amazon.dafny.conversion.ToNative.Aggregate.GenericToList(
+        dafnyValue, 
+        software.amazon.dafny.conversion.ToNative.Simple::DafnyUtf8Bytes);
   }
 
   public static List<String> AccountIdList(

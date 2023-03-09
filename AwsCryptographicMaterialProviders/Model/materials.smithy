@@ -19,9 +19,13 @@ structure InitializeEncryptionMaterialsInput {
   @required
   encryptionContext: EncryptionContext,
 
+  @required
+  requiredEncryptionContextKeys: EncryptionContextKeys,
+
   signingKey: Secret,
 
   verificationKey: Secret,
+
 }
 
 structure InitializeDecryptionMaterialsInput {
@@ -30,6 +34,9 @@ structure InitializeDecryptionMaterialsInput {
 
   @required
   encryptionContext: EncryptionContext,
+
+  @required
+  requiredEncryptionContextKeys: EncryptionContextKeys,
 }
 
 @readonly

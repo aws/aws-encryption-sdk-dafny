@@ -57,6 +57,11 @@ module Materials {
     :- Need(EC_PUBLIC_KEY_FIELD !in input.encryptionContext, Types.AwsCryptographicMaterialProvidersException(
         message := "Encryption Context "));
 
+    :- Need(forall key <- input.requiredEncryptionContextKeys :: key in input.encryptionContext,
+      Types.AwsCryptographicMaterialProvidersException(
+        message := "Required encryption context keys do not exist in provided encryption context.")
+    );
+
     var suite := AS.GetSuite(input.algorithmSuiteId);
 
     :- Need(suite.signature.ECDSA? <==> input.signingKey.Some? && input.verificationKey.Some?,
@@ -79,7 +84,8 @@ module Materials {
       encryptedDataKeys := [],
       plaintextDataKey := Option.None,
       signingKey := input.signingKey,
-      symmetricSigningKeys := if suite.symmetricSignature.None? then None else Some([])
+      symmetricSigningKeys := if suite.symmetricSignature.None? then None else Some([]),
+      requiredEncryptionContextKeys := input.requiredEncryptionContextKeys
     ))
   }
 
@@ -106,6 +112,12 @@ module Materials {
         res.value.verificationKey == Some(verificationKey.value.value)
       )
   {
+
+    :- Need(forall key <- input.requiredEncryptionContextKeys :: key in input.encryptionContext,
+      Types.AwsCryptographicMaterialProvidersException(
+        message := "Reporoduced encryption context key did not exist in provided encryption context.")
+    );
+
     var suite := AS.GetSuite(input.algorithmSuiteId);
     :- Need(suite.signature.ECDSA? <==> EC_PUBLIC_KEY_FIELD in input.encryptionContext,
       Types.Error.AwsCryptographicMaterialProvidersException(
@@ -121,7 +133,8 @@ module Materials {
       algorithmSuite := suite,
       plaintextDataKey := Wrappers.None,
       verificationKey := verificationKey,
-      symmetricSigningKey := Wrappers.None
+      symmetricSigningKey := Wrappers.None,
+      requiredEncryptionContextKeys := input.requiredEncryptionContextKeys
     ))
   }
 
@@ -156,6 +169,7 @@ module Materials {
   ) {
     && newMat.algorithmSuite == oldMat.algorithmSuite
     && newMat.encryptionContext == oldMat.encryptionContext
+    && newMat.requiredEncryptionContextKeys == oldMat.requiredEncryptionContextKeys
     && newMat.signingKey == oldMat.signingKey
     && (
       || (oldMat.plaintextDataKey.None? && newMat.plaintextDataKey.Some?)
@@ -225,6 +239,15 @@ module Materials {
     //# material](#encryption-materials) does not contains a [signing key]
     //# (#signing-key), the [encryption context](#encryption-context) SHOULD
     //# NOT include the reserved key `aws-crypto-public-key`.
+    && (!suite.signature.None? <==> EC_PUBLIC_KEY_FIELD in encryptionMaterials.encryptionContext)
+
+    //= aws-encryption-sdk-specification/framework/structures.md#signing-key
+    //= type=exception
+    //# The signing key MUST fit the specification described by the [asymmetric signature algorithm](algorithm-suites.md#asymmetric-signature-algorithm)
+    //# included in this encryption material's [algorithm suite](#algorithm-suite).
+    // ECDSA keys are just bytes.
+    // `FieldSize` in Signature.dfy could be exported to do this check
+    // But at this time existince is deemed acceptable.
     && (suite.signature.ECDSA? <==> encryptionMaterials.signingKey.Some?)
     && (!suite.signature.None? <==> EC_PUBLIC_KEY_FIELD in encryptionMaterials.encryptionContext)
     //= aws-encryption-sdk-specification/framework/structures.md#symmetric-signing-keys
@@ -237,8 +260,32 @@ module Materials {
     //= type=implication
     //# If the algorithm suite does not contain a symmetric signing algorithm, this list MUST NOT be included in the materials.
     && (suite.symmetricSignature.None? ==> encryptionMaterials.symmetricSigningKeys.None?)
+
+    //= aws-encryption-sdk-specification/framework/structures.md#required-encryption-context-keys
+    //= type=implication
+    //# Every key in Required Encryption Context Keys
+    //# MUST be a key in the [encryption context](#encryption-context-1).
+    && forall key <- encryptionMaterials.requiredEncryptionContextKeys
+      :: key in encryptionMaterials.encryptionContext
   }
 
+  // This is cited here to demonstrate the connection between this function
+  // and its use in the Default CMM to verify the correctness of Encryption Materials.
+
+  // if the output materials are valid then they contain the required fields
+  //= aws-encryption-sdk-specification/framework/cmm-interface.md#get-encryption-materials
+  //# The encryption materials returned MUST include the following:
+
+  // See EncryptionMaterialsHasPlaintextDataKey for details
+  //= aws-encryption-sdk-specification/framework/cmm-interface.md#get-encryption-materials
+  //# The CMM MUST ensure that the encryption materials returned are valid.
+  //# - The encryption materials returned MUST follow the specification for [encryption-materials](structures.md#encryption-materials).
+  //# - The value of the plaintext data key MUST be non-NULL.
+  //# - The plaintext data key length MUST be equal to the [key derivation input length](algorithm-suites.md#key-derivation-input-length).
+  //# - The encrypted data keys list MUST contain at least one encrypted data key.
+  //# - If the algorithm suite contains a signing algorithm, the encryption materials returned MUST include the generated signing key.
+  //# - For every key in [Required Encryption Context Keys](structures.md#required-encryption-context-keys)
+  //#   there MUST be a matching key in the [Encryption Context](structures.md#encryption-context-1).
   predicate method EncryptionMaterialsHasPlaintextDataKey(encryptionMaterials: Types.EncryptionMaterials) {
     && encryptionMaterials.plaintextDataKey.Some?
     && |encryptionMaterials.encryptedDataKeys| > 0
@@ -279,7 +326,8 @@ module Materials {
       algorithmSuite := encryptionMaterials.algorithmSuite,
       encryptionContext := encryptionMaterials.encryptionContext,
       signingKey := encryptionMaterials.signingKey,
-      symmetricSigningKeys := symmetricSigningKeys
+      symmetricSigningKeys := symmetricSigningKeys,
+      requiredEncryptionContextKeys := encryptionMaterials.requiredEncryptionContextKeys
     ))
   }
 
@@ -321,7 +369,8 @@ module Materials {
       algorithmSuite := encryptionMaterials.algorithmSuite,
       encryptionContext := encryptionMaterials.encryptionContext,
       signingKey := encryptionMaterials.signingKey,
-      symmetricSigningKeys := symmetricSigningKeys
+      symmetricSigningKeys := symmetricSigningKeys,
+      requiredEncryptionContextKeys := encryptionMaterials.requiredEncryptionContextKeys
     ))
   }
 
@@ -341,6 +390,7 @@ module Materials {
   ) {
     && newMat.algorithmSuite == oldMat.algorithmSuite
     && newMat.encryptionContext == oldMat.encryptionContext
+    && newMat.requiredEncryptionContextKeys == oldMat.requiredEncryptionContextKeys
     && newMat.verificationKey == oldMat.verificationKey
     && oldMat.plaintextDataKey.None?
     && newMat.plaintextDataKey.Some?
@@ -387,6 +437,15 @@ module Materials {
     //# [verification key](#verification-key), the [encryption context]
     //# (#encryption-context) SHOULD NOT include the reserved key `aws-crypto-
     //# public-key`.
+    && (!suite.signature.None? <==> EC_PUBLIC_KEY_FIELD in decryptionMaterials.encryptionContext)
+
+    //= aws-encryption-sdk-specification/framework/structures.md#verification-key
+    //= type=exception
+    //# The verification key MUST fit the specification for the [asymmetric signature algorithm](algorithm-suites.md#asymmetric-signature-algorithm)
+    //# included in this decryption material's [algorithm suite](#algorithm-suite-1).
+    // ECDSA keys are just bytes.
+    // `FieldSize` in Signature.dfy could be exported to do this check
+    // But at this time existince is deemed acceptable.
     && (suite.signature.ECDSA? <==> decryptionMaterials.verificationKey.Some?)
     && (!suite.signature.None? <==> EC_PUBLIC_KEY_FIELD in decryptionMaterials.encryptionContext)
     //= aws-encryption-sdk-specification/framework/structures.md#symmetric-signing-key
@@ -400,6 +459,13 @@ module Materials {
     //# If the algorithm suite does not contain a symmetric signing algorithm,
     //# the symmetric signing key MUST NOT be included in the materials.
     && (suite.symmetricSignature.None? ==> decryptionMaterials.symmetricSigningKey.None?)
+
+    //= aws-encryption-sdk-specification/framework/structures.md#required-encryption-context-keys-1
+    //= type=implication
+    //# Every key in Required Encryption Context Keys
+    //# MUST be a key in the [encryption context](#encryption-context-2).
+    && forall k <- decryptionMaterials.requiredEncryptionContextKeys
+      :: k in decryptionMaterials.encryptionContext
   }
 
   function method DecryptionMaterialsAddDataKey(
@@ -430,7 +496,8 @@ module Materials {
       algorithmSuite := decryptionMaterials.algorithmSuite,
       encryptionContext := decryptionMaterials.encryptionContext,
       verificationKey := decryptionMaterials.verificationKey,
-      symmetricSigningKey := symmetricSigningKey
+      symmetricSigningKey := symmetricSigningKey,
+      requiredEncryptionContextKeys := decryptionMaterials.requiredEncryptionContextKeys
     ))
   }
 
@@ -439,6 +506,25 @@ module Materials {
     && ValidDecryptionMaterials(decryptionMaterials)
   }
 
+  // This is cited here to demonstrate the connection between this function
+  // and its use in the Default CMM to verify the correctness of Decryption Materials.
+
+  // if the output materials are valid then they contain the required fields
+  //= aws-encryption-sdk-specification/framework/cmm-interface.md#decrypt-materials
+  //# The decryption materials returned MUST include the following:
+
+  //= aws-encryption-sdk-specification/framework/cmm-interface.md#decrypt-materials
+  //# - All key-value pairs that exist in [Reproduced Encryption Context](structures.md#encryption-context)
+  //# but do not exist in encryption context on the [decrypt materials request](#decrypt-materials-request)
+  //# SHOULD be appended to the decryption materials.
+  //
+  //= aws-encryption-sdk-specification/framework/cmm-interface.md#decrypt-materials
+  //# - All keys in this set MUST exist in the decryption materials encryption context.
+  //
+  //= aws-encryption-sdk-specification/framework/cmm-interface.md#decrypt-materials
+  //# The CMM MUST ensure that the decryption materials returned are valid.
+  //# - The decryption materials returned MUST follow the specification for [decryption-materials](structures.md#decryption-materials).
+  //# - The value of the plaintext data key MUST be non-NULL.
   predicate method DecryptionMaterialsWithPlaintextDataKey(decryptionMaterials: Types.DecryptionMaterials) {
     && decryptionMaterials.plaintextDataKey.Some?
     && ValidDecryptionMaterials(decryptionMaterials)

@@ -23,7 +23,8 @@ module TestMultiKeyring {
         algorithmSuiteId := algorithmSuiteId,
         encryptionContext := encryptionContext,
         signingKey := None,
-        verificationKey := None
+        verificationKey := None,
+        requiredEncryptionContextKeys := []
       )
     );
     return encryptionMaterialsIn;
@@ -37,7 +38,8 @@ module TestMultiKeyring {
     var decryptionMaterialsIn :- expect mpl.InitializeDecryptionMaterials(
       Types.InitializeDecryptionMaterialsInput(
         algorithmSuiteId := algorithmSuiteId,
-        encryptionContext := encryptionContext
+        encryptionContext := encryptionContext,
+        requiredEncryptionContextKeys := []
       )
     );
     return decryptionMaterialsIn;
@@ -294,7 +296,8 @@ module TestMultiKeyring {
     var materials :- expect mpl.InitializeDecryptionMaterials(
       Types.InitializeDecryptionMaterialsInput(
         algorithmSuiteId := Types.AlgorithmSuiteId.ESDK(Types.ALG_AES_256_GCM_IV12_TAG16_NO_KDF),
-        encryptionContext := encryptionContext
+        encryptionContext := encryptionContext,
+        requiredEncryptionContextKeys := []
       )
     );
 

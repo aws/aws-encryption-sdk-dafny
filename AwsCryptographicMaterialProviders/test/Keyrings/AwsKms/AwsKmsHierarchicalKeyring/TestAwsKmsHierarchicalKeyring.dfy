@@ -72,6 +72,7 @@ module TestAwsKmsHierarchicalKeyring {
       Types.InitializeEncryptionMaterialsInput(
         algorithmSuiteId := algorithmSuiteId,
         encryptionContext := encryptionContext,
+        requiredEncryptionContextKeys := [],
         signingKey := None,
         verificationKey := None
       )
@@ -90,7 +91,8 @@ module TestAwsKmsHierarchicalKeyring {
     var decryptionMaterialsIn :- expect mpl.InitializeDecryptionMaterials(
       Types.InitializeDecryptionMaterialsInput(
         algorithmSuiteId := algorithmSuiteId,
-        encryptionContext := encryptionContext
+        encryptionContext := encryptionContext,
+        requiredEncryptionContextKeys := []
       )
     );
     var decryptionMaterialsOut :- expect hierarchyKeyring.OnDecrypt(

@@ -15,6 +15,8 @@ public class EncryptionMaterials {
 
   private final List<EncryptedDataKey> encryptedDataKeys;
 
+  private final List<String> requiredEncryptionContextKeys;
+
   private final ByteBuffer plaintextDataKey;
 
   private final ByteBuffer signingKey;
@@ -25,6 +27,7 @@ public class EncryptionMaterials {
     this.algorithmSuite = builder.algorithmSuite();
     this.encryptionContext = builder.encryptionContext();
     this.encryptedDataKeys = builder.encryptedDataKeys();
+    this.requiredEncryptionContextKeys = builder.requiredEncryptionContextKeys();
     this.plaintextDataKey = builder.plaintextDataKey();
     this.signingKey = builder.signingKey();
     this.symmetricSigningKeys = builder.symmetricSigningKeys();
@@ -40,6 +43,10 @@ public class EncryptionMaterials {
 
   public List<EncryptedDataKey> encryptedDataKeys() {
     return this.encryptedDataKeys;
+  }
+
+  public List<String> requiredEncryptionContextKeys() {
+    return this.requiredEncryptionContextKeys;
   }
 
   public ByteBuffer plaintextDataKey() {
@@ -75,6 +82,10 @@ public class EncryptionMaterials {
 
     List<EncryptedDataKey> encryptedDataKeys();
 
+    Builder requiredEncryptionContextKeys(List<String> requiredEncryptionContextKeys);
+
+    List<String> requiredEncryptionContextKeys();
+
     Builder plaintextDataKey(ByteBuffer plaintextDataKey);
 
     ByteBuffer plaintextDataKey();
@@ -97,6 +108,8 @@ public class EncryptionMaterials {
 
     protected List<EncryptedDataKey> encryptedDataKeys;
 
+    protected List<String> requiredEncryptionContextKeys;
+
     protected ByteBuffer plaintextDataKey;
 
     protected ByteBuffer signingKey;
@@ -110,6 +123,7 @@ public class EncryptionMaterials {
       this.algorithmSuite = model.algorithmSuite();
       this.encryptionContext = model.encryptionContext();
       this.encryptedDataKeys = model.encryptedDataKeys();
+      this.requiredEncryptionContextKeys = model.requiredEncryptionContextKeys();
       this.plaintextDataKey = model.plaintextDataKey();
       this.signingKey = model.signingKey();
       this.symmetricSigningKeys = model.symmetricSigningKeys();
@@ -140,6 +154,15 @@ public class EncryptionMaterials {
 
     public List<EncryptedDataKey> encryptedDataKeys() {
       return this.encryptedDataKeys;
+    }
+
+    public Builder requiredEncryptionContextKeys(List<String> requiredEncryptionContextKeys) {
+      this.requiredEncryptionContextKeys = requiredEncryptionContextKeys;
+      return this;
+    }
+
+    public List<String> requiredEncryptionContextKeys() {
+      return this.requiredEncryptionContextKeys;
     }
 
     public Builder plaintextDataKey(ByteBuffer plaintextDataKey) {
@@ -178,6 +201,9 @@ public class EncryptionMaterials {
       }
       if (Objects.isNull(this.encryptedDataKeys()))  {
         throw new IllegalArgumentException("Missing value for required field `encryptedDataKeys`");
+      }
+      if (Objects.isNull(this.requiredEncryptionContextKeys()))  {
+        throw new IllegalArgumentException("Missing value for required field `requiredEncryptionContextKeys`");
       }
       return new EncryptionMaterials(this);
     }

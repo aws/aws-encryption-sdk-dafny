@@ -8,6 +8,7 @@ using System;
  private AWS.Cryptography.MaterialProviders.CommitmentPolicy _commitmentPolicy ;
  private System.Collections.Generic.List<AWS.Cryptography.MaterialProviders.EncryptedDataKey> _encryptedDataKeys ;
  private System.Collections.Generic.Dictionary<string, string> _encryptionContext ;
+ private System.Collections.Generic.Dictionary<string, string> _reproducedEncryptionContext ;
  public AWS.Cryptography.MaterialProviders.AlgorithmSuiteId AlgorithmSuiteId {
  get { return this._algorithmSuiteId; }
  set { this._algorithmSuiteId = value; }
@@ -35,6 +36,13 @@ using System;
 }
  public bool IsSetEncryptionContext () {
  return this._encryptionContext != null;
+}
+ public System.Collections.Generic.Dictionary<string, string> ReproducedEncryptionContext {
+ get { return this._reproducedEncryptionContext; }
+ set { this._reproducedEncryptionContext = value; }
+}
+ public bool IsSetReproducedEncryptionContext () {
+ return this._reproducedEncryptionContext != null;
 }
  public void Validate() {
  if (!IsSetAlgorithmSuiteId()) throw new System.ArgumentException("Missing value for required property 'AlgorithmSuiteId'");
