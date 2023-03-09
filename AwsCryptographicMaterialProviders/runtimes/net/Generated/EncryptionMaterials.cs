@@ -7,6 +7,7 @@ using System;
  private AWS.Cryptography.MaterialProviders.AlgorithmSuiteInfo _algorithmSuite ;
  private System.Collections.Generic.Dictionary<string, string> _encryptionContext ;
  private System.Collections.Generic.List<AWS.Cryptography.MaterialProviders.EncryptedDataKey> _encryptedDataKeys ;
+ private System.Collections.Generic.List<string> _requiredEncryptionContextKeys ;
  private System.IO.MemoryStream _plaintextDataKey ;
  private System.IO.MemoryStream _signingKey ;
  private System.Collections.Generic.List<System.IO.MemoryStream> _symmetricSigningKeys ;
@@ -30,6 +31,13 @@ using System;
 }
  public bool IsSetEncryptedDataKeys () {
  return this._encryptedDataKeys != null;
+}
+ public System.Collections.Generic.List<string> RequiredEncryptionContextKeys {
+ get { return this._requiredEncryptionContextKeys; }
+ set { this._requiredEncryptionContextKeys = value; }
+}
+ public bool IsSetRequiredEncryptionContextKeys () {
+ return this._requiredEncryptionContextKeys != null;
 }
  public System.IO.MemoryStream PlaintextDataKey {
  get { return this._plaintextDataKey; }
@@ -56,6 +64,7 @@ using System;
  if (!IsSetAlgorithmSuite()) throw new System.ArgumentException("Missing value for required property 'AlgorithmSuite'");
  if (!IsSetEncryptionContext()) throw new System.ArgumentException("Missing value for required property 'EncryptionContext'");
  if (!IsSetEncryptedDataKeys()) throw new System.ArgumentException("Missing value for required property 'EncryptedDataKeys'");
+ if (!IsSetRequiredEncryptionContextKeys()) throw new System.ArgumentException("Missing value for required property 'RequiredEncryptionContextKeys'");
 
 }
 }

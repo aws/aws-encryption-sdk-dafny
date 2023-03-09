@@ -8,6 +8,7 @@ using System;
  private AWS.Cryptography.MaterialProviders.CommitmentPolicy _commitmentPolicy ;
  private AWS.Cryptography.MaterialProviders.AlgorithmSuiteId _algorithmSuiteId ;
  private long? _maxPlaintextLength ;
+ private System.Collections.Generic.List<string> _requiredEncryptionContextKeys ;
  public System.Collections.Generic.Dictionary<string, string> EncryptionContext {
  get { return this._encryptionContext; }
  set { this._encryptionContext = value; }
@@ -35,6 +36,13 @@ using System;
 }
  public bool IsSetMaxPlaintextLength () {
  return this._maxPlaintextLength.HasValue;
+}
+ public System.Collections.Generic.List<string> RequiredEncryptionContextKeys {
+ get { return this._requiredEncryptionContextKeys; }
+ set { this._requiredEncryptionContextKeys = value; }
+}
+ public bool IsSetRequiredEncryptionContextKeys () {
+ return this._requiredEncryptionContextKeys != null;
 }
  public void Validate() {
  if (!IsSetEncryptionContext()) throw new System.ArgumentException("Missing value for required property 'EncryptionContext'");

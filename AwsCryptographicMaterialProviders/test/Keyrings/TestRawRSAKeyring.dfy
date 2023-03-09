@@ -37,7 +37,8 @@ module TestRawRSAKeying {
         algorithmSuiteId := algorithmSuiteId,
         encryptionContext := encryptionContext,
         signingKey := None,
-        verificationKey := None
+        verificationKey := None,
+        requiredEncryptionContextKeys := []
       )
     );
 
@@ -51,7 +52,8 @@ module TestRawRSAKeying {
     var decryptionMaterialsIn :- expect mpl.InitializeDecryptionMaterials(
       Types.InitializeDecryptionMaterialsInput(
         algorithmSuiteId := algorithmSuiteId,
-        encryptionContext := encryptionContext
+        encryptionContext := encryptionContext,
+        requiredEncryptionContextKeys := []
       )
     );
 
@@ -103,7 +105,8 @@ module TestRawRSAKeying {
         algorithmSuiteId := algorithmSuiteId,
         encryptionContext := encryptionContext,
         signingKey := None,
-        verificationKey := None
+        verificationKey := None,
+        requiredEncryptionContextKeys := []
       )
     );
     var encryptionMaterialsOut :- expect rawRSAKeyring.OnEncrypt(
@@ -116,7 +119,8 @@ module TestRawRSAKeying {
     var decryptionMaterialsIn :- expect mpl.InitializeDecryptionMaterials(
       Types.InitializeDecryptionMaterialsInput(
         algorithmSuiteId := algorithmSuiteId,
-        encryptionContext := encryptionContext
+        encryptionContext := encryptionContext,
+        requiredEncryptionContextKeys := []
       )
     );
     var decryptionMaterialsOut := mismatchedRSAKeyring.OnDecrypt(
@@ -164,7 +168,8 @@ module TestRawRSAKeying {
         algorithmSuiteId := algorithmSuiteId,
         encryptionContext := encryptionContext,
         signingKey := None,
-        verificationKey := None
+        verificationKey := None,
+        requiredEncryptionContextKeys := []
       )
     );
     var encryptionMaterialsOut :- expect encryptKeyring.OnEncrypt(
@@ -177,7 +182,8 @@ module TestRawRSAKeying {
     var decryptionMaterialsIn :- expect mpl.InitializeDecryptionMaterials(
       Types.InitializeDecryptionMaterialsInput(
         algorithmSuiteId := algorithmSuiteId,
-        encryptionContext := encryptionContext
+        encryptionContext := encryptionContext,
+        requiredEncryptionContextKeys := []
       )
     );
     var decryptionMaterialsOut := decryptKeyring.OnDecrypt(
@@ -225,7 +231,8 @@ module TestRawRSAKeying {
         algorithmSuiteId := algorithmSuiteId,
         encryptionContext := encryptionContext,
         signingKey := None,
-        verificationKey := None
+        verificationKey := None,
+        requiredEncryptionContextKeys := []
       )
     );
     var encryptionMaterialsOut :- expect rawRSAKeyring.OnEncrypt(
@@ -238,7 +245,8 @@ module TestRawRSAKeying {
     var decryptionMaterialsIn :- expect mpl.InitializeDecryptionMaterials(
       Types.InitializeDecryptionMaterialsInput(
         algorithmSuiteId := algorithmSuiteId,
-        encryptionContext := encryptionContext
+        encryptionContext := encryptionContext,
+        requiredEncryptionContextKeys := []
       )
     );
     var fakeEdk := Types.EncryptedDataKey(

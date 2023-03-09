@@ -813,6 +813,7 @@ include "../../StandardLibrary/src/Index.dfy"
  datatype DecryptionMaterials = | DecryptionMaterials (
  nameonly algorithmSuite: AlgorithmSuiteInfo ,
  nameonly encryptionContext: EncryptionContext ,
+ nameonly requiredEncryptionContextKeys: EncryptionContextKeys ,
  nameonly plaintextDataKey: Option<Secret> ,
  nameonly verificationKey: Option<Secret> ,
  nameonly symmetricSigningKey: Option<Secret>
@@ -821,7 +822,8 @@ include "../../StandardLibrary/src/Index.dfy"
  nameonly algorithmSuiteId: AlgorithmSuiteId ,
  nameonly commitmentPolicy: CommitmentPolicy ,
  nameonly encryptedDataKeys: EncryptedDataKeyList ,
- nameonly encryptionContext: EncryptionContext
+ nameonly encryptionContext: EncryptionContext ,
+ nameonly reproducedEncryptionContext: Option<EncryptionContext>
  )
  datatype DecryptMaterialsOutput = | DecryptMaterialsOutput (
  nameonly decryptionMaterials: DecryptionMaterials
@@ -852,10 +854,12 @@ include "../../StandardLibrary/src/Index.dfy"
  )
  type EncryptedDataKeyList = seq<EncryptedDataKey>
  type EncryptionContext = map<Utf8Bytes, Utf8Bytes>
+ type EncryptionContextKeys = seq<Utf8Bytes>
  datatype EncryptionMaterials = | EncryptionMaterials (
  nameonly algorithmSuite: AlgorithmSuiteInfo ,
  nameonly encryptionContext: EncryptionContext ,
  nameonly encryptedDataKeys: EncryptedDataKeyList ,
+ nameonly requiredEncryptionContextKeys: EncryptionContextKeys ,
  nameonly plaintextDataKey: Option<Secret> ,
  nameonly signingKey: Option<Secret> ,
  nameonly symmetricSigningKeys: Option<SymmetricSigningKeyList>
@@ -883,7 +887,8 @@ include "../../StandardLibrary/src/Index.dfy"
  nameonly encryptionContext: EncryptionContext ,
  nameonly commitmentPolicy: CommitmentPolicy ,
  nameonly algorithmSuiteId: Option<AlgorithmSuiteId> ,
- nameonly maxPlaintextLength: Option<int64>
+ nameonly maxPlaintextLength: Option<int64> ,
+ nameonly requiredEncryptionContextKeys: Option<EncryptionContextKeys>
  )
  datatype GetEncryptionMaterialsOutput = | GetEncryptionMaterialsOutput (
  nameonly encryptionMaterials: EncryptionMaterials
@@ -904,11 +909,13 @@ include "../../StandardLibrary/src/Index.dfy"
  )
  datatype InitializeDecryptionMaterialsInput = | InitializeDecryptionMaterialsInput (
  nameonly algorithmSuiteId: AlgorithmSuiteId ,
- nameonly encryptionContext: EncryptionContext
+ nameonly encryptionContext: EncryptionContext ,
+ nameonly requiredEncryptionContextKeys: EncryptionContextKeys
  )
  datatype InitializeEncryptionMaterialsInput = | InitializeEncryptionMaterialsInput (
  nameonly algorithmSuiteId: AlgorithmSuiteId ,
  nameonly encryptionContext: EncryptionContext ,
+ nameonly requiredEncryptionContextKeys: EncryptionContextKeys ,
  nameonly signingKey: Option<Secret> ,
  nameonly verificationKey: Option<Secret>
  )

@@ -154,7 +154,9 @@ public class ToDafny {
     algorithmSuiteId = ToDafny.AlgorithmSuiteId(nativeValue.algorithmSuiteId());
     DafnyMap<? extends DafnySequence<? extends Byte>, ? extends DafnySequence<? extends Byte>> encryptionContext;
     encryptionContext = ToDafny.EncryptionContext(nativeValue.encryptionContext());
-    return new InitializeDecryptionMaterialsInput(algorithmSuiteId, encryptionContext);
+    DafnySequence<? extends DafnySequence<? extends Byte>> requiredEncryptionContextKeys;
+    requiredEncryptionContextKeys = ToDafny.EncryptionContextKeys(nativeValue.requiredEncryptionContextKeys());
+    return new InitializeDecryptionMaterialsInput(algorithmSuiteId, encryptionContext, requiredEncryptionContextKeys);
   }
 
   public static None None(software.amazon.cryptography.materialProviders.model.None nativeValue) {
@@ -169,6 +171,8 @@ public class ToDafny {
     encryptionContext = ToDafny.EncryptionContext(nativeValue.encryptionContext());
     DafnySequence<? extends EncryptedDataKey> encryptedDataKeys;
     encryptedDataKeys = ToDafny.EncryptedDataKeyList(nativeValue.encryptedDataKeys());
+    DafnySequence<? extends DafnySequence<? extends Byte>> requiredEncryptionContextKeys;
+    requiredEncryptionContextKeys = ToDafny.EncryptionContextKeys(nativeValue.requiredEncryptionContextKeys());
     Option<DafnySequence<? extends Byte>> plaintextDataKey;
     plaintextDataKey = Objects.nonNull(nativeValue.plaintextDataKey()) ?
         Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.plaintextDataKey()))
@@ -181,7 +185,7 @@ public class ToDafny {
     symmetricSigningKeys = Objects.nonNull(nativeValue.symmetricSigningKeys()) ?
         Option.create_Some(ToDafny.SymmetricSigningKeyList(nativeValue.symmetricSigningKeys()))
         : Option.create_None();
-    return new EncryptionMaterials(algorithmSuite, encryptionContext, encryptedDataKeys, plaintextDataKey, signingKey, symmetricSigningKeys);
+    return new EncryptionMaterials(algorithmSuite, encryptionContext, encryptedDataKeys, requiredEncryptionContextKeys, plaintextDataKey, signingKey, symmetricSigningKeys);
   }
 
   public static CreateDefaultCryptographicMaterialsManagerInput CreateDefaultCryptographicMaterialsManagerInput(
@@ -314,7 +318,11 @@ public class ToDafny {
     encryptedDataKeys = ToDafny.EncryptedDataKeyList(nativeValue.encryptedDataKeys());
     DafnyMap<? extends DafnySequence<? extends Byte>, ? extends DafnySequence<? extends Byte>> encryptionContext;
     encryptionContext = ToDafny.EncryptionContext(nativeValue.encryptionContext());
-    return new DecryptMaterialsInput(algorithmSuiteId, commitmentPolicy, encryptedDataKeys, encryptionContext);
+    Option<DafnyMap<? extends DafnySequence<? extends Byte>, ? extends DafnySequence<? extends Byte>>> reproducedEncryptionContext;
+    reproducedEncryptionContext = Objects.nonNull(nativeValue.reproducedEncryptionContext()) ?
+        Option.create_Some(ToDafny.EncryptionContext(nativeValue.reproducedEncryptionContext()))
+        : Option.create_None();
+    return new DecryptMaterialsInput(algorithmSuiteId, commitmentPolicy, encryptedDataKeys, encryptionContext, reproducedEncryptionContext);
   }
 
   public static CreateAwsKmsMrkMultiKeyringInput CreateAwsKmsMrkMultiKeyringInput(
@@ -481,6 +489,8 @@ public class ToDafny {
     algorithmSuite = ToDafny.AlgorithmSuiteInfo(nativeValue.algorithmSuite());
     DafnyMap<? extends DafnySequence<? extends Byte>, ? extends DafnySequence<? extends Byte>> encryptionContext;
     encryptionContext = ToDafny.EncryptionContext(nativeValue.encryptionContext());
+    DafnySequence<? extends DafnySequence<? extends Byte>> requiredEncryptionContextKeys;
+    requiredEncryptionContextKeys = ToDafny.EncryptionContextKeys(nativeValue.requiredEncryptionContextKeys());
     Option<DafnySequence<? extends Byte>> plaintextDataKey;
     plaintextDataKey = Objects.nonNull(nativeValue.plaintextDataKey()) ?
         Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.plaintextDataKey()))
@@ -493,7 +503,7 @@ public class ToDafny {
     symmetricSigningKey = Objects.nonNull(nativeValue.symmetricSigningKey()) ?
         Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.symmetricSigningKey()))
         : Option.create_None();
-    return new DecryptionMaterials(algorithmSuite, encryptionContext, plaintextDataKey, verificationKey, symmetricSigningKey);
+    return new DecryptionMaterials(algorithmSuite, encryptionContext, requiredEncryptionContextKeys, plaintextDataKey, verificationKey, symmetricSigningKey);
   }
 
   public static DafnySequence<? extends Byte> GetAlgorithmSuiteInfoInput(ByteBuffer nativeValue) {
@@ -559,6 +569,8 @@ public class ToDafny {
     algorithmSuiteId = ToDafny.AlgorithmSuiteId(nativeValue.algorithmSuiteId());
     DafnyMap<? extends DafnySequence<? extends Byte>, ? extends DafnySequence<? extends Byte>> encryptionContext;
     encryptionContext = ToDafny.EncryptionContext(nativeValue.encryptionContext());
+    DafnySequence<? extends DafnySequence<? extends Byte>> requiredEncryptionContextKeys;
+    requiredEncryptionContextKeys = ToDafny.EncryptionContextKeys(nativeValue.requiredEncryptionContextKeys());
     Option<DafnySequence<? extends Byte>> signingKey;
     signingKey = Objects.nonNull(nativeValue.signingKey()) ?
         Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.signingKey()))
@@ -567,7 +579,7 @@ public class ToDafny {
     verificationKey = Objects.nonNull(nativeValue.verificationKey()) ?
         Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.verificationKey()))
         : Option.create_None();
-    return new InitializeEncryptionMaterialsInput(algorithmSuiteId, encryptionContext, signingKey, verificationKey);
+    return new InitializeEncryptionMaterialsInput(algorithmSuiteId, encryptionContext, requiredEncryptionContextKeys, signingKey, verificationKey);
   }
 
   public static DecryptMaterialsOutput DecryptMaterialsOutput(
@@ -600,7 +612,11 @@ public class ToDafny {
     maxPlaintextLength = Objects.nonNull(nativeValue.maxPlaintextLength()) ?
         Option.create_Some((nativeValue.maxPlaintextLength()))
         : Option.create_None();
-    return new GetEncryptionMaterialsInput(encryptionContext, commitmentPolicy, algorithmSuiteId, maxPlaintextLength);
+    Option<DafnySequence<? extends DafnySequence<? extends Byte>>> requiredEncryptionContextKeys;
+    requiredEncryptionContextKeys = Objects.nonNull(nativeValue.requiredEncryptionContextKeys()) ?
+        Option.create_Some(ToDafny.EncryptionContextKeys(nativeValue.requiredEncryptionContextKeys()))
+        : Option.create_None();
+    return new GetEncryptionMaterialsInput(encryptionContext, commitmentPolicy, algorithmSuiteId, maxPlaintextLength, requiredEncryptionContextKeys);
   }
 
   public static CreateAwsKmsRsaKeyringInput CreateAwsKmsRsaKeyringInput(
@@ -947,6 +963,14 @@ public class ToDafny {
     return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
         software.amazon.dafny.conversion.ToDafny.Simple::ByteSequence, 
+        DafnySequence._typeDescriptor(TypeDescriptor.BYTE));
+  }
+
+  public static DafnySequence<? extends DafnySequence<? extends Byte>> EncryptionContextKeys(
+      List<String> nativeValue) {
+    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+        nativeValue, 
+        software.amazon.dafny.conversion.ToDafny.Simple::DafnyUtf8Bytes, 
         DafnySequence._typeDescriptor(TypeDescriptor.BYTE));
   }
 

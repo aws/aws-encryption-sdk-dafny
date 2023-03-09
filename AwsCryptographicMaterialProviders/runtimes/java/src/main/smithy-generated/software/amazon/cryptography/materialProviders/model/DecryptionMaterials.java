@@ -4,6 +4,7 @@
 package software.amazon.cryptography.materialProviders.model;
 
 import java.nio.ByteBuffer;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -11,6 +12,8 @@ public class DecryptionMaterials {
   private final AlgorithmSuiteInfo algorithmSuite;
 
   private final Map<String, String> encryptionContext;
+
+  private final List<String> requiredEncryptionContextKeys;
 
   private final ByteBuffer plaintextDataKey;
 
@@ -21,6 +24,7 @@ public class DecryptionMaterials {
   protected DecryptionMaterials(BuilderImpl builder) {
     this.algorithmSuite = builder.algorithmSuite();
     this.encryptionContext = builder.encryptionContext();
+    this.requiredEncryptionContextKeys = builder.requiredEncryptionContextKeys();
     this.plaintextDataKey = builder.plaintextDataKey();
     this.verificationKey = builder.verificationKey();
     this.symmetricSigningKey = builder.symmetricSigningKey();
@@ -32,6 +36,10 @@ public class DecryptionMaterials {
 
   public Map<String, String> encryptionContext() {
     return this.encryptionContext;
+  }
+
+  public List<String> requiredEncryptionContextKeys() {
+    return this.requiredEncryptionContextKeys;
   }
 
   public ByteBuffer plaintextDataKey() {
@@ -63,6 +71,10 @@ public class DecryptionMaterials {
 
     Map<String, String> encryptionContext();
 
+    Builder requiredEncryptionContextKeys(List<String> requiredEncryptionContextKeys);
+
+    List<String> requiredEncryptionContextKeys();
+
     Builder plaintextDataKey(ByteBuffer plaintextDataKey);
 
     ByteBuffer plaintextDataKey();
@@ -83,6 +95,8 @@ public class DecryptionMaterials {
 
     protected Map<String, String> encryptionContext;
 
+    protected List<String> requiredEncryptionContextKeys;
+
     protected ByteBuffer plaintextDataKey;
 
     protected ByteBuffer verificationKey;
@@ -95,6 +109,7 @@ public class DecryptionMaterials {
     protected BuilderImpl(DecryptionMaterials model) {
       this.algorithmSuite = model.algorithmSuite();
       this.encryptionContext = model.encryptionContext();
+      this.requiredEncryptionContextKeys = model.requiredEncryptionContextKeys();
       this.plaintextDataKey = model.plaintextDataKey();
       this.verificationKey = model.verificationKey();
       this.symmetricSigningKey = model.symmetricSigningKey();
@@ -116,6 +131,15 @@ public class DecryptionMaterials {
 
     public Map<String, String> encryptionContext() {
       return this.encryptionContext;
+    }
+
+    public Builder requiredEncryptionContextKeys(List<String> requiredEncryptionContextKeys) {
+      this.requiredEncryptionContextKeys = requiredEncryptionContextKeys;
+      return this;
+    }
+
+    public List<String> requiredEncryptionContextKeys() {
+      return this.requiredEncryptionContextKeys;
     }
 
     public Builder plaintextDataKey(ByteBuffer plaintextDataKey) {
@@ -151,6 +175,9 @@ public class DecryptionMaterials {
       }
       if (Objects.isNull(this.encryptionContext()))  {
         throw new IllegalArgumentException("Missing value for required field `encryptionContext`");
+      }
+      if (Objects.isNull(this.requiredEncryptionContextKeys()))  {
+        throw new IllegalArgumentException("Missing value for required field `requiredEncryptionContextKeys`");
       }
       return new DecryptionMaterials(this);
     }

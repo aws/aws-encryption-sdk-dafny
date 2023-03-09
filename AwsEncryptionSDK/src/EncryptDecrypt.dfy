@@ -640,7 +640,8 @@ module {:extern "EncryptDecryptHelpers"} EncryptDecryptHelpers {
       encryptionContext := encryptionContext,
       commitmentPolicy := MPL.CommitmentPolicy.ESDK(commitmentPolicy),
       algorithmSuiteId := algorithmSuiteId,
-      maxPlaintextLength := Option.Some(maxPlaintextLength)
+      maxPlaintextLength := Option.Some(maxPlaintextLength),
+      requiredEncryptionContextKeys := None
     );
 
     //= compliance/client-apis/encrypt.txt#2.6.1
@@ -718,7 +719,8 @@ module {:extern "EncryptDecryptHelpers"} EncryptDecryptHelpers {
       encryptedDataKeys := headerBody.encryptedDataKeys,
       //#*  Encryption Context: This is the parsed encryption context
       //#   (../data-format/message-header.md#aad) from the message header.
-      encryptionContext := encryptionContext
+      encryptionContext := encryptionContext,
+      reproducedEncryptionContext := None
     );
     var decMatResult := cmm.DecryptMaterials(decMatRequest);
     var output :- decMatResult

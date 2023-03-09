@@ -6,6 +6,7 @@ using System;
  public class DecryptionMaterials {
  private AWS.Cryptography.MaterialProviders.AlgorithmSuiteInfo _algorithmSuite ;
  private System.Collections.Generic.Dictionary<string, string> _encryptionContext ;
+ private System.Collections.Generic.List<string> _requiredEncryptionContextKeys ;
  private System.IO.MemoryStream _plaintextDataKey ;
  private System.IO.MemoryStream _verificationKey ;
  private System.IO.MemoryStream _symmetricSigningKey ;
@@ -22,6 +23,13 @@ using System;
 }
  public bool IsSetEncryptionContext () {
  return this._encryptionContext != null;
+}
+ public System.Collections.Generic.List<string> RequiredEncryptionContextKeys {
+ get { return this._requiredEncryptionContextKeys; }
+ set { this._requiredEncryptionContextKeys = value; }
+}
+ public bool IsSetRequiredEncryptionContextKeys () {
+ return this._requiredEncryptionContextKeys != null;
 }
  public System.IO.MemoryStream PlaintextDataKey {
  get { return this._plaintextDataKey; }
@@ -47,6 +55,7 @@ using System;
  public void Validate() {
  if (!IsSetAlgorithmSuite()) throw new System.ArgumentException("Missing value for required property 'AlgorithmSuite'");
  if (!IsSetEncryptionContext()) throw new System.ArgumentException("Missing value for required property 'EncryptionContext'");
+ if (!IsSetRequiredEncryptionContextKeys()) throw new System.ArgumentException("Missing value for required property 'RequiredEncryptionContextKeys'");
 
 }
 }

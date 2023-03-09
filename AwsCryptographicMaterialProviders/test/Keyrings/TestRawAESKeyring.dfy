@@ -35,7 +35,8 @@ module TestRawAESKeyring {
         algorithmSuiteId := algorithmSuiteId,
         encryptionContext := encryptionContext,
         signingKey := None,
-        verificationKey := None
+        verificationKey := None,
+        requiredEncryptionContextKeys := []
       )
     );
 
@@ -68,7 +69,8 @@ module TestRawAESKeyring {
     var decryptionMaterialsIn :- expect mpl.InitializeDecryptionMaterials(
       Types.InitializeDecryptionMaterialsInput(
         algorithmSuiteId := algorithmSuiteId,
-        encryptionContext := encryptionContext
+        encryptionContext := encryptionContext,
+        requiredEncryptionContextKeys := []
       )
     );
     var decryptionMaterialsOut :- expect rawAESKeyring.OnDecrypt(
@@ -107,7 +109,8 @@ module TestRawAESKeyring {
         algorithmSuiteId := algorithmSuiteId,
         encryptionContext := encryptionContext,
         signingKey := None,
-        verificationKey := None
+        verificationKey := None,
+        requiredEncryptionContextKeys := []
       )
     );
 
@@ -127,7 +130,8 @@ module TestRawAESKeyring {
     var decryptionMaterialsIn :- expect mpl.InitializeDecryptionMaterials(
       Types.InitializeDecryptionMaterialsInput(
         algorithmSuiteId := algorithmSuiteId,
-        encryptionContext := encryptionContext
+        encryptionContext := encryptionContext,
+        requiredEncryptionContextKeys := []
       )
     );
     
@@ -174,7 +178,8 @@ module TestRawAESKeyring {
         algorithmSuiteId := algorithmSuiteId,
         encryptionContext := encryptionContext,
         signingKey := None,
-        verificationKey := None
+        verificationKey := None,
+        requiredEncryptionContextKeys := []
       )
     );
 
@@ -189,7 +194,8 @@ module TestRawAESKeyring {
     var decryptionMaterialsIn :- expect mpl.InitializeDecryptionMaterials(
       Types.InitializeDecryptionMaterialsInput(
         algorithmSuiteId := algorithmSuiteId,
-        encryptionContext := encryptionContext
+        encryptionContext := encryptionContext,
+        requiredEncryptionContextKeys := []
       )
     );
     var decryptionMaterialsOut := mismatchedAESKeyring.OnDecrypt(
@@ -221,7 +227,8 @@ module TestRawAESKeyring {
         algorithmSuiteId := algorithmSuiteId,
         encryptionContext := encryptionContext,
         signingKey := None,
-        verificationKey := None
+        verificationKey := None,
+        requiredEncryptionContextKeys := []
       )
     );
 
@@ -236,7 +243,8 @@ module TestRawAESKeyring {
     var decryptionMaterialsIn :- expect mpl.InitializeDecryptionMaterials(
       Types.InitializeDecryptionMaterialsInput(
         algorithmSuiteId := algorithmSuiteId,
-        encryptionContext := encryptionContext
+        encryptionContext := encryptionContext,
+        requiredEncryptionContextKeys := []
       )
     );
     var fakeEdk: Types.EncryptedDataKey := Types.EncryptedDataKey(
@@ -273,7 +281,8 @@ module TestRawAESKeyring {
     var decryptionMaterialsIn :- expect mpl.InitializeDecryptionMaterials(
       Types.InitializeDecryptionMaterialsInput(
         algorithmSuiteId := algorithmSuiteId,
-        encryptionContext := encryptionContext
+        encryptionContext := encryptionContext,
+        requiredEncryptionContextKeys := []
       )
     );
     var decryptionMaterialsOut := rawAESKeyring.OnDecrypt(
@@ -312,7 +321,8 @@ module TestRawAESKeyring {
         algorithmSuiteId := algorithmSuiteId,
         encryptionContext := unserializableEncryptionContext,
         signingKey := None,
-        verificationKey := None
+        verificationKey := None,
+        requiredEncryptionContextKeys := []
       )
     );
     var encryptionMaterialsOut := rawAESKeyring.OnEncrypt(
@@ -348,7 +358,8 @@ module TestRawAESKeyring {
         algorithmSuiteId := algorithmSuiteId,
         encryptionContext := encryptionContext,
         signingKey := None,
-        verificationKey := None
+        verificationKey := None,
+        requiredEncryptionContextKeys := []
       )
     );
 
@@ -363,7 +374,8 @@ module TestRawAESKeyring {
     var decryptionMaterialsIn :- expect mpl.InitializeDecryptionMaterials(
       Types.InitializeDecryptionMaterialsInput(
         algorithmSuiteId := algorithmSuiteId,
-        encryptionContext := unserializableEncryptionContext
+        encryptionContext := unserializableEncryptionContext,
+        requiredEncryptionContextKeys := []
       )
     );
     var decryptionMaterialsOut := rawAESKeyring.OnDecrypt(

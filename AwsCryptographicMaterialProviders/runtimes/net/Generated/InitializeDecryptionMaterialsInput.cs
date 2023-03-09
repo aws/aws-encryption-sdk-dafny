@@ -6,6 +6,7 @@ using System;
  public class InitializeDecryptionMaterialsInput {
  private AWS.Cryptography.MaterialProviders.AlgorithmSuiteId _algorithmSuiteId ;
  private System.Collections.Generic.Dictionary<string, string> _encryptionContext ;
+ private System.Collections.Generic.List<string> _requiredEncryptionContextKeys ;
  public AWS.Cryptography.MaterialProviders.AlgorithmSuiteId AlgorithmSuiteId {
  get { return this._algorithmSuiteId; }
  set { this._algorithmSuiteId = value; }
@@ -20,9 +21,17 @@ using System;
  public bool IsSetEncryptionContext () {
  return this._encryptionContext != null;
 }
+ public System.Collections.Generic.List<string> RequiredEncryptionContextKeys {
+ get { return this._requiredEncryptionContextKeys; }
+ set { this._requiredEncryptionContextKeys = value; }
+}
+ public bool IsSetRequiredEncryptionContextKeys () {
+ return this._requiredEncryptionContextKeys != null;
+}
  public void Validate() {
  if (!IsSetAlgorithmSuiteId()) throw new System.ArgumentException("Missing value for required property 'AlgorithmSuiteId'");
  if (!IsSetEncryptionContext()) throw new System.ArgumentException("Missing value for required property 'EncryptionContext'");
+ if (!IsSetRequiredEncryptionContextKeys()) throw new System.ArgumentException("Missing value for required property 'RequiredEncryptionContextKeys'");
 
 }
 }
