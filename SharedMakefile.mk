@@ -70,6 +70,7 @@ transpile_implementation:
 		-useRuntimeLib \
 		-out $(OUT) \
 		./src/Index.dfy \
+		-library:$(PROJECT_ROOT)/StandardLibrary/src/Index.dfy \
 		$(patsubst %, -library:$(PROJECT_ROOT)/%/src/Index.dfy, $(LIBRARIES))
 
 transpile_test:
@@ -86,6 +87,7 @@ transpile_test:
 		-library:src/Index.dfy
 
 transpile_dependencies:
+	$(MAKE) -C $(PROJECT_ROOT)/StandardLibrary transpile_implementation_$(LANG)
 	$(patsubst %, $(MAKE) -C $(PROJECT_ROOT)/% transpile_implementation_$(LANG);, $(LIBRARIES))
 
 ########################## Code-Gen targets
@@ -109,7 +111,7 @@ _polymorph:
 	$(OUTPUT_JAVA) \
 	--model $(LIBRARY_ROOT)/Model \
 	--dependent-model $(PROJECT_ROOT)/model \
-	$(patsubst %, --dependent-model $(PROJECT_ROOT)/%/Model, $(filter-out StandardLibrary,$(LIBRARIES))) \
+	$(patsubst %, --dependent-model $(PROJECT_ROOT)/%/Model, $(LIBRARIES)) \
 	--namespace $(SMITHY_NAMESPACE) \
 	$(AWS_SDK_CMD)";
 
@@ -190,6 +192,7 @@ transpile_dependencies_java: LANG=java
 transpile_dependencies_java: transpile_dependencies
 
 mvn_local_deploy_dependencies:
+	$(MAKE) -C $(PROJECT_ROOT)/StandardLibrary mvn_local_deploy
 	$(patsubst %, $(MAKE) -C $(PROJECT_ROOT)/% mvn_local_deploy;, $(LIBRARIES))
 
 # The Java MUST all exist already through the transpile step.

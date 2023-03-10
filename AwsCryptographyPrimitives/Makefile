@@ -10,5 +10,4 @@ MAX_RESOURCE_COUNT=10000000
 # Order is important
 # In java they MUST be built
 # in the order they depend on each other
-LIBRARIES := \
-	StandardLibrary
+LIBRARIES := 
