@@ -245,7 +245,7 @@ public class ToDafny {
         Option.create_Some(ToDafny.GrantConstraints(nativeValue.constraints()))
         : Option.create_None();
     Option<DafnySequence<? extends DafnySequence<? extends Character>>> grantTokens;
-    grantTokens = Objects.nonNull(nativeValue.grantTokens()) ?
+    grantTokens = (Objects.nonNull(nativeValue.grantTokens()) && nativeValue.grantTokens().size() > 0) ?
         Option.create_Some(ToDafny.GrantTokenList(nativeValue.grantTokens()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> name;
@@ -290,7 +290,7 @@ public class ToDafny {
         Option.create_Some((nativeValue.bypassPolicyLockoutSafetyCheck()))
         : Option.create_None();
     Option<DafnySequence<? extends Tag>> tags;
-    tags = Objects.nonNull(nativeValue.tags()) ?
+    tags = (Objects.nonNull(nativeValue.tags()) && nativeValue.tags().size() > 0) ?
         Option.create_Some(ToDafny.TagList(nativeValue.tags()))
         : Option.create_None();
     Option<Boolean> multiRegion;
@@ -305,11 +305,11 @@ public class ToDafny {
     DafnySequence<? extends Byte> ciphertextBlob;
     ciphertextBlob = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.ciphertextBlob().asByteArray());
     Option<DafnyMap<? extends DafnySequence<? extends Character>, ? extends DafnySequence<? extends Character>>> encryptionContext;
-    encryptionContext = Objects.nonNull(nativeValue.encryptionContext()) ?
+    encryptionContext = (Objects.nonNull(nativeValue.encryptionContext()) && nativeValue.encryptionContext().size() > 0) ?
         Option.create_Some(ToDafny.EncryptionContextType(nativeValue.encryptionContext()))
         : Option.create_None();
     Option<DafnySequence<? extends DafnySequence<? extends Character>>> grantTokens;
-    grantTokens = Objects.nonNull(nativeValue.grantTokens()) ?
+    grantTokens = (Objects.nonNull(nativeValue.grantTokens()) && nativeValue.grantTokens().size() > 0) ?
         Option.create_Some(ToDafny.GrantTokenList(nativeValue.grantTokens()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> keyId;
@@ -370,7 +370,7 @@ public class ToDafny {
     DafnySequence<? extends Character> keyId;
     keyId = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId());
     Option<DafnySequence<? extends DafnySequence<? extends Character>>> grantTokens;
-    grantTokens = Objects.nonNull(nativeValue.grantTokens()) ?
+    grantTokens = (Objects.nonNull(nativeValue.grantTokens()) && nativeValue.grantTokens().size() > 0) ?
         Option.create_Some(ToDafny.GrantTokenList(nativeValue.grantTokens()))
         : Option.create_None();
     return new DescribeKeyRequest(keyId, grantTokens);
@@ -418,11 +418,11 @@ public class ToDafny {
     DafnySequence<? extends Byte> plaintext;
     plaintext = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.plaintext().asByteArray());
     Option<DafnyMap<? extends DafnySequence<? extends Character>, ? extends DafnySequence<? extends Character>>> encryptionContext;
-    encryptionContext = Objects.nonNull(nativeValue.encryptionContext()) ?
+    encryptionContext = (Objects.nonNull(nativeValue.encryptionContext()) && nativeValue.encryptionContext().size() > 0) ?
         Option.create_Some(ToDafny.EncryptionContextType(nativeValue.encryptionContext()))
         : Option.create_None();
     Option<DafnySequence<? extends DafnySequence<? extends Character>>> grantTokens;
-    grantTokens = Objects.nonNull(nativeValue.grantTokens()) ?
+    grantTokens = (Objects.nonNull(nativeValue.grantTokens()) && nativeValue.grantTokens().size() > 0) ?
         Option.create_Some(ToDafny.GrantTokenList(nativeValue.grantTokens()))
         : Option.create_None();
     Option<EncryptionAlgorithmSpec> encryptionAlgorithm;
@@ -437,7 +437,7 @@ public class ToDafny {
     DafnySequence<? extends Character> keyId;
     keyId = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId());
     Option<DafnyMap<? extends DafnySequence<? extends Character>, ? extends DafnySequence<? extends Character>>> encryptionContext;
-    encryptionContext = Objects.nonNull(nativeValue.encryptionContext()) ?
+    encryptionContext = (Objects.nonNull(nativeValue.encryptionContext()) && nativeValue.encryptionContext().size() > 0) ?
         Option.create_Some(ToDafny.EncryptionContextType(nativeValue.encryptionContext()))
         : Option.create_None();
     Option<Integer> numberOfBytes;
@@ -449,7 +449,7 @@ public class ToDafny {
         Option.create_Some(ToDafny.DataKeySpec(nativeValue.keySpec()))
         : Option.create_None();
     Option<DafnySequence<? extends DafnySequence<? extends Character>>> grantTokens;
-    grantTokens = Objects.nonNull(nativeValue.grantTokens()) ?
+    grantTokens = (Objects.nonNull(nativeValue.grantTokens()) && nativeValue.grantTokens().size() > 0) ?
         Option.create_Some(ToDafny.GrantTokenList(nativeValue.grantTokens()))
         : Option.create_None();
     return new GenerateDataKeyRequest(keyId, encryptionContext, numberOfBytes, keySpec, grantTokens);
@@ -458,7 +458,7 @@ public class ToDafny {
   public static GenerateDataKeyPairRequest GenerateDataKeyPairRequest(
       software.amazon.awssdk.services.kms.model.GenerateDataKeyPairRequest nativeValue) {
     Option<DafnyMap<? extends DafnySequence<? extends Character>, ? extends DafnySequence<? extends Character>>> encryptionContext;
-    encryptionContext = Objects.nonNull(nativeValue.encryptionContext()) ?
+    encryptionContext = (Objects.nonNull(nativeValue.encryptionContext()) && nativeValue.encryptionContext().size() > 0) ?
         Option.create_Some(ToDafny.EncryptionContextType(nativeValue.encryptionContext()))
         : Option.create_None();
     DafnySequence<? extends Character> keyId;
@@ -466,7 +466,7 @@ public class ToDafny {
     DataKeyPairSpec keyPairSpec;
     keyPairSpec = ToDafny.DataKeyPairSpec(nativeValue.keyPairSpec());
     Option<DafnySequence<? extends DafnySequence<? extends Character>>> grantTokens;
-    grantTokens = Objects.nonNull(nativeValue.grantTokens()) ?
+    grantTokens = (Objects.nonNull(nativeValue.grantTokens()) && nativeValue.grantTokens().size() > 0) ?
         Option.create_Some(ToDafny.GrantTokenList(nativeValue.grantTokens()))
         : Option.create_None();
     return new GenerateDataKeyPairRequest(encryptionContext, keyId, keyPairSpec, grantTokens);
@@ -475,7 +475,7 @@ public class ToDafny {
   public static GenerateDataKeyPairWithoutPlaintextRequest GenerateDataKeyPairWithoutPlaintextRequest(
       software.amazon.awssdk.services.kms.model.GenerateDataKeyPairWithoutPlaintextRequest nativeValue) {
     Option<DafnyMap<? extends DafnySequence<? extends Character>, ? extends DafnySequence<? extends Character>>> encryptionContext;
-    encryptionContext = Objects.nonNull(nativeValue.encryptionContext()) ?
+    encryptionContext = (Objects.nonNull(nativeValue.encryptionContext()) && nativeValue.encryptionContext().size() > 0) ?
         Option.create_Some(ToDafny.EncryptionContextType(nativeValue.encryptionContext()))
         : Option.create_None();
     DafnySequence<? extends Character> keyId;
@@ -483,7 +483,7 @@ public class ToDafny {
     DataKeyPairSpec keyPairSpec;
     keyPairSpec = ToDafny.DataKeyPairSpec(nativeValue.keyPairSpec());
     Option<DafnySequence<? extends DafnySequence<? extends Character>>> grantTokens;
-    grantTokens = Objects.nonNull(nativeValue.grantTokens()) ?
+    grantTokens = (Objects.nonNull(nativeValue.grantTokens()) && nativeValue.grantTokens().size() > 0) ?
         Option.create_Some(ToDafny.GrantTokenList(nativeValue.grantTokens()))
         : Option.create_None();
     return new GenerateDataKeyPairWithoutPlaintextRequest(encryptionContext, keyId, keyPairSpec, grantTokens);
@@ -494,7 +494,7 @@ public class ToDafny {
     DafnySequence<? extends Character> keyId;
     keyId = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId());
     Option<DafnyMap<? extends DafnySequence<? extends Character>, ? extends DafnySequence<? extends Character>>> encryptionContext;
-    encryptionContext = Objects.nonNull(nativeValue.encryptionContext()) ?
+    encryptionContext = (Objects.nonNull(nativeValue.encryptionContext()) && nativeValue.encryptionContext().size() > 0) ?
         Option.create_Some(ToDafny.EncryptionContextType(nativeValue.encryptionContext()))
         : Option.create_None();
     Option<DataKeySpec> keySpec;
@@ -506,7 +506,7 @@ public class ToDafny {
         Option.create_Some((nativeValue.numberOfBytes()))
         : Option.create_None();
     Option<DafnySequence<? extends DafnySequence<? extends Character>>> grantTokens;
-    grantTokens = Objects.nonNull(nativeValue.grantTokens()) ?
+    grantTokens = (Objects.nonNull(nativeValue.grantTokens()) && nativeValue.grantTokens().size() > 0) ?
         Option.create_Some(ToDafny.GrantTokenList(nativeValue.grantTokens()))
         : Option.create_None();
     return new GenerateDataKeyWithoutPlaintextRequest(keyId, encryptionContext, keySpec, numberOfBytes, grantTokens);
@@ -557,7 +557,7 @@ public class ToDafny {
     DafnySequence<? extends Character> keyId;
     keyId = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId());
     Option<DafnySequence<? extends DafnySequence<? extends Character>>> grantTokens;
-    grantTokens = Objects.nonNull(nativeValue.grantTokens()) ?
+    grantTokens = (Objects.nonNull(nativeValue.grantTokens()) && nativeValue.grantTokens().size() > 0) ?
         Option.create_Some(ToDafny.GrantTokenList(nativeValue.grantTokens()))
         : Option.create_None();
     return new GetPublicKeyRequest(keyId, grantTokens);
@@ -672,7 +672,7 @@ public class ToDafny {
     DafnySequence<? extends Byte> ciphertextBlob;
     ciphertextBlob = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.ciphertextBlob().asByteArray());
     Option<DafnyMap<? extends DafnySequence<? extends Character>, ? extends DafnySequence<? extends Character>>> sourceEncryptionContext;
-    sourceEncryptionContext = Objects.nonNull(nativeValue.sourceEncryptionContext()) ?
+    sourceEncryptionContext = (Objects.nonNull(nativeValue.sourceEncryptionContext()) && nativeValue.sourceEncryptionContext().size() > 0) ?
         Option.create_Some(ToDafny.EncryptionContextType(nativeValue.sourceEncryptionContext()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> sourceKeyId;
@@ -682,7 +682,7 @@ public class ToDafny {
     DafnySequence<? extends Character> destinationKeyId;
     destinationKeyId = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.destinationKeyId());
     Option<DafnyMap<? extends DafnySequence<? extends Character>, ? extends DafnySequence<? extends Character>>> destinationEncryptionContext;
-    destinationEncryptionContext = Objects.nonNull(nativeValue.destinationEncryptionContext()) ?
+    destinationEncryptionContext = (Objects.nonNull(nativeValue.destinationEncryptionContext()) && nativeValue.destinationEncryptionContext().size() > 0) ?
         Option.create_Some(ToDafny.EncryptionContextType(nativeValue.destinationEncryptionContext()))
         : Option.create_None();
     Option<EncryptionAlgorithmSpec> sourceEncryptionAlgorithm;
@@ -694,7 +694,7 @@ public class ToDafny {
         Option.create_Some(ToDafny.EncryptionAlgorithmSpec(nativeValue.destinationEncryptionAlgorithm()))
         : Option.create_None();
     Option<DafnySequence<? extends DafnySequence<? extends Character>>> grantTokens;
-    grantTokens = Objects.nonNull(nativeValue.grantTokens()) ?
+    grantTokens = (Objects.nonNull(nativeValue.grantTokens()) && nativeValue.grantTokens().size() > 0) ?
         Option.create_Some(ToDafny.GrantTokenList(nativeValue.grantTokens()))
         : Option.create_None();
     return new ReEncryptRequest(ciphertextBlob, sourceEncryptionContext, sourceKeyId, destinationKeyId, destinationEncryptionContext, sourceEncryptionAlgorithm, destinationEncryptionAlgorithm, grantTokens);
@@ -719,7 +719,7 @@ public class ToDafny {
         Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.description()))
         : Option.create_None();
     Option<DafnySequence<? extends Tag>> tags;
-    tags = Objects.nonNull(nativeValue.tags()) ?
+    tags = (Objects.nonNull(nativeValue.tags()) && nativeValue.tags().size() > 0) ?
         Option.create_Some(ToDafny.TagList(nativeValue.tags()))
         : Option.create_None();
     return new ReplicateKeyRequest(keyId, replicaRegion, policy, bypassPolicyLockoutSafetyCheck, description, tags);
@@ -773,7 +773,7 @@ public class ToDafny {
         Option.create_Some(ToDafny.MessageType(nativeValue.messageType()))
         : Option.create_None();
     Option<DafnySequence<? extends DafnySequence<? extends Character>>> grantTokens;
-    grantTokens = Objects.nonNull(nativeValue.grantTokens()) ?
+    grantTokens = (Objects.nonNull(nativeValue.grantTokens()) && nativeValue.grantTokens().size() > 0) ?
         Option.create_Some(ToDafny.GrantTokenList(nativeValue.grantTokens()))
         : Option.create_None();
     SigningAlgorithmSpec signingAlgorithm;
@@ -860,7 +860,7 @@ public class ToDafny {
     SigningAlgorithmSpec signingAlgorithm;
     signingAlgorithm = ToDafny.SigningAlgorithmSpec(nativeValue.signingAlgorithm());
     Option<DafnySequence<? extends DafnySequence<? extends Character>>> grantTokens;
-    grantTokens = Objects.nonNull(nativeValue.grantTokens()) ?
+    grantTokens = (Objects.nonNull(nativeValue.grantTokens()) && nativeValue.grantTokens().size() > 0) ?
         Option.create_Some(ToDafny.GrantTokenList(nativeValue.grantTokens()))
         : Option.create_None();
     return new VerifyRequest(keyId, message, messageType, signature, signingAlgorithm, grantTokens);
@@ -936,7 +936,7 @@ public class ToDafny {
   public static DescribeCustomKeyStoresResponse DescribeCustomKeyStoresResponse(
       software.amazon.awssdk.services.kms.model.DescribeCustomKeyStoresResponse nativeValue) {
     Option<DafnySequence<? extends CustomKeyStoresListEntry>> customKeyStores;
-    customKeyStores = Objects.nonNull(nativeValue.customKeyStores()) ?
+    customKeyStores = (Objects.nonNull(nativeValue.customKeyStores()) && nativeValue.customKeyStores().size() > 0) ?
         Option.create_Some(ToDafny.CustomKeyStoresList(nativeValue.customKeyStores()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> nextMarker;
@@ -1128,11 +1128,11 @@ public class ToDafny {
         Option.create_Some(ToDafny.KeyUsageType(nativeValue.keyUsage()))
         : Option.create_None();
     Option<DafnySequence<? extends EncryptionAlgorithmSpec>> encryptionAlgorithms;
-    encryptionAlgorithms = Objects.nonNull(nativeValue.encryptionAlgorithms()) ?
+    encryptionAlgorithms = (Objects.nonNull(nativeValue.encryptionAlgorithms()) && nativeValue.encryptionAlgorithms().size() > 0) ?
         Option.create_Some(ToDafny.EncryptionAlgorithmSpecList(nativeValue.encryptionAlgorithms()))
         : Option.create_None();
     Option<DafnySequence<? extends SigningAlgorithmSpec>> signingAlgorithms;
-    signingAlgorithms = Objects.nonNull(nativeValue.signingAlgorithms()) ?
+    signingAlgorithms = (Objects.nonNull(nativeValue.signingAlgorithms()) && nativeValue.signingAlgorithms().size() > 0) ?
         Option.create_Some(ToDafny.SigningAlgorithmSpecList(nativeValue.signingAlgorithms()))
         : Option.create_None();
     return new GetPublicKeyResponse(keyId, publicKey, customerMasterKeySpec, keySpec, keyUsage, encryptionAlgorithms, signingAlgorithms);
@@ -1146,7 +1146,7 @@ public class ToDafny {
   public static ListAliasesResponse ListAliasesResponse(
       software.amazon.awssdk.services.kms.model.ListAliasesResponse nativeValue) {
     Option<DafnySequence<? extends AliasListEntry>> aliases;
-    aliases = Objects.nonNull(nativeValue.aliases()) ?
+    aliases = (Objects.nonNull(nativeValue.aliases()) && nativeValue.aliases().size() > 0) ?
         Option.create_Some(ToDafny.AliasList(nativeValue.aliases()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> nextMarker;
@@ -1163,7 +1163,7 @@ public class ToDafny {
   public static ListGrantsResponse ListGrantsResponse(
       software.amazon.awssdk.services.kms.model.ListGrantsResponse nativeValue) {
     Option<DafnySequence<? extends GrantListEntry>> grants;
-    grants = Objects.nonNull(nativeValue.grants()) ?
+    grants = (Objects.nonNull(nativeValue.grants()) && nativeValue.grants().size() > 0) ?
         Option.create_Some(ToDafny.GrantList(nativeValue.grants()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> nextMarker;
@@ -1180,7 +1180,7 @@ public class ToDafny {
   public static ListKeyPoliciesResponse ListKeyPoliciesResponse(
       software.amazon.awssdk.services.kms.model.ListKeyPoliciesResponse nativeValue) {
     Option<DafnySequence<? extends DafnySequence<? extends Character>>> policyNames;
-    policyNames = Objects.nonNull(nativeValue.policyNames()) ?
+    policyNames = (Objects.nonNull(nativeValue.policyNames()) && nativeValue.policyNames().size() > 0) ?
         Option.create_Some(ToDafny.PolicyNameList(nativeValue.policyNames()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> nextMarker;
@@ -1197,7 +1197,7 @@ public class ToDafny {
   public static ListResourceTagsResponse ListResourceTagsResponse(
       software.amazon.awssdk.services.kms.model.ListResourceTagsResponse nativeValue) {
     Option<DafnySequence<? extends Tag>> tags;
-    tags = Objects.nonNull(nativeValue.tags()) ?
+    tags = (Objects.nonNull(nativeValue.tags()) && nativeValue.tags().size() > 0) ?
         Option.create_Some(ToDafny.TagList(nativeValue.tags()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> nextMarker;
@@ -1247,7 +1247,7 @@ public class ToDafny {
         Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.replicaPolicy()))
         : Option.create_None();
     Option<DafnySequence<? extends Tag>> replicaTags;
-    replicaTags = Objects.nonNull(nativeValue.replicaTags()) ?
+    replicaTags = (Objects.nonNull(nativeValue.replicaTags()) && nativeValue.replicaTags().size() > 0) ?
         Option.create_Some(ToDafny.TagList(nativeValue.replicaTags()))
         : Option.create_None();
     return new ReplicateKeyResponse(replicaKeyMetadata, replicaPolicy, replicaTags);
@@ -1324,11 +1324,11 @@ public class ToDafny {
   public static GrantConstraints GrantConstraints(
       software.amazon.awssdk.services.kms.model.GrantConstraints nativeValue) {
     Option<DafnyMap<? extends DafnySequence<? extends Character>, ? extends DafnySequence<? extends Character>>> encryptionContextSubset;
-    encryptionContextSubset = Objects.nonNull(nativeValue.encryptionContextSubset()) ?
+    encryptionContextSubset = (Objects.nonNull(nativeValue.encryptionContextSubset()) && nativeValue.encryptionContextSubset().size() > 0) ?
         Option.create_Some(ToDafny.EncryptionContextType(nativeValue.encryptionContextSubset()))
         : Option.create_None();
     Option<DafnyMap<? extends DafnySequence<? extends Character>, ? extends DafnySequence<? extends Character>>> encryptionContextEquals;
-    encryptionContextEquals = Objects.nonNull(nativeValue.encryptionContextEquals()) ?
+    encryptionContextEquals = (Objects.nonNull(nativeValue.encryptionContextEquals()) && nativeValue.encryptionContextEquals().size() > 0) ?
         Option.create_Some(ToDafny.EncryptionContextType(nativeValue.encryptionContextEquals()))
         : Option.create_None();
     return new GrantConstraints(encryptionContextSubset, encryptionContextEquals);
@@ -1435,11 +1435,11 @@ public class ToDafny {
         Option.create_Some(ToDafny.KeySpec(nativeValue.keySpec()))
         : Option.create_None();
     Option<DafnySequence<? extends EncryptionAlgorithmSpec>> encryptionAlgorithms;
-    encryptionAlgorithms = Objects.nonNull(nativeValue.encryptionAlgorithms()) ?
+    encryptionAlgorithms = (Objects.nonNull(nativeValue.encryptionAlgorithms()) && nativeValue.encryptionAlgorithms().size() > 0) ?
         Option.create_Some(ToDafny.EncryptionAlgorithmSpecList(nativeValue.encryptionAlgorithms()))
         : Option.create_None();
     Option<DafnySequence<? extends SigningAlgorithmSpec>> signingAlgorithms;
-    signingAlgorithms = Objects.nonNull(nativeValue.signingAlgorithms()) ?
+    signingAlgorithms = (Objects.nonNull(nativeValue.signingAlgorithms()) && nativeValue.signingAlgorithms().size() > 0) ?
         Option.create_Some(ToDafny.SigningAlgorithmSpecList(nativeValue.signingAlgorithms()))
         : Option.create_None();
     Option<Boolean> multiRegion;
@@ -1524,7 +1524,7 @@ public class ToDafny {
         Option.create_Some(ToDafny.MultiRegionKey(nativeValue.primaryKey()))
         : Option.create_None();
     Option<DafnySequence<? extends MultiRegionKey>> replicaKeys;
-    replicaKeys = Objects.nonNull(nativeValue.replicaKeys()) ?
+    replicaKeys = (Objects.nonNull(nativeValue.replicaKeys()) && nativeValue.replicaKeys().size() > 0) ?
         Option.create_Some(ToDafny.MultiRegionKeyList(nativeValue.replicaKeys()))
         : Option.create_None();
     return new MultiRegionConfiguration(multiRegionKeyType, primaryKey, replicaKeys);
@@ -1619,7 +1619,7 @@ public class ToDafny {
         Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.issuingAccount()))
         : Option.create_None();
     Option<DafnySequence<? extends GrantOperation>> operations;
-    operations = Objects.nonNull(nativeValue.operations()) ?
+    operations = (Objects.nonNull(nativeValue.operations()) && nativeValue.operations().size() > 0) ?
         Option.create_Some(ToDafny.GrantOperationList(nativeValue.operations()))
         : Option.create_None();
     Option<GrantConstraints> constraints;
