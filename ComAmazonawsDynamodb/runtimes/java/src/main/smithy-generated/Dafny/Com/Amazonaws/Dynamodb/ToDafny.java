@@ -297,7 +297,6 @@ import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.BackupInUseException;
 import software.amazon.awssdk.services.dynamodb.model.BackupNotFoundException;
@@ -434,7 +433,6 @@ import software.amazon.awssdk.services.dynamodb.model.UpdateTableResponse;
 import software.amazon.awssdk.services.dynamodb.model.UpdateTimeToLiveRequest;
 import software.amazon.awssdk.services.dynamodb.model.UpdateTimeToLiveResponse;
 
-@SuppressWarnings("unused")
 public class ToDafny {
   public static BatchExecuteStatementInput BatchExecuteStatementInput(
       BatchExecuteStatementRequest nativeValue) {
@@ -496,11 +494,11 @@ public class ToDafny {
     DafnySequence<? extends KeySchemaElement> keySchema;
     keySchema = ToDafny.KeySchema(nativeValue.keySchema());
     Option<DafnySequence<? extends LocalSecondaryIndex>> localSecondaryIndexes;
-    localSecondaryIndexes = Objects.nonNull(nativeValue.localSecondaryIndexes()) ?
+    localSecondaryIndexes = (Objects.nonNull(nativeValue.localSecondaryIndexes()) && nativeValue.localSecondaryIndexes().size() > 0) ?
         Option.create_Some(ToDafny.LocalSecondaryIndexList(nativeValue.localSecondaryIndexes()))
         : Option.create_None();
     Option<DafnySequence<? extends GlobalSecondaryIndex>> globalSecondaryIndexes;
-    globalSecondaryIndexes = Objects.nonNull(nativeValue.globalSecondaryIndexes()) ?
+    globalSecondaryIndexes = (Objects.nonNull(nativeValue.globalSecondaryIndexes()) && nativeValue.globalSecondaryIndexes().size() > 0) ?
         Option.create_Some(ToDafny.GlobalSecondaryIndexList(nativeValue.globalSecondaryIndexes()))
         : Option.create_None();
     Option<BillingMode> billingMode;
@@ -520,7 +518,7 @@ public class ToDafny {
         Option.create_Some(ToDafny.SSESpecification(nativeValue.sseSpecification()))
         : Option.create_None();
     Option<DafnySequence<? extends Tag>> tags;
-    tags = Objects.nonNull(nativeValue.tags()) ?
+    tags = (Objects.nonNull(nativeValue.tags()) && nativeValue.tags().size() > 0) ?
         Option.create_Some(ToDafny.TagList(nativeValue.tags()))
         : Option.create_None();
     Option<TableClass> tableClass;
@@ -570,7 +568,7 @@ public class ToDafny {
         Option.create_Some(ToDafny.ExpressionAttributeNameMap(nativeValue.expressionAttributeNames()))
         : Option.create_None();
     Option<DafnyMap<? extends DafnySequence<? extends Character>, ? extends AttributeValue>> expressionAttributeValues;
-    expressionAttributeValues = Objects.nonNull(nativeValue.expressionAttributeValues()) ?
+    expressionAttributeValues = (Objects.nonNull(nativeValue.expressionAttributeValues()) && nativeValue.expressionAttributeValues().size() > 0) ?
         Option.create_Some(ToDafny.ExpressionAttributeValueMap(nativeValue.expressionAttributeValues()))
         : Option.create_None();
     return new DeleteItemInput(tableName, key, expected, conditionalOperator, returnValues, returnConsumedCapacity, returnItemCollectionMetrics, conditionExpression, expressionAttributeNames, expressionAttributeValues);
@@ -770,13 +768,9 @@ public class ToDafny {
     DafnyMap<? extends DafnySequence<? extends Character>, ? extends AttributeValue> key;
     key = ToDafny.Key(nativeValue.key());
     Option<DafnySequence<? extends DafnySequence<? extends Character>>> attributesToGet;
-    if (Objects.nonNull(nativeValue.attributesToGet())) {
-      attributesToGet = nativeValue.attributesToGet().size() == 0 ?
-          Option.create_None()
-          : Option.create_Some(ToDafny.AttributeNameList(nativeValue.attributesToGet()));
-    } else {
-      attributesToGet = Option.create_None();
-    }
+    attributesToGet = (Objects.nonNull(nativeValue.attributesToGet()) && nativeValue.attributesToGet().size() > 0) ?
+        Option.create_Some(ToDafny.AttributeNameList(nativeValue.attributesToGet()))
+        : Option.create_None();
     Option<Boolean> consistentRead;
     consistentRead = Objects.nonNull(nativeValue.consistentRead()) ?
         Option.create_Some((nativeValue.consistentRead()))
@@ -968,7 +962,7 @@ public class ToDafny {
         Option.create_Some(ToDafny.ExpressionAttributeNameMap(nativeValue.expressionAttributeNames()))
         : Option.create_None();
     Option<DafnyMap<? extends DafnySequence<? extends Character>, ? extends AttributeValue>> expressionAttributeValues;
-    expressionAttributeValues = Objects.nonNull(nativeValue.expressionAttributeValues()) ?
+    expressionAttributeValues = (Objects.nonNull(nativeValue.expressionAttributeValues()) && nativeValue.expressionAttributeValues().size() > 0) ?
         Option.create_Some(ToDafny.ExpressionAttributeValueMap(nativeValue.expressionAttributeValues()))
         : Option.create_None();
     return new PutItemInput(tableName, item, expected, returnValues, returnConsumedCapacity, returnItemCollectionMetrics, conditionalOperator, conditionExpression, expressionAttributeNames, expressionAttributeValues);
@@ -986,13 +980,9 @@ public class ToDafny {
         Option.create_Some(ToDafny.Select(nativeValue.select()))
         : Option.create_None();
     Option<DafnySequence<? extends DafnySequence<? extends Character>>> attributesToGet;
-    if (Objects.nonNull(nativeValue.attributesToGet())) {
-      attributesToGet = nativeValue.attributesToGet().size() == 0 ?
-          Option.create_None()
-          : Option.create_Some(ToDafny.AttributeNameList(nativeValue.attributesToGet()));
-    } else {
-      attributesToGet = Option.create_None();
-    }
+    attributesToGet = (Objects.nonNull(nativeValue.attributesToGet()) && nativeValue.attributesToGet().size() > 0) ?
+        Option.create_Some(ToDafny.AttributeNameList(nativeValue.attributesToGet()))
+        : Option.create_None();
     Option<Integer> limit;
     limit = Objects.nonNull(nativeValue.limit()) ?
         Option.create_Some((nativeValue.limit()))
@@ -1002,11 +992,11 @@ public class ToDafny {
         Option.create_Some((nativeValue.consistentRead()))
         : Option.create_None();
     Option<DafnyMap<? extends DafnySequence<? extends Character>, ? extends Condition>> keyConditions;
-    keyConditions = Objects.nonNull(nativeValue.keyConditions()) ?
+    keyConditions = (Objects.nonNull(nativeValue.keyConditions()) && nativeValue.keyConditions().size() > 0) ?
         Option.create_Some(ToDafny.KeyConditions(nativeValue.keyConditions()))
         : Option.create_None();
     Option<DafnyMap<? extends DafnySequence<? extends Character>, ? extends Condition>> queryFilter;
-    queryFilter = Objects.nonNull(nativeValue.queryFilter()) ?
+    queryFilter = (Objects.nonNull(nativeValue.queryFilter()) && nativeValue.queryFilter().size() > 0) ?
         Option.create_Some(ToDafny.FilterConditionMap(nativeValue.queryFilter()))
         : Option.create_None();
     Option<ConditionalOperator> conditionalOperator;
@@ -1018,7 +1008,7 @@ public class ToDafny {
         Option.create_Some((nativeValue.scanIndexForward()))
         : Option.create_None();
     Option<DafnyMap<? extends DafnySequence<? extends Character>, ? extends AttributeValue>> exclusiveStartKey;
-    exclusiveStartKey = Objects.nonNull(nativeValue.exclusiveStartKey()) ?
+    exclusiveStartKey = (Objects.nonNull(nativeValue.exclusiveStartKey()) && nativeValue.exclusiveStartKey().size() > 0) ?
         Option.create_Some(ToDafny.Key(nativeValue.exclusiveStartKey()))
         : Option.create_None();
     Option<ReturnConsumedCapacity> returnConsumedCapacity;
@@ -1042,7 +1032,7 @@ public class ToDafny {
         Option.create_Some(ToDafny.ExpressionAttributeNameMap(nativeValue.expressionAttributeNames()))
         : Option.create_None();
     Option<DafnyMap<? extends DafnySequence<? extends Character>, ? extends AttributeValue>> expressionAttributeValues;
-    expressionAttributeValues = Objects.nonNull(nativeValue.expressionAttributeValues()) ?
+    expressionAttributeValues = (Objects.nonNull(nativeValue.expressionAttributeValues()) && nativeValue.expressionAttributeValues().size() > 0) ?
         Option.create_Some(ToDafny.ExpressionAttributeValueMap(nativeValue.expressionAttributeValues()))
         : Option.create_None();
     return new QueryInput(tableName, indexName, select, attributesToGet, limit, consistentRead, keyConditions, queryFilter, conditionalOperator, scanIndexForward, exclusiveStartKey, returnConsumedCapacity, projectionExpression, filterExpression, keyConditionExpression, expressionAttributeNames, expressionAttributeValues);
@@ -1059,11 +1049,11 @@ public class ToDafny {
         Option.create_Some(ToDafny.BillingMode(nativeValue.billingModeOverride()))
         : Option.create_None();
     Option<DafnySequence<? extends GlobalSecondaryIndex>> globalSecondaryIndexOverride;
-    globalSecondaryIndexOverride = Objects.nonNull(nativeValue.globalSecondaryIndexOverride()) ?
+    globalSecondaryIndexOverride = (Objects.nonNull(nativeValue.globalSecondaryIndexOverride()) && nativeValue.globalSecondaryIndexOverride().size() > 0) ?
         Option.create_Some(ToDafny.GlobalSecondaryIndexList(nativeValue.globalSecondaryIndexOverride()))
         : Option.create_None();
     Option<DafnySequence<? extends LocalSecondaryIndex>> localSecondaryIndexOverride;
-    localSecondaryIndexOverride = Objects.nonNull(nativeValue.localSecondaryIndexOverride()) ?
+    localSecondaryIndexOverride = (Objects.nonNull(nativeValue.localSecondaryIndexOverride()) && nativeValue.localSecondaryIndexOverride().size() > 0) ?
         Option.create_Some(ToDafny.LocalSecondaryIndexList(nativeValue.localSecondaryIndexOverride()))
         : Option.create_None();
     Option<ProvisionedThroughput> provisionedThroughputOverride;
@@ -1102,11 +1092,11 @@ public class ToDafny {
         Option.create_Some(ToDafny.BillingMode(nativeValue.billingModeOverride()))
         : Option.create_None();
     Option<DafnySequence<? extends GlobalSecondaryIndex>> globalSecondaryIndexOverride;
-    globalSecondaryIndexOverride = Objects.nonNull(nativeValue.globalSecondaryIndexOverride()) ?
+    globalSecondaryIndexOverride = (Objects.nonNull(nativeValue.globalSecondaryIndexOverride()) && nativeValue.globalSecondaryIndexOverride().size() > 0) ?
         Option.create_Some(ToDafny.GlobalSecondaryIndexList(nativeValue.globalSecondaryIndexOverride()))
         : Option.create_None();
     Option<DafnySequence<? extends LocalSecondaryIndex>> localSecondaryIndexOverride;
-    localSecondaryIndexOverride = Objects.nonNull(nativeValue.localSecondaryIndexOverride()) ?
+    localSecondaryIndexOverride = (Objects.nonNull(nativeValue.localSecondaryIndexOverride()) && nativeValue.localSecondaryIndexOverride().size() > 0) ?
         Option.create_Some(ToDafny.LocalSecondaryIndexList(nativeValue.localSecondaryIndexOverride()))
         : Option.create_None();
     Option<ProvisionedThroughput> provisionedThroughputOverride;
@@ -1128,13 +1118,9 @@ public class ToDafny {
         Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.indexName()))
         : Option.create_None();
     Option<DafnySequence<? extends DafnySequence<? extends Character>>> attributesToGet;
-    if (Objects.nonNull(nativeValue.attributesToGet())) {
-      attributesToGet = nativeValue.attributesToGet().size() == 0 ?
-          Option.create_None()
-          : Option.create_Some(ToDafny.AttributeNameList(nativeValue.attributesToGet()));
-    } else {
-      attributesToGet = Option.create_None();
-    }
+    attributesToGet = (Objects.nonNull(nativeValue.attributesToGet()) && nativeValue.attributesToGet().size() > 0) ?
+        Option.create_Some(ToDafny.AttributeNameList(nativeValue.attributesToGet()))
+        : Option.create_None();
     Option<Integer> limit;
     limit = Objects.nonNull(nativeValue.limit()) ?
         Option.create_Some((nativeValue.limit()))
@@ -1144,7 +1130,7 @@ public class ToDafny {
         Option.create_Some(ToDafny.Select(nativeValue.select()))
         : Option.create_None();
     Option<DafnyMap<? extends DafnySequence<? extends Character>, ? extends Condition>> scanFilter;
-    scanFilter = Objects.nonNull(nativeValue.scanFilter()) ?
+    scanFilter = (Objects.nonNull(nativeValue.scanFilter()) && nativeValue.scanFilter().size() > 0) ?
         Option.create_Some(ToDafny.FilterConditionMap(nativeValue.scanFilter()))
         : Option.create_None();
     Option<ConditionalOperator> conditionalOperator;
@@ -1152,7 +1138,7 @@ public class ToDafny {
         Option.create_Some(ToDafny.ConditionalOperator(nativeValue.conditionalOperator()))
         : Option.create_None();
     Option<DafnyMap<? extends DafnySequence<? extends Character>, ? extends AttributeValue>> exclusiveStartKey;
-    exclusiveStartKey = Objects.nonNull(nativeValue.exclusiveStartKey()) ?
+    exclusiveStartKey = (Objects.nonNull(nativeValue.exclusiveStartKey()) && nativeValue.exclusiveStartKey().size() > 0) ?
         Option.create_Some(ToDafny.Key(nativeValue.exclusiveStartKey()))
         : Option.create_None();
     Option<ReturnConsumedCapacity> returnConsumedCapacity;
@@ -1180,7 +1166,7 @@ public class ToDafny {
         Option.create_Some(ToDafny.ExpressionAttributeNameMap(nativeValue.expressionAttributeNames()))
         : Option.create_None();
     Option<DafnyMap<? extends DafnySequence<? extends Character>, ? extends AttributeValue>> expressionAttributeValues;
-    expressionAttributeValues = Objects.nonNull(nativeValue.expressionAttributeValues()) ?
+    expressionAttributeValues = (Objects.nonNull(nativeValue.expressionAttributeValues()) && nativeValue.expressionAttributeValues().size() > 0) ?
         Option.create_Some(ToDafny.ExpressionAttributeValueMap(nativeValue.expressionAttributeValues()))
         : Option.create_None();
     Option<Boolean> consistentRead;
@@ -1283,11 +1269,11 @@ public class ToDafny {
         Option.create_Some(ToDafny.AutoScalingSettingsUpdate(nativeValue.globalTableProvisionedWriteCapacityAutoScalingSettingsUpdate()))
         : Option.create_None();
     Option<DafnySequence<? extends GlobalTableGlobalSecondaryIndexSettingsUpdate>> globalTableGlobalSecondaryIndexSettingsUpdate;
-    globalTableGlobalSecondaryIndexSettingsUpdate = Objects.nonNull(nativeValue.globalTableGlobalSecondaryIndexSettingsUpdate()) ?
+    globalTableGlobalSecondaryIndexSettingsUpdate = (Objects.nonNull(nativeValue.globalTableGlobalSecondaryIndexSettingsUpdate()) && nativeValue.globalTableGlobalSecondaryIndexSettingsUpdate().size() > 0) ?
         Option.create_Some(ToDafny.GlobalTableGlobalSecondaryIndexSettingsUpdateList(nativeValue.globalTableGlobalSecondaryIndexSettingsUpdate()))
         : Option.create_None();
     Option<DafnySequence<? extends ReplicaSettingsUpdate>> replicaSettingsUpdate;
-    replicaSettingsUpdate = Objects.nonNull(nativeValue.replicaSettingsUpdate()) ?
+    replicaSettingsUpdate = (Objects.nonNull(nativeValue.replicaSettingsUpdate()) && nativeValue.replicaSettingsUpdate().size() > 0) ?
         Option.create_Some(ToDafny.ReplicaSettingsUpdateList(nativeValue.replicaSettingsUpdate()))
         : Option.create_None();
     return new UpdateGlobalTableSettingsInput(globalTableName, globalTableBillingMode, globalTableProvisionedWriteCapacityUnits, globalTableProvisionedWriteCapacityAutoScalingSettingsUpdate, globalTableGlobalSecondaryIndexSettingsUpdate, replicaSettingsUpdate);
@@ -1299,7 +1285,7 @@ public class ToDafny {
     DafnyMap<? extends DafnySequence<? extends Character>, ? extends AttributeValue> key;
     key = ToDafny.Key(nativeValue.key());
     Option<DafnyMap<? extends DafnySequence<? extends Character>, ? extends AttributeValueUpdate>> attributeUpdates;
-    attributeUpdates = Objects.nonNull(nativeValue.attributeUpdates()) ?
+    attributeUpdates = (Objects.nonNull(nativeValue.attributeUpdates()) && nativeValue.attributeUpdates().size() > 0) ?
         Option.create_Some(ToDafny.AttributeUpdates(nativeValue.attributeUpdates()))
         : Option.create_None();
     Option<DafnyMap<? extends DafnySequence<? extends Character>, ? extends ExpectedAttributeValue>> expected;
@@ -1335,7 +1321,7 @@ public class ToDafny {
         Option.create_Some(ToDafny.ExpressionAttributeNameMap(nativeValue.expressionAttributeNames()))
         : Option.create_None();
     Option<DafnyMap<? extends DafnySequence<? extends Character>, ? extends AttributeValue>> expressionAttributeValues;
-    expressionAttributeValues = Objects.nonNull(nativeValue.expressionAttributeValues()) ?
+    expressionAttributeValues = (Objects.nonNull(nativeValue.expressionAttributeValues()) && nativeValue.expressionAttributeValues().size() > 0) ?
         Option.create_Some(ToDafny.ExpressionAttributeValueMap(nativeValue.expressionAttributeValues()))
         : Option.create_None();
     return new UpdateItemInput(tableName, key, attributeUpdates, expected, conditionalOperator, returnValues, returnConsumedCapacity, returnItemCollectionMetrics, updateExpression, conditionExpression, expressionAttributeNames, expressionAttributeValues);
@@ -1343,13 +1329,9 @@ public class ToDafny {
 
   public static UpdateTableInput UpdateTableInput(UpdateTableRequest nativeValue) {
     Option<DafnySequence<? extends AttributeDefinition>> attributeDefinitions;
-    if (Objects.nonNull(nativeValue.attributeDefinitions())) {
-      attributeDefinitions = nativeValue.attributeDefinitions().size() == 0 ?
-          Option.create_None()
-          : Option.create_Some(ToDafny.AttributeDefinitions(nativeValue.attributeDefinitions()));
-    } else {
-      attributeDefinitions = Option.create_None();
-    }
+    attributeDefinitions = (Objects.nonNull(nativeValue.attributeDefinitions()) && nativeValue.attributeDefinitions().size() > 0) ?
+        Option.create_Some(ToDafny.AttributeDefinitions(nativeValue.attributeDefinitions()))
+        : Option.create_None();
     DafnySequence<? extends Character> tableName;
     tableName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName());
     Option<BillingMode> billingMode;
@@ -1361,7 +1343,7 @@ public class ToDafny {
         Option.create_Some(ToDafny.ProvisionedThroughput(nativeValue.provisionedThroughput()))
         : Option.create_None();
     Option<DafnySequence<? extends GlobalSecondaryIndexUpdate>> globalSecondaryIndexUpdates;
-    globalSecondaryIndexUpdates = Objects.nonNull(nativeValue.globalSecondaryIndexUpdates()) ?
+    globalSecondaryIndexUpdates = (Objects.nonNull(nativeValue.globalSecondaryIndexUpdates()) && nativeValue.globalSecondaryIndexUpdates().size() > 0) ?
         Option.create_Some(ToDafny.GlobalSecondaryIndexUpdateList(nativeValue.globalSecondaryIndexUpdates()))
         : Option.create_None();
     Option<StreamSpecification> streamSpecification;
@@ -1373,7 +1355,7 @@ public class ToDafny {
         Option.create_Some(ToDafny.SSESpecification(nativeValue.sseSpecification()))
         : Option.create_None();
     Option<DafnySequence<? extends ReplicationGroupUpdate>> replicaUpdates;
-    replicaUpdates = Objects.nonNull(nativeValue.replicaUpdates()) ?
+    replicaUpdates = (Objects.nonNull(nativeValue.replicaUpdates()) && nativeValue.replicaUpdates().size() > 0) ?
         Option.create_Some(ToDafny.ReplicationGroupUpdateList(nativeValue.replicaUpdates()))
         : Option.create_None();
     Option<TableClass> tableClass;
@@ -1386,7 +1368,7 @@ public class ToDafny {
   public static UpdateTableReplicaAutoScalingInput UpdateTableReplicaAutoScalingInput(
       UpdateTableReplicaAutoScalingRequest nativeValue) {
     Option<DafnySequence<? extends GlobalSecondaryIndexAutoScalingUpdate>> globalSecondaryIndexUpdates;
-    globalSecondaryIndexUpdates = Objects.nonNull(nativeValue.globalSecondaryIndexUpdates()) ?
+    globalSecondaryIndexUpdates = (Objects.nonNull(nativeValue.globalSecondaryIndexUpdates()) && nativeValue.globalSecondaryIndexUpdates().size() > 0) ?
         Option.create_Some(ToDafny.GlobalSecondaryIndexAutoScalingUpdateList(nativeValue.globalSecondaryIndexUpdates()))
         : Option.create_None();
     DafnySequence<? extends Character> tableName;
@@ -1396,7 +1378,7 @@ public class ToDafny {
         Option.create_Some(ToDafny.AutoScalingSettingsUpdate(nativeValue.provisionedWriteCapacityAutoScalingUpdate()))
         : Option.create_None();
     Option<DafnySequence<? extends ReplicaAutoScalingUpdate>> replicaUpdates;
-    replicaUpdates = Objects.nonNull(nativeValue.replicaUpdates()) ?
+    replicaUpdates = (Objects.nonNull(nativeValue.replicaUpdates()) && nativeValue.replicaUpdates().size() > 0) ?
         Option.create_Some(ToDafny.ReplicaAutoScalingUpdateList(nativeValue.replicaUpdates()))
         : Option.create_None();
     return new UpdateTableReplicaAutoScalingInput(globalSecondaryIndexUpdates, tableName, provisionedWriteCapacityAutoScalingUpdate, replicaUpdates);
@@ -1413,57 +1395,45 @@ public class ToDafny {
   public static BatchExecuteStatementOutput BatchExecuteStatementOutput(
       BatchExecuteStatementResponse nativeValue) {
     Option<DafnySequence<? extends BatchStatementResponse>> responses;
-    responses = Objects.nonNull(nativeValue.responses()) ?
+    responses = (Objects.nonNull(nativeValue.responses()) && nativeValue.responses().size() > 0) ?
         Option.create_Some(ToDafny.PartiQLBatchResponse(nativeValue.responses()))
         : Option.create_None();
     Option<DafnySequence<? extends ConsumedCapacity>> consumedCapacity;
-    if (Objects.nonNull(nativeValue.consumedCapacity())) {
-      consumedCapacity = nativeValue.consumedCapacity().size() == 0 ?
-          Option.create_None()
-          : Option.create_Some(ToDafny.ConsumedCapacityMultiple(nativeValue.consumedCapacity()));
-    } else {
-      consumedCapacity = Option.create_None();
-    }
+    consumedCapacity = (Objects.nonNull(nativeValue.consumedCapacity()) && nativeValue.consumedCapacity().size() > 0) ?
+        Option.create_Some(ToDafny.ConsumedCapacityMultiple(nativeValue.consumedCapacity()))
+        : Option.create_None();
     return new BatchExecuteStatementOutput(responses, consumedCapacity);
   }
 
   public static BatchGetItemOutput BatchGetItemOutput(BatchGetItemResponse nativeValue) {
     Option<DafnyMap<? extends DafnySequence<? extends Character>, ? extends DafnySequence<? extends DafnyMap<? extends DafnySequence<? extends Character>, ? extends AttributeValue>>>> responses;
-    responses = Objects.nonNull(nativeValue.responses()) ?
+    responses = (Objects.nonNull(nativeValue.responses()) && nativeValue.responses().size() > 0) ?
         Option.create_Some(ToDafny.BatchGetResponseMap(nativeValue.responses()))
         : Option.create_None();
     Option<DafnyMap<? extends DafnySequence<? extends Character>, ? extends KeysAndAttributes>> unprocessedKeys;
-    unprocessedKeys = Objects.nonNull(nativeValue.unprocessedKeys()) ?
+    unprocessedKeys = (Objects.nonNull(nativeValue.unprocessedKeys()) && nativeValue.unprocessedKeys().size() > 0) ?
         Option.create_Some(ToDafny.BatchGetRequestMap(nativeValue.unprocessedKeys()))
         : Option.create_None();
     Option<DafnySequence<? extends ConsumedCapacity>> consumedCapacity;
-    if (Objects.nonNull(nativeValue.consumedCapacity())) {
-      consumedCapacity = nativeValue.consumedCapacity().size() == 0 ?
-          Option.create_None()
-          : Option.create_Some(ToDafny.ConsumedCapacityMultiple(nativeValue.consumedCapacity()));
-    } else {
-      consumedCapacity = Option.create_None();
-    }
+    consumedCapacity = (Objects.nonNull(nativeValue.consumedCapacity()) && nativeValue.consumedCapacity().size() > 0) ?
+        Option.create_Some(ToDafny.ConsumedCapacityMultiple(nativeValue.consumedCapacity()))
+        : Option.create_None();
     return new BatchGetItemOutput(responses, unprocessedKeys, consumedCapacity);
   }
 
   public static BatchWriteItemOutput BatchWriteItemOutput(BatchWriteItemResponse nativeValue) {
     Option<DafnyMap<? extends DafnySequence<? extends Character>, ? extends DafnySequence<? extends WriteRequest>>> unprocessedItems;
-    unprocessedItems = Objects.nonNull(nativeValue.unprocessedItems()) ?
+    unprocessedItems = (Objects.nonNull(nativeValue.unprocessedItems()) && nativeValue.unprocessedItems().size() > 0) ?
         Option.create_Some(ToDafny.BatchWriteItemRequestMap(nativeValue.unprocessedItems()))
         : Option.create_None();
     Option<DafnyMap<? extends DafnySequence<? extends Character>, ? extends DafnySequence<? extends ItemCollectionMetrics>>> itemCollectionMetrics;
-    itemCollectionMetrics = Objects.nonNull(nativeValue.itemCollectionMetrics()) ?
+    itemCollectionMetrics = (Objects.nonNull(nativeValue.itemCollectionMetrics()) && nativeValue.itemCollectionMetrics().size() > 0) ?
         Option.create_Some(ToDafny.ItemCollectionMetricsPerTable(nativeValue.itemCollectionMetrics()))
         : Option.create_None();
     Option<DafnySequence<? extends ConsumedCapacity>> consumedCapacity;
-    if (Objects.nonNull(nativeValue.consumedCapacity())) {
-      consumedCapacity = nativeValue.consumedCapacity().size() == 0 ?
-          Option.create_None()
-          : Option.create_Some(ToDafny.ConsumedCapacityMultiple(nativeValue.consumedCapacity()));
-    } else {
-      consumedCapacity = Option.create_None();
-    }
+    consumedCapacity = (Objects.nonNull(nativeValue.consumedCapacity()) && nativeValue.consumedCapacity().size() > 0) ?
+        Option.create_Some(ToDafny.ConsumedCapacityMultiple(nativeValue.consumedCapacity()))
+        : Option.create_None();
     return new BatchWriteItemOutput(unprocessedItems, itemCollectionMetrics, consumedCapacity);
   }
 
@@ -1502,7 +1472,7 @@ public class ToDafny {
 
   public static DeleteItemOutput DeleteItemOutput(DeleteItemResponse nativeValue) {
     Option<DafnyMap<? extends DafnySequence<? extends Character>, ? extends AttributeValue>> attributes;
-    attributes = Objects.nonNull(nativeValue.attributes()) ?
+    attributes = (Objects.nonNull(nativeValue.attributes()) && nativeValue.attributes().size() > 0) ?
         Option.create_Some(ToDafny.AttributeMap(nativeValue.attributes()))
         : Option.create_None();
     Option<ConsumedCapacity> consumedCapacity;
@@ -1552,13 +1522,9 @@ public class ToDafny {
         Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.indexName()))
         : Option.create_None();
     Option<DafnySequence<? extends DafnySequence<? extends Character>>> contributorInsightsRuleList;
-    if (Objects.nonNull(nativeValue.contributorInsightsRuleList())) {
-      contributorInsightsRuleList = nativeValue.contributorInsightsRuleList().size() == 0 ?
-          Option.create_None()
-          : Option.create_Some(ToDafny.ContributorInsightsRuleList(nativeValue.contributorInsightsRuleList()));
-    } else {
-      contributorInsightsRuleList = Option.create_None();
-    }
+    contributorInsightsRuleList = (Objects.nonNull(nativeValue.contributorInsightsRuleList()) && nativeValue.contributorInsightsRuleList().size() > 0) ?
+        Option.create_Some(ToDafny.ContributorInsightsRuleList(nativeValue.contributorInsightsRuleList()))
+        : Option.create_None();
     Option<ContributorInsightsStatus> contributorInsightsStatus;
     contributorInsightsStatus = Objects.nonNull(nativeValue.contributorInsightsStatus()) ?
         Option.create_Some(ToDafny.ContributorInsightsStatus(nativeValue.contributorInsightsStatus()))
@@ -1605,7 +1571,7 @@ public class ToDafny {
         Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.globalTableName()))
         : Option.create_None();
     Option<DafnySequence<? extends ReplicaSettingsDescription>> replicaSettings;
-    replicaSettings = Objects.nonNull(nativeValue.replicaSettings()) ?
+    replicaSettings = (Objects.nonNull(nativeValue.replicaSettings()) && nativeValue.replicaSettings().size() > 0) ?
         Option.create_Some(ToDafny.ReplicaSettingsDescriptionList(nativeValue.replicaSettings()))
         : Option.create_None();
     return new DescribeGlobalTableSettingsOutput(globalTableName, replicaSettings);
@@ -1624,7 +1590,7 @@ public class ToDafny {
         Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName()))
         : Option.create_None();
     Option<DafnySequence<? extends KinesisDataStreamDestination>> kinesisDataStreamDestinations;
-    kinesisDataStreamDestinations = Objects.nonNull(nativeValue.kinesisDataStreamDestinations()) ?
+    kinesisDataStreamDestinations = (Objects.nonNull(nativeValue.kinesisDataStreamDestinations()) && nativeValue.kinesisDataStreamDestinations().size() > 0) ?
         Option.create_Some(ToDafny.KinesisDataStreamDestinations(nativeValue.kinesisDataStreamDestinations()))
         : Option.create_None();
     return new DescribeKinesisStreamingDestinationOutput(tableName, kinesisDataStreamDestinations);
@@ -1713,7 +1679,7 @@ public class ToDafny {
   public static ExecuteStatementOutput ExecuteStatementOutput(
       ExecuteStatementResponse nativeValue) {
     Option<DafnySequence<? extends DafnyMap<? extends DafnySequence<? extends Character>, ? extends AttributeValue>>> items;
-    items = Objects.nonNull(nativeValue.items()) ?
+    items = (Objects.nonNull(nativeValue.items()) && nativeValue.items().size() > 0) ?
         Option.create_Some(ToDafny.ItemList(nativeValue.items()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> nextToken;
@@ -1725,7 +1691,7 @@ public class ToDafny {
         Option.create_Some(ToDafny.ConsumedCapacity(nativeValue.consumedCapacity()))
         : Option.create_None();
     Option<DafnyMap<? extends DafnySequence<? extends Character>, ? extends AttributeValue>> lastEvaluatedKey;
-    lastEvaluatedKey = Objects.nonNull(nativeValue.lastEvaluatedKey()) ?
+    lastEvaluatedKey = (Objects.nonNull(nativeValue.lastEvaluatedKey()) && nativeValue.lastEvaluatedKey().size() > 0) ?
         Option.create_Some(ToDafny.Key(nativeValue.lastEvaluatedKey()))
         : Option.create_None();
     return new ExecuteStatementOutput(items, nextToken, consumedCapacity, lastEvaluatedKey);
@@ -1734,17 +1700,13 @@ public class ToDafny {
   public static ExecuteTransactionOutput ExecuteTransactionOutput(
       ExecuteTransactionResponse nativeValue) {
     Option<DafnySequence<? extends ItemResponse>> responses;
-    responses = Objects.nonNull(nativeValue.responses()) ?
+    responses = (Objects.nonNull(nativeValue.responses()) && nativeValue.responses().size() > 0) ?
         Option.create_Some(ToDafny.ItemResponseList(nativeValue.responses()))
         : Option.create_None();
     Option<DafnySequence<? extends ConsumedCapacity>> consumedCapacity;
-    if (Objects.nonNull(nativeValue.consumedCapacity())) {
-      consumedCapacity = nativeValue.consumedCapacity().size() == 0 ?
-          Option.create_None()
-          : Option.create_Some(ToDafny.ConsumedCapacityMultiple(nativeValue.consumedCapacity()));
-    } else {
-      consumedCapacity = Option.create_None();
-    }
+    consumedCapacity = (Objects.nonNull(nativeValue.consumedCapacity()) && nativeValue.consumedCapacity().size() > 0) ?
+        Option.create_Some(ToDafny.ConsumedCapacityMultiple(nativeValue.consumedCapacity()))
+        : Option.create_None();
     return new ExecuteTransactionOutput(responses, consumedCapacity);
   }
 
@@ -1759,7 +1721,7 @@ public class ToDafny {
 
   public static GetItemOutput GetItemOutput(GetItemResponse nativeValue) {
     Option<DafnyMap<? extends DafnySequence<? extends Character>, ? extends AttributeValue>> item;
-    item = Objects.nonNull(nativeValue.item()) ?
+    item = (Objects.nonNull(nativeValue.item()) && nativeValue.item().size() > 0) ?
         Option.create_Some(ToDafny.AttributeMap(nativeValue.item()))
         : Option.create_None();
     Option<ConsumedCapacity> consumedCapacity;
@@ -1777,13 +1739,9 @@ public class ToDafny {
 
   public static ListBackupsOutput ListBackupsOutput(ListBackupsResponse nativeValue) {
     Option<DafnySequence<? extends BackupSummary>> backupSummaries;
-    if (Objects.nonNull(nativeValue.backupSummaries())) {
-      backupSummaries = nativeValue.backupSummaries().size() == 0 ?
-          Option.create_None()
-          : Option.create_Some(ToDafny.BackupSummaries(nativeValue.backupSummaries()));
-    } else {
-      backupSummaries = Option.create_None();
-    }
+    backupSummaries = (Objects.nonNull(nativeValue.backupSummaries()) && nativeValue.backupSummaries().size() > 0) ?
+        Option.create_Some(ToDafny.BackupSummaries(nativeValue.backupSummaries()))
+        : Option.create_None();
     Option<DafnySequence<? extends Character>> lastEvaluatedBackupArn;
     lastEvaluatedBackupArn = Objects.nonNull(nativeValue.lastEvaluatedBackupArn()) ?
         Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.lastEvaluatedBackupArn()))
@@ -1794,13 +1752,9 @@ public class ToDafny {
   public static ListContributorInsightsOutput ListContributorInsightsOutput(
       ListContributorInsightsResponse nativeValue) {
     Option<DafnySequence<? extends ContributorInsightsSummary>> contributorInsightsSummaries;
-    if (Objects.nonNull(nativeValue.contributorInsightsSummaries())) {
-      contributorInsightsSummaries = nativeValue.contributorInsightsSummaries().size() == 0 ?
-          Option.create_None()
-          : Option.create_Some(ToDafny.ContributorInsightsSummaries(nativeValue.contributorInsightsSummaries()));
-    } else {
-      contributorInsightsSummaries = Option.create_None();
-    }
+    contributorInsightsSummaries = (Objects.nonNull(nativeValue.contributorInsightsSummaries()) && nativeValue.contributorInsightsSummaries().size() > 0) ?
+        Option.create_Some(ToDafny.ContributorInsightsSummaries(nativeValue.contributorInsightsSummaries()))
+        : Option.create_None();
     Option<DafnySequence<? extends Character>> nextToken;
     nextToken = Objects.nonNull(nativeValue.nextToken()) ?
         Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.nextToken()))
@@ -1810,13 +1764,9 @@ public class ToDafny {
 
   public static ListExportsOutput ListExportsOutput(ListExportsResponse nativeValue) {
     Option<DafnySequence<? extends ExportSummary>> exportSummaries;
-    if (Objects.nonNull(nativeValue.exportSummaries())) {
-      exportSummaries = nativeValue.exportSummaries().size() == 0 ?
-          Option.create_None()
-          : Option.create_Some(ToDafny.ExportSummaries(nativeValue.exportSummaries()));
-    } else {
-      exportSummaries = Option.create_None();
-    }
+    exportSummaries = (Objects.nonNull(nativeValue.exportSummaries()) && nativeValue.exportSummaries().size() > 0) ?
+        Option.create_Some(ToDafny.ExportSummaries(nativeValue.exportSummaries()))
+        : Option.create_None();
     Option<DafnySequence<? extends Character>> nextToken;
     nextToken = Objects.nonNull(nativeValue.nextToken()) ?
         Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.nextToken()))
@@ -1827,7 +1777,7 @@ public class ToDafny {
   public static ListGlobalTablesOutput ListGlobalTablesOutput(
       ListGlobalTablesResponse nativeValue) {
     Option<DafnySequence<? extends GlobalTable>> globalTables;
-    globalTables = Objects.nonNull(nativeValue.globalTables()) ?
+    globalTables = (Objects.nonNull(nativeValue.globalTables()) && nativeValue.globalTables().size() > 0) ?
         Option.create_Some(ToDafny.GlobalTableList(nativeValue.globalTables()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> lastEvaluatedGlobalTableName;
@@ -1839,7 +1789,7 @@ public class ToDafny {
 
   public static ListImportsOutput ListImportsOutput(ListImportsResponse nativeValue) {
     Option<DafnySequence<? extends ImportSummary>> importSummaryList;
-    importSummaryList = Objects.nonNull(nativeValue.importSummaryList()) ?
+    importSummaryList = (Objects.nonNull(nativeValue.importSummaryList()) && nativeValue.importSummaryList().size() > 0) ?
         Option.create_Some(ToDafny.ImportSummaryList(nativeValue.importSummaryList()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> nextToken;
@@ -1851,7 +1801,7 @@ public class ToDafny {
 
   public static ListTablesOutput ListTablesOutput(ListTablesResponse nativeValue) {
     Option<DafnySequence<? extends DafnySequence<? extends Character>>> tableNames;
-    tableNames = Objects.nonNull(nativeValue.tableNames()) ?
+    tableNames = (Objects.nonNull(nativeValue.tableNames()) && nativeValue.tableNames().size() > 0) ?
         Option.create_Some(ToDafny.TableNameList(nativeValue.tableNames()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> lastEvaluatedTableName;
@@ -1864,7 +1814,7 @@ public class ToDafny {
   public static ListTagsOfResourceOutput ListTagsOfResourceOutput(
       ListTagsOfResourceResponse nativeValue) {
     Option<DafnySequence<? extends Tag>> tags;
-    tags = Objects.nonNull(nativeValue.tags()) ?
+    tags = (Objects.nonNull(nativeValue.tags()) && nativeValue.tags().size() > 0) ?
         Option.create_Some(ToDafny.TagList(nativeValue.tags()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> nextToken;
@@ -1876,7 +1826,7 @@ public class ToDafny {
 
   public static PutItemOutput PutItemOutput(PutItemResponse nativeValue) {
     Option<DafnyMap<? extends DafnySequence<? extends Character>, ? extends AttributeValue>> attributes;
-    attributes = Objects.nonNull(nativeValue.attributes()) ?
+    attributes = (Objects.nonNull(nativeValue.attributes()) && nativeValue.attributes().size() > 0) ?
         Option.create_Some(ToDafny.AttributeMap(nativeValue.attributes()))
         : Option.create_None();
     Option<ConsumedCapacity> consumedCapacity;
@@ -1892,7 +1842,7 @@ public class ToDafny {
 
   public static QueryOutput QueryOutput(QueryResponse nativeValue) {
     Option<DafnySequence<? extends DafnyMap<? extends DafnySequence<? extends Character>, ? extends AttributeValue>>> items;
-    items = Objects.nonNull(nativeValue.items()) ?
+    items = (Objects.nonNull(nativeValue.items()) && nativeValue.items().size() > 0) ?
         Option.create_Some(ToDafny.ItemList(nativeValue.items()))
         : Option.create_None();
     Option<Integer> count;
@@ -1904,7 +1854,7 @@ public class ToDafny {
         Option.create_Some((nativeValue.scannedCount()))
         : Option.create_None();
     Option<DafnyMap<? extends DafnySequence<? extends Character>, ? extends AttributeValue>> lastEvaluatedKey;
-    lastEvaluatedKey = Objects.nonNull(nativeValue.lastEvaluatedKey()) ?
+    lastEvaluatedKey = (Objects.nonNull(nativeValue.lastEvaluatedKey()) && nativeValue.lastEvaluatedKey().size() > 0) ?
         Option.create_Some(ToDafny.Key(nativeValue.lastEvaluatedKey()))
         : Option.create_None();
     Option<ConsumedCapacity> consumedCapacity;
@@ -1934,7 +1884,7 @@ public class ToDafny {
 
   public static ScanOutput ScanOutput(ScanResponse nativeValue) {
     Option<DafnySequence<? extends DafnyMap<? extends DafnySequence<? extends Character>, ? extends AttributeValue>>> items;
-    items = Objects.nonNull(nativeValue.items()) ?
+    items = (Objects.nonNull(nativeValue.items()) && nativeValue.items().size() > 0) ?
         Option.create_Some(ToDafny.ItemList(nativeValue.items()))
         : Option.create_None();
     Option<Integer> count;
@@ -1946,7 +1896,7 @@ public class ToDafny {
         Option.create_Some((nativeValue.scannedCount()))
         : Option.create_None();
     Option<DafnyMap<? extends DafnySequence<? extends Character>, ? extends AttributeValue>> lastEvaluatedKey;
-    lastEvaluatedKey = Objects.nonNull(nativeValue.lastEvaluatedKey()) ?
+    lastEvaluatedKey = (Objects.nonNull(nativeValue.lastEvaluatedKey()) && nativeValue.lastEvaluatedKey().size() > 0) ?
         Option.create_Some(ToDafny.Key(nativeValue.lastEvaluatedKey()))
         : Option.create_None();
     Option<ConsumedCapacity> consumedCapacity;
@@ -1959,15 +1909,11 @@ public class ToDafny {
   public static TransactGetItemsOutput TransactGetItemsOutput(
       TransactGetItemsResponse nativeValue) {
     Option<DafnySequence<? extends ConsumedCapacity>> consumedCapacity;
-    if (Objects.nonNull(nativeValue.consumedCapacity())) {
-      consumedCapacity = nativeValue.consumedCapacity().size() == 0 ?
-          Option.create_None()
-          : Option.create_Some(ToDafny.ConsumedCapacityMultiple(nativeValue.consumedCapacity()));
-    } else {
-      consumedCapacity = Option.create_None();
-    }
+    consumedCapacity = (Objects.nonNull(nativeValue.consumedCapacity()) && nativeValue.consumedCapacity().size() > 0) ?
+        Option.create_Some(ToDafny.ConsumedCapacityMultiple(nativeValue.consumedCapacity()))
+        : Option.create_None();
     Option<DafnySequence<? extends ItemResponse>> responses;
-    responses = Objects.nonNull(nativeValue.responses()) ?
+    responses = (Objects.nonNull(nativeValue.responses()) && nativeValue.responses().size() > 0) ?
         Option.create_Some(ToDafny.ItemResponseList(nativeValue.responses()))
         : Option.create_None();
     return new TransactGetItemsOutput(consumedCapacity, responses);
@@ -1976,15 +1922,11 @@ public class ToDafny {
   public static TransactWriteItemsOutput TransactWriteItemsOutput(
       TransactWriteItemsResponse nativeValue) {
     Option<DafnySequence<? extends ConsumedCapacity>> consumedCapacity;
-    if (Objects.nonNull(nativeValue.consumedCapacity())) {
-      consumedCapacity = nativeValue.consumedCapacity().size() == 0 ?
-          Option.create_None()
-          : Option.create_Some(ToDafny.ConsumedCapacityMultiple(nativeValue.consumedCapacity()));
-    } else {
-      consumedCapacity = Option.create_None();
-    }
+    consumedCapacity = (Objects.nonNull(nativeValue.consumedCapacity()) && nativeValue.consumedCapacity().size() > 0) ?
+        Option.create_Some(ToDafny.ConsumedCapacityMultiple(nativeValue.consumedCapacity()))
+        : Option.create_None();
     Option<DafnyMap<? extends DafnySequence<? extends Character>, ? extends DafnySequence<? extends ItemCollectionMetrics>>> itemCollectionMetrics;
-    itemCollectionMetrics = Objects.nonNull(nativeValue.itemCollectionMetrics()) ?
+    itemCollectionMetrics = (Objects.nonNull(nativeValue.itemCollectionMetrics()) && nativeValue.itemCollectionMetrics().size() > 0) ?
         Option.create_Some(ToDafny.ItemCollectionMetricsPerTable(nativeValue.itemCollectionMetrics()))
         : Option.create_None();
     return new TransactWriteItemsOutput(consumedCapacity, itemCollectionMetrics);
@@ -2032,7 +1974,7 @@ public class ToDafny {
         Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.globalTableName()))
         : Option.create_None();
     Option<DafnySequence<? extends ReplicaSettingsDescription>> replicaSettings;
-    replicaSettings = Objects.nonNull(nativeValue.replicaSettings()) ?
+    replicaSettings = (Objects.nonNull(nativeValue.replicaSettings()) && nativeValue.replicaSettings().size() > 0) ?
         Option.create_Some(ToDafny.ReplicaSettingsDescriptionList(nativeValue.replicaSettings()))
         : Option.create_None();
     return new UpdateGlobalTableSettingsOutput(globalTableName, replicaSettings);
@@ -2040,7 +1982,7 @@ public class ToDafny {
 
   public static UpdateItemOutput UpdateItemOutput(UpdateItemResponse nativeValue) {
     Option<DafnyMap<? extends DafnySequence<? extends Character>, ? extends AttributeValue>> attributes;
-    attributes = Objects.nonNull(nativeValue.attributes()) ?
+    attributes = (Objects.nonNull(nativeValue.attributes()) && nativeValue.attributes().size() > 0) ?
         Option.create_Some(ToDafny.AttributeMap(nativeValue.attributes()))
         : Option.create_None();
     Option<ConsumedCapacity> consumedCapacity;
@@ -2290,7 +2232,7 @@ public class ToDafny {
         Option.create_Some(ToDafny.SSESpecification(nativeValue.sseSpecification()))
         : Option.create_None();
     Option<DafnySequence<? extends GlobalSecondaryIndex>> globalSecondaryIndexes;
-    globalSecondaryIndexes = Objects.nonNull(nativeValue.globalSecondaryIndexes()) ?
+    globalSecondaryIndexes = (Objects.nonNull(nativeValue.globalSecondaryIndexes()) && nativeValue.globalSecondaryIndexes().size() > 0) ?
         Option.create_Some(ToDafny.GlobalSecondaryIndexList(nativeValue.globalSecondaryIndexes()))
         : Option.create_None();
     return new TableCreationParameters(tableName, attributeDefinitions, keySchema, billingMode, provisionedThroughput, sSESpecification, globalSecondaryIndexes);
@@ -2507,7 +2449,7 @@ public class ToDafny {
   public static GlobalTableDescription GlobalTableDescription(
       software.amazon.awssdk.services.dynamodb.model.GlobalTableDescription nativeValue) {
     Option<DafnySequence<? extends ReplicaDescription>> replicationGroup;
-    replicationGroup = Objects.nonNull(nativeValue.replicationGroup()) ?
+    replicationGroup = (Objects.nonNull(nativeValue.replicationGroup()) && nativeValue.replicationGroup().size() > 0) ?
         Option.create_Some(ToDafny.ReplicaDescriptionList(nativeValue.replicationGroup()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> globalTableArn;
@@ -2532,19 +2474,15 @@ public class ToDafny {
   public static TableDescription TableDescription(
       software.amazon.awssdk.services.dynamodb.model.TableDescription nativeValue) {
     Option<DafnySequence<? extends AttributeDefinition>> attributeDefinitions;
-    if (Objects.nonNull(nativeValue.attributeDefinitions())) {
-      attributeDefinitions = nativeValue.attributeDefinitions().size() == 0 ?
-          Option.create_None()
-          : Option.create_Some(ToDafny.AttributeDefinitions(nativeValue.attributeDefinitions()));
-    } else {
-      attributeDefinitions = Option.create_None();
-    }
+    attributeDefinitions = (Objects.nonNull(nativeValue.attributeDefinitions()) && nativeValue.attributeDefinitions().size() > 0) ?
+        Option.create_Some(ToDafny.AttributeDefinitions(nativeValue.attributeDefinitions()))
+        : Option.create_None();
     Option<DafnySequence<? extends Character>> tableName;
     tableName = Objects.nonNull(nativeValue.tableName()) ?
         Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName()))
         : Option.create_None();
     Option<DafnySequence<? extends KeySchemaElement>> keySchema;
-    keySchema = Objects.nonNull(nativeValue.keySchema()) ?
+    keySchema = (Objects.nonNull(nativeValue.keySchema()) && nativeValue.keySchema().size() > 0) ?
         Option.create_Some(ToDafny.KeySchema(nativeValue.keySchema()))
         : Option.create_None();
     Option<TableStatus> tableStatus;
@@ -2580,11 +2518,11 @@ public class ToDafny {
         Option.create_Some(ToDafny.BillingModeSummary(nativeValue.billingModeSummary()))
         : Option.create_None();
     Option<DafnySequence<? extends LocalSecondaryIndexDescription>> localSecondaryIndexes;
-    localSecondaryIndexes = Objects.nonNull(nativeValue.localSecondaryIndexes()) ?
+    localSecondaryIndexes = (Objects.nonNull(nativeValue.localSecondaryIndexes()) && nativeValue.localSecondaryIndexes().size() > 0) ?
         Option.create_Some(ToDafny.LocalSecondaryIndexDescriptionList(nativeValue.localSecondaryIndexes()))
         : Option.create_None();
     Option<DafnySequence<? extends GlobalSecondaryIndexDescription>> globalSecondaryIndexes;
-    globalSecondaryIndexes = Objects.nonNull(nativeValue.globalSecondaryIndexes()) ?
+    globalSecondaryIndexes = (Objects.nonNull(nativeValue.globalSecondaryIndexes()) && nativeValue.globalSecondaryIndexes().size() > 0) ?
         Option.create_Some(ToDafny.GlobalSecondaryIndexDescriptionList(nativeValue.globalSecondaryIndexes()))
         : Option.create_None();
     Option<StreamSpecification> streamSpecification;
@@ -2604,7 +2542,7 @@ public class ToDafny {
         Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.globalTableVersion()))
         : Option.create_None();
     Option<DafnySequence<? extends ReplicaDescription>> replicas;
-    replicas = Objects.nonNull(nativeValue.replicas()) ?
+    replicas = (Objects.nonNull(nativeValue.replicas()) && nativeValue.replicas().size() > 0) ?
         Option.create_Some(ToDafny.ReplicaDescriptionList(nativeValue.replicas()))
         : Option.create_None();
     Option<RestoreSummary> restoreSummary;
@@ -2674,11 +2612,11 @@ public class ToDafny {
         Option.create_Some(ToDafny.Capacity(nativeValue.table()))
         : Option.create_None();
     Option<DafnyMap<? extends DafnySequence<? extends Character>, ? extends Capacity>> localSecondaryIndexes;
-    localSecondaryIndexes = Objects.nonNull(nativeValue.localSecondaryIndexes()) ?
+    localSecondaryIndexes = (Objects.nonNull(nativeValue.localSecondaryIndexes()) && nativeValue.localSecondaryIndexes().size() > 0) ?
         Option.create_Some(ToDafny.SecondaryIndexesCapacityMap(nativeValue.localSecondaryIndexes()))
         : Option.create_None();
     Option<DafnyMap<? extends DafnySequence<? extends Character>, ? extends Capacity>> globalSecondaryIndexes;
-    globalSecondaryIndexes = Objects.nonNull(nativeValue.globalSecondaryIndexes()) ?
+    globalSecondaryIndexes = (Objects.nonNull(nativeValue.globalSecondaryIndexes()) && nativeValue.globalSecondaryIndexes().size() > 0) ?
         Option.create_Some(ToDafny.SecondaryIndexesCapacityMap(nativeValue.globalSecondaryIndexes()))
         : Option.create_None();
     return new ConsumedCapacity(tableName, capacityUnits, readCapacityUnits, writeCapacityUnits, table, localSecondaryIndexes, globalSecondaryIndexes);
@@ -2687,11 +2625,11 @@ public class ToDafny {
   public static ItemCollectionMetrics ItemCollectionMetrics(
       software.amazon.awssdk.services.dynamodb.model.ItemCollectionMetrics nativeValue) {
     Option<DafnyMap<? extends DafnySequence<? extends Character>, ? extends AttributeValue>> itemCollectionKey;
-    itemCollectionKey = Objects.nonNull(nativeValue.itemCollectionKey()) ?
+    itemCollectionKey = (Objects.nonNull(nativeValue.itemCollectionKey()) && nativeValue.itemCollectionKey().size() > 0) ?
         Option.create_Some(ToDafny.ItemCollectionKeyAttributeMap(nativeValue.itemCollectionKey()))
         : Option.create_None();
     Option<DafnySequence<? extends DafnySequence<? extends Byte>>> sizeEstimateRangeGB;
-    sizeEstimateRangeGB = Objects.nonNull(nativeValue.sizeEstimateRangeGB()) ?
+    sizeEstimateRangeGB = (Objects.nonNull(nativeValue.sizeEstimateRangeGB()) && nativeValue.sizeEstimateRangeGB().size() > 0) ?
         Option.create_Some(ToDafny.ItemCollectionSizeEstimateRange(nativeValue.sizeEstimateRangeGB()))
         : Option.create_None();
     return new ItemCollectionMetrics(itemCollectionKey, sizeEstimateRangeGB);
@@ -2926,7 +2864,7 @@ public class ToDafny {
         Option.create_Some(ToDafny.TableStatus(nativeValue.tableStatus()))
         : Option.create_None();
     Option<DafnySequence<? extends ReplicaAutoScalingDescription>> replicas;
-    replicas = Objects.nonNull(nativeValue.replicas()) ?
+    replicas = (Objects.nonNull(nativeValue.replicas()) && nativeValue.replicas().size() > 0) ?
         Option.create_Some(ToDafny.ReplicaAutoScalingDescriptionList(nativeValue.replicas()))
         : Option.create_None();
     return new TableAutoScalingDescription(tableName, tableStatus, replicas);
@@ -3040,13 +2978,9 @@ public class ToDafny {
     DafnySequence<? extends DafnyMap<? extends DafnySequence<? extends Character>, ? extends AttributeValue>> keys;
     keys = ToDafny.KeyList(nativeValue.keys());
     Option<DafnySequence<? extends DafnySequence<? extends Character>>> attributesToGet;
-    if (Objects.nonNull(nativeValue.attributesToGet())) {
-      attributesToGet = nativeValue.attributesToGet().size() == 0 ?
-          Option.create_None()
-          : Option.create_Some(ToDafny.AttributeNameList(nativeValue.attributesToGet()));
-    } else {
-      attributesToGet = Option.create_None();
-    }
+    attributesToGet = (Objects.nonNull(nativeValue.attributesToGet()) && nativeValue.attributesToGet().size() > 0) ?
+        Option.create_Some(ToDafny.AttributeNameList(nativeValue.attributesToGet()))
+        : Option.create_None();
     Option<Boolean> consistentRead;
     consistentRead = Objects.nonNull(nativeValue.consistentRead()) ?
         Option.create_Some((nativeValue.consistentRead()))
@@ -3182,13 +3116,9 @@ public class ToDafny {
         Option.create_Some(ToDafny.ComparisonOperator(nativeValue.comparisonOperator()))
         : Option.create_None();
     Option<DafnySequence<? extends AttributeValue>> attributeValueList;
-    if (Objects.nonNull(nativeValue.attributeValueList())) {
-      attributeValueList = nativeValue.attributeValueList().size() == 0 ?
-          Option.create_None()
-          : Option.create_Some(ToDafny.AttributeValueList(nativeValue.attributeValueList()));
-    } else {
-      attributeValueList = Option.create_None();
-    }
+    attributeValueList = (Objects.nonNull(nativeValue.attributeValueList()) && nativeValue.attributeValueList().size() > 0) ?
+        Option.create_Some(ToDafny.AttributeValueList(nativeValue.attributeValueList()))
+        : Option.create_None();
     return new ExpectedAttributeValue(value, exists, comparisonOperator, attributeValueList);
   }
 
@@ -3210,26 +3140,18 @@ public class ToDafny {
         Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.delimiter()))
         : Option.create_None();
     Option<DafnySequence<? extends DafnySequence<? extends Character>>> headerList;
-    if (Objects.nonNull(nativeValue.headerList())) {
-      headerList = nativeValue.headerList().size() == 0 ?
-          Option.create_None()
-          : Option.create_Some(ToDafny.CsvHeaderList(nativeValue.headerList()));
-    } else {
-      headerList = Option.create_None();
-    }
+    headerList = (Objects.nonNull(nativeValue.headerList()) && nativeValue.headerList().size() > 0) ?
+        Option.create_Some(ToDafny.CsvHeaderList(nativeValue.headerList()))
+        : Option.create_None();
     return new CsvOptions(delimiter, headerList);
   }
 
   public static Condition Condition(
       software.amazon.awssdk.services.dynamodb.model.Condition nativeValue) {
     Option<DafnySequence<? extends AttributeValue>> attributeValueList;
-    if (Objects.nonNull(nativeValue.attributeValueList())) {
-      attributeValueList = nativeValue.attributeValueList().size() == 0 ?
-          Option.create_None()
-          : Option.create_Some(ToDafny.AttributeValueList(nativeValue.attributeValueList()));
-    } else {
-      attributeValueList = Option.create_None();
-    }
+    attributeValueList = (Objects.nonNull(nativeValue.attributeValueList()) && nativeValue.attributeValueList().size() > 0) ?
+        Option.create_Some(ToDafny.AttributeValueList(nativeValue.attributeValueList()))
+        : Option.create_None();
     ComparisonOperator comparisonOperator;
     comparisonOperator = ToDafny.ComparisonOperator(nativeValue.comparisonOperator());
     return new Condition(attributeValueList, comparisonOperator);
@@ -3315,7 +3237,7 @@ public class ToDafny {
         Option.create_Some(ToDafny.AutoScalingSettingsUpdate(nativeValue.replicaProvisionedReadCapacityAutoScalingSettingsUpdate()))
         : Option.create_None();
     Option<DafnySequence<? extends ReplicaGlobalSecondaryIndexSettingsUpdate>> replicaGlobalSecondaryIndexSettingsUpdate;
-    replicaGlobalSecondaryIndexSettingsUpdate = Objects.nonNull(nativeValue.replicaGlobalSecondaryIndexSettingsUpdate()) ?
+    replicaGlobalSecondaryIndexSettingsUpdate = (Objects.nonNull(nativeValue.replicaGlobalSecondaryIndexSettingsUpdate()) && nativeValue.replicaGlobalSecondaryIndexSettingsUpdate().size() > 0) ?
         Option.create_Some(ToDafny.ReplicaGlobalSecondaryIndexSettingsUpdateList(nativeValue.replicaGlobalSecondaryIndexSettingsUpdate()))
         : Option.create_None();
     Option<TableClass> replicaTableClass;
@@ -3390,7 +3312,7 @@ public class ToDafny {
     DafnySequence<? extends Character> regionName;
     regionName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.regionName());
     Option<DafnySequence<? extends ReplicaGlobalSecondaryIndexAutoScalingUpdate>> replicaGlobalSecondaryIndexUpdates;
-    replicaGlobalSecondaryIndexUpdates = Objects.nonNull(nativeValue.replicaGlobalSecondaryIndexUpdates()) ?
+    replicaGlobalSecondaryIndexUpdates = (Objects.nonNull(nativeValue.replicaGlobalSecondaryIndexUpdates()) && nativeValue.replicaGlobalSecondaryIndexUpdates().size() > 0) ?
         Option.create_Some(ToDafny.ReplicaGlobalSecondaryIndexAutoScalingUpdateList(nativeValue.replicaGlobalSecondaryIndexUpdates()))
         : Option.create_None();
     Option<AutoScalingSettingsUpdate> replicaProvisionedReadCapacityAutoScalingUpdate;
@@ -3411,7 +3333,7 @@ public class ToDafny {
         Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName()))
         : Option.create_None();
     Option<DafnyMap<? extends DafnySequence<? extends Character>, ? extends AttributeValue>> item;
-    item = Objects.nonNull(nativeValue.item()) ?
+    item = (Objects.nonNull(nativeValue.item()) && nativeValue.item().size() > 0) ?
         Option.create_Some(ToDafny.AttributeMap(nativeValue.item()))
         : Option.create_None();
     return new BatchStatementResponse(error, tableName, item);
@@ -3589,11 +3511,11 @@ public class ToDafny {
   public static SourceTableFeatureDetails SourceTableFeatureDetails(
       software.amazon.awssdk.services.dynamodb.model.SourceTableFeatureDetails nativeValue) {
     Option<DafnySequence<? extends LocalSecondaryIndexInfo>> localSecondaryIndexes;
-    localSecondaryIndexes = Objects.nonNull(nativeValue.localSecondaryIndexes()) ?
+    localSecondaryIndexes = (Objects.nonNull(nativeValue.localSecondaryIndexes()) && nativeValue.localSecondaryIndexes().size() > 0) ?
         Option.create_Some(ToDafny.LocalSecondaryIndexes(nativeValue.localSecondaryIndexes()))
         : Option.create_None();
     Option<DafnySequence<? extends GlobalSecondaryIndexInfo>> globalSecondaryIndexes;
-    globalSecondaryIndexes = Objects.nonNull(nativeValue.globalSecondaryIndexes()) ?
+    globalSecondaryIndexes = (Objects.nonNull(nativeValue.globalSecondaryIndexes()) && nativeValue.globalSecondaryIndexes().size() > 0) ?
         Option.create_Some(ToDafny.GlobalSecondaryIndexes(nativeValue.globalSecondaryIndexes()))
         : Option.create_None();
     Option<StreamSpecification> streamDescription;
@@ -3707,7 +3629,7 @@ public class ToDafny {
         Option.create_Some(ToDafny.AutoScalingSettingsDescription(nativeValue.replicaProvisionedWriteCapacityAutoScalingSettings()))
         : Option.create_None();
     Option<DafnySequence<? extends ReplicaGlobalSecondaryIndexSettingsDescription>> replicaGlobalSecondaryIndexSettings;
-    replicaGlobalSecondaryIndexSettings = Objects.nonNull(nativeValue.replicaGlobalSecondaryIndexSettings()) ?
+    replicaGlobalSecondaryIndexSettings = (Objects.nonNull(nativeValue.replicaGlobalSecondaryIndexSettings()) && nativeValue.replicaGlobalSecondaryIndexSettings().size() > 0) ?
         Option.create_Some(ToDafny.ReplicaGlobalSecondaryIndexSettingsDescriptionList(nativeValue.replicaGlobalSecondaryIndexSettings()))
         : Option.create_None();
     Option<TableClassSummary> replicaTableClassSummary;
@@ -3745,7 +3667,7 @@ public class ToDafny {
   public static ItemResponse ItemResponse(
       software.amazon.awssdk.services.dynamodb.model.ItemResponse nativeValue) {
     Option<DafnyMap<? extends DafnySequence<? extends Character>, ? extends AttributeValue>> item;
-    item = Objects.nonNull(nativeValue.item()) ?
+    item = (Objects.nonNull(nativeValue.item()) && nativeValue.item().size() > 0) ?
         Option.create_Some(ToDafny.AttributeMap(nativeValue.item()))
         : Option.create_None();
     return new ItemResponse(item);
@@ -3833,7 +3755,7 @@ public class ToDafny {
         Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.globalTableName()))
         : Option.create_None();
     Option<DafnySequence<? extends Replica>> replicationGroup;
-    replicationGroup = Objects.nonNull(nativeValue.replicationGroup()) ?
+    replicationGroup = (Objects.nonNull(nativeValue.replicationGroup()) && nativeValue.replicationGroup().size() > 0) ?
         Option.create_Some(ToDafny.ReplicaList(nativeValue.replicationGroup()))
         : Option.create_None();
     return new GlobalTable(globalTableName, replicationGroup);
@@ -3879,7 +3801,7 @@ public class ToDafny {
   public static CancellationReason CancellationReason(
       software.amazon.awssdk.services.dynamodb.model.CancellationReason nativeValue) {
     Option<DafnyMap<? extends DafnySequence<? extends Character>, ? extends AttributeValue>> item;
-    item = Objects.nonNull(nativeValue.item()) ?
+    item = (Objects.nonNull(nativeValue.item()) && nativeValue.item().size() > 0) ?
         Option.create_Some(ToDafny.AttributeMap(nativeValue.item()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> code;
@@ -3924,7 +3846,7 @@ public class ToDafny {
         Option.create_Some(ToDafny.ProjectionType(nativeValue.projectionType()))
         : Option.create_None();
     Option<DafnySequence<? extends DafnySequence<? extends Character>>> nonKeyAttributes;
-    nonKeyAttributes = Objects.nonNull(nativeValue.nonKeyAttributes()) ?
+    nonKeyAttributes = (Objects.nonNull(nativeValue.nonKeyAttributes()) && nativeValue.nonKeyAttributes().size() > 0) ?
         Option.create_Some(ToDafny.NonKeyAttributeNameList(nativeValue.nonKeyAttributes()))
         : Option.create_None();
     return new Projection(projectionType, nonKeyAttributes);
@@ -4015,7 +3937,7 @@ public class ToDafny {
         Option.create_Some(ToDafny.ExpressionAttributeNameMap(nativeValue.expressionAttributeNames()))
         : Option.create_None();
     Option<DafnyMap<? extends DafnySequence<? extends Character>, ? extends AttributeValue>> expressionAttributeValues;
-    expressionAttributeValues = Objects.nonNull(nativeValue.expressionAttributeValues()) ?
+    expressionAttributeValues = (Objects.nonNull(nativeValue.expressionAttributeValues()) && nativeValue.expressionAttributeValues().size() > 0) ?
         Option.create_Some(ToDafny.ExpressionAttributeValueMap(nativeValue.expressionAttributeValues()))
         : Option.create_None();
     Option<ReturnValuesOnConditionCheckFailure> returnValuesOnConditionCheckFailure;
@@ -4039,7 +3961,7 @@ public class ToDafny {
         Option.create_Some(ToDafny.ExpressionAttributeNameMap(nativeValue.expressionAttributeNames()))
         : Option.create_None();
     Option<DafnyMap<? extends DafnySequence<? extends Character>, ? extends AttributeValue>> expressionAttributeValues;
-    expressionAttributeValues = Objects.nonNull(nativeValue.expressionAttributeValues()) ?
+    expressionAttributeValues = (Objects.nonNull(nativeValue.expressionAttributeValues()) && nativeValue.expressionAttributeValues().size() > 0) ?
         Option.create_Some(ToDafny.ExpressionAttributeValueMap(nativeValue.expressionAttributeValues()))
         : Option.create_None();
     Option<ReturnValuesOnConditionCheckFailure> returnValuesOnConditionCheckFailure;
@@ -4063,7 +3985,7 @@ public class ToDafny {
         Option.create_Some(ToDafny.ExpressionAttributeNameMap(nativeValue.expressionAttributeNames()))
         : Option.create_None();
     Option<DafnyMap<? extends DafnySequence<? extends Character>, ? extends AttributeValue>> expressionAttributeValues;
-    expressionAttributeValues = Objects.nonNull(nativeValue.expressionAttributeValues()) ?
+    expressionAttributeValues = (Objects.nonNull(nativeValue.expressionAttributeValues()) && nativeValue.expressionAttributeValues().size() > 0) ?
         Option.create_Some(ToDafny.ExpressionAttributeValueMap(nativeValue.expressionAttributeValues()))
         : Option.create_None();
     Option<ReturnValuesOnConditionCheckFailure> returnValuesOnConditionCheckFailure;
@@ -4089,7 +4011,7 @@ public class ToDafny {
         Option.create_Some(ToDafny.ExpressionAttributeNameMap(nativeValue.expressionAttributeNames()))
         : Option.create_None();
     Option<DafnyMap<? extends DafnySequence<? extends Character>, ? extends AttributeValue>> expressionAttributeValues;
-    expressionAttributeValues = Objects.nonNull(nativeValue.expressionAttributeValues()) ?
+    expressionAttributeValues = (Objects.nonNull(nativeValue.expressionAttributeValues()) && nativeValue.expressionAttributeValues().size() > 0) ?
         Option.create_Some(ToDafny.ExpressionAttributeValueMap(nativeValue.expressionAttributeValues()))
         : Option.create_None();
     Option<ReturnValuesOnConditionCheckFailure> returnValuesOnConditionCheckFailure;
@@ -4184,7 +4106,7 @@ public class ToDafny {
         Option.create_Some(ToDafny.ProvisionedThroughputOverride(nativeValue.provisionedThroughputOverride()))
         : Option.create_None();
     Option<DafnySequence<? extends ReplicaGlobalSecondaryIndex>> globalSecondaryIndexes;
-    globalSecondaryIndexes = Objects.nonNull(nativeValue.globalSecondaryIndexes()) ?
+    globalSecondaryIndexes = (Objects.nonNull(nativeValue.globalSecondaryIndexes()) && nativeValue.globalSecondaryIndexes().size() > 0) ?
         Option.create_Some(ToDafny.ReplicaGlobalSecondaryIndexList(nativeValue.globalSecondaryIndexes()))
         : Option.create_None();
     Option<TableClass> tableClassOverride;
@@ -4207,7 +4129,7 @@ public class ToDafny {
         Option.create_Some(ToDafny.ProvisionedThroughputOverride(nativeValue.provisionedThroughputOverride()))
         : Option.create_None();
     Option<DafnySequence<? extends ReplicaGlobalSecondaryIndex>> globalSecondaryIndexes;
-    globalSecondaryIndexes = Objects.nonNull(nativeValue.globalSecondaryIndexes()) ?
+    globalSecondaryIndexes = (Objects.nonNull(nativeValue.globalSecondaryIndexes()) && nativeValue.globalSecondaryIndexes().size() > 0) ?
         Option.create_Some(ToDafny.ReplicaGlobalSecondaryIndexList(nativeValue.globalSecondaryIndexes()))
         : Option.create_None();
     Option<TableClass> tableClassOverride;
@@ -4272,7 +4194,7 @@ public class ToDafny {
         Option.create_Some(ToDafny.ProvisionedThroughputOverride(nativeValue.provisionedThroughputOverride()))
         : Option.create_None();
     Option<DafnySequence<? extends ReplicaGlobalSecondaryIndexDescription>> globalSecondaryIndexes;
-    globalSecondaryIndexes = Objects.nonNull(nativeValue.globalSecondaryIndexes()) ?
+    globalSecondaryIndexes = (Objects.nonNull(nativeValue.globalSecondaryIndexes()) && nativeValue.globalSecondaryIndexes().size() > 0) ?
         Option.create_Some(ToDafny.ReplicaGlobalSecondaryIndexDescriptionList(nativeValue.globalSecondaryIndexes()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> replicaInaccessibleDateTime;
@@ -4293,7 +4215,7 @@ public class ToDafny {
         Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.indexName()))
         : Option.create_None();
     Option<DafnySequence<? extends KeySchemaElement>> keySchema;
-    keySchema = Objects.nonNull(nativeValue.keySchema()) ?
+    keySchema = (Objects.nonNull(nativeValue.keySchema()) && nativeValue.keySchema().size() > 0) ?
         Option.create_Some(ToDafny.KeySchema(nativeValue.keySchema()))
         : Option.create_None();
     Option<Projection> projection;
@@ -4322,7 +4244,7 @@ public class ToDafny {
         Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.indexName()))
         : Option.create_None();
     Option<DafnySequence<? extends KeySchemaElement>> keySchema;
-    keySchema = Objects.nonNull(nativeValue.keySchema()) ?
+    keySchema = (Objects.nonNull(nativeValue.keySchema()) && nativeValue.keySchema().size() > 0) ?
         Option.create_Some(ToDafny.KeySchema(nativeValue.keySchema()))
         : Option.create_None();
     Option<Projection> projection;
@@ -4391,13 +4313,9 @@ public class ToDafny {
         Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.autoScalingRoleArn()))
         : Option.create_None();
     Option<DafnySequence<? extends AutoScalingPolicyDescription>> scalingPolicies;
-    if (Objects.nonNull(nativeValue.scalingPolicies())) {
-      scalingPolicies = nativeValue.scalingPolicies().size() == 0 ?
-          Option.create_None()
-          : Option.create_Some(ToDafny.AutoScalingPolicyDescriptionList(nativeValue.scalingPolicies()));
-    } else {
-      scalingPolicies = Option.create_None();
-    }
+    scalingPolicies = (Objects.nonNull(nativeValue.scalingPolicies()) && nativeValue.scalingPolicies().size() > 0) ?
+        Option.create_Some(ToDafny.AutoScalingPolicyDescriptionList(nativeValue.scalingPolicies()))
+        : Option.create_None();
     return new AutoScalingSettingsDescription(minimumUnits, maximumUnits, autoScalingDisabled, autoScalingRoleArn, scalingPolicies);
   }
 
@@ -4416,7 +4334,7 @@ public class ToDafny {
         Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.regionName()))
         : Option.create_None();
     Option<DafnySequence<? extends ReplicaGlobalSecondaryIndexAutoScalingDescription>> globalSecondaryIndexes;
-    globalSecondaryIndexes = Objects.nonNull(nativeValue.globalSecondaryIndexes()) ?
+    globalSecondaryIndexes = (Objects.nonNull(nativeValue.globalSecondaryIndexes()) && nativeValue.globalSecondaryIndexes().size() > 0) ?
         Option.create_Some(ToDafny.ReplicaGlobalSecondaryIndexAutoScalingDescriptionList(nativeValue.globalSecondaryIndexes()))
         : Option.create_None();
     Option<AutoScalingSettingsDescription> replicaProvisionedReadCapacityAutoScalingSettings;
@@ -4516,7 +4434,7 @@ public class ToDafny {
         Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.indexName()))
         : Option.create_None();
     Option<DafnySequence<? extends KeySchemaElement>> keySchema;
-    keySchema = Objects.nonNull(nativeValue.keySchema()) ?
+    keySchema = (Objects.nonNull(nativeValue.keySchema()) && nativeValue.keySchema().size() > 0) ?
         Option.create_Some(ToDafny.KeySchema(nativeValue.keySchema()))
         : Option.create_None();
     Option<Projection> projection;
@@ -4533,7 +4451,7 @@ public class ToDafny {
         Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.indexName()))
         : Option.create_None();
     Option<DafnySequence<? extends KeySchemaElement>> keySchema;
-    keySchema = Objects.nonNull(nativeValue.keySchema()) ?
+    keySchema = (Objects.nonNull(nativeValue.keySchema()) && nativeValue.keySchema().size() > 0) ?
         Option.create_Some(ToDafny.KeySchema(nativeValue.keySchema()))
         : Option.create_None();
     Option<Projection> projection;
@@ -4897,13 +4815,9 @@ public class ToDafny {
         Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
         : Option.create_None();
     Option<DafnySequence<? extends CancellationReason>> cancellationReasons;
-    if (Objects.nonNull(nativeValue.cancellationReasons())) {
-      cancellationReasons = nativeValue.cancellationReasons().size() == 0 ?
-          Option.create_None()
-          : Option.create_Some(ToDafny.CancellationReasonList(nativeValue.cancellationReasons()));
-    } else {
-      cancellationReasons = Option.create_None();
-    }
+    cancellationReasons = (Objects.nonNull(nativeValue.cancellationReasons()) && nativeValue.cancellationReasons().size() > 0) ?
+        Option.create_Some(ToDafny.CancellationReasonList(nativeValue.cancellationReasons()))
+        : Option.create_None();
     return new Error_TransactionCanceledException(message, cancellationReasons);
   }
 
