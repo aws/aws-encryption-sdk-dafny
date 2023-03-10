@@ -10,7 +10,6 @@ MAX_RESOURCE_COUNT=200000000
 # In java they MUST be built
 # in the order they depend on each other
 LIBRARIES := \
-	StandardLibrary \
 	AwsCryptographyPrimitives \
 	AwsCryptographicMaterialProviders \
 	ComAmazonawsKms \

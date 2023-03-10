@@ -11,7 +11,6 @@ MAX_RESOURCE_COUNT=50000000
 # In java they MUST be built
 # in the order they depend on each other
 LIBRARIES := \
-	StandardLibrary \
 	AwsCryptographyPrimitives \
 	ComAmazonawsKms \
 	ComAmazonawsDynamodb 
