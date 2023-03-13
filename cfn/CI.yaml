@@ -82,7 +82,7 @@ Resources:
               AWS: !Sub 'arn:aws:iam::${AWS::AccountId}:root'
             Action: 'kms:*'
             Resource: '*'
-  
+
   KMSUsage:
     Type: 'AWS::IAM::ManagedPolicy'
     Properties:
@@ -102,6 +102,46 @@ Resources:
         }
       ManagedPolicyName: Hierarchical-GitHub-KMS-Key-Policy
 
+  RSAGitHubKMSKeyID:
+    Type: 'AWS::KMS::Key'
+    Properties:
+      Description: KMS RSA Key for GitHub Action Workflow
+      Enabled: true
+      KeyPolicy:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: !Sub 'arn:aws:iam::${AWS::AccountId}:root'
+            Action: 'kms:*'
+            Resource: '*'
+      KeySpec: "RSA_2048"
+      KeyUsage: "ENCRYPT_DECRYPT"
+      MultiRegion: true
+
+  RSAKMSUsage:
+    Type: 'AWS::IAM::ManagedPolicy'
+    Properties:
+      PolicyDocument: !Sub |
+        {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": [
+                "kms:Encrypt",
+                "kms:Decrypt",
+                "kms:ReEncrypt*",
+                "kms:Generate*",
+                "kms:GetPublicKey",
+                "kms:DescribeKey"
+              ],
+              "Resource": "arn:aws:kms:*:${AWS::AccountId}:key/${RSAGitHubKMSKeyID}"
+            }
+          ]
+        }
+      ManagedPolicyName: RSA-GitHub-KMS-Key-Policy
+
   GitHubCIRole:
     Type: 'AWS::IAM::Role'
     Properties:
@@ -110,6 +150,7 @@ Resources:
       ManagedPolicyArns:
         - "arn:aws:iam::370957321024:policy/PolymorphTestModels-KMS-us-west-2"
         - !Ref KMSUsage
+        - !Ref RSAKMSUsage  
         - "arn:aws:iam::370957321024:policy/PolymorphTestModels-DDB-ReadWriteDelete-us-west-2"
         - !Ref HierarchicalKeyringTestTableUsage
       AssumeRolePolicyDocument: !Sub |
