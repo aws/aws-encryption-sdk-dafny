@@ -31,7 +31,7 @@ To generate code from the Smithy models for either the AWS Encryption SDK or for
 To run the code generator, open any of the modules (e.g. AwsCryptographyPrimitives), then run:
 
 ```
- make polymorph_code_gen POLYMORPH_ROOT=/[path]/[to]/polymorph/smithy-polymorph
+ make polymorph_code_gen CODEGEN_CLI_ROOT=/[path]/[to]/smithy-dafny/codegen/smithy-dafny-codegen-cli
 ```
 
 ### Transpiling Generated Code to a Runtime

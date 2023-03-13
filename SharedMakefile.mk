@@ -98,13 +98,13 @@ transpile_dependencies:
 # Since they are defined per target
 # a single target can decide what parts it wants to build.
 
-# Pass in POLYMORPH_ROOT in command line, e.g.
-#   make polymorph_code_gen POLYMORPH_ROOT=/path/to/polymorph/smithy-polymorph
+# Pass in CODEGEN_CLI_ROOT in command line, e.g.
+#   make polymorph_code_gen CODEGEN_CLI_ROOT=/[path]/[to]/smithy-dafny/codegen/smithy-dafny-codegen-cli
 # StandardLibrary is filtered out from dependent-model patsubst list;
 #   Its model is contained in $(LIBRARY_ROOT)/model, not $(LIBRARY_ROOT)/../StandardLibrary/Model.
 _polymorph:
-	@: $(if ${POLYMORPH_ROOT},,$(error You must pass the path POLYMORPH_ROOT: POLYMORPH_ROOT=/path/to/polymorph/smithy-polymorph));
-	cd $(POLYMORPH_ROOT); \
+	@: $(if ${CODEGEN_CLI_ROOT},,$(error You must pass the path CODEGEN_CLI_ROOT: CODEGEN_CLI_ROOT=/[path]/[to]/smithy-dafny/codegen/smithy-dafny-codegen-cli));
+	cd $(CODEGEN_CLI_ROOT); \
 	./gradlew run --args="\
 	$(OUTPUT_DAFNY) \
 	$(OUTPUT_DOTNET) \
