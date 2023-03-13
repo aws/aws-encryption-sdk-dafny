@@ -10,7 +10,7 @@ fi
 
 pushd .
 
-export POLYMORPH_ROOT=$1
+export CODEGEN_CLI_ROOT=$1
 export DAFNY_ROOT=`pwd`
 export DOTNET_ROOT=$DAFNY_ROOT/aws-encryption-sdk-net
 
@@ -21,7 +21,7 @@ export ComAmazonawsKms_ROOT=$DAFNY_ROOT/ComAmazonawsKms
 export ComAmazonawsDynamodb_ROOT=$DAFNY_ROOT/ComAmazonawsDynamodb
 
 
-cd "$POLYMORPH_ROOT"
+cd "$CODEGEN_CLI_ROOT"
 
 # Generate code for the AWS KMS SDK
 ./gradlew run --args="\
