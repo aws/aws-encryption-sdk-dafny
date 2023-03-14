@@ -17,6 +17,7 @@ jobs:
           ComAmazonawsDynamodb,
           AwsCryptographicMaterialProviders, 
           AwsEncryptionSDK,
+          TestVectorsAwsCryptographicMaterialProviders,
           # "StandardLibrary", add this back in once we fix the issue on osx
         ]
         os: [ macos-latest ]

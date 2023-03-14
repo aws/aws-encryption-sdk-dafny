@@ -24,7 +24,19 @@
 PROJECT_ROOT := $(abspath $(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
 # This evaluates to the path of the current working directory.
 # i.e. The specific library under consideration.
-LIBRARY_ROOT = $(PWD)
+LIBRARY_ROOT := $(PWD)
+# Smithy Dafny code gen needs to know
+# where the smithy model is.
+# This is generaly in the same directory as the library.
+# However in the case of a wrapped library,
+# such as the test vectors
+# the implementation MAY be in a different library
+# than the model.
+# By having two releated variables
+# test vector projects can point to
+# the specific model they need
+# but still build everything in their local library directory.
+SMITHY_MODEL_ROOT := $(LIBRARY_ROOT)/Model
 
 ########################## Dafny targets
 
@@ -109,11 +121,13 @@ _polymorph:
 	$(OUTPUT_DAFNY) \
 	$(OUTPUT_DOTNET) \
 	$(OUTPUT_JAVA) \
-	--model $(LIBRARY_ROOT)/Model \
+	--model $(SMITHY_MODEL_ROOT) \
 	--dependent-model $(PROJECT_ROOT)/model \
 	$(patsubst %, --dependent-model $(PROJECT_ROOT)/%/Model, $(LIBRARIES)) \
 	--namespace $(SMITHY_NAMESPACE) \
-	$(AWS_SDK_CMD)";
+	$(AWS_SDK_CMD) \
+	$(OUTPUT_LOCAL_SERVICE) \
+	";
 
 polymorph_code_gen: OUTPUT_DAFNY=--output-dafny --include-dafny $(PROJECT_ROOT)/StandardLibrary/src/Index.dfy
 polymorph_code_gen: OUTPUT_DOTNET=--output-dotnet $(LIBRARY_ROOT)/runtimes/net/Generated/

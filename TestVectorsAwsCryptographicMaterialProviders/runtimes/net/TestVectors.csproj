@@ -1,18 +1,17 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <RootNamespace>AWS Cryptographic Materials Provider Library</RootNamespace>
+        <RootNamespace>Test Vectors for AWS Cryptographic Materials Provider Library</RootNamespace>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>disable</Nullable>
         <LangVersion>10</LangVersion>
         <TargetFrameworks>net6.0</TargetFrameworks>
         <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+        <OutputType>Exe</OutputType>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="AWSSDK.Core" Version="3.7.103" />
         <PackageReference Include="DafnyRuntime" Version="3.10.0.41215" />
-        <PackageReference Include="Portable.BouncyCastle" Version="1.8.5.2" />
         <!--
           System.Collections.Immutable can be removed once dafny.msbuild is updated with
           https://github.com/dafny-lang/dafny.msbuild/pull/10 and versioned
@@ -27,14 +26,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\..\AwsCryptographyPrimitives\runtimes\net\Crypto.csproj" />
-        <ProjectReference Include="..\..\..\ComAmazonawsKms\runtimes\net\AWS-KMS.csproj" />
-        <ProjectReference Include="..\..\..\StandardLibrary\runtimes\net\STD.csproj" />
-        <ProjectReference Include="..\..\..\ComAmazonawsDynamodb\runtimes\net\ComAmazonawsDynamodb.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Generated" />
+      <ProjectReference Include="..\..\..\AwsCryptographicMaterialProviders\runtimes\net\MPL.csproj" />
+      <ProjectReference Include="..\..\..\StandardLibrary\runtimes\net\STD.csproj" />
     </ItemGroup>
 
     <!--
