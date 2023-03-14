@@ -30,4 +30,4 @@ namespace Dafny.Aws.Cryptography.MaterialProviders.Wrapped
       WrappedMaterialProvidersMain_Compile.__default.CheckKeyrings();
     }
   }
-}  
+}

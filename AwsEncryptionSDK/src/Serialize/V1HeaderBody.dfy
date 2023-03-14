@@ -159,16 +159,36 @@ module V1HeaderBody {
       if IsV1ExpandedAADSection(buffer) {
         assert 0 == |body.encryptionContext|;
         assert messageId.tail.start + 4 == encryptionContext.tail.start;
+
+        assert CorrectlyReadRange(buffer, frameLength.tail);
         assert WriteV1ExpandedAADSectionHeaderBody(body) <= buffer.bytes[buffer.start..];
+        assert frameLength.tail.start == buffer.start + |WriteV1ExpandedAADSectionHeaderBody(body)|;
+
+        assert CorrectlyRead(buffer, Success(SuccessfulRead(body, frameLength.tail)), WriteV1ExpandedAADSectionHeaderBody);
+        assert CorrectlyReadV1HeaderBody(buffer, Success(SuccessfulRead(body, frameLength.tail)));
       } else {
-        if 0 < |body.encryptionContext| {
-          HeadersAreTheSameWhenThereIsEncryptionContext(body);
+         if 0 < |body.encryptionContext| {
+          assert WriteV1ExpandedAADSectionHeaderBody(body) == WriteV1HeaderBody(body) by { HeadersAreTheSameWhenThereIsEncryptionContext(body); }
           assert WriteV1ExpandedAADSectionHeaderBody(body) <= buffer.bytes[buffer.start..];
+
+          assert CorrectlyReadRange(buffer, frameLength.tail);
           assert WriteV1HeaderBody(body) <= buffer.bytes[buffer.start..];
+          assert frameLength.tail.start == buffer.start + |WriteV1HeaderBody(body)|;
+
+          assert CorrectlyRead(buffer, Success(SuccessfulRead(body, frameLength.tail)), WriteV1HeaderBody);
+          assert CorrectlyReadV1HeaderBody(buffer, Success(SuccessfulRead(body, frameLength.tail)));
         } else {
           assert messageId.tail.start + 2 == encryptionContext.tail.start;
+
+          assert CorrectlyReadRange(buffer, frameLength.tail);
+          assert frameLength.tail.start == buffer.start + |WriteV1HeaderBody(body)|;
           assert WriteV1HeaderBody(body) <= buffer.bytes[buffer.start..];
+
+          assert CorrectlyRead(buffer, Success(SuccessfulRead(body, frameLength.tail)), WriteV1HeaderBody);
+          assert CorrectlyReadV1HeaderBody(buffer, Success(SuccessfulRead(body, frameLength.tail)));
         }
+        assert CorrectlyRead(buffer, Success(SuccessfulRead(body, frameLength.tail)), WriteV1HeaderBody);
+        assert CorrectlyReadV1HeaderBody(buffer, Success(SuccessfulRead(body, frameLength.tail)));
       }
     }
 

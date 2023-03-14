@@ -14,3 +14,6 @@ LIBRARIES := \
 	AwsCryptographyPrimitives \
 	ComAmazonawsKms \
 	ComAmazonawsDynamodb 
+
+format_net:
+	pushd runtimes/net && dotnet format && popd

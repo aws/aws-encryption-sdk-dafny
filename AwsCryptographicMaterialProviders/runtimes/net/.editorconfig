@@ -1,0 +1,29 @@
+###############################
+# Core EditorConfig Options   #
+# See https://github.com/dotnet/format/blob/main/docs/Supported-.editorconfig-options.md
+###############################
+root = true
+# All files
+[*]
+indent_style = space
+
+# XML project files
+[*.{csproj,vbproj,vcxproj,vcxproj.filters,proj,projitems,shproj}]
+indent_size = 2
+
+# XML config files
+[*.{props,targets,ruleset,config,nuspec,resx,vsixmanifest,vsct}]
+indent_size = 2
+
+# Code files
+[*.{cs,csx,vb,vbx}]
+indent_size = 2
+insert_final_newline = true
+
+# Rider is wrong, dotnet_diagnostic is supported
+# noinspection EditorConfigKeyCorrectness
+[*.{cs,vb}]
+dotnet_diagnostic.CS0436.severity = none # The type <> ... conflicts with the imported type <> in ...
+dotnet_diagnostic.CS0162.severity = none # Unreachable code detected
+dotnet_diagnostic.CS0618.severity = none # obsolete
+dotnet_diagnostic.CS0168.severity = none # Unused variable

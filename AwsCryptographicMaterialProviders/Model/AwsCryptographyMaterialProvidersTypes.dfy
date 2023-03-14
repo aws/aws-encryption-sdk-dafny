@@ -54,6 +54,7 @@ include "../../StandardLibrary/src/Index.dfy"
  CreateRawRsaKeyring := [];
  CreateAwsKmsRsaKeyring := [];
  CreateDefaultCryptographicMaterialsManager := [];
+ CreateCryptographicMaterialsCache := [];
  CreateDefaultClientSupplier := [];
  InitializeEncryptionMaterials := [];
  InitializeDecryptionMaterials := [];
@@ -80,6 +81,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ghost var CreateRawRsaKeyring: seq<DafnyCallEvent<CreateRawRsaKeyringInput, Result<IKeyring, Error>>>
  ghost var CreateAwsKmsRsaKeyring: seq<DafnyCallEvent<CreateAwsKmsRsaKeyringInput, Result<IKeyring, Error>>>
  ghost var CreateDefaultCryptographicMaterialsManager: seq<DafnyCallEvent<CreateDefaultCryptographicMaterialsManagerInput, Result<ICryptographicMaterialsManager, Error>>>
+ ghost var CreateCryptographicMaterialsCache: seq<DafnyCallEvent<CreateCryptographicMaterialsCacheInput, Result<ICryptographicMaterialsCache, Error>>>
  ghost var CreateDefaultClientSupplier: seq<DafnyCallEvent<CreateDefaultClientSupplierInput, Result<IClientSupplier, Error>>>
  ghost var InitializeEncryptionMaterials: seq<DafnyCallEvent<InitializeEncryptionMaterialsInput, Result<EncryptionMaterials, Error>>>
  ghost var InitializeDecryptionMaterials: seq<DafnyCallEvent<InitializeDecryptionMaterialsInput, Result<DecryptionMaterials, Error>>>
@@ -462,6 +464,26 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures CreateDefaultCryptographicMaterialsManagerEnsuresPublicly(input, output)
  ensures History.CreateDefaultCryptographicMaterialsManager == old(History.CreateDefaultCryptographicMaterialsManager) + [DafnyCallEvent(input, output)]
  
+ predicate CreateCryptographicMaterialsCacheEnsuresPublicly(input: CreateCryptographicMaterialsCacheInput , output: Result<ICryptographicMaterialsCache, Error>)
+ // The public method to be called by library consumers
+ method CreateCryptographicMaterialsCache ( input: CreateCryptographicMaterialsCacheInput )
+ returns (output: Result<ICryptographicMaterialsCache, Error>)
+ requires
+ && ValidState()
+ modifies Modifies - {History} ,
+ History`CreateCryptographicMaterialsCache
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases Modifies - {History}
+ ensures
+ && ValidState()
+ && ( output.Success? ==> 
+ && output.value.ValidState()
+ && output.value.Modifies !! {History}
+ && fresh(output.value)
+ && fresh ( output.value.Modifies - Modifies - {History} ) )
+ ensures CreateCryptographicMaterialsCacheEnsuresPublicly(input, output)
+ ensures History.CreateCryptographicMaterialsCache == old(History.CreateCryptographicMaterialsCache) + [DafnyCallEvent(input, output)]
+ 
  predicate CreateDefaultClientSupplierEnsuresPublicly(input: CreateDefaultClientSupplierInput , output: Result<IClientSupplier, Error>)
  // The public method to be called by library consumers
  method CreateDefaultClientSupplier ( input: CreateDefaultClientSupplierInput )
@@ -683,6 +705,10 @@ include "../../StandardLibrary/src/Index.dfy"
  nameonly kmsClient: Option<ComAmazonawsKmsTypes.IKeyManagementServiceClient> ,
  nameonly grantTokens: Option<GrantTokenList>
  )
+ datatype CreateCryptographicMaterialsCacheInput = | CreateCryptographicMaterialsCacheInput (
+ nameonly entryCapacity: PositiveLong ,
+ nameonly entryPruningTailSize: Option<PositiveLong>
+ )
  datatype CreateDefaultClientSupplierInput = | CreateDefaultClientSupplierInput (
  
  )
@@ -706,6 +732,183 @@ include "../../StandardLibrary/src/Index.dfy"
  nameonly publicKey: Option<seq<uint8>> ,
  nameonly privateKey: Option<seq<uint8>>
  )
+ class ICryptographicMaterialsCacheCallHistory {
+ ghost constructor() {
+ PutCacheEntry := [];
+ UpdaterUsageMetadata := [];
+ GetCacheEntry := [];
+ DeleteCacheEntry := [];
+}
+ ghost var PutCacheEntry: seq<DafnyCallEvent<PutCacheEntryInput, Result<(), Error>>>
+ ghost var UpdaterUsageMetadata: seq<DafnyCallEvent<UpdaterUsageMetadataInput, Result<(), Error>>>
+ ghost var GetCacheEntry: seq<DafnyCallEvent<GetCacheEntryInput, Result<GetCacheEntryOutput, Error>>>
+ ghost var DeleteCacheEntry: seq<DafnyCallEvent<DeleteCacheEntryInput, Result<(), Error>>>
+}
+ trait {:termination false} ICryptographicMaterialsCache
+ {
+ // Helper to define any additional modifies/reads clauses.
+ // If your operations need to mutate state,
+ // add it in your constructor function:
+ // Modifies := {your, fields, here, History};
+ // Given that you are mutating state,
+// your ValidState function is going to get complicated.
+
+ ghost var Modifies: set<object>
+ // For an unassigned field defined in a trait,
+ // Dafny can only assign a value in the constructor.
+ // This means that for Dafny to reason about this value,
+ // it needs some way to know (an invariant),
+ // about the state of the object.
+ // This builds on the Valid/Repr paradigm
+ // To make this kind requires safe to add
+ // to methods called from unverified code,
+ // the predicate MUST NOT take any arguments.
+ // This means that the correctness of this requires
+ // MUST only be evaluated by the class itself.
+ // If you require any additional mutation,
+ // then you MUST ensure everything you need in ValidState.
+ // You MUST also ensure ValidState in your constructor.
+ // Not only will you need to ensure
+// that all your mutable elements are contained in History,
+// you MUST also ensure
+// that your invariant does not rely on Modifies.
+// This means your invariant will begin to look like:
+// && History in Modifies
+// && this in Modifies                      // so we can read property
+// && property in Modifies                  // so we can read properties of property
+// && property != History as object        // property really is not History!
+// && (forall m <- property.Modifies    // everything in property.Modifies
+//    :: m in Modifies - History)              // is in Modifies and really is not History!
+
+ predicate ValidState()
+ reads this`Modifies, Modifies - {History}
+ ensures ValidState() ==> History in Modifies
+  ghost const History: ICryptographicMaterialsCacheCallHistory
+ predicate PutCacheEntryEnsuresPublicly(input: PutCacheEntryInput , output: Result<(), Error>)
+ // The public method to be called by library consumers
+ method PutCacheEntry ( input: PutCacheEntryInput )
+ returns (output: Result<(), Error>)
+ requires
+ && ValidState()
+ modifies Modifies - {History} ,
+ History`PutCacheEntry
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases Modifies - {History}
+ ensures
+ && ValidState()
+ ensures PutCacheEntryEnsuresPublicly(input, output)
+ ensures History.PutCacheEntry == old(History.PutCacheEntry) + [DafnyCallEvent(input, output)]
+ {
+ output := PutCacheEntry' (input);
+ History.PutCacheEntry := History.PutCacheEntry + [DafnyCallEvent(input, output)];
+}
+ // The method to implement in the concrete class. 
+ method PutCacheEntry' ( input: PutCacheEntryInput )
+ returns (output: Result<(), Error>)
+ requires
+ && ValidState()
+ modifies Modifies - {History}
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases Modifies - {History}
+ ensures
+ && ValidState()
+ ensures PutCacheEntryEnsuresPublicly(input, output)
+ ensures unchanged(History)
+ 
+ predicate UpdaterUsageMetadataEnsuresPublicly(input: UpdaterUsageMetadataInput , output: Result<(), Error>)
+ // The public method to be called by library consumers
+ method UpdaterUsageMetadata ( input: UpdaterUsageMetadataInput )
+ returns (output: Result<(), Error>)
+ requires
+ && ValidState()
+ modifies Modifies - {History} ,
+ History`UpdaterUsageMetadata
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases Modifies - {History}
+ ensures
+ && ValidState()
+ ensures UpdaterUsageMetadataEnsuresPublicly(input, output)
+ ensures History.UpdaterUsageMetadata == old(History.UpdaterUsageMetadata) + [DafnyCallEvent(input, output)]
+ {
+ output := UpdaterUsageMetadata' (input);
+ History.UpdaterUsageMetadata := History.UpdaterUsageMetadata + [DafnyCallEvent(input, output)];
+}
+ // The method to implement in the concrete class. 
+ method UpdaterUsageMetadata' ( input: UpdaterUsageMetadataInput )
+ returns (output: Result<(), Error>)
+ requires
+ && ValidState()
+ modifies Modifies - {History}
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases Modifies - {History}
+ ensures
+ && ValidState()
+ ensures UpdaterUsageMetadataEnsuresPublicly(input, output)
+ ensures unchanged(History)
+ 
+ predicate GetCacheEntryEnsuresPublicly(input: GetCacheEntryInput , output: Result<GetCacheEntryOutput, Error>)
+ // The public method to be called by library consumers
+ method GetCacheEntry ( input: GetCacheEntryInput )
+ returns (output: Result<GetCacheEntryOutput, Error>)
+ requires
+ && ValidState()
+ modifies Modifies - {History} ,
+ History`GetCacheEntry
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases Modifies - {History}
+ ensures
+ && ValidState()
+ ensures GetCacheEntryEnsuresPublicly(input, output)
+ ensures History.GetCacheEntry == old(History.GetCacheEntry) + [DafnyCallEvent(input, output)]
+ {
+ output := GetCacheEntry' (input);
+ History.GetCacheEntry := History.GetCacheEntry + [DafnyCallEvent(input, output)];
+}
+ // The method to implement in the concrete class. 
+ method GetCacheEntry' ( input: GetCacheEntryInput )
+ returns (output: Result<GetCacheEntryOutput, Error>)
+ requires
+ && ValidState()
+ modifies Modifies - {History}
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases Modifies - {History}
+ ensures
+ && ValidState()
+ ensures GetCacheEntryEnsuresPublicly(input, output)
+ ensures unchanged(History)
+ 
+ predicate DeleteCacheEntryEnsuresPublicly(input: DeleteCacheEntryInput , output: Result<(), Error>)
+ // The public method to be called by library consumers
+ method DeleteCacheEntry ( input: DeleteCacheEntryInput )
+ returns (output: Result<(), Error>)
+ requires
+ && ValidState()
+ modifies Modifies - {History} ,
+ History`DeleteCacheEntry
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases Modifies - {History}
+ ensures
+ && ValidState()
+ ensures DeleteCacheEntryEnsuresPublicly(input, output)
+ ensures History.DeleteCacheEntry == old(History.DeleteCacheEntry) + [DafnyCallEvent(input, output)]
+ {
+ output := DeleteCacheEntry' (input);
+ History.DeleteCacheEntry := History.DeleteCacheEntry + [DafnyCallEvent(input, output)];
+}
+ // The method to implement in the concrete class. 
+ method DeleteCacheEntry' ( input: DeleteCacheEntryInput )
+ returns (output: Result<(), Error>)
+ requires
+ && ValidState()
+ modifies Modifies - {History}
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases Modifies - {History}
+ ensures
+ && ValidState()
+ ensures DeleteCacheEntryEnsuresPublicly(input, output)
+ ensures unchanged(History)
+ 
+}
  class ICryptographicMaterialsManagerCallHistory {
  ghost constructor() {
  GetEncryptionMaterials := [];
@@ -828,6 +1031,9 @@ include "../../StandardLibrary/src/Index.dfy"
  datatype DecryptMaterialsOutput = | DecryptMaterialsOutput (
  nameonly decryptionMaterials: DecryptionMaterials
  )
+ datatype DeleteCacheEntryInput = | DeleteCacheEntryInput (
+ nameonly identifier: seq<uint8>
+ )
  datatype DerivationAlgorithm =
  | HKDF(HKDF: HKDF)
  | IDENTITY(IDENTITY: IDENTITY)
@@ -880,6 +1086,17 @@ include "../../StandardLibrary/src/Index.dfy"
 	| FORBID_ENCRYPT_ALLOW_DECRYPT
 	| REQUIRE_ENCRYPT_ALLOW_DECRYPT
 	| REQUIRE_ENCRYPT_REQUIRE_DECRYPT
+ datatype GetCacheEntryInput = | GetCacheEntryInput (
+ nameonly identifier: seq<uint8> ,
+ nameonly bytesUsed: Option<int64>
+ )
+ datatype GetCacheEntryOutput = | GetCacheEntryOutput (
+ nameonly materials: Materials ,
+ nameonly creationTime: PositiveLong ,
+ nameonly expiryTime: PositiveLong ,
+ nameonly messagesUsed: PositiveLong ,
+ nameonly bytesUsed: PositiveLong
+ )
  datatype GetClientInput = | GetClientInput (
  nameonly region: Region
  )
@@ -1028,6 +1245,10 @@ include "../../StandardLibrary/src/Index.dfy"
  datatype MaterialProvidersConfig = | MaterialProvidersConfig (
  
  )
+ datatype Materials =
+ | Encryption(Encryption: EncryptionMaterials)
+ | Decryption(Decryption: DecryptionMaterials)
+ | Hierarchical(Hierarchical: HierarchicalMaterials)
  datatype None = | None (
  
  )
@@ -1054,6 +1275,18 @@ include "../../StandardLibrary/src/Index.dfy"
  predicate method IsValid_PositiveInteger(x: int32) {
  ( 0 <= x  )
 }
+ type PositiveLong = x: int32 | IsValid_PositiveLong(x) witness *
+ predicate method IsValid_PositiveLong(x: int32) {
+ ( 0 <= x  )
+}
+ datatype PutCacheEntryInput = | PutCacheEntryInput (
+ nameonly identifier: seq<uint8> ,
+ nameonly materials: Materials ,
+ nameonly creationTime: PositiveLong ,
+ nameonly expiryTime: PositiveLong ,
+ nameonly messagesUsed: Option<PositiveLong> ,
+ nameonly bytesUsed: Option<PositiveLong>
+ )
  type Region = string
  type RegionList = seq<Region>
  type Secret = seq<uint8>
@@ -1064,6 +1297,10 @@ include "../../StandardLibrary/src/Index.dfy"
  | HMAC(HMAC: AwsCryptographyPrimitivesTypes.DigestAlgorithm)
  | None(None: None)
  type SymmetricSigningKeyList = seq<Secret>
+ datatype UpdaterUsageMetadataInput = | UpdaterUsageMetadataInput (
+ nameonly identifier: seq<uint8> ,
+ nameonly bytesUsed: PositiveLong
+ )
  type Utf8Bytes = ValidUTF8Bytes
  datatype ValidateCommitmentPolicyOnDecryptInput = | ValidateCommitmentPolicyOnDecryptInput (
  nameonly algorithm: AlgorithmSuiteId ,
@@ -1084,6 +1321,12 @@ include "../../StandardLibrary/src/Index.dfy"
  datatype Error =
  // Local Error structures are listed here
  | AwsCryptographicMaterialProvidersException (
+ nameonly message: string
+ )
+ | EntryAlreadyExists (
+ nameonly message: string
+ )
+ | EntryDoesNotExist (
  nameonly message: string
  )
  | InvalidAlgorithmSuiteInfo (
@@ -1582,6 +1825,31 @@ include "../../StandardLibrary/src/Index.dfy"
  History.CreateDefaultCryptographicMaterialsManager := History.CreateDefaultCryptographicMaterialsManager + [DafnyCallEvent(input, output)];
 }
  
+ predicate CreateCryptographicMaterialsCacheEnsuresPublicly(input: CreateCryptographicMaterialsCacheInput , output: Result<ICryptographicMaterialsCache, Error>)
+ {Operations.CreateCryptographicMaterialsCacheEnsuresPublicly(input, output)}
+ // The public method to be called by library consumers
+ method CreateCryptographicMaterialsCache ( input: CreateCryptographicMaterialsCacheInput )
+ returns (output: Result<ICryptographicMaterialsCache, Error>)
+ requires
+ && ValidState()
+ modifies Modifies - {History} ,
+ History`CreateCryptographicMaterialsCache
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases Modifies - {History}
+ ensures
+ && ValidState()
+ && ( output.Success? ==> 
+ && output.value.ValidState()
+ && output.value.Modifies !! {History}
+ && fresh(output.value)
+ && fresh ( output.value.Modifies - Modifies - {History} ) )
+ ensures CreateCryptographicMaterialsCacheEnsuresPublicly(input, output)
+ ensures History.CreateCryptographicMaterialsCache == old(History.CreateCryptographicMaterialsCache) + [DafnyCallEvent(input, output)]
+ {
+ output := Operations.CreateCryptographicMaterialsCache(config, input);
+ History.CreateCryptographicMaterialsCache := History.CreateCryptographicMaterialsCache + [DafnyCallEvent(input, output)];
+}
+ 
  predicate CreateDefaultClientSupplierEnsuresPublicly(input: CreateDefaultClientSupplierInput , output: Result<IClientSupplier, Error>)
  {Operations.CreateDefaultClientSupplierEnsuresPublicly(input, output)}
  // The public method to be called by library consumers
@@ -2034,6 +2302,26 @@ include "../../StandardLibrary/src/Index.dfy"
  && fresh(output.value)
  && fresh ( output.value.Modifies - ModifiesInternalConfig(config) - input.keyring.Modifies ) )
  ensures CreateDefaultCryptographicMaterialsManagerEnsuresPublicly(input, output)
+
+
+ predicate CreateCryptographicMaterialsCacheEnsuresPublicly(input: CreateCryptographicMaterialsCacheInput , output: Result<ICryptographicMaterialsCache, Error>)
+ // The private method to be refined by the library developer
+
+
+ method CreateCryptographicMaterialsCache ( config: InternalConfig , input: CreateCryptographicMaterialsCacheInput )
+ returns (output: Result<ICryptographicMaterialsCache, Error>)
+ requires
+ && ValidInternalConfig?(config)
+ modifies ModifiesInternalConfig(config)
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases ModifiesInternalConfig(config)
+ ensures
+ && ValidInternalConfig?(config)
+ && ( output.Success? ==> 
+ && output.value.ValidState()
+ && fresh(output.value)
+ && fresh ( output.value.Modifies - ModifiesInternalConfig(config) ) )
+ ensures CreateCryptographicMaterialsCacheEnsuresPublicly(input, output)
 
 
  predicate CreateDefaultClientSupplierEnsuresPublicly(input: CreateDefaultClientSupplierInput , output: Result<IClientSupplier, Error>)

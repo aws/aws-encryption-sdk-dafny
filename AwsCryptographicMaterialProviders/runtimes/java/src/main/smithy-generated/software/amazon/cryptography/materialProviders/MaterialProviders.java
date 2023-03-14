@@ -25,6 +25,7 @@ import software.amazon.cryptography.materialProviders.model.CreateAwsKmsMrkKeyri
 import software.amazon.cryptography.materialProviders.model.CreateAwsKmsMrkMultiKeyringInput;
 import software.amazon.cryptography.materialProviders.model.CreateAwsKmsMultiKeyringInput;
 import software.amazon.cryptography.materialProviders.model.CreateAwsKmsRsaKeyringInput;
+import software.amazon.cryptography.materialProviders.model.CreateCryptographicMaterialsCacheInput;
 import software.amazon.cryptography.materialProviders.model.CreateDefaultClientSupplierInput;
 import software.amazon.cryptography.materialProviders.model.CreateDefaultCryptographicMaterialsManagerInput;
 import software.amazon.cryptography.materialProviders.model.CreateMultiKeyringInput;
@@ -231,6 +232,16 @@ public class MaterialProviders {
       throw ToNative.Error(result.dtor_error());
     }
     return CryptographicMaterialsManager.wrap(result.dtor_value());
+  }
+
+  public ICryptographicMaterialsCache CreateCryptographicMaterialsCache(
+      CreateCryptographicMaterialsCacheInput nativeValue) {
+    Dafny.Aws.Cryptography.MaterialProviders.Types.CreateCryptographicMaterialsCacheInput dafnyValue = ToDafny.CreateCryptographicMaterialsCacheInput(nativeValue);
+    Result<Dafny.Aws.Cryptography.MaterialProviders.Types.ICryptographicMaterialsCache, Error> result = this._impl.CreateCryptographicMaterialsCache(dafnyValue);
+    if (result.is_Failure()) {
+      throw ToNative.Error(result.dtor_error());
+    }
+    return CryptographicMaterialsCache.wrap(result.dtor_value());
   }
 
   public IClientSupplier CreateDefaultClientSupplier(CreateDefaultClientSupplierInput nativeValue) {
