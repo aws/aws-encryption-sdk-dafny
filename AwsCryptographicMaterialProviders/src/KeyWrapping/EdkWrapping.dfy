@@ -347,7 +347,7 @@ module EdkWrapping {
 
   // Given material wrapped using Intermediate Key Wrapping,
   // get the provider wrapped portion
-  function GetProviderWrappedMaterial(material: seq<uint8>, algSuite: Types.AlgorithmSuiteInfo)
+  function method GetProviderWrappedMaterial(material: seq<uint8>, algSuite: Types.AlgorithmSuiteInfo)
   : (r: Result<seq<uint8>, Types.Error>)
     ensures r.Success? && algSuite.edkWrapping.DIRECT_KEY_WRAPPING? ==> r.value == material
     ensures r.Success? && algSuite.edkWrapping.IntermediateKeyWrapping? ==>

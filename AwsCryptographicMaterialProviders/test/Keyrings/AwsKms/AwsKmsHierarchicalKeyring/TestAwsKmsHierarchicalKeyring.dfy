@@ -3,6 +3,8 @@
 
 include "../../../../src/Index.dfy"
 include "../../../TestUtils.dfy"
+include "../../../../src/AlgorithmSuites.dfy"
+include "../../../../src/Materials.dfy"
 
 
 module TestAwsKmsHierarchicalKeyring {
@@ -10,39 +12,108 @@ module TestAwsKmsHierarchicalKeyring {
   import ComAmazonawsKmsTypes
   import KMS = Com.Amazonaws.Kms
   import DDB = Com.Amazonaws.Dynamodb
+  import Crypto = AwsCryptographyPrimitivesTypes
+  import Aws.Cryptography.Primitives
   import MaterialProviders
   import opened TestUtils
+  import opened AlgorithmSuites
+  import opened Materials
   import opened UInt = StandardLibrary.UInt
   import opened Wrappers
 
-  method {:test} TestClientWithHierarchy()
+  const TEST_ESDK_ALG_SUITE_ID := Types.AlgorithmSuiteId.ESDK(Types.ALG_AES_256_GCM_IV12_TAG16_NO_KDF);
+  const TEST_DBE_ALG_SUITE_ID := Types.AlgorithmSuiteId.DBE(Types.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_SYMSIG_HMAC_SHA384);
+  // THIS IS A TESTING RESOURCE DO NOT USE IN A PRODUCTION ENVIRONMENT
+  const keyArn := "arn:aws:kms:us-west-2:370957321024:key/9d989aa2-2f9c-438c-a745-cc57d3ad0126";
+  const branchKeyStoreArn := "arn:aws:dynamodb:us-west-2:370957321024:table/HierarchicalKeyringTestTable";
+
+  method GetTestMaterials(suiteId: Types.AlgorithmSuiteId) returns (out: Types.EncryptionMaterials) 
   {
-    // THIS IS A TESTING RESOURCE DO NOT USE IN A PRODUCTION ENVIRONMENT
-    var keyArn := "arn:aws:kms:us-west-2:370957321024:key/9d989aa2-2f9c-438c-a745-cc57d3ad0126";
-    var branchKeyStoreArn := "arn:aws:dynamodb:us-west-2:370957321024:table/HierarchicalKeyringTestTable";
+    var mpl :- expect MaterialProviders.MaterialProviders();
+
+    var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.A);
+    var suite := AlgorithmSuites.GetSuite(suiteId);
+    // Add data key to test the case wherer i have a pdk
+    var encryptionMaterialsIn :- expect mpl.InitializeEncryptionMaterials(
+      Types.InitializeEncryptionMaterialsInput(
+        algorithmSuiteId := suiteId,
+        encryptionContext := encryptionContext,
+        requiredEncryptionContextKeys := [],
+        signingKey := None,
+        verificationKey := None
+      )
+    );
+
+    return encryptionMaterialsIn;
+  }
+  
+  method {:test} TestHierarchyClientESDKSuite()
+  {
     var branchKeyId := "hierarchy-test-v1";
     var ttl : int64 := (1 * 60000) * 10;
-    BuildKeyringAndTest(branchKeyId, branchKeyStoreArn, keyArn, ttl);
+    var materials := GetTestMaterials(TEST_ESDK_ALG_SUITE_ID);
+    BuildKeyringAndTestEndToEnd(materials, TEST_ESDK_ALG_SUITE_ID, branchKeyId, ttl);
+
+    //Test with key in the materials
+    var suite := AlgorithmSuites.GetSuite(TEST_ESDK_ALG_SUITE_ID);
+    var zeroedKey := seq(AlgorithmSuites.GetEncryptKeyLength(suite) as nat, _ => 0); // Key is Zero
+    materials := materials.(plaintextDataKey := Some(zeroedKey));
+    BuildKeyringAndTestEndToEnd(materials, TEST_ESDK_ALG_SUITE_ID, branchKeyId, ttl);
   }
 
-  method {:test} TestClientWithHierarchyActiveActive() 
+  method {:test} TestTwoActiveKeysESDKSuite() 
   { 
-    // THIS IS A TESTING RESOURCE DO NOT USE IN A PRODUCTION ENVIRONMENT
-    var keyArn := "arn:aws:kms:us-west-2:370957321024:key/9d989aa2-2f9c-438c-a745-cc57d3ad0126";
-    var branchKeyStoreArn := "arn:aws:dynamodb:us-west-2:370957321024:table/HierarchicalKeyringTestTable";
     // The HierarchicalKeyringTestTable has two active keys under the branchKeyId below.
     // They have "create-time" timestamps of: 2023-03-07T17:09Z and 2023-03-07T17:07Z
     // When sorting them lexicographically, we should be using 2023-03-07T17:09Z as the "newest" 
     // branch key since this timestamp is more recent.
     var branchKeyId := "hierarchy-test-active-active";
     var ttl : int64 := (1 * 60000) * 10;
-    BuildKeyringAndTest(branchKeyId, branchKeyStoreArn, keyArn, ttl);
+    var materials := GetTestMaterials(TEST_ESDK_ALG_SUITE_ID);
+    BuildKeyringAndTestEndToEnd(materials, TEST_ESDK_ALG_SUITE_ID, branchKeyId, ttl);
+    
+    //Test with key in the materials
+    var suite := AlgorithmSuites.GetSuite(TEST_ESDK_ALG_SUITE_ID);
+    var zeroedKey := seq(AlgorithmSuites.GetEncryptKeyLength(suite) as nat, _ => 0); // Key is Zero
+    materials := materials.(plaintextDataKey := Some(zeroedKey));
+    BuildKeyringAndTestEndToEnd(materials, TEST_ESDK_ALG_SUITE_ID, branchKeyId, ttl);
   }
 
-  method BuildKeyringAndTest(
+  method {:test} TestHierarchyClientDBESuite() {
+    var branchKeyId := "hierarchy-test-v1";
+    var ttl : int64 := (1 * 60000) * 10;
+    var materials := GetTestMaterials(TEST_DBE_ALG_SUITE_ID);
+    BuildKeyringAndTestEndToEnd(materials, TEST_DBE_ALG_SUITE_ID, branchKeyId, ttl);
+
+    //Test with key in the materials
+    var suite := AlgorithmSuites.GetSuite(TEST_DBE_ALG_SUITE_ID);
+    var zeroedKey := seq(AlgorithmSuites.GetEncryptKeyLength(suite) as nat, _ => 0); // Key is Zero
+    materials := materials.(plaintextDataKey := Some(zeroedKey));
+    BuildKeyringAndTestEndToEnd(materials, TEST_DBE_ALG_SUITE_ID, branchKeyId, ttl);
+  }
+  
+  method {:test} TestTwoActiveKeysDBESuite() 
+  { 
+    // The HierarchicalKeyringTestTable has two active keys under the branchKeyId below.
+    // They have "create-time" timestamps of: 2023-03-07T17:09Z and 2023-03-07T17:07Z
+    // When sorting them lexicographically, we should be using 2023-03-07T17:09Z as the "newest" 
+    // branch key since this timestamp is more recent.
+    var branchKeyId := "hierarchy-test-active-active";
+    var ttl : int64 := (1 * 60000) * 10;
+    var materials := GetTestMaterials(TEST_DBE_ALG_SUITE_ID);
+    BuildKeyringAndTestEndToEnd(materials, TEST_DBE_ALG_SUITE_ID, branchKeyId, ttl);
+
+    //Test with key in the materials
+    var suite := AlgorithmSuites.GetSuite(TEST_DBE_ALG_SUITE_ID);
+    var zeroedKey := seq(AlgorithmSuites.GetEncryptKeyLength(suite) as nat, _ => 0); // Key is Zero
+    materials := materials.(plaintextDataKey := Some(zeroedKey));
+    BuildKeyringAndTestEndToEnd(materials, TEST_DBE_ALG_SUITE_ID, branchKeyId, ttl);
+  }
+
+  method BuildKeyringAndTestEndToEnd(
+    encryptionMaterialsIn: Types.EncryptionMaterials,
+    algorithmSuiteId: Types.AlgorithmSuiteId,
     branchKeyId: string,
-    branchKeyStoreArn: string,
-    keyArn: string,
     ttl: int64
   ) {
     var mpl :- expect MaterialProviders.MaterialProviders();
@@ -65,19 +136,6 @@ module TestAwsKmsHierarchicalKeyring {
     expect hierarchyKeyringResult.Success?;
     var hierarchyKeyring := hierarchyKeyringResult.value;
     
-    var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.A);
-    
-    var algorithmSuiteId := Types.AlgorithmSuiteId.ESDK(Types.ALG_AES_256_GCM_IV12_TAG16_NO_KDF);
-    var encryptionMaterialsIn :- expect mpl.InitializeEncryptionMaterials(
-      Types.InitializeEncryptionMaterialsInput(
-        algorithmSuiteId := algorithmSuiteId,
-        encryptionContext := encryptionContext,
-        requiredEncryptionContextKeys := [],
-        signingKey := None,
-        verificationKey := None
-      )
-    );
-
     var encryptionMaterialsOut :- expect hierarchyKeyring.OnEncrypt(
       Types.OnEncryptInput(materials:=encryptionMaterialsIn)
     );
@@ -88,6 +146,7 @@ module TestAwsKmsHierarchicalKeyring {
 
     var edk := encryptionMaterialsOut.materials.encryptedDataKeys[0];
 
+    var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.A);
     var decryptionMaterialsIn :- expect mpl.InitializeDecryptionMaterials(
       Types.InitializeDecryptionMaterialsInput(
         algorithmSuiteId := algorithmSuiteId,
