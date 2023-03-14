@@ -52,6 +52,10 @@ public class AtomicPrimitives {
     return new BuilderImpl();
   }
 
+  protected IAwsCryptographicPrimitivesClient impl() {
+    return this._impl;
+  }
+
   public ByteBuffer GenerateRandomBytes(GenerateRandomBytesInput nativeValue) {
     Dafny.Aws.Cryptography.Primitives.Types.GenerateRandomBytesInput dafnyValue = ToDafny.GenerateRandomBytesInput(nativeValue);
     Result<DafnySequence<? extends Byte>, Error> result = this._impl.GenerateRandomBytes(dafnyValue);
@@ -195,10 +199,6 @@ public class AtomicPrimitives {
       throw ToNative.Error(result.dtor_error());
     }
     return (result.dtor_value());
-  }
-
-  protected IAwsCryptographicPrimitivesClient impl() {
-    return this._impl;
   }
 
   public interface Builder {

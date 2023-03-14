@@ -16,9 +16,12 @@ export DOTNET_ROOT=$DAFNY_ROOT/aws-encryption-sdk-net
 
 export ESDK_ROOT=$DAFNY_ROOT/AwsEncryptionSDK
 export MaterialProviders_ROOT=$DAFNY_ROOT/AwsCryptographicMaterialProviders
+export WrappedMaterialProviders_ROOT=$DAFNY_ROOT/TestVectorsAwsCryptographicMaterialProviders
 export AwsCryptographyPrimitives_ROOT=$DAFNY_ROOT/AwsCryptographyPrimitives
 export ComAmazonawsKms_ROOT=$DAFNY_ROOT/ComAmazonawsKms
 export ComAmazonawsDynamodb_ROOT=$DAFNY_ROOT/ComAmazonawsDynamodb
+
+export WrappedMaterialProviders_ROOT=$DAFNY_ROOT/TestVectorsAwsCryptographicMaterialProviders
 
 
 cd "$CODEGEN_CLI_ROOT"
@@ -68,6 +71,21 @@ cd "$CODEGEN_CLI_ROOT"
     --dependent-model $DAFNY_ROOT/model \
     --dependent-model $AwsCryptographyPrimitives_ROOT/Model \
     --namespace aws.cryptography.materialProviders"
+
+# Generate wrapped code for material providers
+# NOTE: the model is actual MPL directory
+# whereas the dotnet is the wrapped directory
+./gradlew run --args="
+    --output-dafny \
+    --include-dafny $DAFNY_ROOT/StandardLibrary/src/Index.dfy \
+    --output-dotnet $WrappedMaterialProviders_ROOT/runtimes/net/Generated/ \
+    --model $MaterialProviders_ROOT/Model \
+    --dependent-model $ComAmazonawsKms_ROOT/Model \
+    --dependent-model $ComAmazonawsDynamodb_ROOT/Model \
+    --dependent-model $DAFNY_ROOT/model \
+    --dependent-model $AwsCryptographyPrimitives_ROOT/Model \
+    --namespace aws.cryptography.materialProviders \
+    --output-local-service-test $WrappedMaterialProviders_ROOT/Model" \
 
 # # Generate code for ESDK
 ./gradlew run --args="\

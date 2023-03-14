@@ -15,6 +15,7 @@ jobs:
           AwsCryptographyPrimitives,
           ComAmazonawsKms,
           AwsCryptographicMaterialProviders,
+          TestVectorsAwsCryptographicMaterialProviders,
           StandardLibrary,
         ]
         dotnet-version: [ '6.0.x' ]
