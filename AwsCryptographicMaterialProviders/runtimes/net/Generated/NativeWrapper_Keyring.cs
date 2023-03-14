@@ -4,67 +4,74 @@
 // ReSharper disable RedundantUsingDirective
 // ReSharper disable RedundantNameQualifier
 // ReSharper disable SuggestVarOrType_SimpleTypes
- using System;
- using _System;
- using Wrappers_Compile;
+using System;
+using _System;
+using Wrappers_Compile;
 
- namespace AWS.Cryptography.MaterialProviders {
- internal class NativeWrapper_Keyring : Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring 
- {
- internal readonly KeyringBase _impl;
- public NativeWrapper_Keyring(KeyringBase nativeImpl)
- {
- _impl = nativeImpl;
-}
- public Wrappers_Compile._IResult<Dafny.Aws.Cryptography.MaterialProviders.Types._IOnEncryptOutput, Dafny.Aws.Cryptography.MaterialProviders.Types._IError> OnEncrypt(Dafny.Aws.Cryptography.MaterialProviders.Types._IOnEncryptInput input)
- {
- void validateOutput(AWS.Cryptography.MaterialProviders.OnEncryptOutput nativeOutput) {
- try { nativeOutput.Validate(); } catch (ArgumentException e)
- {
- var message = $"Output of {_impl}._OnEncrypt is invalid. {e.Message}";
- throw new AwsCryptographicMaterialProvidersException(message);
-}
-}
- AWS.Cryptography.MaterialProviders.OnEncryptInput nativeInput = TypeConversion.FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S14_OnEncryptInput(input);
- try {
- AWS.Cryptography.MaterialProviders.OnEncryptOutput nativeOutput = _impl.OnEncrypt(nativeInput);
- _ = nativeOutput ?? throw new AwsCryptographicMaterialProvidersException($"{_impl}._OnEncrypt returned null, should be {typeof(AWS.Cryptography.MaterialProviders.OnEncryptOutput)}");
- validateOutput(nativeOutput);
- return Wrappers_Compile.Result<Dafny.Aws.Cryptography.MaterialProviders.Types._IOnEncryptOutput, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Success(TypeConversion.ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S15_OnEncryptOutput(nativeOutput));
-}
- catch(Exception e)
- {
- return Wrappers_Compile.Result<Dafny.Aws.Cryptography.MaterialProviders.Types._IOnEncryptOutput, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Failure(TypeConversion.ToDafny_CommonError(e));
-}
-}
- public Wrappers_Compile._IResult<Dafny.Aws.Cryptography.MaterialProviders.Types._IOnEncryptOutput, Dafny.Aws.Cryptography.MaterialProviders.Types._IError> OnEncrypt_k(Dafny.Aws.Cryptography.MaterialProviders.Types._IOnEncryptInput input)
- {
- throw new AwsCryptographicMaterialProvidersException("Not supported at this time.");
-}
- public Wrappers_Compile._IResult<Dafny.Aws.Cryptography.MaterialProviders.Types._IOnDecryptOutput, Dafny.Aws.Cryptography.MaterialProviders.Types._IError> OnDecrypt(Dafny.Aws.Cryptography.MaterialProviders.Types._IOnDecryptInput input)
- {
- void validateOutput(AWS.Cryptography.MaterialProviders.OnDecryptOutput nativeOutput) {
- try { nativeOutput.Validate(); } catch (ArgumentException e)
- {
- var message = $"Output of {_impl}._OnDecrypt is invalid. {e.Message}";
- throw new AwsCryptographicMaterialProvidersException(message);
-}
-}
- AWS.Cryptography.MaterialProviders.OnDecryptInput nativeInput = TypeConversion.FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S14_OnDecryptInput(input);
- try {
- AWS.Cryptography.MaterialProviders.OnDecryptOutput nativeOutput = _impl.OnDecrypt(nativeInput);
- _ = nativeOutput ?? throw new AwsCryptographicMaterialProvidersException($"{_impl}._OnDecrypt returned null, should be {typeof(AWS.Cryptography.MaterialProviders.OnDecryptOutput)}");
- validateOutput(nativeOutput);
- return Wrappers_Compile.Result<Dafny.Aws.Cryptography.MaterialProviders.Types._IOnDecryptOutput, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Success(TypeConversion.ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S15_OnDecryptOutput(nativeOutput));
-}
- catch(Exception e)
- {
- return Wrappers_Compile.Result<Dafny.Aws.Cryptography.MaterialProviders.Types._IOnDecryptOutput, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Failure(TypeConversion.ToDafny_CommonError(e));
-}
-}
- public Wrappers_Compile._IResult<Dafny.Aws.Cryptography.MaterialProviders.Types._IOnDecryptOutput, Dafny.Aws.Cryptography.MaterialProviders.Types._IError> OnDecrypt_k(Dafny.Aws.Cryptography.MaterialProviders.Types._IOnDecryptInput input)
- {
- throw new AwsCryptographicMaterialProvidersException("Not supported at this time.");
-}
-}
+namespace AWS.Cryptography.MaterialProviders
+{
+  internal class NativeWrapper_Keyring : Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring
+  {
+    internal readonly KeyringBase _impl;
+    public NativeWrapper_Keyring(KeyringBase nativeImpl)
+    {
+      _impl = nativeImpl;
+    }
+    public Wrappers_Compile._IResult<Dafny.Aws.Cryptography.MaterialProviders.Types._IOnEncryptOutput, Dafny.Aws.Cryptography.MaterialProviders.Types._IError> OnEncrypt(Dafny.Aws.Cryptography.MaterialProviders.Types._IOnEncryptInput input)
+    {
+      void validateOutput(AWS.Cryptography.MaterialProviders.OnEncryptOutput nativeOutput)
+      {
+        try { nativeOutput.Validate(); }
+        catch (ArgumentException e)
+        {
+          var message = $"Output of {_impl}._OnEncrypt is invalid. {e.Message}";
+          throw new AwsCryptographicMaterialProvidersException(message);
+        }
+      }
+      AWS.Cryptography.MaterialProviders.OnEncryptInput nativeInput = TypeConversion.FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S14_OnEncryptInput(input);
+      try
+      {
+        AWS.Cryptography.MaterialProviders.OnEncryptOutput nativeOutput = _impl.OnEncrypt(nativeInput);
+        _ = nativeOutput ?? throw new AwsCryptographicMaterialProvidersException($"{_impl}._OnEncrypt returned null, should be {typeof(AWS.Cryptography.MaterialProviders.OnEncryptOutput)}");
+        validateOutput(nativeOutput);
+        return Wrappers_Compile.Result<Dafny.Aws.Cryptography.MaterialProviders.Types._IOnEncryptOutput, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Success(TypeConversion.ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S15_OnEncryptOutput(nativeOutput));
+      }
+      catch (Exception e)
+      {
+        return Wrappers_Compile.Result<Dafny.Aws.Cryptography.MaterialProviders.Types._IOnEncryptOutput, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Failure(TypeConversion.ToDafny_CommonError(e));
+      }
+    }
+    public Wrappers_Compile._IResult<Dafny.Aws.Cryptography.MaterialProviders.Types._IOnEncryptOutput, Dafny.Aws.Cryptography.MaterialProviders.Types._IError> OnEncrypt_k(Dafny.Aws.Cryptography.MaterialProviders.Types._IOnEncryptInput input)
+    {
+      throw new AwsCryptographicMaterialProvidersException("Not supported at this time.");
+    }
+    public Wrappers_Compile._IResult<Dafny.Aws.Cryptography.MaterialProviders.Types._IOnDecryptOutput, Dafny.Aws.Cryptography.MaterialProviders.Types._IError> OnDecrypt(Dafny.Aws.Cryptography.MaterialProviders.Types._IOnDecryptInput input)
+    {
+      void validateOutput(AWS.Cryptography.MaterialProviders.OnDecryptOutput nativeOutput)
+      {
+        try { nativeOutput.Validate(); }
+        catch (ArgumentException e)
+        {
+          var message = $"Output of {_impl}._OnDecrypt is invalid. {e.Message}";
+          throw new AwsCryptographicMaterialProvidersException(message);
+        }
+      }
+      AWS.Cryptography.MaterialProviders.OnDecryptInput nativeInput = TypeConversion.FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S14_OnDecryptInput(input);
+      try
+      {
+        AWS.Cryptography.MaterialProviders.OnDecryptOutput nativeOutput = _impl.OnDecrypt(nativeInput);
+        _ = nativeOutput ?? throw new AwsCryptographicMaterialProvidersException($"{_impl}._OnDecrypt returned null, should be {typeof(AWS.Cryptography.MaterialProviders.OnDecryptOutput)}");
+        validateOutput(nativeOutput);
+        return Wrappers_Compile.Result<Dafny.Aws.Cryptography.MaterialProviders.Types._IOnDecryptOutput, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Success(TypeConversion.ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S15_OnDecryptOutput(nativeOutput));
+      }
+      catch (Exception e)
+      {
+        return Wrappers_Compile.Result<Dafny.Aws.Cryptography.MaterialProviders.Types._IOnDecryptOutput, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Failure(TypeConversion.ToDafny_CommonError(e));
+      }
+    }
+    public Wrappers_Compile._IResult<Dafny.Aws.Cryptography.MaterialProviders.Types._IOnDecryptOutput, Dafny.Aws.Cryptography.MaterialProviders.Types._IError> OnDecrypt_k(Dafny.Aws.Cryptography.MaterialProviders.Types._IOnDecryptInput input)
+    {
+      throw new AwsCryptographicMaterialProvidersException("Not supported at this time.");
+    }
+  }
 }

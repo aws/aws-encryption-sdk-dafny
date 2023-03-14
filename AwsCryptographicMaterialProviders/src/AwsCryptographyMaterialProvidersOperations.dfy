@@ -18,6 +18,7 @@ include "Keyrings/AwsKms/AwsKmsRsaKeyring.dfy"
 include "Keyrings/RawAESKeyring.dfy"
 include "Keyrings/RawRSAKeyring.dfy"
 include "CMMs/DefaultCMM.dfy"
+include "CMCs/LocalCMC.dfy"
 include "DefaultClientSupplier.dfy"
 include "Materials.dfy"
 include "Commitment.dfy"
@@ -40,6 +41,7 @@ module AwsCryptographyMaterialProvidersOperations refines AbstractAwsCryptograph
   import RawAESKeyring
   import RawRSAKeyring
   import opened C = DefaultCMM
+  import opened L = LocalCMC
   import Crypto = AwsCryptographyPrimitivesTypes
   import Aws.Cryptography.Primitives
   import opened AwsKmsUtils
@@ -429,6 +431,29 @@ module AwsCryptographyMaterialProvidersOperations refines AbstractAwsCryptograph
   {
     var cmm := new DefaultCMM.OfKeyring(input.keyring, config.crypto);
     return Success(cmm);
+  }
+
+  predicate CreateCryptographicMaterialsCacheEnsuresPublicly(input: CreateCryptographicMaterialsCacheInput , output: Result<ICryptographicMaterialsCache, Error>)
+  {true}
+
+  method CreateCryptographicMaterialsCache(config: InternalConfig, input: CreateCryptographicMaterialsCacheInput)
+    returns (output: Result<ICryptographicMaterialsCache, Error>)
+  {
+    :- Need(input.entryCapacity >= 1, 
+      Types.AwsCryptographicMaterialProvidersException(message := "Cache Size MUST be greater than 0"));
+    
+    var entryPruningTailSize: nat;
+
+    if input.entryPruningTailSize.Some? {
+      :- Need(input.entryPruningTailSize.value >= 1,
+        Types.AwsCryptographicMaterialProvidersException(
+          message := "Entry Prunning Tail Size MUST be greater than or equal to 1."));
+      entryPruningTailSize := input.entryPruningTailSize.value as nat;
+    } else {
+      entryPruningTailSize := 1;
+    } 
+    var cmc := new LocalCMC(input.entryCapacity as nat, entryPruningTailSize);
+    return Success(cmc);
   }
 
   predicate CreateDefaultClientSupplierEnsuresPublicly(input: CreateDefaultClientSupplierInput, output: Result<IClientSupplier, Error>)

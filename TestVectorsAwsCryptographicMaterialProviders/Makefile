@@ -19,3 +19,5 @@ LIBRARIES := \
 	ComAmazonawsDynamodb \
 	AwsCryptographicMaterialProviders
 
+format_net:
+	pushd runtimes/net && dotnet format && popd
