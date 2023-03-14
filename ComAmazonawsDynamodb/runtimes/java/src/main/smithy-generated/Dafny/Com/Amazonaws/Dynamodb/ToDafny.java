@@ -3067,38 +3067,43 @@ public class ToDafny {
 
   public static AttributeValue AttributeValue(
       software.amazon.awssdk.services.dynamodb.model.AttributeValue nativeValue) {
-    if (Objects.nonNull(nativeValue.s())) {
-      return AttributeValue.create_S(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.s()));
+    switch (nativeValue.type()) {
+      case S: {
+        return AttributeValue.create_S(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.s()));
+      }
+      case N: {
+        return AttributeValue.create_N(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.n()));
+      }
+      case B: {
+        return AttributeValue.create_B(software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.b().asByteArray()));
+      }
+      case SS: {
+        return AttributeValue.create_SS(ToDafny.StringSetAttributeValue(nativeValue.ss()));
+      }
+      case NS: {
+        return AttributeValue.create_NS(ToDafny.NumberSetAttributeValue(nativeValue.ns()));
+      }
+      case BS: {
+        return AttributeValue.create_BS(ToDafny.BinarySetAttributeValue(nativeValue.bs().stream()
+            .map(software.amazon.awssdk.core.BytesWrapper::asByteBuffer)
+            .collect(java.util.stream.Collectors.toList())));
+      }
+      case M: {
+        return AttributeValue.create_M(ToDafny.MapAttributeValue(nativeValue.m()));
+      }
+      case L: {
+        return AttributeValue.create_L(ToDafny.ListAttributeValue(nativeValue.l()));
+      }
+      case NUL: {
+        return AttributeValue.create_NULL((nativeValue.nul()));
+      }
+      case BOOL: {
+        return AttributeValue.create_BOOL((nativeValue.bool()));
+      }
+      default: {
+        throw new IllegalArgumentException("Cannot convert " + nativeValue + " to Dafny.Com.Amazonaws.Dynamodb.Types.AttributeValue.");
+      }
     }
-    if (Objects.nonNull(nativeValue.n())) {
-      return AttributeValue.create_N(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.n()));
-    }
-    if (Objects.nonNull(nativeValue.b())) {
-      return AttributeValue.create_B(software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.b().asByteArray()));
-    }
-    if (Objects.nonNull(nativeValue.ss())) {
-      return AttributeValue.create_SS(ToDafny.StringSetAttributeValue(nativeValue.ss()));
-    }
-    if (Objects.nonNull(nativeValue.ns())) {
-      return AttributeValue.create_NS(ToDafny.NumberSetAttributeValue(nativeValue.ns()));
-    }
-    if (Objects.nonNull(nativeValue.bs())) {
-      return AttributeValue.create_BS(ToDafny.BinarySetAttributeValue(nativeValue.bs().stream().map((self) -> { return self.asByteBuffer(); } ).collect(
-          java.util.stream.Collectors.toList())));
-    }
-    if (Objects.nonNull(nativeValue.m())) {
-      return AttributeValue.create_M(ToDafny.MapAttributeValue(nativeValue.m()));
-    }
-    if (Objects.nonNull(nativeValue.l())) {
-      return AttributeValue.create_L(ToDafny.ListAttributeValue(nativeValue.l()));
-    }
-    if (Objects.nonNull(nativeValue.nul())) {
-      return AttributeValue.create_NULL((nativeValue.nul()));
-    }
-    if (Objects.nonNull(nativeValue.bool())) {
-      return AttributeValue.create_BOOL((nativeValue.bool()));
-    }
-    throw new IllegalArgumentException("Cannot convert " + nativeValue + " to Dafny.Com.Amazonaws.Dynamodb.Types.AttributeValue.");
   }
 
   public static ExpectedAttributeValue ExpectedAttributeValue(
