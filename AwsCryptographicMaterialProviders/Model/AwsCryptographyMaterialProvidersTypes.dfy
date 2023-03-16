@@ -54,6 +54,7 @@ include "../../StandardLibrary/src/Index.dfy"
  CreateRawRsaKeyring := [];
  CreateAwsKmsRsaKeyring := [];
  CreateDefaultCryptographicMaterialsManager := [];
+ CreateExpectedEncryptionContextCMM := [];
  CreateCryptographicMaterialsCache := [];
  CreateDefaultClientSupplier := [];
  InitializeEncryptionMaterials := [];
@@ -81,6 +82,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ghost var CreateRawRsaKeyring: seq<DafnyCallEvent<CreateRawRsaKeyringInput, Result<IKeyring, Error>>>
  ghost var CreateAwsKmsRsaKeyring: seq<DafnyCallEvent<CreateAwsKmsRsaKeyringInput, Result<IKeyring, Error>>>
  ghost var CreateDefaultCryptographicMaterialsManager: seq<DafnyCallEvent<CreateDefaultCryptographicMaterialsManagerInput, Result<ICryptographicMaterialsManager, Error>>>
+ ghost var CreateExpectedEncryptionContextCMM: seq<DafnyCallEvent<CreateExpectedEncryptionContextCMMInput, Result<ICryptographicMaterialsManager, Error>>>
  ghost var CreateCryptographicMaterialsCache: seq<DafnyCallEvent<CreateCryptographicMaterialsCacheInput, Result<ICryptographicMaterialsCache, Error>>>
  ghost var CreateDefaultClientSupplier: seq<DafnyCallEvent<CreateDefaultClientSupplierInput, Result<IClientSupplier, Error>>>
  ghost var InitializeEncryptionMaterials: seq<DafnyCallEvent<InitializeEncryptionMaterialsInput, Result<EncryptionMaterials, Error>>>
@@ -464,6 +466,36 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures CreateDefaultCryptographicMaterialsManagerEnsuresPublicly(input, output)
  ensures History.CreateDefaultCryptographicMaterialsManager == old(History.CreateDefaultCryptographicMaterialsManager) + [DafnyCallEvent(input, output)]
  
+ predicate CreateExpectedEncryptionContextCMMEnsuresPublicly(input: CreateExpectedEncryptionContextCMMInput , output: Result<ICryptographicMaterialsManager, Error>)
+ // The public method to be called by library consumers
+ method CreateExpectedEncryptionContextCMM ( input: CreateExpectedEncryptionContextCMMInput )
+ returns (output: Result<ICryptographicMaterialsManager, Error>)
+ requires
+ && ValidState() && ( input.underlyingCMM.Some? ==>
+ && input.underlyingCMM.value.ValidState()
+ && input.underlyingCMM.value.Modifies !! {History}
+ ) && ( input.keyring.Some? ==>
+ && input.keyring.value.ValidState()
+ && input.keyring.value.Modifies !! {History}
+ )
+ modifies Modifies - {History} ,
+ (if input.underlyingCMM.Some? then input.underlyingCMM.value.Modifies else {}) ,
+ (if input.keyring.Some? then input.keyring.value.Modifies else {}) ,
+ History`CreateExpectedEncryptionContextCMM
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases Modifies - {History} ,
+ (if input.underlyingCMM.Some? then input.underlyingCMM.value.Modifies else {}) ,
+ (if input.keyring.Some? then input.keyring.value.Modifies else {})
+ ensures
+ && ValidState()
+ && ( output.Success? ==> 
+ && output.value.ValidState()
+ && output.value.Modifies !! {History}
+ && fresh(output.value)
+ && fresh ( output.value.Modifies - Modifies - {History} - (if input.underlyingCMM.Some? then input.underlyingCMM.value.Modifies else {}) - (if input.keyring.Some? then input.keyring.value.Modifies else {}) ) )
+ ensures CreateExpectedEncryptionContextCMMEnsuresPublicly(input, output)
+ ensures History.CreateExpectedEncryptionContextCMM == old(History.CreateExpectedEncryptionContextCMM) + [DafnyCallEvent(input, output)]
+ 
  predicate CreateCryptographicMaterialsCacheEnsuresPublicly(input: CreateCryptographicMaterialsCacheInput , output: Result<ICryptographicMaterialsCache, Error>)
  // The public method to be called by library consumers
  method CreateCryptographicMaterialsCache ( input: CreateCryptographicMaterialsCacheInput )
@@ -714,6 +746,11 @@ include "../../StandardLibrary/src/Index.dfy"
  )
  datatype CreateDefaultCryptographicMaterialsManagerInput = | CreateDefaultCryptographicMaterialsManagerInput (
  nameonly keyring: IKeyring
+ )
+ datatype CreateExpectedEncryptionContextCMMInput = | CreateExpectedEncryptionContextCMMInput (
+ nameonly underlyingCMM: Option<ICryptographicMaterialsManager> ,
+ nameonly keyring: Option<IKeyring> ,
+ nameonly requiredEncryptionContextKeys: EncryptionContextKeys
  )
  datatype CreateMultiKeyringInput = | CreateMultiKeyringInput (
  nameonly generator: Option<IKeyring> ,
@@ -1825,6 +1862,41 @@ include "../../StandardLibrary/src/Index.dfy"
  History.CreateDefaultCryptographicMaterialsManager := History.CreateDefaultCryptographicMaterialsManager + [DafnyCallEvent(input, output)];
 }
  
+ predicate CreateExpectedEncryptionContextCMMEnsuresPublicly(input: CreateExpectedEncryptionContextCMMInput , output: Result<ICryptographicMaterialsManager, Error>)
+ {Operations.CreateExpectedEncryptionContextCMMEnsuresPublicly(input, output)}
+ // The public method to be called by library consumers
+ method CreateExpectedEncryptionContextCMM ( input: CreateExpectedEncryptionContextCMMInput )
+ returns (output: Result<ICryptographicMaterialsManager, Error>)
+ requires
+ && ValidState() && ( input.underlyingCMM.Some? ==>
+ && input.underlyingCMM.value.ValidState()
+ && input.underlyingCMM.value.Modifies !! {History}
+ ) && ( input.keyring.Some? ==>
+ && input.keyring.value.ValidState()
+ && input.keyring.value.Modifies !! {History}
+ )
+ modifies Modifies - {History} ,
+ (if input.underlyingCMM.Some? then input.underlyingCMM.value.Modifies else {}) ,
+ (if input.keyring.Some? then input.keyring.value.Modifies else {}) ,
+ History`CreateExpectedEncryptionContextCMM
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases Modifies - {History} ,
+ (if input.underlyingCMM.Some? then input.underlyingCMM.value.Modifies else {}) ,
+ (if input.keyring.Some? then input.keyring.value.Modifies else {})
+ ensures
+ && ValidState()
+ && ( output.Success? ==> 
+ && output.value.ValidState()
+ && output.value.Modifies !! {History}
+ && fresh(output.value)
+ && fresh ( output.value.Modifies - Modifies - {History} - (if input.underlyingCMM.Some? then input.underlyingCMM.value.Modifies else {}) - (if input.keyring.Some? then input.keyring.value.Modifies else {}) ) )
+ ensures CreateExpectedEncryptionContextCMMEnsuresPublicly(input, output)
+ ensures History.CreateExpectedEncryptionContextCMM == old(History.CreateExpectedEncryptionContextCMM) + [DafnyCallEvent(input, output)]
+ {
+ output := Operations.CreateExpectedEncryptionContextCMM(config, input);
+ History.CreateExpectedEncryptionContextCMM := History.CreateExpectedEncryptionContextCMM + [DafnyCallEvent(input, output)];
+}
+ 
  predicate CreateCryptographicMaterialsCacheEnsuresPublicly(input: CreateCryptographicMaterialsCacheInput , output: Result<ICryptographicMaterialsCache, Error>)
  {Operations.CreateCryptographicMaterialsCacheEnsuresPublicly(input, output)}
  // The public method to be called by library consumers
@@ -2302,6 +2374,34 @@ include "../../StandardLibrary/src/Index.dfy"
  && fresh(output.value)
  && fresh ( output.value.Modifies - ModifiesInternalConfig(config) - input.keyring.Modifies ) )
  ensures CreateDefaultCryptographicMaterialsManagerEnsuresPublicly(input, output)
+
+
+ predicate CreateExpectedEncryptionContextCMMEnsuresPublicly(input: CreateExpectedEncryptionContextCMMInput , output: Result<ICryptographicMaterialsManager, Error>)
+ // The private method to be refined by the library developer
+
+
+ method CreateExpectedEncryptionContextCMM ( config: InternalConfig , input: CreateExpectedEncryptionContextCMMInput )
+ returns (output: Result<ICryptographicMaterialsManager, Error>)
+ requires
+ && ValidInternalConfig?(config) && ( input.underlyingCMM.Some? ==>
+ && input.underlyingCMM.value.ValidState()
+ ) && ( input.keyring.Some? ==>
+ && input.keyring.value.ValidState()
+ )
+ modifies ModifiesInternalConfig(config) ,
+ (if input.underlyingCMM.Some? then input.underlyingCMM.value.Modifies else {}) ,
+ (if input.keyring.Some? then input.keyring.value.Modifies else {})
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases ModifiesInternalConfig(config) ,
+ (if input.underlyingCMM.Some? then input.underlyingCMM.value.Modifies else {}) ,
+ (if input.keyring.Some? then input.keyring.value.Modifies else {})
+ ensures
+ && ValidInternalConfig?(config)
+ && ( output.Success? ==> 
+ && output.value.ValidState()
+ && fresh(output.value)
+ && fresh ( output.value.Modifies - ModifiesInternalConfig(config) - (if input.underlyingCMM.Some? then input.underlyingCMM.value.Modifies else {}) - (if input.keyring.Some? then input.keyring.value.Modifies else {}) ) )
+ ensures CreateExpectedEncryptionContextCMMEnsuresPublicly(input, output)
 
 
  predicate CreateCryptographicMaterialsCacheEnsuresPublicly(input: CreateCryptographicMaterialsCacheInput , output: Result<ICryptographicMaterialsCache, Error>)

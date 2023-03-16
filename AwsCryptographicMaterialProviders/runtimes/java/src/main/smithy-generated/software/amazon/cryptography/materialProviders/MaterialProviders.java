@@ -28,6 +28,7 @@ import software.amazon.cryptography.materialProviders.model.CreateAwsKmsRsaKeyri
 import software.amazon.cryptography.materialProviders.model.CreateCryptographicMaterialsCacheInput;
 import software.amazon.cryptography.materialProviders.model.CreateDefaultClientSupplierInput;
 import software.amazon.cryptography.materialProviders.model.CreateDefaultCryptographicMaterialsManagerInput;
+import software.amazon.cryptography.materialProviders.model.CreateExpectedEncryptionContextCMMInput;
 import software.amazon.cryptography.materialProviders.model.CreateMultiKeyringInput;
 import software.amazon.cryptography.materialProviders.model.CreateRawAesKeyringInput;
 import software.amazon.cryptography.materialProviders.model.CreateRawRsaKeyringInput;
@@ -228,6 +229,16 @@ public class MaterialProviders {
       CreateDefaultCryptographicMaterialsManagerInput nativeValue) {
     Dafny.Aws.Cryptography.MaterialProviders.Types.CreateDefaultCryptographicMaterialsManagerInput dafnyValue = ToDafny.CreateDefaultCryptographicMaterialsManagerInput(nativeValue);
     Result<Dafny.Aws.Cryptography.MaterialProviders.Types.ICryptographicMaterialsManager, Error> result = this._impl.CreateDefaultCryptographicMaterialsManager(dafnyValue);
+    if (result.is_Failure()) {
+      throw ToNative.Error(result.dtor_error());
+    }
+    return CryptographicMaterialsManager.wrap(result.dtor_value());
+  }
+
+  public ICryptographicMaterialsManager CreateExpectedEncryptionContextCMM(
+      CreateExpectedEncryptionContextCMMInput nativeValue) {
+    Dafny.Aws.Cryptography.MaterialProviders.Types.CreateExpectedEncryptionContextCMMInput dafnyValue = ToDafny.CreateExpectedEncryptionContextCMMInput(nativeValue);
+    Result<Dafny.Aws.Cryptography.MaterialProviders.Types.ICryptographicMaterialsManager, Error> result = this._impl.CreateExpectedEncryptionContextCMM(dafnyValue);
     if (result.is_Failure()) {
       throw ToNative.Error(result.dtor_error());
     }

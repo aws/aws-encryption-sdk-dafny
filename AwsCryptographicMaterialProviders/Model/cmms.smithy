@@ -131,3 +131,21 @@ structure CreateDefaultCryptographicMaterialsManagerInput {
   @required
   keyring: KeyringReference 
 }
+
+@positional
+structure CreateExpectedEncryptionContextCMMOutput {
+  @required
+  materialsManager: CryptographicMaterialsManagerReference
+}
+
+operation CreateExpectedEncryptionContextCMM {
+  input: CreateExpectedEncryptionContextCMMInput,
+  output: CreateExpectedEncryptionContextCMMOutput,
+}
+
+structure CreateExpectedEncryptionContextCMMInput {
+  underlyingCMM: CryptographicMaterialsManagerReference,
+  keyring: KeyringReference,
+  @required
+  requiredEncryptionContextKeys: EncryptionContextKeys
+}

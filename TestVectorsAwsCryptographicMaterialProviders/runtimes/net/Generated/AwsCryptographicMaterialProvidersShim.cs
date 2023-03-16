@@ -210,6 +210,20 @@ namespace AWS.Cryptography.MaterialProviders.Wrapped
       }
 
     }
+    public Wrappers_Compile._IResult<Dafny.Aws.Cryptography.MaterialProviders.Types.ICryptographicMaterialsManager, Dafny.Aws.Cryptography.MaterialProviders.Types._IError> CreateExpectedEncryptionContextCMM(Dafny.Aws.Cryptography.MaterialProviders.Types._ICreateExpectedEncryptionContextCMMInput request)
+    {
+      AWS.Cryptography.MaterialProviders.CreateExpectedEncryptionContextCMMInput unWrappedRequest = TypeConversion.FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S39_CreateExpectedEncryptionContextCMMInput(request); try
+      {
+        AWS.Cryptography.MaterialProviders.ICryptographicMaterialsManager wrappedResponse =
+        this._impl.CreateExpectedEncryptionContextCMM(unWrappedRequest);
+        return Wrappers_Compile.Result<Dafny.Aws.Cryptography.MaterialProviders.Types.ICryptographicMaterialsManager, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Success(TypeConversion.ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S40_CreateExpectedEncryptionContextCMMOutput(wrappedResponse));
+      }
+      catch (System.Exception ex)
+      {
+        return Wrappers_Compile.Result<Dafny.Aws.Cryptography.MaterialProviders.Types.ICryptographicMaterialsManager, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Failure(this.ConvertError(ex));
+      }
+
+    }
     public Wrappers_Compile._IResult<Dafny.Aws.Cryptography.MaterialProviders.Types.ICryptographicMaterialsCache, Dafny.Aws.Cryptography.MaterialProviders.Types._IError> CreateCryptographicMaterialsCache(Dafny.Aws.Cryptography.MaterialProviders.Types._ICreateCryptographicMaterialsCacheInput request)
     {
       AWS.Cryptography.MaterialProviders.CreateCryptographicMaterialsCacheInput unWrappedRequest = TypeConversion.FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S38_CreateCryptographicMaterialsCacheInput(request); try

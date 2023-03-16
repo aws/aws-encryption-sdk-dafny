@@ -33,40 +33,41 @@ module ExpectedEncryptionContextCMM {
     }
 
     constructor (
-      c: Types.ICryptographicMaterialsManager,
-      e: set<UTF8.ValidUTF8Bytes>
+      inputCMM: Types.ICryptographicMaterialsManager,
+      inputKeys: set<UTF8.ValidUTF8Bytes>
     )
-      requires c.ValidState()
+      requires inputCMM.ValidState()
       // This is important.
       // A CMM that is a noop is not allowed.
-      requires 0 < |e|
+      requires 0 < |inputKeys|
       ensures
-        && |e| == |requiredEncryptionContextKeys|
-        && forall k <- requiredEncryptionContextKeys :: k in e
+        && |inputKeys| == |requiredEncryptionContextKeys|
+        && forall k <- requiredEncryptionContextKeys :: k in inputKeys
       ensures
         && ValidState()
         && fresh(this)
         && fresh(History)
         && fresh(Modifies - underlyingCMM.Modifies)
+        && underlyingCMM == inputCMM
       ensures Modifies == { History } + underlyingCMM.Modifies
     {
-      var keySet := e;
+      var keySet := inputKeys;
       var keySeq := [];
       while keySet != {}
-        invariant |keySeq| + |keySet| == |e|
+        invariant |keySeq| + |keySet| == |inputKeys|
         invariant forall k <- keySeq
-        :: k in e
+        :: k in inputKeys
       {
         var key :| key in keySet;
         keySeq := keySeq + [key];
         keySet := keySet - {key};
       }
 
-      underlyingCMM := c;
+      underlyingCMM := inputCMM;
       requiredEncryptionContextKeys := keySeq;
 
       History := new Types.ICryptographicMaterialsManagerCallHistory();
-      Modifies := { History } + c.Modifies;
+      Modifies := { History } + inputCMM.Modifies;
     }
 
     predicate GetEncryptionMaterialsEnsuresPublicly(input: Types.GetEncryptionMaterialsInput, output: Result<Types.GetEncryptionMaterialsOutput, Types.Error>)
