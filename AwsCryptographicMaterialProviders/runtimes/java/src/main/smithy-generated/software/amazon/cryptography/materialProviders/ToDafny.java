@@ -20,6 +20,7 @@ import Dafny.Aws.Cryptography.MaterialProviders.Types.CreateAwsKmsRsaKeyringInpu
 import Dafny.Aws.Cryptography.MaterialProviders.Types.CreateCryptographicMaterialsCacheInput;
 import Dafny.Aws.Cryptography.MaterialProviders.Types.CreateDefaultClientSupplierInput;
 import Dafny.Aws.Cryptography.MaterialProviders.Types.CreateDefaultCryptographicMaterialsManagerInput;
+import Dafny.Aws.Cryptography.MaterialProviders.Types.CreateExpectedEncryptionContextCMMInput;
 import Dafny.Aws.Cryptography.MaterialProviders.Types.CreateMultiKeyringInput;
 import Dafny.Aws.Cryptography.MaterialProviders.Types.CreateRawAesKeyringInput;
 import Dafny.Aws.Cryptography.MaterialProviders.Types.CreateRawRsaKeyringInput;
@@ -608,6 +609,21 @@ public class ToDafny {
         Option.create_Some(ToDafny.EncryptionContextKeys(nativeValue.requiredEncryptionContextKeys()))
         : Option.create_None();
     return new GetEncryptionMaterialsInput(encryptionContext, commitmentPolicy, algorithmSuiteId, maxPlaintextLength, requiredEncryptionContextKeys);
+  }
+
+  public static CreateExpectedEncryptionContextCMMInput CreateExpectedEncryptionContextCMMInput(
+      software.amazon.cryptography.materialProviders.model.CreateExpectedEncryptionContextCMMInput nativeValue) {
+    Option<Dafny.Aws.Cryptography.MaterialProviders.Types.ICryptographicMaterialsManager> underlyingCMM;
+    underlyingCMM = Objects.nonNull(nativeValue.underlyingCMM()) ?
+        Option.create_Some(ToDafny.CryptographicMaterialsManager(nativeValue.underlyingCMM()))
+        : Option.create_None();
+    Option<Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring> keyring;
+    keyring = Objects.nonNull(nativeValue.keyring()) ?
+        Option.create_Some(ToDafny.Keyring(nativeValue.keyring()))
+        : Option.create_None();
+    DafnySequence<? extends DafnySequence<? extends Byte>> requiredEncryptionContextKeys;
+    requiredEncryptionContextKeys = ToDafny.EncryptionContextKeys(nativeValue.requiredEncryptionContextKeys());
+    return new CreateExpectedEncryptionContextCMMInput(underlyingCMM, keyring, requiredEncryptionContextKeys);
   }
 
   public static InitializeDecryptionMaterialsInput InitializeDecryptionMaterialsInput(

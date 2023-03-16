@@ -116,6 +116,13 @@ namespace AWS.Cryptography.MaterialProviders
       if (result.is_Failure) throw TypeConversion.FromDafny_CommonError(result.dtor_error);
       return TypeConversion.FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S41_CreateCryptographicMaterialsManagerOutput(result.dtor_value);
     }
+    public AWS.Cryptography.MaterialProviders.ICryptographicMaterialsManager CreateExpectedEncryptionContextCMM(AWS.Cryptography.MaterialProviders.CreateExpectedEncryptionContextCMMInput input)
+    {
+      Dafny.Aws.Cryptography.MaterialProviders.Types._ICreateExpectedEncryptionContextCMMInput internalInput = TypeConversion.ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S39_CreateExpectedEncryptionContextCMMInput(input);
+      Wrappers_Compile._IResult<Dafny.Aws.Cryptography.MaterialProviders.Types.ICryptographicMaterialsManager, Dafny.Aws.Cryptography.MaterialProviders.Types._IError> result = _impl.CreateExpectedEncryptionContextCMM(internalInput);
+      if (result.is_Failure) throw TypeConversion.FromDafny_CommonError(result.dtor_error);
+      return TypeConversion.FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S40_CreateExpectedEncryptionContextCMMOutput(result.dtor_value);
+    }
     public AWS.Cryptography.MaterialProviders.ICryptographicMaterialsCache CreateCryptographicMaterialsCache(AWS.Cryptography.MaterialProviders.CreateCryptographicMaterialsCacheInput input)
     {
       Dafny.Aws.Cryptography.MaterialProviders.Types._ICreateCryptographicMaterialsCacheInput internalInput = TypeConversion.ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S38_CreateCryptographicMaterialsCacheInput(input);

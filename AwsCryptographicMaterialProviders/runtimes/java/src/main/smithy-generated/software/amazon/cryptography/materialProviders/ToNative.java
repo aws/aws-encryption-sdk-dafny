@@ -49,6 +49,7 @@ import software.amazon.cryptography.materialProviders.model.CreateAwsKmsRsaKeyri
 import software.amazon.cryptography.materialProviders.model.CreateCryptographicMaterialsCacheInput;
 import software.amazon.cryptography.materialProviders.model.CreateDefaultClientSupplierInput;
 import software.amazon.cryptography.materialProviders.model.CreateDefaultCryptographicMaterialsManagerInput;
+import software.amazon.cryptography.materialProviders.model.CreateExpectedEncryptionContextCMMInput;
 import software.amazon.cryptography.materialProviders.model.CreateMultiKeyringInput;
 import software.amazon.cryptography.materialProviders.model.CreateRawAesKeyringInput;
 import software.amazon.cryptography.materialProviders.model.CreateRawRsaKeyringInput;
@@ -603,6 +604,19 @@ public class ToNative {
     if (dafnyValue.dtor_requiredEncryptionContextKeys().is_Some()) {
       nativeBuilder.requiredEncryptionContextKeys(ToNative.EncryptionContextKeys(dafnyValue.dtor_requiredEncryptionContextKeys().dtor_value()));
     }
+    return nativeBuilder.build();
+  }
+
+  public static CreateExpectedEncryptionContextCMMInput CreateExpectedEncryptionContextCMMInput(
+      Dafny.Aws.Cryptography.MaterialProviders.Types.CreateExpectedEncryptionContextCMMInput dafnyValue) {
+    CreateExpectedEncryptionContextCMMInput.Builder nativeBuilder = CreateExpectedEncryptionContextCMMInput.builder();
+    if (dafnyValue.dtor_underlyingCMM().is_Some()) {
+      nativeBuilder.underlyingCMM(ToNative.CryptographicMaterialsManager(dafnyValue.dtor_underlyingCMM().dtor_value()));
+    }
+    if (dafnyValue.dtor_keyring().is_Some()) {
+      nativeBuilder.keyring(ToNative.Keyring(dafnyValue.dtor_keyring().dtor_value()));
+    }
+    nativeBuilder.requiredEncryptionContextKeys(ToNative.EncryptionContextKeys(dafnyValue.dtor_requiredEncryptionContextKeys()));
     return nativeBuilder.build();
   }
 

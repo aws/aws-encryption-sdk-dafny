@@ -294,6 +294,26 @@ namespace AWS.Cryptography.MaterialProviders.Wrapped
 
       return new Dafny.Aws.Cryptography.MaterialProviders.Types.CreateDefaultCryptographicMaterialsManagerInput(ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S47_CreateDefaultCryptographicMaterialsManagerInput__M7_keyring(value.Keyring));
     }
+    internal static AWS.Cryptography.MaterialProviders.CreateExpectedEncryptionContextCMMInput FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S39_CreateExpectedEncryptionContextCMMInput(Dafny.Aws.Cryptography.MaterialProviders.Types._ICreateExpectedEncryptionContextCMMInput value)
+    {
+      Dafny.Aws.Cryptography.MaterialProviders.Types.CreateExpectedEncryptionContextCMMInput concrete = (Dafny.Aws.Cryptography.MaterialProviders.Types.CreateExpectedEncryptionContextCMMInput)value; AWS.Cryptography.MaterialProviders.CreateExpectedEncryptionContextCMMInput converted = new AWS.Cryptography.MaterialProviders.CreateExpectedEncryptionContextCMMInput(); if (concrete._underlyingCMM.is_Some) converted.UnderlyingCMM = (AWS.Cryptography.MaterialProviders.ICryptographicMaterialsManager)FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S39_CreateExpectedEncryptionContextCMMInput__M13_underlyingCMM(concrete._underlyingCMM);
+      if (concrete._keyring.is_Some) converted.Keyring = (AWS.Cryptography.MaterialProviders.IKeyring)FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S39_CreateExpectedEncryptionContextCMMInput__M7_keyring(concrete._keyring);
+      converted.RequiredEncryptionContextKeys = (System.Collections.Generic.List<string>)FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S39_CreateExpectedEncryptionContextCMMInput__M29_requiredEncryptionContextKeys(concrete._requiredEncryptionContextKeys); return converted;
+    }
+    internal static Dafny.Aws.Cryptography.MaterialProviders.Types._ICreateExpectedEncryptionContextCMMInput ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S39_CreateExpectedEncryptionContextCMMInput(AWS.Cryptography.MaterialProviders.CreateExpectedEncryptionContextCMMInput value)
+    {
+      AWS.Cryptography.MaterialProviders.ICryptographicMaterialsManager var_underlyingCMM = value.IsSetUnderlyingCMM() ? value.UnderlyingCMM : (AWS.Cryptography.MaterialProviders.ICryptographicMaterialsManager)null;
+      AWS.Cryptography.MaterialProviders.IKeyring var_keyring = value.IsSetKeyring() ? value.Keyring : (AWS.Cryptography.MaterialProviders.IKeyring)null;
+      return new Dafny.Aws.Cryptography.MaterialProviders.Types.CreateExpectedEncryptionContextCMMInput(ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S39_CreateExpectedEncryptionContextCMMInput__M13_underlyingCMM(var_underlyingCMM), ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S39_CreateExpectedEncryptionContextCMMInput__M7_keyring(var_keyring), ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S39_CreateExpectedEncryptionContextCMMInput__M29_requiredEncryptionContextKeys(value.RequiredEncryptionContextKeys));
+    }
+    internal static AWS.Cryptography.MaterialProviders.ICryptographicMaterialsManager FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S40_CreateExpectedEncryptionContextCMMOutput(Dafny.Aws.Cryptography.MaterialProviders.Types.ICryptographicMaterialsManager value)
+    {
+      return FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S40_CreateExpectedEncryptionContextCMMOutput__M16_materialsManager(value);
+    }
+    internal static Dafny.Aws.Cryptography.MaterialProviders.Types.ICryptographicMaterialsManager ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S40_CreateExpectedEncryptionContextCMMOutput(AWS.Cryptography.MaterialProviders.ICryptographicMaterialsManager value)
+    {
+      return ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S40_CreateExpectedEncryptionContextCMMOutput__M16_materialsManager(value);
+    }
     internal static AWS.Cryptography.MaterialProviders.IKeyring FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_CreateKeyringOutput(Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring value)
     {
       return FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_CreateKeyringOutput__M7_keyring(value);
@@ -1478,6 +1498,38 @@ namespace AWS.Cryptography.MaterialProviders.Wrapped
     {
       return ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S16_KeyringReference(value);
     }
+    internal static AWS.Cryptography.MaterialProviders.ICryptographicMaterialsManager FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S39_CreateExpectedEncryptionContextCMMInput__M13_underlyingCMM(Wrappers_Compile._IOption<Dafny.Aws.Cryptography.MaterialProviders.Types.ICryptographicMaterialsManager> value)
+    {
+      return value.is_None ? (AWS.Cryptography.MaterialProviders.ICryptographicMaterialsManager)null : FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S38_CryptographicMaterialsManagerReference(value.Extract());
+    }
+    internal static Wrappers_Compile._IOption<Dafny.Aws.Cryptography.MaterialProviders.Types.ICryptographicMaterialsManager> ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S39_CreateExpectedEncryptionContextCMMInput__M13_underlyingCMM(AWS.Cryptography.MaterialProviders.ICryptographicMaterialsManager value)
+    {
+      return value == null ? Wrappers_Compile.Option<Dafny.Aws.Cryptography.MaterialProviders.Types.ICryptographicMaterialsManager>.create_None() : Wrappers_Compile.Option<Dafny.Aws.Cryptography.MaterialProviders.Types.ICryptographicMaterialsManager>.create_Some(ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S38_CryptographicMaterialsManagerReference((AWS.Cryptography.MaterialProviders.ICryptographicMaterialsManager)value));
+    }
+    internal static AWS.Cryptography.MaterialProviders.IKeyring FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S39_CreateExpectedEncryptionContextCMMInput__M7_keyring(Wrappers_Compile._IOption<Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring> value)
+    {
+      return value.is_None ? (AWS.Cryptography.MaterialProviders.IKeyring)null : FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S16_KeyringReference(value.Extract());
+    }
+    internal static Wrappers_Compile._IOption<Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring> ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S39_CreateExpectedEncryptionContextCMMInput__M7_keyring(AWS.Cryptography.MaterialProviders.IKeyring value)
+    {
+      return value == null ? Wrappers_Compile.Option<Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring>.create_None() : Wrappers_Compile.Option<Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring>.create_Some(ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S16_KeyringReference((AWS.Cryptography.MaterialProviders.IKeyring)value));
+    }
+    internal static System.Collections.Generic.List<string> FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S39_CreateExpectedEncryptionContextCMMInput__M29_requiredEncryptionContextKeys(Dafny.ISequence<Dafny.ISequence<byte>> value)
+    {
+      return FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S21_EncryptionContextKeys(value);
+    }
+    internal static Dafny.ISequence<Dafny.ISequence<byte>> ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S39_CreateExpectedEncryptionContextCMMInput__M29_requiredEncryptionContextKeys(System.Collections.Generic.List<string> value)
+    {
+      return ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S21_EncryptionContextKeys(value);
+    }
+    internal static AWS.Cryptography.MaterialProviders.ICryptographicMaterialsManager FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S40_CreateExpectedEncryptionContextCMMOutput__M16_materialsManager(Dafny.Aws.Cryptography.MaterialProviders.Types.ICryptographicMaterialsManager value)
+    {
+      return FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S38_CryptographicMaterialsManagerReference(value);
+    }
+    internal static Dafny.Aws.Cryptography.MaterialProviders.Types.ICryptographicMaterialsManager ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S40_CreateExpectedEncryptionContextCMMOutput__M16_materialsManager(AWS.Cryptography.MaterialProviders.ICryptographicMaterialsManager value)
+    {
+      return ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S38_CryptographicMaterialsManagerReference(value);
+    }
     internal static AWS.Cryptography.MaterialProviders.IKeyring FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_CreateKeyringOutput__M7_keyring(Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring value)
     {
       return FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S16_KeyringReference(value);
@@ -2294,15 +2346,17 @@ namespace AWS.Cryptography.MaterialProviders.Wrapped
     {
       return Dafny.Sequence<char>.FromString(value);
     }
-    public static Amazon.KeyManagementService.IAmazonKeyManagementService FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S18_KmsClientReference(Dafny.Com.Amazonaws.Kms.Types.IKeyManagementServiceClient value)
+    internal static Amazon.KeyManagementService.IAmazonKeyManagementService FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S18_KmsClientReference(Dafny.Com.Amazonaws.Kms.Types.IKeyManagementServiceClient value)
     {
-      if (value is Com.Amazonaws.Kms.KeyManagementServiceShim shim) { return shim._impl; }
-      throw new System.ArgumentException("Custom implementations of Amazon.KeyManagementService.IAmazonKeyManagementService are not supported yet");
+      // This is converting a reference type in a dependant module.
+      // Therefore it defers to the dependant module for conversion
+      return AWS.Cryptography.MaterialProviders.TypeConversion.FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S18_KmsClientReference(value);
     }
-    public static Dafny.Com.Amazonaws.Kms.Types.IKeyManagementServiceClient ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S18_KmsClientReference(Amazon.KeyManagementService.IAmazonKeyManagementService value)
+    internal static Dafny.Com.Amazonaws.Kms.Types.IKeyManagementServiceClient ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S18_KmsClientReference(Amazon.KeyManagementService.IAmazonKeyManagementService value)
     {
-      if (value is Amazon.KeyManagementService.AmazonKeyManagementServiceClient impl) { return new Com.Amazonaws.Kms.KeyManagementServiceShim(impl); }
-      throw new System.ArgumentException("Custom implementations of Amazon.KeyManagementService.IAmazonKeyManagementService are not supported yet");
+      // This is converting a reference type in a dependant module.
+      // Therefore it defers to the dependant module for conversion
+      return AWS.Cryptography.MaterialProviders.TypeConversion.ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S18_KmsClientReference(value);
     }
     internal static AWS.Cryptography.MaterialProviders.DiscoveryFilter FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S15_DiscoveryFilter(Dafny.Aws.Cryptography.MaterialProviders.Types._IDiscoveryFilter value)
     {
@@ -2330,37 +2384,17 @@ namespace AWS.Cryptography.MaterialProviders.Wrapped
     {
       return Dafny.Sequence<Dafny.ISequence<char>>.FromArray(value.Select(ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S10_RegionList__M6_member).ToArray());
     }
-    public static AWS.Cryptography.MaterialProviders.IClientSupplier FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S23_ClientSupplierReference(
-     Dafny.Aws.Cryptography.MaterialProviders.Types.IClientSupplier value)
+    internal static AWS.Cryptography.MaterialProviders.IClientSupplier FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S23_ClientSupplierReference(Dafny.Aws.Cryptography.MaterialProviders.Types.IClientSupplier value)
     {
-      //// BEGIN MANUAL EDIT
-      /// TODO: [Polymorph][NET] --output-local-service-test miss-handles Resources
-      /// https://sim.amazon.com/issues/CrypTool-5109
-      return AWS.Cryptography.MaterialProviders.TypeConversion
-       .FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S23_ClientSupplierReference(value);
-      //// END MANUAL EDIT
+      // This is converting a reference type in a dependant module.
+      // Therefore it defers to the dependant module for conversion
+      return AWS.Cryptography.MaterialProviders.TypeConversion.FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S23_ClientSupplierReference(value);
     }
-    public static Dafny.Aws.Cryptography.MaterialProviders.Types.IClientSupplier ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S23_ClientSupplierReference(
-     AWS.Cryptography.MaterialProviders.IClientSupplier value)
+    internal static Dafny.Aws.Cryptography.MaterialProviders.Types.IClientSupplier ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S23_ClientSupplierReference(AWS.Cryptography.MaterialProviders.IClientSupplier value)
     {
-      //// BEGIN MANUAL EDIT
-      /// TODO: [Polymorph][NET] --output-local-service-test miss-handles Resources
-      /// https://sim.amazon.com/issues/CrypTool-5109
-      return AWS.Cryptography.MaterialProviders.TypeConversion
-       .ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S23_ClientSupplierReference(value);
-
-      //   
-      //   switch (value)
-      //  {
-      //  case ClientSupplier valueWithImpl:
-      //     return valueWithImpl._impl;
-      //  case ClientSupplierBase nativeImpl:
-      //     return new WrappedNativeWrapper_ClientSupplier(nativeImpl);
-      //  default:
-      //     throw new System.ArgumentException(
-      //         "Custom implementations of ClientSupplier must extend ClientSupplierBase.");
-      // }
-      //// END MANUAL EDIT
+      // This is converting a reference type in a dependant module.
+      // Therefore it defers to the dependant module for conversion
+      return new WrappedNativeWrapper_ClientSupplier((ClientSupplierBase)value);
     }
     internal static string FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S8_KmsKeyId(Dafny.ISequence<char> value)
     {
@@ -2370,15 +2404,17 @@ namespace AWS.Cryptography.MaterialProviders.Wrapped
     {
       return Dafny.Sequence<char>.FromString(value);
     }
-    public static Amazon.DynamoDBv2.IAmazonDynamoDB FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S18_DdbClientReference(Dafny.Com.Amazonaws.Dynamodb.Types.IDynamoDB__20120810Client value)
+    internal static Amazon.DynamoDBv2.IAmazonDynamoDB FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S18_DdbClientReference(Dafny.Com.Amazonaws.Dynamodb.Types.IDynamoDB__20120810Client value)
     {
-      if (value is Com.Amazonaws.Dynamodb.DynamoDBv2Shim shim) { return shim._impl; }
-      throw new System.ArgumentException("Custom implementations of Amazon.DynamoDBv2.IAmazonDynamoDBv2 are not supported yet");
+      // This is converting a reference type in a dependant module.
+      // Therefore it defers to the dependant module for conversion
+      return AWS.Cryptography.MaterialProviders.TypeConversion.FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S18_DdbClientReference(value);
     }
-    public static Dafny.Com.Amazonaws.Dynamodb.Types.IDynamoDB__20120810Client ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S18_DdbClientReference(Amazon.DynamoDBv2.IAmazonDynamoDB value)
+    internal static Dafny.Com.Amazonaws.Dynamodb.Types.IDynamoDB__20120810Client ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S18_DdbClientReference(Amazon.DynamoDBv2.IAmazonDynamoDB value)
     {
-      if (value is Amazon.DynamoDBv2.AmazonDynamoDBClient impl) { return new Com.Amazonaws.Dynamodb.DynamoDBv2Shim(impl); }
-      throw new System.ArgumentException("Custom implementations of Amazon.DynamoDBv2.IAmazonDynamoDBv2 are not supported yet");
+      // This is converting a reference type in a dependant module.
+      // Therefore it defers to the dependant module for conversion
+      return AWS.Cryptography.MaterialProviders.TypeConversion.ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S18_DdbClientReference(value);
     }
     internal static string FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S11_DdbTableArn(Dafny.ISequence<char> value)
     {
@@ -2450,58 +2486,49 @@ namespace AWS.Cryptography.MaterialProviders.Wrapped
     {
       return value;
     }
-    public static AWS.Cryptography.MaterialProviders.ICryptographicMaterialsCache FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S36_CryptographicMaterialsCacheReference(Dafny.Aws.Cryptography.MaterialProviders.Types.ICryptographicMaterialsCache value)
+    internal static AWS.Cryptography.MaterialProviders.ICryptographicMaterialsCache FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S36_CryptographicMaterialsCacheReference(Dafny.Aws.Cryptography.MaterialProviders.Types.ICryptographicMaterialsCache value)
     {
-      //// BEGIN MANUAL EDIT
-      /// TODO: [Polymorph][NET] --output-local-service-test miss-handles Resources
-      /// https://sim.amazon.com/issues/CrypTool-5109
-      /*if (value is WrappedNativeWrapper_CryptographicMaterialsCache nativeWrapper) return nativeWrapper._impl;
-      return new CryptographicMaterialsCache(value);*/
-      return AWS.Cryptography.MaterialProviders.TypeConversion
-        .FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S36_CryptographicMaterialsCacheReference(value);
-      //// END MANUAL EDIT
+      // This is converting a reference type in a dependant module.
+      // Therefore it defers to the dependant module for conversion
+      return AWS.Cryptography.MaterialProviders.TypeConversion.FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S36_CryptographicMaterialsCacheReference(value);
     }
-    public static Dafny.Aws.Cryptography.MaterialProviders.Types.ICryptographicMaterialsCache ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S36_CryptographicMaterialsCacheReference(AWS.Cryptography.MaterialProviders.ICryptographicMaterialsCache value)
+    internal static Dafny.Aws.Cryptography.MaterialProviders.Types.ICryptographicMaterialsCache ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S36_CryptographicMaterialsCacheReference(AWS.Cryptography.MaterialProviders.ICryptographicMaterialsCache value)
     {
-      //// BEGIN MANUAL EDIT
-      /// TODO: [Polymorph][NET] --output-local-service-test miss-handles Resources
-      /// https://sim.amazon.com/issues/CrypTool-5109
-      /*switch (value)
-      {
-        case CryptographicMaterialsCache valueWithImpl:
-          return valueWithImpl._impl;
-        case CryptographicMaterialsCacheBase nativeImpl:
-          return new WrappedNativeWrapper_CryptographicMaterialsCache(nativeImpl);
-        default:
-          throw new System.ArgumentException(
-              "Custom implementations of CryptographicMaterialsCache must extend CryptographicMaterialsCacheBase.");
-      }*/
-      return AWS.Cryptography.MaterialProviders.TypeConversion
-        .ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S36_CryptographicMaterialsCacheReference(value);
-      //// END MANUAL EDIT
+      // This is converting a reference type in a dependant module.
+      // Therefore it defers to the dependant module for conversion
+      return new WrappedNativeWrapper_CryptographicMaterialsCache((CryptographicMaterialsCacheBase)value);
     }
-    public static AWS.Cryptography.MaterialProviders.ICryptographicMaterialsManager FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S38_CryptographicMaterialsManagerReference(Dafny.Aws.Cryptography.MaterialProviders.Types.ICryptographicMaterialsManager value)
+    internal static AWS.Cryptography.MaterialProviders.ICryptographicMaterialsManager FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S38_CryptographicMaterialsManagerReference(Dafny.Aws.Cryptography.MaterialProviders.Types.ICryptographicMaterialsManager value)
     {
-
-      return AWS.Cryptography.MaterialProviders.TypeConversion
-       .FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S38_CryptographicMaterialsManagerReference(value);
-
+      // This is converting a reference type in a dependant module.
+      // Therefore it defers to the dependant module for conversion
+      return AWS.Cryptography.MaterialProviders.TypeConversion.FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S38_CryptographicMaterialsManagerReference(value);
     }
-    public static Dafny.Aws.Cryptography.MaterialProviders.Types.ICryptographicMaterialsManager ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S38_CryptographicMaterialsManagerReference(AWS.Cryptography.MaterialProviders.ICryptographicMaterialsManager value)
+    internal static Dafny.Aws.Cryptography.MaterialProviders.Types.ICryptographicMaterialsManager ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S38_CryptographicMaterialsManagerReference(AWS.Cryptography.MaterialProviders.ICryptographicMaterialsManager value)
     {
-      return AWS.Cryptography.MaterialProviders.TypeConversion
-       .ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S38_CryptographicMaterialsManagerReference(value);
+      // This is converting a reference type in a dependant module.
+      // Therefore it defers to the dependant module for conversion
+      return new WrappedNativeWrapper_CryptographicMaterialsManager((CryptographicMaterialsManagerBase)value);
     }
-    public static AWS.Cryptography.MaterialProviders.IKeyring FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S16_KeyringReference(Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring value)
+    internal static AWS.Cryptography.MaterialProviders.IKeyring FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S16_KeyringReference(Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring value)
     {
-      return AWS.Cryptography.MaterialProviders.TypeConversion
-       .FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S16_KeyringReference(value);
-
+      // This is converting a reference type in a dependant module.
+      // Therefore it defers to the dependant module for conversion
+      return AWS.Cryptography.MaterialProviders.TypeConversion.FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S16_KeyringReference(value);
     }
-    public static Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S16_KeyringReference(AWS.Cryptography.MaterialProviders.IKeyring value)
+    internal static Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S16_KeyringReference(AWS.Cryptography.MaterialProviders.IKeyring value)
     {
-      return AWS.Cryptography.MaterialProviders.TypeConversion
-       .ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S16_KeyringReference(value);
+      // This is converting a reference type in a dependant module.
+      // Therefore it defers to the dependant module for conversion
+      return new WrappedNativeWrapper_Keyring((KeyringBase)value);
+    }
+    internal static System.Collections.Generic.List<string> FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S21_EncryptionContextKeys(Dafny.ISequence<Dafny.ISequence<byte>> value)
+    {
+      return new System.Collections.Generic.List<string>(value.Elements.Select(FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S21_EncryptionContextKeys__M6_member));
+    }
+    internal static Dafny.ISequence<Dafny.ISequence<byte>> ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S21_EncryptionContextKeys(System.Collections.Generic.List<string> value)
+    {
+      return Dafny.Sequence<Dafny.ISequence<byte>>.FromArray(value.Select(ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S21_EncryptionContextKeys__M6_member).ToArray());
     }
     internal static System.Collections.Generic.List<AWS.Cryptography.MaterialProviders.IKeyring> FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S11_KeyringList(Dafny.ISequence<Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring> value)
     {
@@ -2520,14 +2547,6 @@ namespace AWS.Cryptography.MaterialProviders.Wrapped
       return Dafny.Map<Dafny.ISequence<byte>, Dafny.ISequence<byte>>.FromCollection(value.Select(pair =>
          new Dafny.Pair<Dafny.ISequence<byte>, Dafny.ISequence<byte>>(ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S17_EncryptionContext__M3_key(pair.Key), ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S17_EncryptionContext__M5_value(pair.Value))
      ));
-    }
-    internal static System.Collections.Generic.List<string> FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S21_EncryptionContextKeys(Dafny.ISequence<Dafny.ISequence<byte>> value)
-    {
-      return new System.Collections.Generic.List<string>(value.Elements.Select(FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S21_EncryptionContextKeys__M6_member));
-    }
-    internal static Dafny.ISequence<Dafny.ISequence<byte>> ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S21_EncryptionContextKeys(System.Collections.Generic.List<string> value)
-    {
-      return Dafny.Sequence<Dafny.ISequence<byte>>.FromArray(value.Select(ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S21_EncryptionContextKeys__M6_member).ToArray());
     }
     internal static System.Collections.Generic.List<AWS.Cryptography.MaterialProviders.EncryptedDataKey> FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S20_EncryptedDataKeyList(Dafny.ISequence<Dafny.Aws.Cryptography.MaterialProviders.Types._IEncryptedDataKey> value)
     {
@@ -2681,6 +2700,14 @@ namespace AWS.Cryptography.MaterialProviders.Wrapped
     {
       return ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S8_KmsKeyId(value);
     }
+    internal static string FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S21_EncryptionContextKeys__M6_member(Dafny.ISequence<byte> value)
+    {
+      return FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S9_Utf8Bytes(value);
+    }
+    internal static Dafny.ISequence<byte> ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S21_EncryptionContextKeys__M6_member(string value)
+    {
+      return ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S9_Utf8Bytes(value);
+    }
     internal static AWS.Cryptography.MaterialProviders.IKeyring FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S11_KeyringList__M6_member(Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring value)
     {
       return FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S16_KeyringReference(value);
@@ -2702,14 +2729,6 @@ namespace AWS.Cryptography.MaterialProviders.Wrapped
       return FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S9_Utf8Bytes(value);
     }
     internal static Dafny.ISequence<byte> ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S17_EncryptionContext__M5_value(string value)
-    {
-      return ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S9_Utf8Bytes(value);
-    }
-    internal static string FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S21_EncryptionContextKeys__M6_member(Dafny.ISequence<byte> value)
-    {
-      return FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S9_Utf8Bytes(value);
-    }
-    internal static Dafny.ISequence<byte> ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S21_EncryptionContextKeys__M6_member(string value)
     {
       return ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S9_Utf8Bytes(value);
     }

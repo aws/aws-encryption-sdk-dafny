@@ -24,6 +24,7 @@ include "Materials.dfy"
 include "Commitment.dfy"
 include "AwsArnParsing.dfy"
 include "AlgorithmSuites.dfy"
+include "CMMs/ExpectedEncryptionContextCMM.dfy"
 
 module AwsCryptographyMaterialProvidersOperations refines AbstractAwsCryptographyMaterialProvidersOperations {
 
@@ -52,6 +53,7 @@ module AwsCryptographyMaterialProvidersOperations refines AbstractAwsCryptograph
   import opened AwsArnParsing
   import Kms = Com.Amazonaws.Kms
   import Ddb = ComAmazonawsDynamodbTypes
+  import ExpectedEncryptionContextCMM
 
   datatype Config = Config(
     nameonly crypto: Primitives.AtomicPrimitivesClient
@@ -432,6 +434,31 @@ module AwsCryptographyMaterialProvidersOperations refines AbstractAwsCryptograph
     var cmm := new DefaultCMM.OfKeyring(input.keyring, config.crypto);
     return Success(cmm);
   }
+
+  function method CmpError(s : string) : Error
+  {
+    Types.AwsCryptographicMaterialProvidersException(
+        message := "A publicKey or a kmsClient is required")
+  }
+  predicate CreateExpectedEncryptionContextCMMEnsuresPublicly(input: CreateExpectedEncryptionContextCMMInput, output: Result<ICryptographicMaterialsManager, Error>)
+  {true}
+
+  method CreateExpectedEncryptionContextCMM(config: InternalConfig, input: CreateExpectedEncryptionContextCMMInput)
+    returns (output: Result<ICryptographicMaterialsManager, Error>)
+    ensures output.Success? ==> output.value.ValidState()
+  {
+    // TODO -- Implement for keyring as well
+    // TODO Support both cmm or keyring. This is also required for the CachingCMM
+    :- Need(input.underlyingCMM.Some? && input.keyring.None?, CmpError("CreateExpectedEncryptionContextCMM currently only supports cmm."));
+    var keySet : set<UTF8.ValidUTF8Bytes> := set k <- input.requiredEncryptionContextKeys;
+    :- Need(0 < |keySet|, CmpError("ExpectedEncryptionContextCMM needs at least one requiredEncryptionContextKey."));
+    var cmm := new ExpectedEncryptionContextCMM.ExpectedEncryptionContextCMM(
+      input.underlyingCMM.value,
+      keySet);
+
+    return Success(cmm);
+  }
+
 
   predicate CreateCryptographicMaterialsCacheEnsuresPublicly(input: CreateCryptographicMaterialsCacheInput , output: Result<ICryptographicMaterialsCache, Error>)
   {true}
