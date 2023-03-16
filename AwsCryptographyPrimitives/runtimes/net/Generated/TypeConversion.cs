@@ -172,11 +172,11 @@ throw new System.ArgumentException("Invalid AWS.Cryptography.Primitives.ECDSASig
  return ToDafny_N3_aws__N12_cryptography__N10_primitives__S25_GenerateRandomBytesOutput__M4_data(value);
 }
  internal static AWS.Cryptography.Primitives.GenerateRSAKeyPairInput FromDafny_N3_aws__N12_cryptography__N10_primitives__S23_GenerateRSAKeyPairInput (Dafny.Aws.Cryptography.Primitives.Types._IGenerateRSAKeyPairInput value) {
- Dafny.Aws.Cryptography.Primitives.Types.GenerateRSAKeyPairInput concrete = (Dafny.Aws.Cryptography.Primitives.Types.GenerateRSAKeyPairInput)value; AWS.Cryptography.Primitives.GenerateRSAKeyPairInput converted = new AWS.Cryptography.Primitives.GenerateRSAKeyPairInput();  converted.Strength = (int) FromDafny_N3_aws__N12_cryptography__N10_primitives__S23_GenerateRSAKeyPairInput__M8_strength(concrete._strength); return converted;
+ Dafny.Aws.Cryptography.Primitives.Types.GenerateRSAKeyPairInput concrete = (Dafny.Aws.Cryptography.Primitives.Types.GenerateRSAKeyPairInput)value; AWS.Cryptography.Primitives.GenerateRSAKeyPairInput converted = new AWS.Cryptography.Primitives.GenerateRSAKeyPairInput();  converted.LengthBits = (int) FromDafny_N3_aws__N12_cryptography__N10_primitives__S23_GenerateRSAKeyPairInput__M10_lengthBits(concrete._lengthBits); return converted;
 }
  internal static Dafny.Aws.Cryptography.Primitives.Types._IGenerateRSAKeyPairInput ToDafny_N3_aws__N12_cryptography__N10_primitives__S23_GenerateRSAKeyPairInput (AWS.Cryptography.Primitives.GenerateRSAKeyPairInput value) {
 
- return new Dafny.Aws.Cryptography.Primitives.Types.GenerateRSAKeyPairInput ( ToDafny_N3_aws__N12_cryptography__N10_primitives__S23_GenerateRSAKeyPairInput__M8_strength(value.Strength) ) ;
+ return new Dafny.Aws.Cryptography.Primitives.Types.GenerateRSAKeyPairInput ( ToDafny_N3_aws__N12_cryptography__N10_primitives__S23_GenerateRSAKeyPairInput__M10_lengthBits(value.LengthBits) ) ;
 }
  internal static AWS.Cryptography.Primitives.GenerateRSAKeyPairOutput FromDafny_N3_aws__N12_cryptography__N10_primitives__S24_GenerateRSAKeyPairOutput (Dafny.Aws.Cryptography.Primitives.Types._IGenerateRSAKeyPairOutput value) {
  Dafny.Aws.Cryptography.Primitives.Types.GenerateRSAKeyPairOutput concrete = (Dafny.Aws.Cryptography.Primitives.Types.GenerateRSAKeyPairOutput)value; AWS.Cryptography.Primitives.GenerateRSAKeyPairOutput converted = new AWS.Cryptography.Primitives.GenerateRSAKeyPairOutput();  converted.PublicKey = (AWS.Cryptography.Primitives.RSAPublicKey) FromDafny_N3_aws__N12_cryptography__N10_primitives__S24_GenerateRSAKeyPairOutput__M9_publicKey(concrete._publicKey);
@@ -185,6 +185,20 @@ throw new System.ArgumentException("Invalid AWS.Cryptography.Primitives.ECDSASig
  internal static Dafny.Aws.Cryptography.Primitives.Types._IGenerateRSAKeyPairOutput ToDafny_N3_aws__N12_cryptography__N10_primitives__S24_GenerateRSAKeyPairOutput (AWS.Cryptography.Primitives.GenerateRSAKeyPairOutput value) {
 
  return new Dafny.Aws.Cryptography.Primitives.Types.GenerateRSAKeyPairOutput ( ToDafny_N3_aws__N12_cryptography__N10_primitives__S24_GenerateRSAKeyPairOutput__M9_publicKey(value.PublicKey) , ToDafny_N3_aws__N12_cryptography__N10_primitives__S24_GenerateRSAKeyPairOutput__M10_privateKey(value.PrivateKey) ) ;
+}
+ internal static AWS.Cryptography.Primitives.GetRSAKeyModulusLengthInput FromDafny_N3_aws__N12_cryptography__N10_primitives__S27_GetRSAKeyModulusLengthInput (Dafny.Aws.Cryptography.Primitives.Types._IGetRSAKeyModulusLengthInput value) {
+ Dafny.Aws.Cryptography.Primitives.Types.GetRSAKeyModulusLengthInput concrete = (Dafny.Aws.Cryptography.Primitives.Types.GetRSAKeyModulusLengthInput)value; AWS.Cryptography.Primitives.GetRSAKeyModulusLengthInput converted = new AWS.Cryptography.Primitives.GetRSAKeyModulusLengthInput();  converted.PublicKey = (System.IO.MemoryStream) FromDafny_N3_aws__N12_cryptography__N10_primitives__S27_GetRSAKeyModulusLengthInput__M9_publicKey(concrete._publicKey); return converted;
+}
+ internal static Dafny.Aws.Cryptography.Primitives.Types._IGetRSAKeyModulusLengthInput ToDafny_N3_aws__N12_cryptography__N10_primitives__S27_GetRSAKeyModulusLengthInput (AWS.Cryptography.Primitives.GetRSAKeyModulusLengthInput value) {
+
+ return new Dafny.Aws.Cryptography.Primitives.Types.GetRSAKeyModulusLengthInput ( ToDafny_N3_aws__N12_cryptography__N10_primitives__S27_GetRSAKeyModulusLengthInput__M9_publicKey(value.PublicKey) ) ;
+}
+ internal static AWS.Cryptography.Primitives.GetRSAKeyModulusLengthOutput FromDafny_N3_aws__N12_cryptography__N10_primitives__S28_GetRSAKeyModulusLengthOutput (Dafny.Aws.Cryptography.Primitives.Types._IGetRSAKeyModulusLengthOutput value) {
+ Dafny.Aws.Cryptography.Primitives.Types.GetRSAKeyModulusLengthOutput concrete = (Dafny.Aws.Cryptography.Primitives.Types.GetRSAKeyModulusLengthOutput)value; AWS.Cryptography.Primitives.GetRSAKeyModulusLengthOutput converted = new AWS.Cryptography.Primitives.GetRSAKeyModulusLengthOutput();  converted.Length = (int) FromDafny_N3_aws__N12_cryptography__N10_primitives__S28_GetRSAKeyModulusLengthOutput__M6_length(concrete._length); return converted;
+}
+ internal static Dafny.Aws.Cryptography.Primitives.Types._IGetRSAKeyModulusLengthOutput ToDafny_N3_aws__N12_cryptography__N10_primitives__S28_GetRSAKeyModulusLengthOutput (AWS.Cryptography.Primitives.GetRSAKeyModulusLengthOutput value) {
+
+ return new Dafny.Aws.Cryptography.Primitives.Types.GetRSAKeyModulusLengthOutput ( ToDafny_N3_aws__N12_cryptography__N10_primitives__S28_GetRSAKeyModulusLengthOutput__M6_length(value.Length) ) ;
 }
  internal static AWS.Cryptography.Primitives.HkdfExpandInput FromDafny_N3_aws__N12_cryptography__N10_primitives__S15_HkdfExpandInput (Dafny.Aws.Cryptography.Primitives.Types._IHkdfExpandInput value) {
  Dafny.Aws.Cryptography.Primitives.Types.HkdfExpandInput concrete = (Dafny.Aws.Cryptography.Primitives.Types.HkdfExpandInput)value; AWS.Cryptography.Primitives.HkdfExpandInput converted = new AWS.Cryptography.Primitives.HkdfExpandInput();  converted.DigestAlgorithm = (AWS.Cryptography.Primitives.DigestAlgorithm) FromDafny_N3_aws__N12_cryptography__N10_primitives__S15_HkdfExpandInput__M15_digestAlgorithm(concrete._digestAlgorithm);
@@ -535,11 +549,11 @@ throw new System.ArgumentException("Invalid AWS.Cryptography.Primitives.RSAPaddi
  internal static Dafny.ISequence<byte> ToDafny_N3_aws__N12_cryptography__N10_primitives__S25_GenerateRandomBytesOutput__M4_data (System.IO.MemoryStream value) {
  return ToDafny_N6_smithy__N3_api__S4_Blob(value);
 }
- internal static int FromDafny_N3_aws__N12_cryptography__N10_primitives__S23_GenerateRSAKeyPairInput__M8_strength (int value) {
- return FromDafny_N3_aws__N12_cryptography__N10_primitives__S15_RSAStrengthBits(value);
+ internal static int FromDafny_N3_aws__N12_cryptography__N10_primitives__S23_GenerateRSAKeyPairInput__M10_lengthBits (int value) {
+ return FromDafny_N3_aws__N12_cryptography__N10_primitives__S30_RSAModulusLengthBitsToGenerate(value);
 }
- internal static int ToDafny_N3_aws__N12_cryptography__N10_primitives__S23_GenerateRSAKeyPairInput__M8_strength (int value) {
- return ToDafny_N3_aws__N12_cryptography__N10_primitives__S15_RSAStrengthBits(value);
+ internal static int ToDafny_N3_aws__N12_cryptography__N10_primitives__S23_GenerateRSAKeyPairInput__M10_lengthBits (int value) {
+ return ToDafny_N3_aws__N12_cryptography__N10_primitives__S30_RSAModulusLengthBitsToGenerate(value);
 }
  internal static AWS.Cryptography.Primitives.RSAPublicKey FromDafny_N3_aws__N12_cryptography__N10_primitives__S24_GenerateRSAKeyPairOutput__M9_publicKey (Dafny.Aws.Cryptography.Primitives.Types._IRSAPublicKey value) {
  return FromDafny_N3_aws__N12_cryptography__N10_primitives__S12_RSAPublicKey(value);
@@ -552,6 +566,18 @@ throw new System.ArgumentException("Invalid AWS.Cryptography.Primitives.RSAPaddi
 }
  internal static Dafny.Aws.Cryptography.Primitives.Types._IRSAPrivateKey ToDafny_N3_aws__N12_cryptography__N10_primitives__S24_GenerateRSAKeyPairOutput__M10_privateKey (AWS.Cryptography.Primitives.RSAPrivateKey value) {
  return ToDafny_N3_aws__N12_cryptography__N10_primitives__S13_RSAPrivateKey(value);
+}
+ internal static System.IO.MemoryStream FromDafny_N3_aws__N12_cryptography__N10_primitives__S27_GetRSAKeyModulusLengthInput__M9_publicKey (Dafny.ISequence<byte> value) {
+ return FromDafny_N6_smithy__N3_api__S4_Blob(value);
+}
+ internal static Dafny.ISequence<byte> ToDafny_N3_aws__N12_cryptography__N10_primitives__S27_GetRSAKeyModulusLengthInput__M9_publicKey (System.IO.MemoryStream value) {
+ return ToDafny_N6_smithy__N3_api__S4_Blob(value);
+}
+ internal static int FromDafny_N3_aws__N12_cryptography__N10_primitives__S28_GetRSAKeyModulusLengthOutput__M6_length (int value) {
+ return FromDafny_N3_aws__N12_cryptography__N10_primitives__S20_RSAModulusLengthBits(value);
+}
+ internal static int ToDafny_N3_aws__N12_cryptography__N10_primitives__S28_GetRSAKeyModulusLengthOutput__M6_length (int value) {
+ return ToDafny_N3_aws__N12_cryptography__N10_primitives__S20_RSAModulusLengthBits(value);
 }
  internal static AWS.Cryptography.Primitives.DigestAlgorithm FromDafny_N3_aws__N12_cryptography__N10_primitives__S15_HkdfExpandInput__M15_digestAlgorithm (Dafny.Aws.Cryptography.Primitives.Types._IDigestAlgorithm value) {
  return FromDafny_N3_aws__N12_cryptography__N10_primitives__S15_DigestAlgorithm(value);
@@ -784,27 +810,33 @@ throw new System.ArgumentException("Invalid AWS.Cryptography.Primitives.RSAPaddi
  internal static bool ToDafny_N6_smithy__N3_api__S7_Boolean (bool value) {
  return value;
 }
- internal static int FromDafny_N3_aws__N12_cryptography__N10_primitives__S15_RSAStrengthBits (int value) {
+ internal static int FromDafny_N3_aws__N12_cryptography__N10_primitives__S30_RSAModulusLengthBitsToGenerate (int value) {
  return value;
 }
- internal static int ToDafny_N3_aws__N12_cryptography__N10_primitives__S15_RSAStrengthBits (int value) {
+ internal static int ToDafny_N3_aws__N12_cryptography__N10_primitives__S30_RSAModulusLengthBitsToGenerate (int value) {
  return value;
 }
  internal static AWS.Cryptography.Primitives.RSAPublicKey FromDafny_N3_aws__N12_cryptography__N10_primitives__S12_RSAPublicKey (Dafny.Aws.Cryptography.Primitives.Types._IRSAPublicKey value) {
- Dafny.Aws.Cryptography.Primitives.Types.RSAPublicKey concrete = (Dafny.Aws.Cryptography.Primitives.Types.RSAPublicKey)value; AWS.Cryptography.Primitives.RSAPublicKey converted = new AWS.Cryptography.Primitives.RSAPublicKey();  converted.Strength = (int) FromDafny_N3_aws__N12_cryptography__N10_primitives__S12_RSAPublicKey__M8_strength(concrete._strength);
+ Dafny.Aws.Cryptography.Primitives.Types.RSAPublicKey concrete = (Dafny.Aws.Cryptography.Primitives.Types.RSAPublicKey)value; AWS.Cryptography.Primitives.RSAPublicKey converted = new AWS.Cryptography.Primitives.RSAPublicKey();  converted.LengthBits = (int) FromDafny_N3_aws__N12_cryptography__N10_primitives__S12_RSAPublicKey__M10_lengthBits(concrete._lengthBits);
   converted.Pem = (System.IO.MemoryStream) FromDafny_N3_aws__N12_cryptography__N10_primitives__S12_RSAPublicKey__M3_pem(concrete._pem); return converted;
 }
  internal static Dafny.Aws.Cryptography.Primitives.Types._IRSAPublicKey ToDafny_N3_aws__N12_cryptography__N10_primitives__S12_RSAPublicKey (AWS.Cryptography.Primitives.RSAPublicKey value) {
 
- return new Dafny.Aws.Cryptography.Primitives.Types.RSAPublicKey ( ToDafny_N3_aws__N12_cryptography__N10_primitives__S12_RSAPublicKey__M8_strength(value.Strength) , ToDafny_N3_aws__N12_cryptography__N10_primitives__S12_RSAPublicKey__M3_pem(value.Pem) ) ;
+ return new Dafny.Aws.Cryptography.Primitives.Types.RSAPublicKey ( ToDafny_N3_aws__N12_cryptography__N10_primitives__S12_RSAPublicKey__M10_lengthBits(value.LengthBits) , ToDafny_N3_aws__N12_cryptography__N10_primitives__S12_RSAPublicKey__M3_pem(value.Pem) ) ;
 }
  internal static AWS.Cryptography.Primitives.RSAPrivateKey FromDafny_N3_aws__N12_cryptography__N10_primitives__S13_RSAPrivateKey (Dafny.Aws.Cryptography.Primitives.Types._IRSAPrivateKey value) {
- Dafny.Aws.Cryptography.Primitives.Types.RSAPrivateKey concrete = (Dafny.Aws.Cryptography.Primitives.Types.RSAPrivateKey)value; AWS.Cryptography.Primitives.RSAPrivateKey converted = new AWS.Cryptography.Primitives.RSAPrivateKey();  converted.Strength = (int) FromDafny_N3_aws__N12_cryptography__N10_primitives__S13_RSAPrivateKey__M8_strength(concrete._strength);
+ Dafny.Aws.Cryptography.Primitives.Types.RSAPrivateKey concrete = (Dafny.Aws.Cryptography.Primitives.Types.RSAPrivateKey)value; AWS.Cryptography.Primitives.RSAPrivateKey converted = new AWS.Cryptography.Primitives.RSAPrivateKey();  converted.LengthBits = (int) FromDafny_N3_aws__N12_cryptography__N10_primitives__S13_RSAPrivateKey__M10_lengthBits(concrete._lengthBits);
   converted.Pem = (System.IO.MemoryStream) FromDafny_N3_aws__N12_cryptography__N10_primitives__S13_RSAPrivateKey__M3_pem(concrete._pem); return converted;
 }
  internal static Dafny.Aws.Cryptography.Primitives.Types._IRSAPrivateKey ToDafny_N3_aws__N12_cryptography__N10_primitives__S13_RSAPrivateKey (AWS.Cryptography.Primitives.RSAPrivateKey value) {
 
- return new Dafny.Aws.Cryptography.Primitives.Types.RSAPrivateKey ( ToDafny_N3_aws__N12_cryptography__N10_primitives__S13_RSAPrivateKey__M8_strength(value.Strength) , ToDafny_N3_aws__N12_cryptography__N10_primitives__S13_RSAPrivateKey__M3_pem(value.Pem) ) ;
+ return new Dafny.Aws.Cryptography.Primitives.Types.RSAPrivateKey ( ToDafny_N3_aws__N12_cryptography__N10_primitives__S13_RSAPrivateKey__M10_lengthBits(value.LengthBits) , ToDafny_N3_aws__N12_cryptography__N10_primitives__S13_RSAPrivateKey__M3_pem(value.Pem) ) ;
+}
+ internal static int FromDafny_N3_aws__N12_cryptography__N10_primitives__S20_RSAModulusLengthBits (int value) {
+ return value;
+}
+ internal static int ToDafny_N3_aws__N12_cryptography__N10_primitives__S20_RSAModulusLengthBits (int value) {
+ return value;
 }
  internal static int FromDafny_N3_aws__N12_cryptography__N10_primitives__S7_AES_GCM__M9_keyLength (int value) {
  return FromDafny_N3_aws__N12_cryptography__N10_primitives__S18_SymmetricKeyLength(value);
@@ -824,11 +856,11 @@ throw new System.ArgumentException("Invalid AWS.Cryptography.Primitives.RSAPaddi
  internal static int ToDafny_N3_aws__N12_cryptography__N10_primitives__S7_AES_GCM__M8_ivLength (int value) {
  return ToDafny_N3_aws__N12_cryptography__N10_primitives__S9_Uint8Bits(value);
 }
- internal static int FromDafny_N3_aws__N12_cryptography__N10_primitives__S12_RSAPublicKey__M8_strength (int value) {
- return FromDafny_N3_aws__N12_cryptography__N10_primitives__S15_RSAStrengthBits(value);
+ internal static int FromDafny_N3_aws__N12_cryptography__N10_primitives__S12_RSAPublicKey__M10_lengthBits (int value) {
+ return FromDafny_N3_aws__N12_cryptography__N10_primitives__S20_RSAModulusLengthBits(value);
 }
- internal static int ToDafny_N3_aws__N12_cryptography__N10_primitives__S12_RSAPublicKey__M8_strength (int value) {
- return ToDafny_N3_aws__N12_cryptography__N10_primitives__S15_RSAStrengthBits(value);
+ internal static int ToDafny_N3_aws__N12_cryptography__N10_primitives__S12_RSAPublicKey__M10_lengthBits (int value) {
+ return ToDafny_N3_aws__N12_cryptography__N10_primitives__S20_RSAModulusLengthBits(value);
 }
  internal static System.IO.MemoryStream FromDafny_N3_aws__N12_cryptography__N10_primitives__S12_RSAPublicKey__M3_pem (Dafny.ISequence<byte> value) {
  return FromDafny_N6_smithy__N3_api__S4_Blob(value);
@@ -836,11 +868,11 @@ throw new System.ArgumentException("Invalid AWS.Cryptography.Primitives.RSAPaddi
  internal static Dafny.ISequence<byte> ToDafny_N3_aws__N12_cryptography__N10_primitives__S12_RSAPublicKey__M3_pem (System.IO.MemoryStream value) {
  return ToDafny_N6_smithy__N3_api__S4_Blob(value);
 }
- internal static int FromDafny_N3_aws__N12_cryptography__N10_primitives__S13_RSAPrivateKey__M8_strength (int value) {
- return FromDafny_N3_aws__N12_cryptography__N10_primitives__S15_RSAStrengthBits(value);
+ internal static int FromDafny_N3_aws__N12_cryptography__N10_primitives__S13_RSAPrivateKey__M10_lengthBits (int value) {
+ return FromDafny_N3_aws__N12_cryptography__N10_primitives__S20_RSAModulusLengthBits(value);
 }
- internal static int ToDafny_N3_aws__N12_cryptography__N10_primitives__S13_RSAPrivateKey__M8_strength (int value) {
- return ToDafny_N3_aws__N12_cryptography__N10_primitives__S15_RSAStrengthBits(value);
+ internal static int ToDafny_N3_aws__N12_cryptography__N10_primitives__S13_RSAPrivateKey__M10_lengthBits (int value) {
+ return ToDafny_N3_aws__N12_cryptography__N10_primitives__S20_RSAModulusLengthBits(value);
 }
  internal static System.IO.MemoryStream FromDafny_N3_aws__N12_cryptography__N10_primitives__S13_RSAPrivateKey__M3_pem (Dafny.ISequence<byte> value) {
  return FromDafny_N6_smithy__N3_api__S4_Blob(value);

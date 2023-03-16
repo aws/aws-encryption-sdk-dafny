@@ -81,6 +81,12 @@ using System;
  if (result.is_Failure) throw TypeConversion.FromDafny_CommonError(result.dtor_error);
  return TypeConversion.FromDafny_N3_aws__N12_cryptography__N10_primitives__S24_GenerateRSAKeyPairOutput(result.dtor_value);
 }
+ public AWS.Cryptography.Primitives.GetRSAKeyModulusLengthOutput GetRSAKeyModulusLength(AWS.Cryptography.Primitives.GetRSAKeyModulusLengthInput input) {
+ Dafny.Aws.Cryptography.Primitives.Types._IGetRSAKeyModulusLengthInput internalInput = TypeConversion.ToDafny_N3_aws__N12_cryptography__N10_primitives__S27_GetRSAKeyModulusLengthInput(input);
+ Wrappers_Compile._IResult<Dafny.Aws.Cryptography.Primitives.Types._IGetRSAKeyModulusLengthOutput, Dafny.Aws.Cryptography.Primitives.Types._IError> result = _impl.GetRSAKeyModulusLength(internalInput);
+ if (result.is_Failure) throw TypeConversion.FromDafny_CommonError(result.dtor_error);
+ return TypeConversion.FromDafny_N3_aws__N12_cryptography__N10_primitives__S28_GetRSAKeyModulusLengthOutput(result.dtor_value);
+}
  public System.IO.MemoryStream RSADecrypt(AWS.Cryptography.Primitives.RSADecryptInput input) {
  Dafny.Aws.Cryptography.Primitives.Types._IRSADecryptInput internalInput = TypeConversion.ToDafny_N3_aws__N12_cryptography__N10_primitives__S15_RSADecryptInput(input);
  Wrappers_Compile._IResult<Dafny.ISequence<byte>, Dafny.Aws.Cryptography.Primitives.Types._IError> result = _impl.RSADecrypt(internalInput);

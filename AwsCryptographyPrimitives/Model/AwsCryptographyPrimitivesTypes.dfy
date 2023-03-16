@@ -58,6 +58,7 @@ include "../../StandardLibrary/src/Index.dfy"
  AESEncrypt := [];
  AESDecrypt := [];
  GenerateRSAKeyPair := [];
+ GetRSAKeyModulusLength := [];
  RSADecrypt := [];
  RSAEncrypt := [];
  GenerateECDSASignatureKey := [];
@@ -75,6 +76,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ghost var AESEncrypt: seq<DafnyCallEvent<AESEncryptInput, Result<AESEncryptOutput, Error>>>
  ghost var AESDecrypt: seq<DafnyCallEvent<AESDecryptInput, Result<seq<uint8>, Error>>>
  ghost var GenerateRSAKeyPair: seq<DafnyCallEvent<GenerateRSAKeyPairInput, Result<GenerateRSAKeyPairOutput, Error>>>
+ ghost var GetRSAKeyModulusLength: seq<DafnyCallEvent<GetRSAKeyModulusLengthInput, Result<GetRSAKeyModulusLengthOutput, Error>>>
  ghost var RSADecrypt: seq<DafnyCallEvent<RSADecryptInput, Result<seq<uint8>, Error>>>
  ghost var RSAEncrypt: seq<DafnyCallEvent<RSAEncryptInput, Result<seq<uint8>, Error>>>
  ghost var GenerateECDSASignatureKey: seq<DafnyCallEvent<GenerateECDSASignatureKeyInput, Result<GenerateECDSASignatureKeyOutput, Error>>>
@@ -264,6 +266,21 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures GenerateRSAKeyPairEnsuresPublicly(input, output)
  ensures History.GenerateRSAKeyPair == old(History.GenerateRSAKeyPair) + [DafnyCallEvent(input, output)]
  
+ predicate GetRSAKeyModulusLengthEnsuresPublicly(input: GetRSAKeyModulusLengthInput , output: Result<GetRSAKeyModulusLengthOutput, Error>)
+ // The public method to be called by library consumers
+ method GetRSAKeyModulusLength ( input: GetRSAKeyModulusLengthInput )
+ returns (output: Result<GetRSAKeyModulusLengthOutput, Error>)
+ requires
+ && ValidState()
+ modifies Modifies - {History} ,
+ History`GetRSAKeyModulusLength
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases Modifies - {History}
+ ensures
+ && ValidState()
+ ensures GetRSAKeyModulusLengthEnsuresPublicly(input, output)
+ ensures History.GetRSAKeyModulusLength == old(History.GetRSAKeyModulusLength) + [DafnyCallEvent(input, output)]
+ 
  predicate RSADecryptEnsuresPublicly(input: RSADecryptInput , output: Result<seq<uint8>, Error>)
  // The public method to be called by library consumers
  method RSADecrypt ( input: RSADecryptInput )
@@ -378,11 +395,17 @@ include "../../StandardLibrary/src/Index.dfy"
  nameonly length: PositiveInteger
  )
  datatype GenerateRSAKeyPairInput = | GenerateRSAKeyPairInput (
- nameonly strength: RSAStrengthBits
+ nameonly lengthBits: RSAModulusLengthBitsToGenerate
  )
  datatype GenerateRSAKeyPairOutput = | GenerateRSAKeyPairOutput (
  nameonly publicKey: RSAPublicKey ,
  nameonly privateKey: RSAPrivateKey
+ )
+ datatype GetRSAKeyModulusLengthInput = | GetRSAKeyModulusLengthInput (
+ nameonly publicKey: seq<uint8>
+ )
+ datatype GetRSAKeyModulusLengthOutput = | GetRSAKeyModulusLengthOutput (
+ nameonly length: RSAModulusLengthBits
  )
  datatype HkdfExpandInput = | HkdfExpandInput (
  nameonly digestAlgorithm: DigestAlgorithm ,
@@ -428,6 +451,14 @@ include "../../StandardLibrary/src/Index.dfy"
  nameonly publicKey: seq<uint8> ,
  nameonly plaintext: seq<uint8>
  )
+ type RSAModulusLengthBits = x: int32 | IsValid_RSAModulusLengthBits(x) witness *
+ predicate method IsValid_RSAModulusLengthBits(x: int32) {
+ ( 81 <= x  )
+}
+ type RSAModulusLengthBitsToGenerate = x: int32 | IsValid_RSAModulusLengthBitsToGenerate(x) witness *
+ predicate method IsValid_RSAModulusLengthBitsToGenerate(x: int32) {
+ ( 81 <= x <= 4096 )
+}
  datatype RSAPaddingMode =
 	| PKCS1
 	| OAEP_SHA1
@@ -435,17 +466,13 @@ include "../../StandardLibrary/src/Index.dfy"
 	| OAEP_SHA384
 	| OAEP_SHA512
  datatype RSAPrivateKey = | RSAPrivateKey (
- nameonly strength: RSAStrengthBits ,
+ nameonly lengthBits: RSAModulusLengthBits ,
  nameonly pem: seq<uint8>
  )
  datatype RSAPublicKey = | RSAPublicKey (
- nameonly strength: RSAStrengthBits ,
+ nameonly lengthBits: RSAModulusLengthBits ,
  nameonly pem: seq<uint8>
  )
- type RSAStrengthBits = x: int32 | IsValid_RSAStrengthBits(x) witness *
- predicate method IsValid_RSAStrengthBits(x: int32) {
- ( 81 <= x <= 4096 )
-}
  type SymmetricKeyLength = x: int32 | IsValid_SymmetricKeyLength(x) witness *
  predicate method IsValid_SymmetricKeyLength(x: int32) {
  ( 1 <= x <= 32 )
@@ -732,6 +759,26 @@ include "../../StandardLibrary/src/Index.dfy"
  History.GenerateRSAKeyPair := History.GenerateRSAKeyPair + [DafnyCallEvent(input, output)];
 }
  
+ predicate GetRSAKeyModulusLengthEnsuresPublicly(input: GetRSAKeyModulusLengthInput , output: Result<GetRSAKeyModulusLengthOutput, Error>)
+ {Operations.GetRSAKeyModulusLengthEnsuresPublicly(input, output)}
+ // The public method to be called by library consumers
+ method GetRSAKeyModulusLength ( input: GetRSAKeyModulusLengthInput )
+ returns (output: Result<GetRSAKeyModulusLengthOutput, Error>)
+ requires
+ && ValidState()
+ modifies Modifies - {History} ,
+ History`GetRSAKeyModulusLength
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases Modifies - {History}
+ ensures
+ && ValidState()
+ ensures GetRSAKeyModulusLengthEnsuresPublicly(input, output)
+ ensures History.GetRSAKeyModulusLength == old(History.GetRSAKeyModulusLength) + [DafnyCallEvent(input, output)]
+ {
+ output := Operations.GetRSAKeyModulusLength(config, input);
+ History.GetRSAKeyModulusLength := History.GetRSAKeyModulusLength + [DafnyCallEvent(input, output)];
+}
+ 
  predicate RSADecryptEnsuresPublicly(input: RSADecryptInput , output: Result<seq<uint8>, Error>)
  {Operations.RSADecryptEnsuresPublicly(input, output)}
  // The public method to be called by library consumers
@@ -1009,6 +1056,22 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures
  && ValidInternalConfig?(config)
  ensures GenerateRSAKeyPairEnsuresPublicly(input, output)
+
+
+ predicate GetRSAKeyModulusLengthEnsuresPublicly(input: GetRSAKeyModulusLengthInput , output: Result<GetRSAKeyModulusLengthOutput, Error>)
+ // The private method to be refined by the library developer
+
+
+ method GetRSAKeyModulusLength ( config: InternalConfig , input: GetRSAKeyModulusLengthInput )
+ returns (output: Result<GetRSAKeyModulusLengthOutput, Error>)
+ requires
+ && ValidInternalConfig?(config)
+ modifies ModifiesInternalConfig(config)
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases ModifiesInternalConfig(config)
+ ensures
+ && ValidInternalConfig?(config)
+ ensures GetRSAKeyModulusLengthEnsuresPublicly(input, output)
 
 
  predicate RSADecryptEnsuresPublicly(input: RSADecryptInput , output: Result<seq<uint8>, Error>)

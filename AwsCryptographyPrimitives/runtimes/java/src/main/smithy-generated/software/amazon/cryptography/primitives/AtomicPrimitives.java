@@ -27,6 +27,8 @@ import software.amazon.cryptography.primitives.model.GenerateECDSASignatureKeyOu
 import software.amazon.cryptography.primitives.model.GenerateRSAKeyPairInput;
 import software.amazon.cryptography.primitives.model.GenerateRSAKeyPairOutput;
 import software.amazon.cryptography.primitives.model.GenerateRandomBytesInput;
+import software.amazon.cryptography.primitives.model.GetRSAKeyModulusLengthInput;
+import software.amazon.cryptography.primitives.model.GetRSAKeyModulusLengthOutput;
 import software.amazon.cryptography.primitives.model.HMacInput;
 import software.amazon.cryptography.primitives.model.HkdfExpandInput;
 import software.amazon.cryptography.primitives.model.HkdfExtractInput;
@@ -50,10 +52,6 @@ public class AtomicPrimitives {
 
   public static Builder builder() {
     return new BuilderImpl();
-  }
-
-  protected IAwsCryptographicPrimitivesClient impl() {
-    return this._impl;
   }
 
   public ByteBuffer GenerateRandomBytes(GenerateRandomBytesInput nativeValue) {
@@ -155,6 +153,16 @@ public class AtomicPrimitives {
     return ToNative.GenerateRSAKeyPairOutput(result.dtor_value());
   }
 
+  public GetRSAKeyModulusLengthOutput GetRSAKeyModulusLength(
+      GetRSAKeyModulusLengthInput nativeValue) {
+    Dafny.Aws.Cryptography.Primitives.Types.GetRSAKeyModulusLengthInput dafnyValue = ToDafny.GetRSAKeyModulusLengthInput(nativeValue);
+    Result<Dafny.Aws.Cryptography.Primitives.Types.GetRSAKeyModulusLengthOutput, Error> result = this._impl.GetRSAKeyModulusLength(dafnyValue);
+    if (result.is_Failure()) {
+      throw ToNative.Error(result.dtor_error());
+    }
+    return ToNative.GetRSAKeyModulusLengthOutput(result.dtor_value());
+  }
+
   public ByteBuffer RSADecrypt(RSADecryptInput nativeValue) {
     Dafny.Aws.Cryptography.Primitives.Types.RSADecryptInput dafnyValue = ToDafny.RSADecryptInput(nativeValue);
     Result<DafnySequence<? extends Byte>, Error> result = this._impl.RSADecrypt(dafnyValue);
@@ -199,6 +207,10 @@ public class AtomicPrimitives {
       throw ToNative.Error(result.dtor_error());
     }
     return (result.dtor_value());
+  }
+
+  protected IAwsCryptographicPrimitivesClient impl() {
+    return this._impl;
   }
 
   public interface Builder {

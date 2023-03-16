@@ -4,16 +4,16 @@
 using System;
  using AWS.Cryptography.Primitives; namespace AWS.Cryptography.Primitives {
  public class GenerateRSAKeyPairInput {
- private int? _strength ;
- public int Strength {
- get { return this._strength.GetValueOrDefault(); }
- set { this._strength = value; }
+ private int? _lengthBits ;
+ public int LengthBits {
+ get { return this._lengthBits.GetValueOrDefault(); }
+ set { this._lengthBits = value; }
 }
- public bool IsSetStrength () {
- return this._strength.HasValue;
+ public bool IsSetLengthBits () {
+ return this._lengthBits.HasValue;
 }
  public void Validate() {
- if (!IsSetStrength()) throw new System.ArgumentException("Missing value for required property 'Strength'");
+ if (!IsSetLengthBits()) throw new System.ArgumentException("Missing value for required property 'LengthBits'");
 
 }
 }

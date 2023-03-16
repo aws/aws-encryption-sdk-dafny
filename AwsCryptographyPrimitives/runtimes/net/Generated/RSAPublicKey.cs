@@ -4,14 +4,14 @@
 using System;
  using AWS.Cryptography.Primitives; namespace AWS.Cryptography.Primitives {
  public class RSAPublicKey {
- private int? _strength ;
+ private int? _lengthBits ;
  private System.IO.MemoryStream _pem ;
- public int Strength {
- get { return this._strength.GetValueOrDefault(); }
- set { this._strength = value; }
+ public int LengthBits {
+ get { return this._lengthBits.GetValueOrDefault(); }
+ set { this._lengthBits = value; }
 }
- public bool IsSetStrength () {
- return this._strength.HasValue;
+ public bool IsSetLengthBits () {
+ return this._lengthBits.HasValue;
 }
  public System.IO.MemoryStream Pem {
  get { return this._pem; }
@@ -21,7 +21,7 @@ using System;
  return this._pem != null;
 }
  public void Validate() {
- if (!IsSetStrength()) throw new System.ArgumentException("Missing value for required property 'Strength'");
+ if (!IsSetLengthBits()) throw new System.ArgumentException("Missing value for required property 'LengthBits'");
  if (!IsSetPem()) throw new System.ArgumentException("Missing value for required property 'Pem'");
 
 }

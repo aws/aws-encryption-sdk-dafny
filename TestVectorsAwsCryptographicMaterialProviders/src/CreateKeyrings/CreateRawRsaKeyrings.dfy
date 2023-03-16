@@ -58,7 +58,7 @@ module CreateRawRsaKeyrings {
 
     var keys :- expect crypto.GenerateRSAKeyPair(
       Crypto.GenerateRSAKeyPairInput(
-        strength := 2048
+        lengthBits := 2048
       )
     );
 

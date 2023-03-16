@@ -115,21 +115,33 @@ namespace RSAEncryption {
             }
         }
 
-        public static void GenerateKeyPairBytes(int strength, out byte[] publicKeyBytes, out byte[] privateKeyBytes) {
+        public static void GenerateKeyPairBytes(int lengthBits, out byte[] publicKeyBytes, out byte[] privateKeyBytes) {
             RsaKeyPairGenerator keygen = new RsaKeyPairGenerator();
             SecureRandom secureRandom = new SecureRandom();
             keygen.Init(new RsaKeyGenerationParameters(
-                BigInteger.ValueOf(RSA_PUBLIC_EXPONENT), secureRandom, strength, RSA_CERTAINTY));
+                BigInteger.ValueOf(RSA_PUBLIC_EXPONENT), secureRandom, lengthBits, RSA_CERTAINTY));
             AsymmetricCipherKeyPair keygenPair = keygen.GenerateKeyPair();
             GetPemBytes(keygenPair, out publicKeyBytes, out privateKeyBytes);
         }
 
-        public static void GenerateKeyPairExtern(int strength, out ibyteseq publicKey, out ibyteseq privateKey) {
+        public static void GenerateKeyPairExtern(int lengthBits, out ibyteseq publicKey, out ibyteseq privateKey) {
             byte[] publicKeyBytes;
             byte[] privateKeyBytes;
-            GenerateKeyPairBytes(strength, out publicKeyBytes, out privateKeyBytes);
+            GenerateKeyPairBytes(lengthBits, out publicKeyBytes, out privateKeyBytes);
             publicKey = byteseq.FromArray(publicKeyBytes);
             privateKey = byteseq.FromArray(privateKeyBytes);
+        }
+
+        public static _IResult<uint, _IError> GetRSAKeyModulusLengthExtern(ibyteseq publicKey) {
+            try {
+                AsymmetricKeyParameter publicKeyParam = GetPublicKeyFromByteSeq(publicKey);
+                RsaKeyParameters key = (RsaKeyParameters) publicKeyParam;
+                return Result<uint, _IError>.create_Success((uint)key.Modulus.BitLength);
+            }
+            catch (Exception encryptEx) {
+                return Result<uint, _IError>
+                    .create_Failure(new Error_Opaque(encryptEx));
+            }
         }
 
         public static _IResult<ibyteseq, _IError> EncryptExtern(_IRSAPaddingMode padding, ibyteseq publicKey, ibyteseq plaintextMessage) {
