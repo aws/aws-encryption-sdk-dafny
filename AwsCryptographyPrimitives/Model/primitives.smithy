@@ -21,6 +21,7 @@ service AwsCryptographicPrimitives {
     AESEncrypt,
     AESDecrypt,
     GenerateRSAKeyPair,
+    GetRSAKeyModulusLength,
     RSADecrypt,
     RSAEncrypt,
     GenerateECDSASignatureKey,

@@ -25,16 +25,21 @@ namespace aws.cryptography.primitives
 string RSAPaddingMode
 
 // The smallest ciphertext length is defined using PKCS1, 
-// where messageLength <= k - 11 and k represents the strength,
-// defined as the length in octets (bytes) of the modulus n.
-// This means that the minimum possible strength in bits can be calculated as:
-// (strength + 7) / 8 - 11 == 0 ==> min strength == 81 in this scenario (where messageLength == 0). 
+// where messageLength <= k - 11,
+// where k is defined as the length in octets (bytes) of the modulus n.
+// This means that the minimum possible modulus length in bits can be calculated as:
+// (x + 7) / 8 - 11 == 0 ==> min x == 81
+// (where x is the length of the modulus in bits and messageLength == 0). 
 // In practice, this number should be much higher (at least 1024 or, better, 2048).
-// TODO: Determine if we want to enforce a min value of 2048 bits as the min strength (requires updating the spec)
-// TODO: Determine if we want to enforce a max value of x as the max strength
-@range(min: 81, max: 4096)
-integer RSAStrengthBits
+@range(min: 81)
+integer RSAModulusLengthBits
 
+// Our GenerateRSAKeyPair takes in a more constrained version
+// of `RSAModulusLengthBits` to prevent an unbounded, expensive
+// calculation to generate unreasonably large RSA keys.
+// We currently only support a max size of 4096 for key generation.
+@range(min: 81, max: 4096)
+integer RSAModulusLengthBitsToGenerate
 
 operation GenerateRSAKeyPair {
   input: GenerateRSAKeyPairInput,
@@ -44,7 +49,7 @@ operation GenerateRSAKeyPair {
 
 structure GenerateRSAKeyPairInput {
   @required
-  strength: RSAStrengthBits
+  lengthBits: RSAModulusLengthBitsToGenerate
 }
 structure GenerateRSAKeyPairOutput {
   @required
@@ -53,15 +58,30 @@ structure GenerateRSAKeyPairOutput {
   privateKey: RSAPrivateKey,
 }
 
+operation GetRSAKeyModulusLength {
+  input: GetRSAKeyModulusLengthInput,
+  output: GetRSAKeyModulusLengthOutput,
+  errors: [], 
+}
+
+structure GetRSAKeyModulusLengthInput {
+  @required
+  publicKey: Blob
+}
+structure GetRSAKeyModulusLengthOutput {
+  @required
+  length: RSAModulusLengthBits
+}
+
 structure RSAPublicKey {
   @required
-  strength: RSAStrengthBits,
+  lengthBits: RSAModulusLengthBits,
   @required
   pem: Blob,
 }
 structure RSAPrivateKey{
   @required
-  strength: RSAStrengthBits,
+  lengthBits: RSAModulusLengthBits,
   @required
   pem: Blob,
 }

@@ -151,8 +151,18 @@ module AwsCryptographyPrimitivesOperations refines AbstractAwsCryptographyPrimit
   method GenerateRSAKeyPair ( config: InternalConfig,  input: GenerateRSAKeyPairInput )
     returns (output: Result<GenerateRSAKeyPairOutput, Error>)
   {
-    var publicKey, privateKey := RSAEncryption.GenerateKeyPair(input.strength);
+    var publicKey, privateKey := RSAEncryption.GenerateKeyPair(input.lengthBits);
     output := Success(GenerateRSAKeyPairOutput(publicKey := publicKey, privateKey := privateKey));
+  }
+  
+  predicate GetRSAKeyModulusLengthEnsuresPublicly(input: GetRSAKeyModulusLengthInput, output: Result<GetRSAKeyModulusLengthOutput, Error>)
+  {true}
+
+  method GetRSAKeyModulusLength ( config: InternalConfig,  input: GetRSAKeyModulusLengthInput )
+    returns (output: Result<GetRSAKeyModulusLengthOutput, Error>)
+  {
+    var length :- RSAEncryption.GetRSAKeyModulusLength(input.publicKey);
+    output := Success(GetRSAKeyModulusLengthOutput(length := length));
   }
 
   predicate RSADecryptEnsuresPublicly(input: RSADecryptInput, output: Result<seq<uint8>, Error>)

@@ -18,7 +18,7 @@ module TestRawRSAKeying {
     var mpl :- expect MaterialProviders.MaterialProviders();
 
     var namespace, name := TestUtils.NamespaceAndName(0);
-    var keys := GenerateKeyPair(2048 as AwsCryptographyPrimitivesTypes.RSAStrengthBits);
+    var keys := GenerateKeyPair(2048 as AwsCryptographyPrimitivesTypes.RSAModulusLengthBits);
     var rawRSAKeyring :- expect mpl.CreateRawRsaKeyring(Types.CreateRawRsaKeyringInput(
       keyNamespace := namespace,
       keyName := name,
@@ -78,7 +78,7 @@ module TestRawRSAKeying {
     var mpl :- expect MaterialProviders.MaterialProviders();
 
     var namespace, name := TestUtils.NamespaceAndName(0);
-    var keys := GenerateKeyPair(2048 as AwsCryptographyPrimitivesTypes.RSAStrengthBits);
+    var keys := GenerateKeyPair(2048 as AwsCryptographyPrimitivesTypes.RSAModulusLengthBits);
     var rawRSAKeyring :- expect mpl.CreateRawRsaKeyring(Types.CreateRawRsaKeyringInput(
       keyNamespace := namespace,
       keyName := name,
@@ -141,8 +141,8 @@ module TestRawRSAKeying {
     var namespace, name := TestUtils.NamespaceAndName(0);
 
     // The keys are different, so the decrypt will fail
-    var encryptKeys := GenerateKeyPair(2048 as AwsCryptographyPrimitivesTypes.RSAStrengthBits);
-    var decryptKeys := GenerateKeyPair(2048 as AwsCryptographyPrimitivesTypes.RSAStrengthBits);
+    var encryptKeys := GenerateKeyPair(2048 as AwsCryptographyPrimitivesTypes.RSAModulusLengthBits);
+    var decryptKeys := GenerateKeyPair(2048 as AwsCryptographyPrimitivesTypes.RSAModulusLengthBits);
 
     var encryptKeyring :- expect mpl.CreateRawRsaKeyring(Types.CreateRawRsaKeyringInput(
       keyNamespace := namespace,
@@ -212,7 +212,7 @@ module TestRawRSAKeying {
     var mpl :- expect MaterialProviders.MaterialProviders();
 
     var namespace, name := TestUtils.NamespaceAndName(0);
-    var keys := GenerateKeyPair(2048 as AwsCryptographyPrimitivesTypes.RSAStrengthBits);
+    var keys := GenerateKeyPair(2048 as AwsCryptographyPrimitivesTypes.RSAModulusLengthBits);
     var rawRSAKeyring :- expect mpl.CreateRawRsaKeyring(Types.CreateRawRsaKeyringInput(
       keyNamespace := namespace,
       keyName := name,
@@ -274,14 +274,14 @@ module TestRawRSAKeying {
     == encryptionMaterialsOut.materials.plaintextDataKey;
   }
 
-  method GenerateKeyPair( keyStrength: AwsCryptographyPrimitivesTypes.RSAStrengthBits )
+  method GenerateKeyPair( keyModulusLength: AwsCryptographyPrimitivesTypes.RSAModulusLengthBitsToGenerate )
     returns (keys: AwsCryptographyPrimitivesTypes.GenerateRSAKeyPairOutput)
   {
     var crypto :- expect Primitives.AtomicPrimitives();
 
     keys :- expect crypto.GenerateRSAKeyPair(
       AwsCryptographyPrimitivesTypes.GenerateRSAKeyPairInput(
-        strength := keyStrength
+        lengthBits := keyModulusLength
       )
     );
   }

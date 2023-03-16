@@ -8,19 +8,21 @@ module {:extern "RSAEncryption"} RSAEncryption {
   import opened UInt = StandardLibrary.UInt
   import Types = AwsCryptographyPrimitivesTypes
 
-  // The smallest ciphertext length is defined using PKCS1, where messageLength <= k - 11 and k represents the strength,
-  // defined as the length in octets (bytes) of the modulus n. This means that the minimum possible strength in bits
-  // can be calculated as: (strength + 7) / 8 - 11 == 0 ==> min strength == 81 in this scenario
-  // (where messageLength == 0). In practice, this number should be much higher (at least 1024 or, better, 2048).
-  // TODO: Determine if we want to enforce a min value of 2048 bits as the min strength (requires updating the spec)
-  // newtype {:nativeType "int", "number"} StrengthBits = x | 81 <= x < (0x8000_0000) witness 81
-
-  method GenerateKeyPair(strength: Types.RSAStrengthBits)
+  method GenerateKeyPair(lengthBits: Types.RSAModulusLengthBitsToGenerate)
       returns (publicKey: Types.RSAPublicKey, privateKey: Types.RSAPrivateKey)
   {
-    var pemPublic, pemPrivate := GenerateKeyPairExtern(strength);
-    privateKey := Types.RSAPrivateKey(pem := pemPrivate, strength := strength);
-    publicKey := Types.RSAPublicKey(pem := pemPublic, strength := strength);
+    var pemPublic, pemPrivate := GenerateKeyPairExtern(lengthBits);
+    privateKey := Types.RSAPrivateKey(pem := pemPrivate, lengthBits := lengthBits);
+    publicKey := Types.RSAPublicKey(pem := pemPublic, lengthBits := lengthBits);
+  }
+
+  method GetRSAKeyModulusLength(publicKey: seq<uint8>)
+      returns (res: Result<Types.RSAModulusLengthBits, Types.Error>)
+  {
+    var length :- GetRSAKeyModulusLengthExtern(publicKey);
+    :- Need(81 <= length as int < INT32_MAX_LIMIT,
+        Types.AwsCryptographicPrimitivesError(message := "Unsupported length for RSA modulus."));
+    return Success(length as int32);
   }
 
   method Decrypt(input: Types.RSADecryptInput)
@@ -37,10 +39,13 @@ module {:extern "RSAEncryption"} RSAEncryption {
     output := EncryptExtern(input.padding, input.publicKey, input.plaintext);
   }
 
-  method {:extern "RSAEncryption.RSA", "GenerateKeyPairExtern"} GenerateKeyPairExtern(strength: Types.RSAStrengthBits)
+  method {:extern "RSAEncryption.RSA", "GenerateKeyPairExtern"} GenerateKeyPairExtern(lengthBits: Types.RSAModulusLengthBitsToGenerate)
       returns (publicKey: seq<uint8>, privateKey: seq<uint8>)
     ensures |publicKey| > 0
     ensures |privateKey| > 0
+
+  method {:extern "RSAEncryption.RSA", "GetRSAKeyModulusLengthExtern"} GetRSAKeyModulusLengthExtern(publicKey: seq<uint8>)
+      returns (length: Result<uint32, Types.Error>)
 
   method {:extern "RSAEncryption.RSA", "DecryptExtern"} DecryptExtern(padding: Types.RSAPaddingMode, privateKey: seq<uint8>,
                                                                       cipherText: seq<uint8>)

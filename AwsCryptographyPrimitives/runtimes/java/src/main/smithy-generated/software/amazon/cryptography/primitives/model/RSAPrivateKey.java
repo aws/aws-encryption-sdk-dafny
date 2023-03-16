@@ -7,17 +7,17 @@ import java.nio.ByteBuffer;
 import java.util.Objects;
 
 public class RSAPrivateKey {
-  private final int strength;
+  private final int lengthBits;
 
   private final ByteBuffer pem;
 
   protected RSAPrivateKey(BuilderImpl builder) {
-    this.strength = builder.strength();
+    this.lengthBits = builder.lengthBits();
     this.pem = builder.pem();
   }
 
-  public int strength() {
-    return this.strength;
+  public int lengthBits() {
+    return this.lengthBits;
   }
 
   public ByteBuffer pem() {
@@ -33,9 +33,9 @@ public class RSAPrivateKey {
   }
 
   public interface Builder {
-    Builder strength(int strength);
+    Builder lengthBits(int lengthBits);
 
-    int strength();
+    int lengthBits();
 
     Builder pem(ByteBuffer pem);
 
@@ -45,7 +45,7 @@ public class RSAPrivateKey {
   }
 
   static class BuilderImpl implements Builder {
-    protected int strength;
+    protected int lengthBits;
 
     protected ByteBuffer pem;
 
@@ -53,17 +53,17 @@ public class RSAPrivateKey {
     }
 
     protected BuilderImpl(RSAPrivateKey model) {
-      this.strength = model.strength();
+      this.lengthBits = model.lengthBits();
       this.pem = model.pem();
     }
 
-    public Builder strength(int strength) {
-      this.strength = strength;
+    public Builder lengthBits(int lengthBits) {
+      this.lengthBits = lengthBits;
       return this;
     }
 
-    public int strength() {
-      return this.strength;
+    public int lengthBits() {
+      return this.lengthBits;
     }
 
     public Builder pem(ByteBuffer pem) {
@@ -76,14 +76,11 @@ public class RSAPrivateKey {
     }
 
     public RSAPrivateKey build() {
-      if (Objects.isNull(this.strength()))  {
-        throw new IllegalArgumentException("Missing value for required field `strength`");
+      if (Objects.isNull(this.lengthBits()))  {
+        throw new IllegalArgumentException("Missing value for required field `lengthBits`");
       }
-      if (Objects.nonNull(this.strength()) && this.strength() < 81) {
-        throw new IllegalArgumentException("`strength` must be greater than or equal to 81");
-      }
-      if (Objects.nonNull(this.strength()) && this.strength() > 4096) {
-        throw new IllegalArgumentException("`strength` must be less than or equal to 4096.");
+      if (Objects.nonNull(this.lengthBits()) && this.lengthBits() < 81) {
+        throw new IllegalArgumentException("`lengthBits` must be greater than or equal to 81");
       }
       if (Objects.isNull(this.pem()))  {
         throw new IllegalArgumentException("Missing value for required field `pem`");

@@ -6,14 +6,14 @@ package software.amazon.cryptography.primitives.model;
 import java.util.Objects;
 
 public class GenerateRSAKeyPairInput {
-  private final int strength;
+  private final int lengthBits;
 
   protected GenerateRSAKeyPairInput(BuilderImpl builder) {
-    this.strength = builder.strength();
+    this.lengthBits = builder.lengthBits();
   }
 
-  public int strength() {
-    return this.strength;
+  public int lengthBits() {
+    return this.lengthBits;
   }
 
   public Builder toBuilder() {
@@ -25,41 +25,41 @@ public class GenerateRSAKeyPairInput {
   }
 
   public interface Builder {
-    Builder strength(int strength);
+    Builder lengthBits(int lengthBits);
 
-    int strength();
+    int lengthBits();
 
     GenerateRSAKeyPairInput build();
   }
 
   static class BuilderImpl implements Builder {
-    protected int strength;
+    protected int lengthBits;
 
     protected BuilderImpl() {
     }
 
     protected BuilderImpl(GenerateRSAKeyPairInput model) {
-      this.strength = model.strength();
+      this.lengthBits = model.lengthBits();
     }
 
-    public Builder strength(int strength) {
-      this.strength = strength;
+    public Builder lengthBits(int lengthBits) {
+      this.lengthBits = lengthBits;
       return this;
     }
 
-    public int strength() {
-      return this.strength;
+    public int lengthBits() {
+      return this.lengthBits;
     }
 
     public GenerateRSAKeyPairInput build() {
-      if (Objects.isNull(this.strength()))  {
-        throw new IllegalArgumentException("Missing value for required field `strength`");
+      if (Objects.isNull(this.lengthBits()))  {
+        throw new IllegalArgumentException("Missing value for required field `lengthBits`");
       }
-      if (Objects.nonNull(this.strength()) && this.strength() < 81) {
-        throw new IllegalArgumentException("`strength` must be greater than or equal to 81");
+      if (Objects.nonNull(this.lengthBits()) && this.lengthBits() < 81) {
+        throw new IllegalArgumentException("`lengthBits` must be greater than or equal to 81");
       }
-      if (Objects.nonNull(this.strength()) && this.strength() > 4096) {
-        throw new IllegalArgumentException("`strength` must be less than or equal to 4096.");
+      if (Objects.nonNull(this.lengthBits()) && this.lengthBits() > 4096) {
+        throw new IllegalArgumentException("`lengthBits` must be less than or equal to 4096.");
       }
       return new GenerateRSAKeyPairInput(this);
     }
