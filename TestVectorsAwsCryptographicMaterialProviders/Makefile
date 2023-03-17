@@ -6,7 +6,7 @@ CORES=2
 include ../SharedMakefile.mk
 
 SMITHY_MODEL_ROOT := $(PROJECT_ROOT)/AwsCryptographicMaterialProviders/Model
-OUTPUT_LOCAL_SERVICE := --output-local-service-test $(LIBRARY_ROOT)/Model
+OUTPUT_LOCAL_SERVICE := --local-service-test
 
 SMITHY_NAMESPACE=aws.cryptography.materialProviders
 MAX_RESOURCE_COUNT=10000000

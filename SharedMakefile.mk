@@ -129,12 +129,12 @@ _polymorph:
 	$(OUTPUT_LOCAL_SERVICE) \
 	";
 
-polymorph_code_gen: OUTPUT_DAFNY=--output-dafny --include-dafny $(PROJECT_ROOT)/StandardLibrary/src/Index.dfy
+polymorph_code_gen: OUTPUT_DAFNY=--output-dafny $(LIBRARY_ROOT)/Model --include-dafny $(PROJECT_ROOT)/StandardLibrary/src/Index.dfy
 polymorph_code_gen: OUTPUT_DOTNET=--output-dotnet $(LIBRARY_ROOT)/runtimes/net/Generated/
 polymorph_code_gen: OUTPUT_JAVA=--output-java $(LIBRARY_ROOT)/runtimes/java/src/main/smithy-generated
 polymorph_code_gen: _polymorph
 
-polymorph_dafny: OUTPUT_DAFNY=--output-dafny --include-dafny $(PROJECT_ROOT)/StandardLibrary/src/Index.dfy
+polymorph_dafny: OUTPUT_DAFNY=--output-dafny $(LIBRARY_ROOT)/Model --include-dafny $(PROJECT_ROOT)/StandardLibrary/src/Index.dfy
 polymorph_dafny: _polymorph
 
 polymorph_dotnet: OUTPUT_DOTNET=--output-dotnet $(LIBRARY_ROOT)/runtimes/net/Generated/
