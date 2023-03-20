@@ -2,11 +2,14 @@
 // SPDX-License-Identifier: Apache-2.0
 
 include "../../../Model/AwsCryptographyMaterialProvidersTypes.dfy"
+include "AwsKmsMrkMatchForDecrypt.dfy"
 include "../../AwsArnParsing.dfy"
 
 module AwsKmsUtils {
   import opened Wrappers
   import opened UInt = StandardLibrary.UInt
+  import opened Actions
+  import opened A = AwsKmsMrkMatchForDecrypt
   import Types = AwsCryptographyMaterialProvidersTypes
   import KMS = Types.ComAmazonawsKmsTypes
   import AwsArnParsing
@@ -132,4 +135,74 @@ module AwsKmsUtils {
         message := "Discovery filter partition cannot be blank"));
     Success(())
   }
+
+  class OnDecryptMrkAwareEncryptedDataKeyFilter
+    extends DeterministicActionWithResult<Types.EncryptedDataKey, bool, Types.Error>
+  {
+    const awsKmsKey: AwsArnParsing.AwsKmsIdentifier
+    const providerId: UTF8.ValidUTF8Bytes
+
+    function Modifies(): set<object> {{}}
+
+    constructor(
+      awsKmsKey: AwsArnParsing.AwsKmsIdentifier,
+      providerId: UTF8.ValidUTF8Bytes
+    ) 
+      ensures
+        && this.awsKmsKey == awsKmsKey
+        && this.providerId == providerId
+    {
+      this.awsKmsKey := awsKmsKey;
+      this.providerId := providerId;
+    }
+
+    predicate Ensures(
+      edk: Types.EncryptedDataKey,
+      res: Result<bool, Types.Error>
+    )
+    {
+      && (
+          && res.Success?
+          && res.value
+        ==>
+          edk.keyProviderId == providerId)
+    }
+
+    method Invoke(edk: Types.EncryptedDataKey)
+      returns (res: Result<bool, Types.Error>)
+      ensures Ensures(edk, res)
+    {
+
+      if edk.keyProviderId != providerId {
+        return Success(false);
+      }
+
+      if !UTF8.ValidUTF8Seq(edk.keyProviderInfo) {
+        // The Keyring produces UTF8 keyProviderInfo.
+        // If an `aws-kms` encrypted data key's keyProviderInfo is not UTF8
+        // this is an error, not simply an EDK to filter out.
+        return Failure(
+          Types.AwsCryptographicMaterialProvidersException( message := "Invalid AWS KMS encoding, provider info is not UTF8."));
+      }
+
+      var keyId :- UTF8
+        .Decode(edk.keyProviderInfo)
+        .MapFailure(WrapStringToError);
+      //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-mrk-keyring.md#ondecrypt
+      //# -  The provider info MUST be a [valid AWS KMS ARN](aws-kms-key-
+      //# arn.md#a-valid-aws-kms-arn) with a resource type of `key` or
+      //# OnDecrypt MUST fail.
+      var arn :- AwsArnParsing.ParseAwsKmsArn(keyId).MapFailure(WrapStringToError);
+
+      //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-mrk-keyring.md#ondecrypt
+      //# -  The the function [AWS KMS MRK Match for Decrypt](aws-kms-mrk-match-
+      //# for-decrypt.md#implementation) called with the configured AWS KMS
+      //# key identifier and the provider info MUST return `true`.
+      return Success(AwsKmsMrkMatchForDecrypt(
+        awsKmsKey,
+        AwsArnParsing.AwsKmsArnIdentifier(arn)
+      ));
+    }
+  }
+
 }
