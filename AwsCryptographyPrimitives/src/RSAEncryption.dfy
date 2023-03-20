@@ -16,13 +16,13 @@ module {:extern "RSAEncryption"} RSAEncryption {
     publicKey := Types.RSAPublicKey(pem := pemPublic, lengthBits := lengthBits);
   }
 
-  method GetRSAKeyModulusLength(publicKey: seq<uint8>)
-      returns (res: Result<Types.RSAModulusLengthBits, Types.Error>)
+  function method GetRSAKeyModulusLength(publicKey: seq<uint8>)
+      : (res: Result<Types.RSAModulusLengthBits, Types.Error>)
   {
     var length :- GetRSAKeyModulusLengthExtern(publicKey);
     :- Need(81 <= length as int < INT32_MAX_LIMIT,
         Types.AwsCryptographicPrimitivesError(message := "Unsupported length for RSA modulus."));
-    return Success(length as int32);
+    Success(length as int32)
   }
 
   method Decrypt(input: Types.RSADecryptInput)
@@ -44,8 +44,8 @@ module {:extern "RSAEncryption"} RSAEncryption {
     ensures |publicKey| > 0
     ensures |privateKey| > 0
 
-  method {:extern "RSAEncryption.RSA", "GetRSAKeyModulusLengthExtern"} GetRSAKeyModulusLengthExtern(publicKey: seq<uint8>)
-      returns (length: Result<uint32, Types.Error>)
+  function method {:extern "RSAEncryption.RSA", "GetRSAKeyModulusLengthExtern"} GetRSAKeyModulusLengthExtern(publicKey: seq<uint8>)
+      : (length: Result<uint32, Types.Error>)
 
   method {:extern "RSAEncryption.RSA", "DecryptExtern"} DecryptExtern(padding: Types.RSAPaddingMode, privateKey: seq<uint8>,
                                                                       cipherText: seq<uint8>)

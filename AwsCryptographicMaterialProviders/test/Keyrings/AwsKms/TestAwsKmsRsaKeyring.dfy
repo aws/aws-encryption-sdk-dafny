@@ -8,61 +8,70 @@ include "../../../../ComAmazonawsKms/src/Index.dfy"
 
 module TestAwsKmsRsaKeyring {
   import opened Wrappers
-   import opened UInt = StandardLibrary.UInt
+  import opened UInt = StandardLibrary.UInt
   import MaterialProviders
   import Types = AwsCryptographyMaterialProvidersTypes
   import AwsKmsRsaKeyring
   import TestUtils
   import ComAmazonawsKmsTypes
+  import AlgorithmSuites
+  import UTF8
 
-  // Smoke tests for valid configurations
-  // TODO These should eventually be covered by formal verification
-
-  method {:test} TestValidEncryptOnlyConfiguration() {
+  method {:test} TestKmsRsaRoundtrip() {
     var mpl :- expect MaterialProviders.MaterialProviders();
 
-    var publicKey: seq<uint8> := []; // TODO for now empty bytestring is accepted
+    var publicKey :- expect UTF8.Encode(TestUtils.KMS_RSA_PUBLIC_KEY);
 
-    var result :- expect mpl.CreateAwsKmsRsaKeyring(Types.CreateAwsKmsRsaKeyringInput(
-        publicKey := Some(publicKey),
-        kmsKeyId := TestUtils.SHARED_TEST_KEY_ARN,
-        encryptionAlgorithm := ComAmazonawsKmsTypes.EncryptionAlgorithmSpec.RSAES_OAEP_SHA_1,
-        kmsClient := None(),
-        grantTokens := None()
-    ));
-  }
-
-  method {:test} TestValidDecryptOnlyConfiguration() {
-    var mpl :- expect MaterialProviders.MaterialProviders();
-
-    // TODO awkward way to initialize a KMS client
     var clientSupplier :- expect mpl.CreateDefaultClientSupplier(Types.CreateDefaultClientSupplierInput());
     var kmsClient :- expect clientSupplier.GetClient(Types.GetClientInput(region:="us-west-2"));
 
-    var result :- expect mpl.CreateAwsKmsRsaKeyring(Types.CreateAwsKmsRsaKeyringInput(
-        publicKey := None(),
-        kmsKeyId := TestUtils.SHARED_TEST_KEY_ARN,
+    var kmsRsaKeyring :- expect mpl.CreateAwsKmsRsaKeyring(Types.CreateAwsKmsRsaKeyringInput(
+        publicKey := Some(publicKey),
+        kmsKeyId := TestUtils.KMS_RSA_PRIVATE_KEY_ARN,
         encryptionAlgorithm := ComAmazonawsKmsTypes.EncryptionAlgorithmSpec.RSAES_OAEP_SHA_1,
         kmsClient := Some(kmsClient),
         grantTokens := None()
     ));
-  }
 
-  method {:test} TestValidEncryptDecryptConfiguration() {
-    var mpl :- expect MaterialProviders.MaterialProviders();
+    var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.A);
 
-    var publicKey: seq<uint8> := []; // TODO for now empty bytestring is accepted
+    var algorithmSuiteId := Types.AlgorithmSuiteId.ESDK(Types.ALG_AES_256_GCM_IV12_TAG16_NO_KDF);
+    var suite := AlgorithmSuites.GetSuite(algorithmSuiteId);
+    var encryptionMaterialsIn :- expect mpl.InitializeEncryptionMaterials(
+      Types.InitializeEncryptionMaterialsInput(
+        algorithmSuiteId := algorithmSuiteId,
+        encryptionContext := encryptionContext,
+        requiredEncryptionContextKeys := [],
+        signingKey := None,
+        verificationKey := None
+      )
+    );
 
-    // TODO awkward way to initialize a KMS client
-    var clientSupplier :- expect mpl.CreateDefaultClientSupplier(Types.CreateDefaultClientSupplierInput());
-    var kmsClient :- expect clientSupplier.GetClient(Types.GetClientInput(region:="us-west-2"));
+    var encryptionMaterialsOut :- expect kmsRsaKeyring.OnEncrypt(
+      Types.OnEncryptInput(materials:=encryptionMaterialsIn)
+    );
 
-    var result :- expect mpl.CreateAwsKmsRsaKeyring(Types.CreateAwsKmsRsaKeyringInput(
-        publicKey := Some(publicKey),
-        kmsKeyId := TestUtils.SHARED_TEST_KEY_ARN,
-        encryptionAlgorithm := ComAmazonawsKmsTypes.EncryptionAlgorithmSpec.RSAES_OAEP_SHA_1,
-        kmsClient := Some(kmsClient),
-        grantTokens := None()
-    ));
+    var _ :- expect mpl.EncryptionMaterialsHasPlaintextDataKey(encryptionMaterialsOut.materials);
+
+    expect |encryptionMaterialsOut.materials.encryptedDataKeys| == 1;
+
+    var edk := encryptionMaterialsOut.materials.encryptedDataKeys[0];
+
+    var decryptionMaterialsIn :- expect mpl.InitializeDecryptionMaterials(
+      Types.InitializeDecryptionMaterialsInput(
+        algorithmSuiteId := algorithmSuiteId,
+        encryptionContext := encryptionContext,
+        requiredEncryptionContextKeys := []
+      )
+    );
+    var decryptionMaterialsOut :- expect kmsRsaKeyring.OnDecrypt(
+      Types.OnDecryptInput(
+        materials:=decryptionMaterialsIn,
+        encryptedDataKeys:=[edk]
+      )
+    );
+
+    expect encryptionMaterialsOut.materials.plaintextDataKey
+    == decryptionMaterialsOut.materials.plaintextDataKey;
   }
 }

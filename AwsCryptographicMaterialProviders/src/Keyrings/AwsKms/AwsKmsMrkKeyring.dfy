@@ -4,7 +4,6 @@
 
 include "../../../Model/AwsCryptographyMaterialProvidersTypes.dfy"
 include "Constants.dfy"
-include "AwsKmsMrkMatchForDecrypt.dfy"
 include "../../AwsArnParsing.dfy"
 include "AwsKmsUtils.dfy"
 include "../../Keyring.dfy"
@@ -15,14 +14,13 @@ module AwsKmsMrkKeyring {
   import opened StandardLibrary
   import opened Wrappers
   import opened UInt = StandardLibrary.UInt
-   import opened AwsArnParsing
+  import opened AwsArnParsing
   import opened AwsKmsUtils
   import Types = AwsCryptographyMaterialProvidersTypes
   import KMS = Types.ComAmazonawsKmsTypes
   import opened Seq
   import opened Actions
   import opened Constants
-  import opened A = AwsKmsMrkMatchForDecrypt
   import Keyring
   import Materials
   import AlgorithmSuites
@@ -471,7 +469,7 @@ module AwsKmsMrkKeyring {
       //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-mrk-keyring.md#ondecrypt
       //# The set of encrypted data keys MUST first be filtered to match this
       //# keyring’s configuration.
-      var filter := new OnDecryptEncryptedDataKeyFilter(awsKmsArn);
+      var filter := new AwsKmsUtils.OnDecryptMrkAwareEncryptedDataKeyFilter(awsKmsArn, PROVIDER_ID);
       var edksToAttempt :- FilterWithResult(filter, input.encryptedDataKeys);
 
       :- Need(0 < |edksToAttempt|,
@@ -508,65 +506,6 @@ module AwsKmsMrkKeyring {
 
       return Success(Types.OnDecryptOutput(
         materials := SealedDecryptionMaterials
-      ));
-    }
-  }
-
-  class OnDecryptEncryptedDataKeyFilter
-    extends DeterministicActionWithResult<Types.EncryptedDataKey, bool, Types.Error>
-  {
-    const awsKmsKey: AwsKmsIdentifier
-    function Modifies(): set<object> {{}}
-
-    constructor(awsKmsKey: AwsKmsIdentifier) {
-      this.awsKmsKey := awsKmsKey;
-    }
-
-    predicate Ensures(
-      edk: Types.EncryptedDataKey,
-      res: Result<bool, Types.Error>
-    )
-    {
-      && (
-          && res.Success?
-          && res.value
-        ==>
-          edk.keyProviderId == PROVIDER_ID)
-    }
-
-    method Invoke(edk: Types.EncryptedDataKey)
-      returns (res: Result<bool, Types.Error>)
-      ensures Ensures(edk, res)
-    {
-
-      if edk.keyProviderId != PROVIDER_ID {
-        return Success(false);
-      }
-
-      if !UTF8.ValidUTF8Seq(edk.keyProviderInfo) {
-        // The Keyring produces UTF8 keyProviderInfo.
-        // If an `aws-kms` encrypted data key's keyProviderInfo is not UTF8
-        // this is an error, not simply an EDK to filter out.
-        return Failure(
-          Types.AwsCryptographicMaterialProvidersException( message := "Invalid AWS KMS encoding, provider info is not UTF8."));
-      }
-
-      var keyId :- UTF8
-        .Decode(edk.keyProviderInfo)
-        .MapFailure(WrapStringToError);
-      //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-mrk-keyring.md#ondecrypt
-      //# -  The provider info MUST be a [valid AWS KMS ARN](aws-kms-key-
-      //# arn.md#a-valid-aws-kms-arn) with a resource type of `key` or
-      //# OnDecrypt MUST fail.
-      var arn :- ParseAwsKmsArn(keyId).MapFailure(WrapStringToError);
-
-      //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-mrk-keyring.md#ondecrypt
-      //# -  The the function [AWS KMS MRK Match for Decrypt](aws-kms-mrk-match-
-      //# for-decrypt.md#implementation) called with the configured AWS KMS
-      //# key identifier and the provider info MUST return `true`.
-      return Success(AwsKmsMrkMatchForDecrypt(
-        awsKmsKey,
-        AwsKmsArnIdentifier(arn)
       ));
     }
   }

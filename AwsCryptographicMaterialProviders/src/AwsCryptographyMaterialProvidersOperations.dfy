@@ -412,15 +412,29 @@ module AwsCryptographyMaterialProvidersOperations refines AbstractAwsCryptograph
     :- Need(input.publicKey.Some? || input.kmsClient.Some?,
       Types.AwsCryptographicMaterialProvidersException(
         message := "A publicKey or a kmsClient is required"));
+    :- Need(input.encryptionAlgorithm.RSAES_OAEP_SHA_1? || input.encryptionAlgorithm.RSAES_OAEP_SHA_256?,
+      Types.AwsCryptographicMaterialProvidersException(
+        message := "Unsupported EncryptionAlgorithmSpec"));
+
+    if (input.publicKey.Some?) {
+      var lengthOutputRes := config.crypto.GetRSAKeyModulusLength(
+          Crypto.GetRSAKeyModulusLengthInput(publicKey := input.publicKey.value));
+      var lengthOutput :- lengthOutputRes.MapFailure(e => Types.AwsCryptographyPrimitives(e));
+      :- Need(lengthOutput.length >= AwsKmsRsaKeyring.MIN_KMS_RSA_KEY_LEN,
+          Types.AwsCryptographicMaterialProvidersException(
+        message := "Invalid public key length"));
+    }
+
     var _ :- ValidateKmsKeyId(input.kmsKeyId);
     var grantTokens :- GetValidGrantTokens(input.grantTokens);
     // TODO complete validation, e.g. also ensure non-alias Key ID
     var keyring := new AwsKmsRsaKeyring.AwsKmsRsaKeyring(
-      input.publicKey,
-      input.kmsKeyId,
-      input.encryptionAlgorithm,
-      input.kmsClient,
-      grantTokens
+      publicKey := input.publicKey,
+      awsKmsKey := input.kmsKeyId,
+      paddingScheme := input.encryptionAlgorithm,
+      client := input.kmsClient,
+      cryptoPrimitives := config.crypto,
+      grantTokens := grantTokens
     );
     return Success(keyring);
   }

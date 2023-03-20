@@ -22,6 +22,12 @@ module Constants {
     assert UTF8.ValidUTF8Range(s, 0, 17);
     s
 
+  // UTF-8 encoded "aws-kms-rsa"
+  const RSA_PROVIDER_ID: UTF8.ValidUTF8Bytes :=
+    var s := [ 0x61, 0x77, 0x73, 0x2d, 0x6b, 0x6d, 0x73, 0x2d, 0x72, 0x73, 0x61 ];
+    assert UTF8.ValidUTF8Range(s, 0, 11);
+    s
+
   type AwsKmsEncryptedDataKey = edk: Types.EncryptedDataKey |
     && edk.keyProviderId == PROVIDER_ID
     && UTF8.ValidUTF8Seq(edk.keyProviderInfo)

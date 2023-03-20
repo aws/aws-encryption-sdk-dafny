@@ -58,6 +58,7 @@ structure GenerateRSAKeyPairOutput {
   privateKey: RSAPrivateKey,
 }
 
+@readonly
 operation GetRSAKeyModulusLength {
   input: GetRSAKeyModulusLengthInput,
   output: GetRSAKeyModulusLengthOutput,

@@ -266,20 +266,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures GenerateRSAKeyPairEnsuresPublicly(input, output)
  ensures History.GenerateRSAKeyPair == old(History.GenerateRSAKeyPair) + [DafnyCallEvent(input, output)]
  
- predicate GetRSAKeyModulusLengthEnsuresPublicly(input: GetRSAKeyModulusLengthInput , output: Result<GetRSAKeyModulusLengthOutput, Error>)
+ // Functions are deterministic, no need for historical call events or ensures indirection
  // The public method to be called by library consumers
- method GetRSAKeyModulusLength ( input: GetRSAKeyModulusLengthInput )
- returns (output: Result<GetRSAKeyModulusLengthOutput, Error>)
- requires
- && ValidState()
- modifies Modifies - {History} ,
- History`GetRSAKeyModulusLength
- // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies - {History}
- ensures
- && ValidState()
- ensures GetRSAKeyModulusLengthEnsuresPublicly(input, output)
- ensures History.GetRSAKeyModulusLength == old(History.GetRSAKeyModulusLength) + [DafnyCallEvent(input, output)]
+ function method GetRSAKeyModulusLength ( input: GetRSAKeyModulusLengthInput )
+ : (output: Result<GetRSAKeyModulusLengthOutput, Error>)
+ // Functions that are transparent do not need ensures
  
  predicate RSADecryptEnsuresPublicly(input: RSADecryptInput , output: Result<seq<uint8>, Error>)
  // The public method to be called by library consumers
@@ -759,24 +750,13 @@ include "../../StandardLibrary/src/Index.dfy"
  History.GenerateRSAKeyPair := History.GenerateRSAKeyPair + [DafnyCallEvent(input, output)];
 }
  
- predicate GetRSAKeyModulusLengthEnsuresPublicly(input: GetRSAKeyModulusLengthInput , output: Result<GetRSAKeyModulusLengthOutput, Error>)
- {Operations.GetRSAKeyModulusLengthEnsuresPublicly(input, output)}
+ 
  // The public method to be called by library consumers
- method GetRSAKeyModulusLength ( input: GetRSAKeyModulusLengthInput )
- returns (output: Result<GetRSAKeyModulusLengthOutput, Error>)
- requires
- && ValidState()
- modifies Modifies - {History} ,
- History`GetRSAKeyModulusLength
- // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies - {History}
- ensures
- && ValidState()
- ensures GetRSAKeyModulusLengthEnsuresPublicly(input, output)
- ensures History.GetRSAKeyModulusLength == old(History.GetRSAKeyModulusLength) + [DafnyCallEvent(input, output)]
+ function method GetRSAKeyModulusLength ( input: GetRSAKeyModulusLengthInput )
+ : (output: Result<GetRSAKeyModulusLengthOutput, Error>)
+ // Functions that are transparent do not need ensures
  {
- output := Operations.GetRSAKeyModulusLength(config, input);
- History.GetRSAKeyModulusLength := History.GetRSAKeyModulusLength + [DafnyCallEvent(input, output)];
+ Operations.GetRSAKeyModulusLength(config, input)
 }
  
  predicate RSADecryptEnsuresPublicly(input: RSADecryptInput , output: Result<seq<uint8>, Error>)
@@ -1058,20 +1038,13 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures GenerateRSAKeyPairEnsuresPublicly(input, output)
 
 
- predicate GetRSAKeyModulusLengthEnsuresPublicly(input: GetRSAKeyModulusLengthInput , output: Result<GetRSAKeyModulusLengthOutput, Error>)
+ // Functions are deterministic, no need for historical call events or ensures indirection
  // The private method to be refined by the library developer
 
 
- method GetRSAKeyModulusLength ( config: InternalConfig , input: GetRSAKeyModulusLengthInput )
- returns (output: Result<GetRSAKeyModulusLengthOutput, Error>)
- requires
- && ValidInternalConfig?(config)
- modifies ModifiesInternalConfig(config)
- // Dafny will skip type parameters when generating a default decreases clause.
- decreases ModifiesInternalConfig(config)
- ensures
- && ValidInternalConfig?(config)
- ensures GetRSAKeyModulusLengthEnsuresPublicly(input, output)
+ function method GetRSAKeyModulusLength ( config: InternalConfig , input: GetRSAKeyModulusLengthInput )
+ : (output: Result<GetRSAKeyModulusLengthOutput, Error>)
+ // Functions that are transparent do not need ensures
 
 
  predicate RSADecryptEnsuresPublicly(input: RSADecryptInput , output: Result<seq<uint8>, Error>)

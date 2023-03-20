@@ -40,7 +40,9 @@ module AwsCryptographyPrimitivesOperations refines AbstractAwsCryptographyPrimit
   }
 
   predicate DigestEnsuresPublicly(input: DigestInput, output: Result<seq<uint8>, Error>)
-  {true}
+  {
+    output.Success? ==> |output.value| == D.Length(input.digestAlgorithm)
+  }
 
   method Digest ( config: InternalConfig,  input: DigestInput )
     returns (output: Result<seq<uint8>, Error>)
@@ -158,11 +160,11 @@ module AwsCryptographyPrimitivesOperations refines AbstractAwsCryptographyPrimit
   predicate GetRSAKeyModulusLengthEnsuresPublicly(input: GetRSAKeyModulusLengthInput, output: Result<GetRSAKeyModulusLengthOutput, Error>)
   {true}
 
-  method GetRSAKeyModulusLength ( config: InternalConfig,  input: GetRSAKeyModulusLengthInput )
-    returns (output: Result<GetRSAKeyModulusLengthOutput, Error>)
+  function method GetRSAKeyModulusLength ( config: InternalConfig,  input: GetRSAKeyModulusLengthInput )
+    : (output: Result<GetRSAKeyModulusLengthOutput, Error>)
   {
     var length :- RSAEncryption.GetRSAKeyModulusLength(input.publicKey);
-    output := Success(GetRSAKeyModulusLengthOutput(length := length));
+    Success(GetRSAKeyModulusLengthOutput(length := length))
   }
 
   predicate RSADecryptEnsuresPublicly(input: RSADecryptInput, output: Result<seq<uint8>, Error>)
