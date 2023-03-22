@@ -50,7 +50,7 @@ module TestAwsKmsHierarchicalKeyring {
   method {:test} TestHierarchyClientESDKSuite()
   {
     var branchKeyId := "hierarchy-test-v1";
-    var ttl : int64 := (1 * 60000) * 10;
+    var ttl : Types.PositiveLong := (1 * 60000) * 10;
     var materials := GetTestMaterials(TEST_ESDK_ALG_SUITE_ID);
     BuildKeyringAndTestEndToEnd(materials, TEST_ESDK_ALG_SUITE_ID, branchKeyId, ttl);
 
@@ -68,7 +68,7 @@ module TestAwsKmsHierarchicalKeyring {
     // When sorting them lexicographically, we should be using 2023-03-07T17:09Z as the "newest" 
     // branch key since this timestamp is more recent.
     var branchKeyId := "hierarchy-test-active-active";
-    var ttl : int64 := (1 * 60000) * 10;
+    var ttl : Types.PositiveLong := (1 * 60000) * 10;
     var materials := GetTestMaterials(TEST_ESDK_ALG_SUITE_ID);
     BuildKeyringAndTestEndToEnd(materials, TEST_ESDK_ALG_SUITE_ID, branchKeyId, ttl);
     
@@ -81,7 +81,7 @@ module TestAwsKmsHierarchicalKeyring {
 
   method {:test} TestHierarchyClientDBESuite() {
     var branchKeyId := "hierarchy-test-v1";
-    var ttl : int64 := (1 * 60000) * 10;
+    var ttl : Types.PositiveLong := (1 * 60000) * 10;
     var materials := GetTestMaterials(TEST_DBE_ALG_SUITE_ID);
     BuildKeyringAndTestEndToEnd(materials, TEST_DBE_ALG_SUITE_ID, branchKeyId, ttl);
 
@@ -99,7 +99,7 @@ module TestAwsKmsHierarchicalKeyring {
     // When sorting them lexicographically, we should be using 2023-03-07T17:09Z as the "newest" 
     // branch key since this timestamp is more recent.
     var branchKeyId := "hierarchy-test-active-active";
-    var ttl : int64 := (1 * 60000) * 10;
+    var ttl : Types.PositiveLong := (1 * 60000) * 10;
     var materials := GetTestMaterials(TEST_DBE_ALG_SUITE_ID);
     BuildKeyringAndTestEndToEnd(materials, TEST_DBE_ALG_SUITE_ID, branchKeyId, ttl);
 
@@ -114,7 +114,7 @@ module TestAwsKmsHierarchicalKeyring {
     encryptionMaterialsIn: Types.EncryptionMaterials,
     algorithmSuiteId: Types.AlgorithmSuiteId,
     branchKeyId: string,
-    ttl: int64
+    ttl: Types.PositiveLong 
   ) {
     var mpl :- expect MaterialProviders.MaterialProviders();
     var kmsClient :- expect KMS.KMSClient();

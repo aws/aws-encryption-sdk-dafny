@@ -250,7 +250,7 @@ module AwsCryptographyMaterialProvidersOperations refines AbstractAwsCryptograph
   {
     var _ :- ValidateKmsKeyId(input.kmsKeyId);
     var _ :- ValidateDdbTableArn(input.branchKeyStoreArn);
-    // TODO add DDB Table Arn Validation
+
     :- Need(
       Ddb.IsValid_TableName(input.branchKeyStoreArn),
       Types.AwsCryptographicMaterialProvidersException(
@@ -259,7 +259,11 @@ module AwsCryptographyMaterialProvidersOperations refines AbstractAwsCryptograph
     );
     var grantTokens :- GetValidGrantTokens(input.grantTokens);
     var maxCacheSize : int32;
-
+    
+    //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-hierarchical-keyring.md#initialization
+    //= type=implication
+    //# If no max cache size is provided, the crypotgraphic materials cache MUST be configured to a
+    //# max cache size of 1000.
     if input.maxCacheSize.None? {
       maxCacheSize := 1000;
     } else {

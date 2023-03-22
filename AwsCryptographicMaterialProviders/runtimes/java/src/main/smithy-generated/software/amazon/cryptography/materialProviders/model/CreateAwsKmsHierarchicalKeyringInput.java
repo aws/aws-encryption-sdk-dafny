@@ -19,7 +19,7 @@ public class CreateAwsKmsHierarchicalKeyringInput {
 
   private final String branchKeyStoreArn;
 
-  private final Long ttlSeconds;
+  private final long ttlSeconds;
 
   private final int maxCacheSize;
 
@@ -56,7 +56,7 @@ public class CreateAwsKmsHierarchicalKeyringInput {
     return this.branchKeyStoreArn;
   }
 
-  public Long ttlSeconds() {
+  public long ttlSeconds() {
     return this.ttlSeconds;
   }
 
@@ -97,9 +97,9 @@ public class CreateAwsKmsHierarchicalKeyringInput {
 
     String branchKeyStoreArn();
 
-    Builder ttlSeconds(Long ttlSeconds);
+    Builder ttlSeconds(long ttlSeconds);
 
-    Long ttlSeconds();
+    long ttlSeconds();
 
     Builder maxCacheSize(int maxCacheSize);
 
@@ -123,7 +123,7 @@ public class CreateAwsKmsHierarchicalKeyringInput {
 
     protected String branchKeyStoreArn;
 
-    protected Long ttlSeconds;
+    protected long ttlSeconds;
 
     protected int maxCacheSize;
 
@@ -188,12 +188,12 @@ public class CreateAwsKmsHierarchicalKeyringInput {
       return this.branchKeyStoreArn;
     }
 
-    public Builder ttlSeconds(Long ttlSeconds) {
+    public Builder ttlSeconds(long ttlSeconds) {
       this.ttlSeconds = ttlSeconds;
       return this;
     }
 
-    public Long ttlSeconds() {
+    public long ttlSeconds() {
       return this.ttlSeconds;
     }
 
@@ -234,8 +234,8 @@ public class CreateAwsKmsHierarchicalKeyringInput {
       if (Objects.isNull(this.ttlSeconds()))  {
         throw new IllegalArgumentException("Missing value for required field `ttlSeconds`");
       }
-      if (Objects.nonNull(this.ttlSeconds()) && this.ttlSeconds() < 1) {
-        throw new IllegalArgumentException("`ttlSeconds` must be greater than or equal to 1");
+      if (Objects.nonNull(this.ttlSeconds()) && this.ttlSeconds() < 0) {
+        throw new IllegalArgumentException("`ttlSeconds` must be greater than or equal to 0");
       }
       if (Objects.nonNull(this.maxCacheSize()) && this.maxCacheSize() < 0) {
         throw new IllegalArgumentException("`maxCacheSize` must be greater than or equal to 0");

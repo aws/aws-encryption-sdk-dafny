@@ -259,8 +259,7 @@ structure CreateAwsKmsHierarchicalKeyringInput {
     branchKeyStoreArn: DdbTableArn,
 
     @required
-    @range(min: 1)
-    ttlSeconds: Long,
+    ttlSeconds: PositiveLong,
 
     maxCacheSize: PositiveInteger,
 
