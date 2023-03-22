@@ -11,9 +11,9 @@ public class PutCacheEntryInput {
 
   private final Materials materials;
 
-  private final int creationTime;
+  private final long creationTime;
 
-  private final int expiryTime;
+  private final long expiryTime;
 
   private final int messagesUsed;
 
@@ -36,11 +36,11 @@ public class PutCacheEntryInput {
     return this.materials;
   }
 
-  public int creationTime() {
+  public long creationTime() {
     return this.creationTime;
   }
 
-  public int expiryTime() {
+  public long expiryTime() {
     return this.expiryTime;
   }
 
@@ -69,13 +69,13 @@ public class PutCacheEntryInput {
 
     Materials materials();
 
-    Builder creationTime(int creationTime);
+    Builder creationTime(long creationTime);
 
-    int creationTime();
+    long creationTime();
 
-    Builder expiryTime(int expiryTime);
+    Builder expiryTime(long expiryTime);
 
-    int expiryTime();
+    long expiryTime();
 
     Builder messagesUsed(int messagesUsed);
 
@@ -93,9 +93,9 @@ public class PutCacheEntryInput {
 
     protected Materials materials;
 
-    protected int creationTime;
+    protected long creationTime;
 
-    protected int expiryTime;
+    protected long expiryTime;
 
     protected int messagesUsed;
 
@@ -131,21 +131,21 @@ public class PutCacheEntryInput {
       return this.materials;
     }
 
-    public Builder creationTime(int creationTime) {
+    public Builder creationTime(long creationTime) {
       this.creationTime = creationTime;
       return this;
     }
 
-    public int creationTime() {
+    public long creationTime() {
       return this.creationTime;
     }
 
-    public Builder expiryTime(int expiryTime) {
+    public Builder expiryTime(long expiryTime) {
       this.expiryTime = expiryTime;
       return this;
     }
 
-    public int expiryTime() {
+    public long expiryTime() {
       return this.expiryTime;
     }
 

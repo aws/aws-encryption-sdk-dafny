@@ -9,8 +9,8 @@ namespace AWS.Cryptography.MaterialProviders
   {
     private System.IO.MemoryStream _identifier;
     private AWS.Cryptography.MaterialProviders.Materials _materials;
-    private int? _creationTime;
-    private int? _expiryTime;
+    private long? _creationTime;
+    private long? _expiryTime;
     private int? _messagesUsed;
     private int? _bytesUsed;
     public System.IO.MemoryStream Identifier
@@ -31,7 +31,7 @@ namespace AWS.Cryptography.MaterialProviders
     {
       return this._materials != null;
     }
-    public int CreationTime
+    public long CreationTime
     {
       get { return this._creationTime.GetValueOrDefault(); }
       set { this._creationTime = value; }
@@ -40,7 +40,7 @@ namespace AWS.Cryptography.MaterialProviders
     {
       return this._creationTime.HasValue;
     }
-    public int ExpiryTime
+    public long ExpiryTime
     {
       get { return this._expiryTime.GetValueOrDefault(); }
       set { this._expiryTime = value; }

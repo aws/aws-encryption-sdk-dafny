@@ -12,4 +12,10 @@ module TestTime {
     var t2 := Time.GetCurrent();
     expect t2 >= t1;
   }
+
+  method {:test} TestPositiveValues() {
+    var t1 := Time.GetCurrent();
+    var t2 := Time.GetCurrent();
+    expect t2 - t1 >= 0;
+  }
 }

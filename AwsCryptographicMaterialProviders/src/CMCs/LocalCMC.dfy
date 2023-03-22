@@ -29,16 +29,16 @@ module {:options "/functionSyntax:4" } LocalCMC {
     const identifier: seq<uint8>
     const creationTime: Types.PositiveLong
     const expiryTime: Types.PositiveLong
-    var messagesUsed: Types.PositiveLong
-    var bytesUsed: Types.PositiveLong
+    var messagesUsed: Types.PositiveInteger
+    var bytesUsed: Types.PositiveInteger
 
     constructor(
       nameonly materials': Types.Materials,
       nameonly identifier': seq<uint8>,
       nameonly creationTime': Types.PositiveLong,
       nameonly expiryTime': Types.PositiveLong,
-      nameonly messagesUsed': Types.PositiveLong,
-      nameonly bytesUsed': Types.PositiveLong
+      nameonly messagesUsed': Types.PositiveInteger,
+      nameonly bytesUsed': Types.PositiveInteger
     )
       ensures
         && identifier == identifier'
@@ -381,7 +381,7 @@ module {:options "/functionSyntax:4" } LocalCMC {
         //
         //= aws-encryption-sdk-specification/framework/local-cryptographic-materials-cache.md#get-cache-entry
         //# The local CMC MUST NOT return any TTL-expired entry.
-        if entry.expiryTime as uint64 <= now {
+        if entry.expiryTime <= now {
           // Dafny does not remember the equivalences of seq and multiset(seq)
           assert entry in multiset(queue.Items);
           queue.moveToFront(entry);
@@ -577,7 +577,7 @@ module {:options "/functionSyntax:4" } LocalCMC {
         invariant Modifies <= old(Modifies)
       {
         if queue.tail.Ptr? {
-          if now < queue.tail.deref.expiryTime as uint64 {
+          if now < queue.tail.deref.expiryTime {
             // The tail has timed out,
             // so it should be removed.
             // This should happen regardless

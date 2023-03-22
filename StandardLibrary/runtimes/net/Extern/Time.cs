@@ -8,10 +8,10 @@ using Microsoft.VisualBasic;
 namespace Time {
 
     public partial class __default {
-        public static ulong CurrentRelativeTime()
+        public static long CurrentRelativeTime()
         {
             var timespan = DateTime.Now - DateTime.MinValue;
-            return (ulong) timespan.TotalSeconds;
+            return (long) timespan.TotalSeconds;
         }
     }
 }

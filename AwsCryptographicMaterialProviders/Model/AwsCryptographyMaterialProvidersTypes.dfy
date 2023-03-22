@@ -692,7 +692,7 @@ include "../../StandardLibrary/src/Index.dfy"
  nameonly kmsClient: ComAmazonawsKmsTypes.IKeyManagementServiceClient ,
  nameonly ddbClient: ComAmazonawsDynamodbTypes.IDynamoDB_20120810Client ,
  nameonly branchKeyStoreArn: DdbTableArn ,
- nameonly ttlSeconds: int64 ,
+ nameonly ttlSeconds: PositiveLong ,
  nameonly maxCacheSize: Option<PositiveInteger> ,
  nameonly grantTokens: Option<GrantTokenList>
  )
@@ -738,8 +738,8 @@ include "../../StandardLibrary/src/Index.dfy"
  nameonly grantTokens: Option<GrantTokenList>
  )
  datatype CreateCryptographicMaterialsCacheInput = | CreateCryptographicMaterialsCacheInput (
- nameonly entryCapacity: PositiveLong ,
- nameonly entryPruningTailSize: Option<PositiveLong>
+ nameonly entryCapacity: PositiveInteger ,
+ nameonly entryPruningTailSize: Option<PositiveInteger>
  )
  datatype CreateDefaultClientSupplierInput = | CreateDefaultClientSupplierInput (
  
@@ -1131,8 +1131,8 @@ include "../../StandardLibrary/src/Index.dfy"
  nameonly materials: Materials ,
  nameonly creationTime: PositiveLong ,
  nameonly expiryTime: PositiveLong ,
- nameonly messagesUsed: PositiveLong ,
- nameonly bytesUsed: PositiveLong
+ nameonly messagesUsed: PositiveInteger ,
+ nameonly bytesUsed: PositiveInteger
  )
  datatype GetClientInput = | GetClientInput (
  nameonly region: Region
@@ -1312,8 +1312,8 @@ include "../../StandardLibrary/src/Index.dfy"
  predicate method IsValid_PositiveInteger(x: int32) {
  ( 0 <= x  )
 }
- type PositiveLong = x: int32 | IsValid_PositiveLong(x) witness *
- predicate method IsValid_PositiveLong(x: int32) {
+ type PositiveLong = x: int64 | IsValid_PositiveLong(x) witness *
+ predicate method IsValid_PositiveLong(x: int64) {
  ( 0 <= x  )
 }
  datatype PutCacheEntryInput = | PutCacheEntryInput (
@@ -1321,8 +1321,8 @@ include "../../StandardLibrary/src/Index.dfy"
  nameonly materials: Materials ,
  nameonly creationTime: PositiveLong ,
  nameonly expiryTime: PositiveLong ,
- nameonly messagesUsed: Option<PositiveLong> ,
- nameonly bytesUsed: Option<PositiveLong>
+ nameonly messagesUsed: Option<PositiveInteger> ,
+ nameonly bytesUsed: Option<PositiveInteger>
  )
  type Region = string
  type RegionList = seq<Region>
@@ -1336,7 +1336,7 @@ include "../../StandardLibrary/src/Index.dfy"
  type SymmetricSigningKeyList = seq<Secret>
  datatype UpdaterUsageMetadataInput = | UpdaterUsageMetadataInput (
  nameonly identifier: seq<uint8> ,
- nameonly bytesUsed: PositiveLong
+ nameonly bytesUsed: PositiveInteger
  )
  type Utf8Bytes = ValidUTF8Bytes
  datatype ValidateCommitmentPolicyOnDecryptInput = | ValidateCommitmentPolicyOnDecryptInput (

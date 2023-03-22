@@ -39,8 +39,8 @@ structure PutCacheEntryInput {
   //# The cache entry MUST include all [usage metadata](#usage-metadata)
   //# since this information can not be updated after the put operation.
   expiryTime: PositiveLong,
-  messagesUsed: PositiveLong,
-  bytesUsed: PositiveLong,
+  messagesUsed: PositiveInteger,
+  bytesUsed: PositiveInteger,
 }
 
 operation GetCacheEntry {
@@ -77,9 +77,9 @@ structure GetCacheEntryOutput {
   @required
   expiryTime: PositiveLong,
   @required
-  messagesUsed: PositiveLong,
+  messagesUsed: PositiveInteger,
   @required
-  bytesUsed: PositiveLong,
+  bytesUsed: PositiveInteger,
 }
 
 union Materials {
@@ -105,7 +105,7 @@ structure UpdaterUsageMetadataInput {
   @required
   identifier: Blob,
   @required
-  bytesUsed: PositiveLong,
+  bytesUsed: PositiveInteger,
 }
 
 @error("client")
@@ -119,9 +119,6 @@ structure EntryAlreadyExists {
   @required
   message: String,
 }
-
-@range(min: 0)
-integer PositiveLong
 
 ///////////////////
 // Materials Cache Constructors
@@ -150,8 +147,8 @@ structure CreateCryptographicMaterialsCacheInput {
   //# - [Entry Pruning Tail Size](#entry-pruning-tail-size)
   @required
   @range(min: 0)
-  entryCapacity: PositiveLong,
+  entryCapacity: PositiveInteger,
 
   @range(min: 0)
-  entryPruningTailSize: PositiveLong, 
+  entryPruningTailSize: PositiveInteger, 
 }

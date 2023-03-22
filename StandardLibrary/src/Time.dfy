@@ -9,5 +9,10 @@ module {:extern "Time"} Time {
   import opened UInt = StandardLibrary.UInt
 
   // Returns the number of seconds since some fixed-as-long-as-this-program-is-running moment in the past
-  method {:extern "CurrentRelativeTime"} GetCurrent() returns (res: uint64)
+  // Time is represented as signed over unsigned because java does not do unsigned 
+  // values - net can do both so we are able to change the representation to signed.
+  method {:extern "CurrentRelativeTime"} GetCurrent() returns (res: int64)
+    // We are able to make this claim because it does not make sense for time to 
+    // be negative.
+    ensures res >= 0
 }
