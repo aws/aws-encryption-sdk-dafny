@@ -130,7 +130,8 @@ module AwsKmsHierarchicalKeyring {
   {
     const kmsClient: KMS.IKeyManagementServiceClient
     const ddbClient: DDB.IDynamoDB_20120810Client
-    const branchKeyId: string
+    const branchKeyId: Option<string>
+    const branchKeyIdSupplier: Option<Types.IBranchKeyIdSupplier>
     const awsKmsKey: AwsKmsIdentifierString
     const awsKmsArn: AwsKmsIdentifier
     const branchKeyStoreArn: string
@@ -149,15 +150,20 @@ module AwsKmsHierarchicalKeyring {
       && kmsClient.ValidState()
       && ddbClient.ValidState()
       && cryptoPrimitives.ValidState()
+      && (branchKeyIdSupplier.Some? ==> branchKeyIdSupplier.value.ValidState())
       && kmsClient.Modifies <= Modifies
       && ddbClient.Modifies <= Modifies
       && cryptoPrimitives.Modifies <= Modifies
+      && (branchKeyIdSupplier.Some? ==> branchKeyIdSupplier.value.Modifies <= Modifies)
       && History !in kmsClient.Modifies
       && History !in ddbClient.Modifies
       && History !in cryptoPrimitives.Modifies
+      && (branchKeyIdSupplier.Some? ==> History !in branchKeyIdSupplier.value.Modifies)
       // TODO this should eventually be Valid branch key store arn
       && DDB.IsValid_TableName(this.branchKeyStoreName)
       && DDB.IsValid_IndexName(this.branchKeyStoreIndex)
+      && (branchKeyIdSupplier.Some? || branchKeyId.Some?)
+      && (branchKeyIdSupplier.None? || branchKeyId.None?)
     }
 
     constructor (
@@ -184,7 +190,8 @@ module AwsKmsHierarchicalKeyring {
       //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-hierarchical-keyring.md#initialization
       //= type=implication
       //# - MUST provide a Branch Key Identifier
-      branchKeyId: string,
+      branchKeyId: Option<string>,
+      branchKeyIdSupplier: Option<Types.IBranchKeyIdSupplier>,
       //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-hierarchical-keyring.md#initialization
       //= type=implication
       //# - MUST provide a cache limit TTL
@@ -208,6 +215,9 @@ module AwsKmsHierarchicalKeyring {
       requires ttlSeconds >= 0
       requires DDB.IsValid_TableName(ParseAmazonDynamodbTableName(branchKeyStoreArn).value)
       requires kmsClient.ValidState() && ddbClient.ValidState() && cryptoPrimitives.ValidState()
+      requires branchKeyIdSupplier.Some? ==> branchKeyIdSupplier.value.ValidState()
+      requires (branchKeyIdSupplier.Some? || branchKeyId.Some?)
+      requires (branchKeyIdSupplier.None? || branchKeyId.None?)
       ensures
         && this.kmsClient    == kmsClient
         && this.awsKmsKey    == awsKmsKey
@@ -215,9 +225,15 @@ module AwsKmsHierarchicalKeyring {
         && this.ddbClient    == ddbClient
         && this.branchKeyStoreArn  == branchKeyStoreArn
         && this.branchKeyId  == branchKeyId
+        && this.branchKeyIdSupplier  == branchKeyIdSupplier
         && this.ttlSeconds   == ttlSeconds
         && this.maxCacheSize == maxCacheSize
-      ensures ValidState() && fresh(this) && fresh(History) && fresh(Modifies - kmsClient.Modifies - ddbClient.Modifies - cryptoPrimitives.Modifies)
+      ensures
+        && ValidState()
+        && fresh(this)
+        && fresh(History)
+        && var maybeSupplierModifies := if branchKeyIdSupplier.Some? then branchKeyIdSupplier.value.Modifies else {};
+        && fresh(Modifies - kmsClient.Modifies - ddbClient.Modifies - cryptoPrimitives.Modifies - maybeSupplierModifies)
     {
       var parsedAwsKmsId    := ParseAwsKmsIdentifier(awsKmsKey);
       var parsedBranchKeyStoreName := ParseAmazonDynamodbTableName(branchKeyStoreArn);
@@ -231,6 +247,7 @@ module AwsKmsHierarchicalKeyring {
       this.branchKeyStoreArn   := branchKeyStoreArn;
       this.branchKeyStoreName  := parsedBranchKeyStoreName.value;
       this.branchKeyId         := branchKeyId;
+      this.branchKeyIdSupplier := branchKeyIdSupplier;
       this.ttlSeconds          := ttlSeconds;
       this.maxCacheSize        := maxCacheSize;
       this.cryptoPrimitives    := cryptoPrimitives;
@@ -238,9 +255,26 @@ module AwsKmsHierarchicalKeyring {
       this.cache               := cmc;
       
       History := new Types.IKeyringCallHistory();
-      Modifies := {History} + kmsClient.Modifies + ddbClient.Modifies + cryptoPrimitives.Modifies;
+      var maybeSupplierModifies := if branchKeyIdSupplier.Some? then branchKeyIdSupplier.value.Modifies else {};
+      Modifies := {History} + kmsClient.Modifies + ddbClient.Modifies + cryptoPrimitives.Modifies + maybeSupplierModifies;
     }
 
+    method GetBranchKeyId(context: Types.EncryptionContext) returns (ret: Result<string, Types.Error>)
+      requires ValidState()
+      modifies if branchKeyIdSupplier.Some? then branchKeyIdSupplier.value.Modifies else {}
+      ensures ValidState()
+      ensures branchKeyId.Some? ==> ret.Success? && ret.value == branchKeyId.value
+    {
+      if branchKeyId.Some? {
+        return Success(branchKeyId.value);
+      } else {
+        var GetBranchKeyIdOut :- branchKeyIdSupplier.value.GetBranchKeyId(
+          Types.GetBranchKeyIdInput(
+            encryptionContext := context
+          ));
+        return Success(GetBranchKeyIdOut.branchKeyId);
+      }
+    }
 
     predicate OnEncryptEnsuresPublicly ( input: Types.OnEncryptInput , output: Result<Types.OnEncryptOutput, Types.Error> ) {true}
     
@@ -269,14 +303,15 @@ module AwsKmsHierarchicalKeyring {
     {
       var materials := input.materials;
       var suite := materials.algorithmSuite;
-      
-      var branchKeyIdUtf8 :- UTF8.Encode(this.branchKeyId)
+
+      var branchKeyIdForEncrypt :- GetBranchKeyId(materials.encryptionContext);
+      var branchKeyIdUtf8 :- UTF8.Encode(branchKeyIdForEncrypt)
         .MapFailure(WrapStringToError);
       
       //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-hierarchical-keyring.md#onencrypt
       //# The hierarchical keyring MUST attempt to obtain the hierarchical materials by querying 
       //# the backing branch keystore
-      var hierarchicalMaterials :- GetActiveHierarchicalMaterials(branchKeyId, branchKeyIdUtf8);
+      var hierarchicalMaterials :- GetActiveHierarchicalMaterials(branchKeyIdForEncrypt, branchKeyIdUtf8);
       // TODO only pass in the branch key id
       
       var branchKey := hierarchicalMaterials.branchKey;
@@ -364,8 +399,11 @@ module AwsKmsHierarchicalKeyring {
         Materials.DecryptionMaterialsWithoutPlaintextDataKey(materials),
         E("Keyring received decryption materials that already contain a plaintext data key.")
       );
+
+      // Determine branch key ID
+      var branchKeyIdForDecrypt :- GetBranchKeyId(materials.encryptionContext);
       
-      var filter := new OnDecryptHierarchyEncryptedDataKeyFilter(branchKeyId);
+      var filter := new OnDecryptHierarchyEncryptedDataKeyFilter(branchKeyIdForDecrypt);
       var edksToAttempt :- FilterWithResult(filter, input.encryptedDataKeys);
 
       :- Need(
@@ -379,7 +417,7 @@ module AwsKmsHierarchicalKeyring {
         ddbClient,
         cryptoPrimitives,
         branchKeyStoreName,
-        branchKeyId,
+        branchKeyIdForDecrypt,
         awsKmsKey,
         grantTokens,
         ttlSeconds,

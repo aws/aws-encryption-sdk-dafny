@@ -7,9 +7,13 @@ import java.util.List;
 import java.util.Objects;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.kms.KmsClient;
+import software.amazon.cryptography.materialProviders.BranchKeyIdSupplier;
+import software.amazon.cryptography.materialProviders.IBranchKeyIdSupplier;
 
 public class CreateAwsKmsHierarchicalKeyringInput {
   private final String branchKeyId;
+
+  private final BranchKeyIdSupplier branchKeyIdSupplier;
 
   private final String kmsKeyId;
 
@@ -27,6 +31,7 @@ public class CreateAwsKmsHierarchicalKeyringInput {
 
   protected CreateAwsKmsHierarchicalKeyringInput(BuilderImpl builder) {
     this.branchKeyId = builder.branchKeyId();
+    this.branchKeyIdSupplier = builder.branchKeyIdSupplier();
     this.kmsKeyId = builder.kmsKeyId();
     this.kmsClient = builder.kmsClient();
     this.ddbClient = builder.ddbClient();
@@ -38,6 +43,10 @@ public class CreateAwsKmsHierarchicalKeyringInput {
 
   public String branchKeyId() {
     return this.branchKeyId;
+  }
+
+  public BranchKeyIdSupplier branchKeyIdSupplier() {
+    return this.branchKeyIdSupplier;
   }
 
   public String kmsKeyId() {
@@ -81,6 +90,10 @@ public class CreateAwsKmsHierarchicalKeyringInput {
 
     String branchKeyId();
 
+    Builder branchKeyIdSupplier(IBranchKeyIdSupplier branchKeyIdSupplier);
+
+    BranchKeyIdSupplier branchKeyIdSupplier();
+
     Builder kmsKeyId(String kmsKeyId);
 
     String kmsKeyId();
@@ -115,6 +128,8 @@ public class CreateAwsKmsHierarchicalKeyringInput {
   static class BuilderImpl implements Builder {
     protected String branchKeyId;
 
+    protected BranchKeyIdSupplier branchKeyIdSupplier;
+
     protected String kmsKeyId;
 
     protected KmsClient kmsClient;
@@ -134,6 +149,7 @@ public class CreateAwsKmsHierarchicalKeyringInput {
 
     protected BuilderImpl(CreateAwsKmsHierarchicalKeyringInput model) {
       this.branchKeyId = model.branchKeyId();
+      this.branchKeyIdSupplier = model.branchKeyIdSupplier();
       this.kmsKeyId = model.kmsKeyId();
       this.kmsClient = model.kmsClient();
       this.ddbClient = model.ddbClient();
@@ -150,6 +166,15 @@ public class CreateAwsKmsHierarchicalKeyringInput {
 
     public String branchKeyId() {
       return this.branchKeyId;
+    }
+
+    public Builder branchKeyIdSupplier(IBranchKeyIdSupplier branchKeyIdSupplier) {
+      this.branchKeyIdSupplier = BranchKeyIdSupplier.wrap(branchKeyIdSupplier);
+      return this;
+    }
+
+    public BranchKeyIdSupplier branchKeyIdSupplier() {
+      return this.branchKeyIdSupplier;
     }
 
     public Builder kmsKeyId(String kmsKeyId) {
@@ -216,9 +241,6 @@ public class CreateAwsKmsHierarchicalKeyringInput {
     }
 
     public CreateAwsKmsHierarchicalKeyringInput build() {
-      if (Objects.isNull(this.branchKeyId()))  {
-        throw new IllegalArgumentException("Missing value for required field `branchKeyId`");
-      }
       if (Objects.isNull(this.kmsKeyId()))  {
         throw new IllegalArgumentException("Missing value for required field `kmsKeyId`");
       }
