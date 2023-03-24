@@ -8,6 +8,7 @@ namespace AWS.Cryptography.MaterialProviders
   public class CreateAwsKmsHierarchicalKeyringInput
   {
     private string _branchKeyId;
+    private AWS.Cryptography.MaterialProviders.IBranchKeyIdSupplier _branchKeyIdSupplier;
     private string _kmsKeyId;
     private Amazon.KeyManagementService.IAmazonKeyManagementService _kmsClient;
     private Amazon.DynamoDBv2.IAmazonDynamoDB _ddbClient;
@@ -23,6 +24,15 @@ namespace AWS.Cryptography.MaterialProviders
     public bool IsSetBranchKeyId()
     {
       return this._branchKeyId != null;
+    }
+    public AWS.Cryptography.MaterialProviders.IBranchKeyIdSupplier BranchKeyIdSupplier
+    {
+      get { return this._branchKeyIdSupplier; }
+      set { this._branchKeyIdSupplier = value; }
+    }
+    public bool IsSetBranchKeyIdSupplier()
+    {
+      return this._branchKeyIdSupplier != null;
     }
     public string KmsKeyId
     {
@@ -89,7 +99,6 @@ namespace AWS.Cryptography.MaterialProviders
     }
     public void Validate()
     {
-      if (!IsSetBranchKeyId()) throw new System.ArgumentException("Missing value for required property 'BranchKeyId'");
       if (!IsSetKmsKeyId()) throw new System.ArgumentException("Missing value for required property 'KmsKeyId'");
       if (!IsSetKmsClient()) throw new System.ArgumentException("Missing value for required property 'KmsClient'");
       if (!IsSetDdbClient()) throw new System.ArgumentException("Missing value for required property 'DdbClient'");

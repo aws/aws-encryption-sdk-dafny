@@ -102,7 +102,8 @@ throw new System.ArgumentException("Invalid AWS.Cryptography.MaterialProviders.C
  return new Dafny.Aws.Cryptography.MaterialProviders.Types.CreateAwsKmsDiscoveryMultiKeyringInput ( ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S38_CreateAwsKmsDiscoveryMultiKeyringInput__M7_regions(value.Regions) , ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S38_CreateAwsKmsDiscoveryMultiKeyringInput__M15_discoveryFilter(var_discoveryFilter) , ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S38_CreateAwsKmsDiscoveryMultiKeyringInput__M14_clientSupplier(var_clientSupplier) , ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S38_CreateAwsKmsDiscoveryMultiKeyringInput__M11_grantTokens(var_grantTokens) ) ;
 }
  internal static AWS.Cryptography.MaterialProviders.CreateAwsKmsHierarchicalKeyringInput FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S36_CreateAwsKmsHierarchicalKeyringInput (Dafny.Aws.Cryptography.MaterialProviders.Types._ICreateAwsKmsHierarchicalKeyringInput value) {
- Dafny.Aws.Cryptography.MaterialProviders.Types.CreateAwsKmsHierarchicalKeyringInput concrete = (Dafny.Aws.Cryptography.MaterialProviders.Types.CreateAwsKmsHierarchicalKeyringInput)value; AWS.Cryptography.MaterialProviders.CreateAwsKmsHierarchicalKeyringInput converted = new AWS.Cryptography.MaterialProviders.CreateAwsKmsHierarchicalKeyringInput();  converted.BranchKeyId = (string) FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S36_CreateAwsKmsHierarchicalKeyringInput__M11_branchKeyId(concrete._branchKeyId);
+ Dafny.Aws.Cryptography.MaterialProviders.Types.CreateAwsKmsHierarchicalKeyringInput concrete = (Dafny.Aws.Cryptography.MaterialProviders.Types.CreateAwsKmsHierarchicalKeyringInput)value; AWS.Cryptography.MaterialProviders.CreateAwsKmsHierarchicalKeyringInput converted = new AWS.Cryptography.MaterialProviders.CreateAwsKmsHierarchicalKeyringInput(); if (concrete._branchKeyId.is_Some) converted.BranchKeyId = (string) FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S36_CreateAwsKmsHierarchicalKeyringInput__M11_branchKeyId(concrete._branchKeyId);
+ if (concrete._branchKeyIdSupplier.is_Some) converted.BranchKeyIdSupplier = (AWS.Cryptography.MaterialProviders.IBranchKeyIdSupplier) FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S36_CreateAwsKmsHierarchicalKeyringInput__M19_branchKeyIdSupplier(concrete._branchKeyIdSupplier);
   converted.KmsKeyId = (string) FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S36_CreateAwsKmsHierarchicalKeyringInput__M8_kmsKeyId(concrete._kmsKeyId);
   converted.KmsClient = (Amazon.KeyManagementService.IAmazonKeyManagementService) FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S36_CreateAwsKmsHierarchicalKeyringInput__M9_kmsClient(concrete._kmsClient);
   converted.DdbClient = (Amazon.DynamoDBv2.IAmazonDynamoDB) FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S36_CreateAwsKmsHierarchicalKeyringInput__M9_ddbClient(concrete._ddbClient);
@@ -112,9 +113,11 @@ throw new System.ArgumentException("Invalid AWS.Cryptography.MaterialProviders.C
  if (concrete._grantTokens.is_Some) converted.GrantTokens = (System.Collections.Generic.List<string>) FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S36_CreateAwsKmsHierarchicalKeyringInput__M11_grantTokens(concrete._grantTokens); return converted;
 }
  internal static Dafny.Aws.Cryptography.MaterialProviders.Types._ICreateAwsKmsHierarchicalKeyringInput ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S36_CreateAwsKmsHierarchicalKeyringInput (AWS.Cryptography.MaterialProviders.CreateAwsKmsHierarchicalKeyringInput value) {
+ string var_branchKeyId = value.IsSetBranchKeyId() ? value.BranchKeyId : (string) null;
+ AWS.Cryptography.MaterialProviders.IBranchKeyIdSupplier var_branchKeyIdSupplier = value.IsSetBranchKeyIdSupplier() ? value.BranchKeyIdSupplier : (AWS.Cryptography.MaterialProviders.IBranchKeyIdSupplier) null;
  int? var_maxCacheSize = value.IsSetMaxCacheSize() ? value.MaxCacheSize : (int?) null;
  System.Collections.Generic.List<string> var_grantTokens = value.IsSetGrantTokens() ? value.GrantTokens : (System.Collections.Generic.List<string>) null;
- return new Dafny.Aws.Cryptography.MaterialProviders.Types.CreateAwsKmsHierarchicalKeyringInput ( ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S36_CreateAwsKmsHierarchicalKeyringInput__M11_branchKeyId(value.BranchKeyId) , ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S36_CreateAwsKmsHierarchicalKeyringInput__M8_kmsKeyId(value.KmsKeyId) , ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S36_CreateAwsKmsHierarchicalKeyringInput__M9_kmsClient(value.KmsClient) , ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S36_CreateAwsKmsHierarchicalKeyringInput__M9_ddbClient(value.DdbClient) , ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S36_CreateAwsKmsHierarchicalKeyringInput__M17_branchKeyStoreArn(value.BranchKeyStoreArn) , ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S36_CreateAwsKmsHierarchicalKeyringInput__M10_ttlSeconds(value.TtlSeconds) , ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S36_CreateAwsKmsHierarchicalKeyringInput__M12_maxCacheSize(var_maxCacheSize) , ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S36_CreateAwsKmsHierarchicalKeyringInput__M11_grantTokens(var_grantTokens) ) ;
+ return new Dafny.Aws.Cryptography.MaterialProviders.Types.CreateAwsKmsHierarchicalKeyringInput ( ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S36_CreateAwsKmsHierarchicalKeyringInput__M11_branchKeyId(var_branchKeyId) , ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S36_CreateAwsKmsHierarchicalKeyringInput__M19_branchKeyIdSupplier(var_branchKeyIdSupplier) , ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S36_CreateAwsKmsHierarchicalKeyringInput__M8_kmsKeyId(value.KmsKeyId) , ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S36_CreateAwsKmsHierarchicalKeyringInput__M9_kmsClient(value.KmsClient) , ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S36_CreateAwsKmsHierarchicalKeyringInput__M9_ddbClient(value.DdbClient) , ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S36_CreateAwsKmsHierarchicalKeyringInput__M17_branchKeyStoreArn(value.BranchKeyStoreArn) , ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S36_CreateAwsKmsHierarchicalKeyringInput__M10_ttlSeconds(value.TtlSeconds) , ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S36_CreateAwsKmsHierarchicalKeyringInput__M12_maxCacheSize(var_maxCacheSize) , ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S36_CreateAwsKmsHierarchicalKeyringInput__M11_grantTokens(var_grantTokens) ) ;
 }
  internal static AWS.Cryptography.MaterialProviders.CreateAwsKmsKeyringInput FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S24_CreateAwsKmsKeyringInput (Dafny.Aws.Cryptography.MaterialProviders.Types._ICreateAwsKmsKeyringInput value) {
  Dafny.Aws.Cryptography.MaterialProviders.Types.CreateAwsKmsKeyringInput concrete = (Dafny.Aws.Cryptography.MaterialProviders.Types.CreateAwsKmsKeyringInput)value; AWS.Cryptography.MaterialProviders.CreateAwsKmsKeyringInput converted = new AWS.Cryptography.MaterialProviders.CreateAwsKmsKeyringInput();  converted.KmsKeyId = (string) FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S24_CreateAwsKmsKeyringInput__M8_kmsKeyId(concrete._kmsKeyId);
@@ -484,6 +487,20 @@ throw new System.ArgumentException("Invalid AWS.Cryptography.MaterialProviders.E
 }
  internal static Dafny.ISequence<byte> ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S26_GetAlgorithmSuiteInfoInput (System.IO.MemoryStream value) {
  return ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S26_GetAlgorithmSuiteInfoInput__M8_binaryId(value);
+}
+ internal static AWS.Cryptography.MaterialProviders.GetBranchKeyIdInput FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_GetBranchKeyIdInput (Dafny.Aws.Cryptography.MaterialProviders.Types._IGetBranchKeyIdInput value) {
+ Dafny.Aws.Cryptography.MaterialProviders.Types.GetBranchKeyIdInput concrete = (Dafny.Aws.Cryptography.MaterialProviders.Types.GetBranchKeyIdInput)value; AWS.Cryptography.MaterialProviders.GetBranchKeyIdInput converted = new AWS.Cryptography.MaterialProviders.GetBranchKeyIdInput();  converted.EncryptionContext = (System.Collections.Generic.Dictionary<string, string>) FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_GetBranchKeyIdInput__M17_encryptionContext(concrete._encryptionContext); return converted;
+}
+ internal static Dafny.Aws.Cryptography.MaterialProviders.Types._IGetBranchKeyIdInput ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_GetBranchKeyIdInput (AWS.Cryptography.MaterialProviders.GetBranchKeyIdInput value) {
+
+ return new Dafny.Aws.Cryptography.MaterialProviders.Types.GetBranchKeyIdInput ( ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_GetBranchKeyIdInput__M17_encryptionContext(value.EncryptionContext) ) ;
+}
+ internal static AWS.Cryptography.MaterialProviders.GetBranchKeyIdOutput FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S20_GetBranchKeyIdOutput (Dafny.Aws.Cryptography.MaterialProviders.Types._IGetBranchKeyIdOutput value) {
+ Dafny.Aws.Cryptography.MaterialProviders.Types.GetBranchKeyIdOutput concrete = (Dafny.Aws.Cryptography.MaterialProviders.Types.GetBranchKeyIdOutput)value; AWS.Cryptography.MaterialProviders.GetBranchKeyIdOutput converted = new AWS.Cryptography.MaterialProviders.GetBranchKeyIdOutput();  converted.BranchKeyId = (string) FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S20_GetBranchKeyIdOutput__M11_branchKeyId(concrete._branchKeyId); return converted;
+}
+ internal static Dafny.Aws.Cryptography.MaterialProviders.Types._IGetBranchKeyIdOutput ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S20_GetBranchKeyIdOutput (AWS.Cryptography.MaterialProviders.GetBranchKeyIdOutput value) {
+
+ return new Dafny.Aws.Cryptography.MaterialProviders.Types.GetBranchKeyIdOutput ( ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S20_GetBranchKeyIdOutput__M11_branchKeyId(value.BranchKeyId) ) ;
 }
  internal static AWS.Cryptography.MaterialProviders.GetCacheEntryInput FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S18_GetCacheEntryInput (Dafny.Aws.Cryptography.MaterialProviders.Types._IGetCacheEntryInput value) {
  Dafny.Aws.Cryptography.MaterialProviders.Types.GetCacheEntryInput concrete = (Dafny.Aws.Cryptography.MaterialProviders.Types.GetCacheEntryInput)value; AWS.Cryptography.MaterialProviders.GetCacheEntryInput converted = new AWS.Cryptography.MaterialProviders.GetCacheEntryInput();  converted.Identifier = (System.IO.MemoryStream) FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S18_GetCacheEntryInput__M10_identifier(concrete._identifier);
@@ -928,11 +945,17 @@ throw new System.ArgumentException("Invalid AWS.Cryptography.MaterialProviders.S
  internal static Wrappers_Compile._IOption<Dafny.ISequence<Dafny.ISequence<char>>> ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S38_CreateAwsKmsDiscoveryMultiKeyringInput__M11_grantTokens (System.Collections.Generic.List<string> value) {
  return value == null ? Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_Some(ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S14_GrantTokenList((System.Collections.Generic.List<string>) value));
 }
- internal static string FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S36_CreateAwsKmsHierarchicalKeyringInput__M11_branchKeyId (Dafny.ISequence<char> value) {
- return FromDafny_N6_smithy__N3_api__S6_String(value);
+ internal static string FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S36_CreateAwsKmsHierarchicalKeyringInput__M11_branchKeyId (Wrappers_Compile._IOption<Dafny.ISequence<char>> value) {
+ return value.is_None ? (string) null : FromDafny_N6_smithy__N3_api__S6_String(value.Extract());
 }
- internal static Dafny.ISequence<char> ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S36_CreateAwsKmsHierarchicalKeyringInput__M11_branchKeyId (string value) {
- return ToDafny_N6_smithy__N3_api__S6_String(value);
+ internal static Wrappers_Compile._IOption<Dafny.ISequence<char>> ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S36_CreateAwsKmsHierarchicalKeyringInput__M11_branchKeyId (string value) {
+ return value == null ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(ToDafny_N6_smithy__N3_api__S6_String((string) value));
+}
+ internal static AWS.Cryptography.MaterialProviders.IBranchKeyIdSupplier FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S36_CreateAwsKmsHierarchicalKeyringInput__M19_branchKeyIdSupplier (Wrappers_Compile._IOption<Dafny.Aws.Cryptography.MaterialProviders.Types.IBranchKeyIdSupplier> value) {
+ return value.is_None ? (AWS.Cryptography.MaterialProviders.IBranchKeyIdSupplier) null : FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S28_BranchKeyIdSupplierReference(value.Extract());
+}
+ internal static Wrappers_Compile._IOption<Dafny.Aws.Cryptography.MaterialProviders.Types.IBranchKeyIdSupplier> ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S36_CreateAwsKmsHierarchicalKeyringInput__M19_branchKeyIdSupplier (AWS.Cryptography.MaterialProviders.IBranchKeyIdSupplier value) {
+ return value == null ? Wrappers_Compile.Option<Dafny.Aws.Cryptography.MaterialProviders.Types.IBranchKeyIdSupplier>.create_None() : Wrappers_Compile.Option<Dafny.Aws.Cryptography.MaterialProviders.Types.IBranchKeyIdSupplier>.create_Some(ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S28_BranchKeyIdSupplierReference((AWS.Cryptography.MaterialProviders.IBranchKeyIdSupplier) value));
 }
  internal static string FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S36_CreateAwsKmsHierarchicalKeyringInput__M8_kmsKeyId (Dafny.ISequence<char> value) {
  return FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S8_KmsKeyId(value);
@@ -959,10 +982,10 @@ throw new System.ArgumentException("Invalid AWS.Cryptography.MaterialProviders.S
  return ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S11_DdbTableArn(value);
 }
  internal static long FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S36_CreateAwsKmsHierarchicalKeyringInput__M10_ttlSeconds (long value) {
- return FromDafny_N6_smithy__N3_api__S4_Long(value);
+ return FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S12_PositiveLong(value);
 }
  internal static long ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S36_CreateAwsKmsHierarchicalKeyringInput__M10_ttlSeconds (long value) {
- return ToDafny_N6_smithy__N3_api__S4_Long(value);
+ return ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S12_PositiveLong(value);
 }
  internal static int? FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S36_CreateAwsKmsHierarchicalKeyringInput__M12_maxCacheSize (Wrappers_Compile._IOption<int> value) {
  return value.is_None ? (int?) null : FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S15_PositiveInteger(value.Extract());
@@ -1444,6 +1467,18 @@ throw new System.ArgumentException("Invalid AWS.Cryptography.MaterialProviders.S
  internal static Dafny.ISequence<byte> ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S26_GetAlgorithmSuiteInfoInput__M8_binaryId (System.IO.MemoryStream value) {
  return ToDafny_N6_smithy__N3_api__S4_Blob(value);
 }
+ internal static System.Collections.Generic.Dictionary<string, string> FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_GetBranchKeyIdInput__M17_encryptionContext (Dafny.IMap<Dafny.ISequence<byte>, Dafny.ISequence<byte>> value) {
+ return FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S17_EncryptionContext(value);
+}
+ internal static Dafny.IMap<Dafny.ISequence<byte>, Dafny.ISequence<byte>> ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_GetBranchKeyIdInput__M17_encryptionContext (System.Collections.Generic.Dictionary<string, string> value) {
+ return ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S17_EncryptionContext(value);
+}
+ internal static string FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S20_GetBranchKeyIdOutput__M11_branchKeyId (Dafny.ISequence<char> value) {
+ return FromDafny_N6_smithy__N3_api__S6_String(value);
+}
+ internal static Dafny.ISequence<char> ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S20_GetBranchKeyIdOutput__M11_branchKeyId (string value) {
+ return ToDafny_N6_smithy__N3_api__S6_String(value);
+}
  internal static System.IO.MemoryStream FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S18_GetCacheEntryInput__M10_identifier (Dafny.ISequence<byte> value) {
  return FromDafny_N6_smithy__N3_api__S4_Blob(value);
 }
@@ -1463,16 +1498,16 @@ throw new System.ArgumentException("Invalid AWS.Cryptography.MaterialProviders.S
  return ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S9_Materials(value);
 }
  internal static long FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_GetCacheEntryOutput__M12_creationTime (long value) {
- return FromDafny_N6_smithy__N3_api__S4_Long(value);
+ return FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S12_PositiveLong(value);
 }
  internal static long ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_GetCacheEntryOutput__M12_creationTime (long value) {
- return ToDafny_N6_smithy__N3_api__S4_Long(value);
+ return ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S12_PositiveLong(value);
 }
  internal static long FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_GetCacheEntryOutput__M10_expiryTime (long value) {
- return FromDafny_N6_smithy__N3_api__S4_Long(value);
+ return FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S12_PositiveLong(value);
 }
  internal static long ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_GetCacheEntryOutput__M10_expiryTime (long value) {
- return ToDafny_N6_smithy__N3_api__S4_Long(value);
+ return ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S12_PositiveLong(value);
 }
  internal static int FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_GetCacheEntryOutput__M12_messagesUsed (int value) {
  return FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S15_PositiveInteger(value);
@@ -1685,16 +1720,16 @@ throw new System.ArgumentException("Invalid AWS.Cryptography.MaterialProviders.S
  return ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S9_Materials(value);
 }
  internal static long FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S18_PutCacheEntryInput__M12_creationTime (long value) {
- return FromDafny_N6_smithy__N3_api__S4_Long(value);
+ return FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S12_PositiveLong(value);
 }
  internal static long ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S18_PutCacheEntryInput__M12_creationTime (long value) {
- return ToDafny_N6_smithy__N3_api__S4_Long(value);
+ return ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S12_PositiveLong(value);
 }
  internal static long FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S18_PutCacheEntryInput__M10_expiryTime (long value) {
- return FromDafny_N6_smithy__N3_api__S4_Long(value);
+ return FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S12_PositiveLong(value);
 }
  internal static long ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S18_PutCacheEntryInput__M10_expiryTime (long value) {
- return ToDafny_N6_smithy__N3_api__S4_Long(value);
+ return ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S12_PositiveLong(value);
 }
  internal static int? FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S18_PutCacheEntryInput__M12_messagesUsed (Wrappers_Compile._IOption<int> value) {
  return value.is_None ? (int?) null : FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S15_PositiveInteger(value.Extract());
@@ -1850,6 +1885,16 @@ throw new System.ArgumentException("Invalid AWS.Cryptography.MaterialProviders.S
  // Therefore it defers to the dependant module for conversion
  return new WrappedNativeWrapper_ClientSupplier((ClientSupplierBase)value);
 }
+ internal static AWS.Cryptography.MaterialProviders.IBranchKeyIdSupplier FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S28_BranchKeyIdSupplierReference (Dafny.Aws.Cryptography.MaterialProviders.Types.IBranchKeyIdSupplier value) {
+ // This is converting a reference type in a dependant module.
+ // Therefore it defers to the dependant module for conversion
+ return AWS.Cryptography.MaterialProviders.TypeConversion.FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S28_BranchKeyIdSupplierReference(value);
+}
+ internal static Dafny.Aws.Cryptography.MaterialProviders.Types.IBranchKeyIdSupplier ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S28_BranchKeyIdSupplierReference (AWS.Cryptography.MaterialProviders.IBranchKeyIdSupplier value) {
+ // This is converting a reference type in a dependant module.
+ // Therefore it defers to the dependant module for conversion
+ return new WrappedNativeWrapper_BranchKeyIdSupplier((BranchKeyIdSupplierBase)value);
+}
  internal static string FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S8_KmsKeyId (Dafny.ISequence<char> value) {
  return new string(value.Elements);
 }
@@ -1872,10 +1917,10 @@ throw new System.ArgumentException("Invalid AWS.Cryptography.MaterialProviders.S
  internal static Dafny.ISequence<char> ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S11_DdbTableArn (string value) {
  return Dafny.Sequence<char>.FromString(value);
 }
- internal static long FromDafny_N6_smithy__N3_api__S4_Long (long value) {
+ internal static long FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S12_PositiveLong (long value) {
  return value;
 }
- internal static long ToDafny_N6_smithy__N3_api__S4_Long (long value) {
+ internal static long ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S12_PositiveLong (long value) {
  return value;
 }
  internal static int FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S15_PositiveInteger (int value) {
@@ -2024,6 +2069,12 @@ throw new System.ArgumentException("Invalid Amazon.KeyManagementService.Encrypti
 }
  internal static Dafny.ISequence<Dafny.ISequence<byte>> ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S23_SymmetricSigningKeyList (System.Collections.Generic.List<System.IO.MemoryStream> value) {
  return Dafny.Sequence<Dafny.ISequence<byte>>.FromArray(value.Select(ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S23_SymmetricSigningKeyList__M6_member).ToArray());
+}
+ internal static long FromDafny_N6_smithy__N3_api__S4_Long (long value) {
+ return value;
+}
+ internal static long ToDafny_N6_smithy__N3_api__S4_Long (long value) {
+ return value;
 }
  internal static AWS.Cryptography.MaterialProviders.HierarchicalMaterials FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S21_HierarchicalMaterials (Dafny.Aws.Cryptography.MaterialProviders.Types._IHierarchicalMaterials value) {
  Dafny.Aws.Cryptography.MaterialProviders.Types.HierarchicalMaterials concrete = (Dafny.Aws.Cryptography.MaterialProviders.Types.HierarchicalMaterials)value; AWS.Cryptography.MaterialProviders.HierarchicalMaterials converted = new AWS.Cryptography.MaterialProviders.HierarchicalMaterials();  converted.BranchKeyVersion = (string) FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S21_HierarchicalMaterials__M16_branchKeyVersion(concrete._branchKeyVersion);

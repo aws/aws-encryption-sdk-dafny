@@ -324,17 +324,22 @@ include "../../StandardLibrary/src/Index.dfy"
  method CreateAwsKmsHierarchicalKeyring ( input: CreateAwsKmsHierarchicalKeyringInput )
  returns (output: Result<IKeyring, Error>)
  requires
- && ValidState()
+ && ValidState() && ( input.branchKeyIdSupplier.Some? ==>
+ && input.branchKeyIdSupplier.value.ValidState()
+ && input.branchKeyIdSupplier.value.Modifies !! {History}
+ )
  && input.kmsClient.ValidState()
  && input.kmsClient.Modifies !! {History}
  && input.ddbClient.ValidState()
  && input.ddbClient.Modifies !! {History}
  modifies Modifies - {History} ,
+ (if input.branchKeyIdSupplier.Some? then input.branchKeyIdSupplier.value.Modifies else {}) ,
  input.kmsClient.Modifies ,
  input.ddbClient.Modifies ,
  History`CreateAwsKmsHierarchicalKeyring
  // Dafny will skip type parameters when generating a default decreases clause.
  decreases Modifies - {History} ,
+ (if input.branchKeyIdSupplier.Some? then input.branchKeyIdSupplier.value.Modifies else {}) ,
  input.kmsClient.Modifies ,
  input.ddbClient.Modifies
  ensures
@@ -343,7 +348,7 @@ include "../../StandardLibrary/src/Index.dfy"
  && output.value.ValidState()
  && output.value.Modifies !! {History}
  && fresh(output.value)
- && fresh ( output.value.Modifies - Modifies - {History} - input.kmsClient.Modifies - input.ddbClient.Modifies ) )
+ && fresh ( output.value.Modifies - Modifies - {History} - (if input.branchKeyIdSupplier.Some? then input.branchKeyIdSupplier.value.Modifies else {}) - input.kmsClient.Modifies - input.ddbClient.Modifies ) )
  ensures CreateAwsKmsHierarchicalKeyringEnsuresPublicly(input, output)
  ensures History.CreateAwsKmsHierarchicalKeyring == old(History.CreateAwsKmsHierarchicalKeyring) + [DafnyCallEvent(input, output)]
  
@@ -597,6 +602,71 @@ include "../../StandardLibrary/src/Index.dfy"
  // Functions that are transparent do not need ensures
  
 }
+ class IBranchKeyIdSupplierCallHistory {
+ ghost constructor() {
+ GetBranchKeyId := [];
+}
+ ghost var GetBranchKeyId: seq<DafnyCallEvent<GetBranchKeyIdInput, Result<GetBranchKeyIdOutput, Error>>>
+}
+ trait {:termination false} IBranchKeyIdSupplier
+ {
+ // Helper to define any additional modifies/reads clauses.
+ // If your operations need to mutate state,
+ // add it in your constructor function:
+ // Modifies := {your, fields, here, History};
+ // If you do not need to mutate anything:
+// Modifies := {History};
+
+ ghost const Modifies: set<object>
+ // For an unassigned field defined in a trait,
+ // Dafny can only assign a value in the constructor.
+ // This means that for Dafny to reason about this value,
+ // it needs some way to know (an invariant),
+ // about the state of the object.
+ // This builds on the Valid/Repr paradigm
+ // To make this kind requires safe to add
+ // to methods called from unverified code,
+ // the predicate MUST NOT take any arguments.
+ // This means that the correctness of this requires
+ // MUST only be evaluated by the class itself.
+ // If you require any additional mutation,
+ // then you MUST ensure everything you need in ValidState.
+ // You MUST also ensure ValidState in your constructor.
+ predicate ValidState()
+ ensures ValidState() ==> History in Modifies
+  ghost const History: IBranchKeyIdSupplierCallHistory
+ predicate GetBranchKeyIdEnsuresPublicly(input: GetBranchKeyIdInput , output: Result<GetBranchKeyIdOutput, Error>)
+ // The public method to be called by library consumers
+ method GetBranchKeyId ( input: GetBranchKeyIdInput )
+ returns (output: Result<GetBranchKeyIdOutput, Error>)
+ requires
+ && ValidState()
+ modifies Modifies - {History} ,
+ History`GetBranchKeyId
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases Modifies - {History}
+ ensures
+ && ValidState()
+ ensures GetBranchKeyIdEnsuresPublicly(input, output)
+ ensures History.GetBranchKeyId == old(History.GetBranchKeyId) + [DafnyCallEvent(input, output)]
+ {
+ output := GetBranchKeyId' (input);
+ History.GetBranchKeyId := History.GetBranchKeyId + [DafnyCallEvent(input, output)];
+}
+ // The method to implement in the concrete class. 
+ method GetBranchKeyId' ( input: GetBranchKeyIdInput )
+ returns (output: Result<GetBranchKeyIdOutput, Error>)
+ requires
+ && ValidState()
+ modifies Modifies - {History}
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases Modifies - {History}
+ ensures
+ && ValidState()
+ ensures GetBranchKeyIdEnsuresPublicly(input, output)
+ ensures unchanged(History)
+ 
+}
  class IClientSupplierCallHistory {
  ghost constructor() {
  GetClient := [];
@@ -687,7 +757,8 @@ include "../../StandardLibrary/src/Index.dfy"
  nameonly grantTokens: Option<GrantTokenList>
  )
  datatype CreateAwsKmsHierarchicalKeyringInput = | CreateAwsKmsHierarchicalKeyringInput (
- nameonly branchKeyId: string ,
+ nameonly branchKeyId: Option<string> ,
+ nameonly branchKeyIdSupplier: Option<IBranchKeyIdSupplier> ,
  nameonly kmsKeyId: KmsKeyId ,
  nameonly kmsClient: ComAmazonawsKmsTypes.IKeyManagementServiceClient ,
  nameonly ddbClient: ComAmazonawsDynamodbTypes.IDynamoDB_20120810Client ,
@@ -1123,6 +1194,12 @@ include "../../StandardLibrary/src/Index.dfy"
 	| FORBID_ENCRYPT_ALLOW_DECRYPT
 	| REQUIRE_ENCRYPT_ALLOW_DECRYPT
 	| REQUIRE_ENCRYPT_REQUIRE_DECRYPT
+ datatype GetBranchKeyIdInput = | GetBranchKeyIdInput (
+ nameonly encryptionContext: EncryptionContext
+ )
+ datatype GetBranchKeyIdOutput = | GetBranchKeyIdOutput (
+ nameonly branchKeyId: string
+ )
  datatype GetCacheEntryInput = | GetCacheEntryInput (
  nameonly identifier: seq<uint8> ,
  nameonly bytesUsed: Option<int64>
@@ -1691,17 +1768,22 @@ include "../../StandardLibrary/src/Index.dfy"
  method CreateAwsKmsHierarchicalKeyring ( input: CreateAwsKmsHierarchicalKeyringInput )
  returns (output: Result<IKeyring, Error>)
  requires
- && ValidState()
+ && ValidState() && ( input.branchKeyIdSupplier.Some? ==>
+ && input.branchKeyIdSupplier.value.ValidState()
+ && input.branchKeyIdSupplier.value.Modifies !! {History}
+ )
  && input.kmsClient.ValidState()
  && input.kmsClient.Modifies !! {History}
  && input.ddbClient.ValidState()
  && input.ddbClient.Modifies !! {History}
  modifies Modifies - {History} ,
+ (if input.branchKeyIdSupplier.Some? then input.branchKeyIdSupplier.value.Modifies else {}) ,
  input.kmsClient.Modifies ,
  input.ddbClient.Modifies ,
  History`CreateAwsKmsHierarchicalKeyring
  // Dafny will skip type parameters when generating a default decreases clause.
  decreases Modifies - {History} ,
+ (if input.branchKeyIdSupplier.Some? then input.branchKeyIdSupplier.value.Modifies else {}) ,
  input.kmsClient.Modifies ,
  input.ddbClient.Modifies
  ensures
@@ -1710,7 +1792,7 @@ include "../../StandardLibrary/src/Index.dfy"
  && output.value.ValidState()
  && output.value.Modifies !! {History}
  && fresh(output.value)
- && fresh ( output.value.Modifies - Modifies - {History} - input.kmsClient.Modifies - input.ddbClient.Modifies ) )
+ && fresh ( output.value.Modifies - Modifies - {History} - (if input.branchKeyIdSupplier.Some? then input.branchKeyIdSupplier.value.Modifies else {}) - input.kmsClient.Modifies - input.ddbClient.Modifies ) )
  ensures CreateAwsKmsHierarchicalKeyringEnsuresPublicly(input, output)
  ensures History.CreateAwsKmsHierarchicalKeyring == old(History.CreateAwsKmsHierarchicalKeyring) + [DafnyCallEvent(input, output)]
  {
@@ -2242,14 +2324,18 @@ include "../../StandardLibrary/src/Index.dfy"
  method CreateAwsKmsHierarchicalKeyring ( config: InternalConfig , input: CreateAwsKmsHierarchicalKeyringInput )
  returns (output: Result<IKeyring, Error>)
  requires
- && ValidInternalConfig?(config)
+ && ValidInternalConfig?(config) && ( input.branchKeyIdSupplier.Some? ==>
+ && input.branchKeyIdSupplier.value.ValidState()
+ )
  && input.kmsClient.ValidState()
  && input.ddbClient.ValidState()
  modifies ModifiesInternalConfig(config) ,
+ (if input.branchKeyIdSupplier.Some? then input.branchKeyIdSupplier.value.Modifies else {}) ,
  input.kmsClient.Modifies ,
  input.ddbClient.Modifies
  // Dafny will skip type parameters when generating a default decreases clause.
  decreases ModifiesInternalConfig(config) ,
+ (if input.branchKeyIdSupplier.Some? then input.branchKeyIdSupplier.value.Modifies else {}) ,
  input.kmsClient.Modifies ,
  input.ddbClient.Modifies
  ensures
@@ -2257,7 +2343,7 @@ include "../../StandardLibrary/src/Index.dfy"
  && ( output.Success? ==> 
  && output.value.ValidState()
  && fresh(output.value)
- && fresh ( output.value.Modifies - ModifiesInternalConfig(config) - input.kmsClient.Modifies - input.ddbClient.Modifies ) )
+ && fresh ( output.value.Modifies - ModifiesInternalConfig(config) - (if input.branchKeyIdSupplier.Some? then input.branchKeyIdSupplier.value.Modifies else {}) - input.kmsClient.Modifies - input.ddbClient.Modifies ) )
  ensures CreateAwsKmsHierarchicalKeyringEnsuresPublicly(input, output)
 
 

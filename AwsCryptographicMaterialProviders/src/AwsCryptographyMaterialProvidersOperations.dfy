@@ -277,6 +277,14 @@ module AwsCryptographyMaterialProvidersOperations refines AbstractAwsCryptograph
       maxCacheSize := input.maxCacheSize.value;
     }
 
+    :- Need(input.branchKeyId.None? || input.branchKeyIdSupplier.None?,
+        Types.AwsCryptographicMaterialProvidersException(
+          message := "Cannot initialize keyring with both a branchKeyId and BranchKeyIdSupplier."));
+
+    :- Need(input.branchKeyId.Some? || input.branchKeyIdSupplier.Some?,
+        Types.AwsCryptographicMaterialProvidersException(
+          message := "Must initialize keyring with either branchKeyId or BranchKeyIdSupplier."));
+
     var keyring := new AwsKmsHierarchicalKeyring.AwsKmsHierarchicalKeyring(
       input.kmsClient,
       input.kmsKeyId,
@@ -284,6 +292,7 @@ module AwsCryptographyMaterialProvidersOperations refines AbstractAwsCryptograph
       input.ddbClient,
       input.branchKeyStoreArn,
       input.branchKeyId,
+      input.branchKeyIdSupplier,
       input.ttlSeconds,
       maxCacheSize,
       config.crypto

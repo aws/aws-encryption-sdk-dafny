@@ -242,9 +242,33 @@ operation CreateAwsKmsHierarchicalKeyring {
     output: CreateKeyringOutput,
 }
 
+@extendable
+resource BranchKeyIdSupplier {
+  operations: [GetBranchKeyId],
+}
+
+@reference(resource: BranchKeyIdSupplier)
+structure BranchKeyIdSupplierReference {}
+
+operation GetBranchKeyId {
+  input: GetBranchKeyIdInput,
+  output: GetBranchKeyIdOutput
+}
+
+structure GetBranchKeyIdInput {
+  @required
+  encryptionContext: EncryptionContext
+}
+
+structure GetBranchKeyIdOutput {
+  @required
+  branchKeyId: String
+}
+
 structure CreateAwsKmsHierarchicalKeyringInput {
-    @required
+    // branchKeyId XOR BranchKeyIdSupplier required
     branchKeyId: String,
+    branchKeyIdSupplier: BranchKeyIdSupplierReference,
 
     @required
     kmsKeyId: KmsKeyId,
