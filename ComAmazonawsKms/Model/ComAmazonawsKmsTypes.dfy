@@ -396,7 +396,268 @@ include "../../StandardLibrary/src/Index.dfy"
  nameonly KeyId: Option<KeyIdType> ,
  nameonly KeyArn: Option<ArnType>
  )
- class IKeyManagementServiceClientCallHistory {
+ datatype KeyManagerType =
+	| AWS
+	| CUSTOMER
+ datatype KeyMetadata = | KeyMetadata (
+ nameonly AWSAccountId: Option<AWSAccountIdType> ,
+ nameonly KeyId: KeyIdType ,
+ nameonly Arn: Option<ArnType> ,
+ nameonly CreationDate: Option<string> ,
+ nameonly Enabled: Option<BooleanType> ,
+ nameonly Description: Option<DescriptionType> ,
+ nameonly KeyUsage: Option<KeyUsageType> ,
+ nameonly KeyState: Option<KeyState> ,
+ nameonly DeletionDate: Option<string> ,
+ nameonly ValidTo: Option<string> ,
+ nameonly Origin: Option<OriginType> ,
+ nameonly CustomKeyStoreId: Option<CustomKeyStoreIdType> ,
+ nameonly CloudHsmClusterId: Option<CloudHsmClusterIdType> ,
+ nameonly ExpirationModel: Option<ExpirationModelType> ,
+ nameonly KeyManager: Option<KeyManagerType> ,
+ nameonly CustomerMasterKeySpec: Option<CustomerMasterKeySpec> ,
+ nameonly KeySpec: Option<KeySpec> ,
+ nameonly EncryptionAlgorithms: Option<EncryptionAlgorithmSpecList> ,
+ nameonly SigningAlgorithms: Option<SigningAlgorithmSpecList> ,
+ nameonly MultiRegion: Option<NullableBooleanType> ,
+ nameonly MultiRegionConfiguration: Option<MultiRegionConfiguration> ,
+ nameonly PendingDeletionWindowInDays: Option<PendingWindowInDaysType>
+ )
+ datatype KeySpec =
+	| RSA_2048
+	| RSA_3072
+	| RSA_4096
+	| ECC_NIST_P256
+	| ECC_NIST_P384
+	| ECC_NIST_P521
+	| ECC_SECG_P256K1
+	| SYMMETRIC_DEFAULT
+ datatype KeyState =
+	| Creating
+	| Enabled
+	| Disabled
+	| PendingDeletion
+	| PendingImport
+	| PendingReplicaDeletion
+	| Unavailable
+	| Updating
+ type KeyStorePasswordType = x: string | IsValid_KeyStorePasswordType(x) witness *
+ predicate method IsValid_KeyStorePasswordType(x: string) {
+ ( 7 <= |x| <= 32 )
+}
+ datatype KeyUsageType =
+	| SIGN_VERIFY
+	| ENCRYPT_DECRYPT
+ type LimitType = x: int32 | IsValid_LimitType(x) witness *
+ predicate method IsValid_LimitType(x: int32) {
+ ( 1 <= x <= 1000 )
+}
+ datatype ListAliasesRequest = | ListAliasesRequest (
+ nameonly KeyId: Option<KeyIdType> ,
+ nameonly Limit: Option<LimitType> ,
+ nameonly Marker: Option<MarkerType>
+ )
+ datatype ListAliasesResponse = | ListAliasesResponse (
+ nameonly Aliases: Option<AliasList> ,
+ nameonly NextMarker: Option<MarkerType> ,
+ nameonly Truncated: Option<BooleanType>
+ )
+ datatype ListGrantsRequest = | ListGrantsRequest (
+ nameonly Limit: Option<LimitType> ,
+ nameonly Marker: Option<MarkerType> ,
+ nameonly KeyId: KeyIdType ,
+ nameonly GrantId: Option<GrantIdType> ,
+ nameonly GranteePrincipal: Option<PrincipalIdType>
+ )
+ datatype ListGrantsResponse = | ListGrantsResponse (
+ nameonly Grants: Option<GrantList> ,
+ nameonly NextMarker: Option<MarkerType> ,
+ nameonly Truncated: Option<BooleanType>
+ )
+ datatype ListKeyPoliciesRequest = | ListKeyPoliciesRequest (
+ nameonly KeyId: KeyIdType ,
+ nameonly Limit: Option<LimitType> ,
+ nameonly Marker: Option<MarkerType>
+ )
+ datatype ListKeyPoliciesResponse = | ListKeyPoliciesResponse (
+ nameonly PolicyNames: Option<PolicyNameList> ,
+ nameonly NextMarker: Option<MarkerType> ,
+ nameonly Truncated: Option<BooleanType>
+ )
+ datatype ListKeysRequest = | ListKeysRequest (
+ nameonly Limit: Option<LimitType> ,
+ nameonly Marker: Option<MarkerType>
+ )
+ datatype ListResourceTagsRequest = | ListResourceTagsRequest (
+ nameonly KeyId: KeyIdType ,
+ nameonly Limit: Option<LimitType> ,
+ nameonly Marker: Option<MarkerType>
+ )
+ datatype ListResourceTagsResponse = | ListResourceTagsResponse (
+ nameonly Tags: Option<TagList> ,
+ nameonly NextMarker: Option<MarkerType> ,
+ nameonly Truncated: Option<BooleanType>
+ )
+ datatype ListRetirableGrantsRequest = | ListRetirableGrantsRequest (
+ nameonly Limit: Option<LimitType> ,
+ nameonly Marker: Option<MarkerType> ,
+ nameonly RetiringPrincipal: PrincipalIdType
+ )
+ type MarkerType = x: string | IsValid_MarkerType(x) witness *
+ predicate method IsValid_MarkerType(x: string) {
+ ( 1 <= |x| <= 1024 )
+}
+ datatype MessageType =
+	| RAW
+	| DIGEST
+ datatype MultiRegionConfiguration = | MultiRegionConfiguration (
+ nameonly MultiRegionKeyType: Option<MultiRegionKeyType> ,
+ nameonly PrimaryKey: Option<MultiRegionKey> ,
+ nameonly ReplicaKeys: Option<MultiRegionKeyList>
+ )
+ datatype MultiRegionKey = | MultiRegionKey (
+ nameonly Arn: Option<ArnType> ,
+ nameonly Region: Option<RegionType>
+ )
+ type MultiRegionKeyList = seq<MultiRegionKey>
+ datatype MultiRegionKeyType =
+	| PRIMARY
+	| REPLICA
+ type NullableBooleanType = bool
+ type NumberOfBytesType = x: int32 | IsValid_NumberOfBytesType(x) witness *
+ predicate method IsValid_NumberOfBytesType(x: int32) {
+ ( 1 <= x <= 1024 )
+}
+ datatype OriginType =
+	| AWS_KMS
+	| EXTERNAL
+	| AWS_CLOUDHSM
+ type PendingWindowInDaysType = x: int32 | IsValid_PendingWindowInDaysType(x) witness *
+ predicate method IsValid_PendingWindowInDaysType(x: int32) {
+ ( 1 <= x <= 365 )
+}
+ type PlaintextType = x: seq<uint8> | IsValid_PlaintextType(x) witness *
+ predicate method IsValid_PlaintextType(x: seq<uint8>) {
+ ( 1 <= |x| <= 4096 )
+}
+ type PolicyNameList = seq<PolicyNameType>
+ type PolicyNameType = x: string | IsValid_PolicyNameType(x) witness *
+ predicate method IsValid_PolicyNameType(x: string) {
+ ( 1 <= |x| <= 128 )
+}
+ type PolicyType = x: string | IsValid_PolicyType(x) witness *
+ predicate method IsValid_PolicyType(x: string) {
+ ( 1 <= |x| <= 131072 )
+}
+ type PrincipalIdType = x: string | IsValid_PrincipalIdType(x) witness *
+ predicate method IsValid_PrincipalIdType(x: string) {
+ ( 1 <= |x| <= 256 )
+}
+ type PublicKeyType = x: seq<uint8> | IsValid_PublicKeyType(x) witness *
+ predicate method IsValid_PublicKeyType(x: seq<uint8>) {
+ ( 1 <= |x| <= 8192 )
+}
+ datatype PutKeyPolicyRequest = | PutKeyPolicyRequest (
+ nameonly KeyId: KeyIdType ,
+ nameonly PolicyName: PolicyNameType ,
+ nameonly Policy: PolicyType ,
+ nameonly BypassPolicyLockoutSafetyCheck: Option<BooleanType>
+ )
+ datatype ReEncryptRequest = | ReEncryptRequest (
+ nameonly CiphertextBlob: CiphertextType ,
+ nameonly SourceEncryptionContext: Option<EncryptionContextType> ,
+ nameonly SourceKeyId: Option<KeyIdType> ,
+ nameonly DestinationKeyId: KeyIdType ,
+ nameonly DestinationEncryptionContext: Option<EncryptionContextType> ,
+ nameonly SourceEncryptionAlgorithm: Option<EncryptionAlgorithmSpec> ,
+ nameonly DestinationEncryptionAlgorithm: Option<EncryptionAlgorithmSpec> ,
+ nameonly GrantTokens: Option<GrantTokenList>
+ )
+ datatype ReEncryptResponse = | ReEncryptResponse (
+ nameonly CiphertextBlob: Option<CiphertextType> ,
+ nameonly SourceKeyId: Option<KeyIdType> ,
+ nameonly KeyId: Option<KeyIdType> ,
+ nameonly SourceEncryptionAlgorithm: Option<EncryptionAlgorithmSpec> ,
+ nameonly DestinationEncryptionAlgorithm: Option<EncryptionAlgorithmSpec>
+ )
+ type RegionType = x: string | IsValid_RegionType(x) witness *
+ predicate method IsValid_RegionType(x: string) {
+ ( 1 <= |x| <= 32 )
+}
+ datatype ReplicateKeyRequest = | ReplicateKeyRequest (
+ nameonly KeyId: KeyIdType ,
+ nameonly ReplicaRegion: RegionType ,
+ nameonly Policy: Option<PolicyType> ,
+ nameonly BypassPolicyLockoutSafetyCheck: Option<BooleanType> ,
+ nameonly Description: Option<DescriptionType> ,
+ nameonly Tags: Option<TagList>
+ )
+ datatype ReplicateKeyResponse = | ReplicateKeyResponse (
+ nameonly ReplicaKeyMetadata: Option<KeyMetadata> ,
+ nameonly ReplicaPolicy: Option<PolicyType> ,
+ nameonly ReplicaTags: Option<TagList>
+ )
+ datatype RetireGrantRequest = | RetireGrantRequest (
+ nameonly GrantToken: Option<GrantTokenType> ,
+ nameonly KeyId: Option<KeyIdType> ,
+ nameonly GrantId: Option<GrantIdType>
+ )
+ datatype RevokeGrantRequest = | RevokeGrantRequest (
+ nameonly KeyId: KeyIdType ,
+ nameonly GrantId: GrantIdType
+ )
+ datatype ScheduleKeyDeletionRequest = | ScheduleKeyDeletionRequest (
+ nameonly KeyId: KeyIdType ,
+ nameonly PendingWindowInDays: Option<PendingWindowInDaysType>
+ )
+ datatype ScheduleKeyDeletionResponse = | ScheduleKeyDeletionResponse (
+ nameonly KeyId: Option<KeyIdType> ,
+ nameonly DeletionDate: Option<string> ,
+ nameonly KeyState: Option<KeyState> ,
+ nameonly PendingWindowInDays: Option<PendingWindowInDaysType>
+ )
+ datatype SigningAlgorithmSpec =
+	| RSASSA_PSS_SHA_256
+	| RSASSA_PSS_SHA_384
+	| RSASSA_PSS_SHA_512
+	| RSASSA_PKCS1_V1_5_SHA_256
+	| RSASSA_PKCS1_V1_5_SHA_384
+	| RSASSA_PKCS1_V1_5_SHA_512
+	| ECDSA_SHA_256
+	| ECDSA_SHA_384
+	| ECDSA_SHA_512
+ type SigningAlgorithmSpecList = seq<SigningAlgorithmSpec>
+ datatype SignRequest = | SignRequest (
+ nameonly KeyId: KeyIdType ,
+ nameonly Message: PlaintextType ,
+ nameonly MessageType: Option<MessageType> ,
+ nameonly GrantTokens: Option<GrantTokenList> ,
+ nameonly SigningAlgorithm: SigningAlgorithmSpec
+ )
+ datatype SignResponse = | SignResponse (
+ nameonly KeyId: Option<KeyIdType> ,
+ nameonly Signature: Option<CiphertextType> ,
+ nameonly SigningAlgorithm: Option<SigningAlgorithmSpec>
+ )
+ datatype Tag = | Tag (
+ nameonly TagKey: TagKeyType ,
+ nameonly TagValue: TagValueType
+ )
+ type TagKeyList = seq<TagKeyType>
+ type TagKeyType = x: string | IsValid_TagKeyType(x) witness *
+ predicate method IsValid_TagKeyType(x: string) {
+ ( 1 <= |x| <= 128 )
+}
+ type TagList = seq<Tag>
+ datatype TagResourceRequest = | TagResourceRequest (
+ nameonly KeyId: KeyIdType ,
+ nameonly Tags: TagList
+ )
+ type TagValueType = x: string | IsValid_TagValueType(x) witness *
+ predicate method IsValid_TagValueType(x: string) {
+ ( 0 <= |x| <= 256 )
+}
+ class IKMSClientCallHistory {
  ghost constructor() {
  CancelKeyDeletion := [];
  ConnectCustomKeyStore := [];
@@ -492,7 +753,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ghost var UpdatePrimaryRegion: seq<DafnyCallEvent<UpdatePrimaryRegionRequest, Result<(), Error>>>
  ghost var Verify: seq<DafnyCallEvent<VerifyRequest, Result<VerifyResponse, Error>>>
 }
- trait {:termination false} IKeyManagementServiceClient
+ trait {:termination false} IKMSClient
  {
  // Helper to define any additional modifies/reads clauses.
  // If your operations need to mutate state,
@@ -518,7 +779,7 @@ include "../../StandardLibrary/src/Index.dfy"
  // You MUST also ensure ValidState in your constructor.
  predicate ValidState()
  ensures ValidState() ==> History in Modifies
-  ghost const History: IKeyManagementServiceClientCallHistory
+  ghost const History: IKMSClientCallHistory
  predicate CancelKeyDeletionEnsuresPublicly(input: CancelKeyDeletionRequest , output: Result<CancelKeyDeletionResponse, Error>)
  // The public method to be called by library consumers
  method CancelKeyDeletion ( input: CancelKeyDeletionRequest )
@@ -1210,267 +1471,6 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures History.Verify == old(History.Verify) + [DafnyCallEvent(input, output)]
  
 }
- datatype KeyManagerType =
-	| AWS
-	| CUSTOMER
- datatype KeyMetadata = | KeyMetadata (
- nameonly AWSAccountId: Option<AWSAccountIdType> ,
- nameonly KeyId: KeyIdType ,
- nameonly Arn: Option<ArnType> ,
- nameonly CreationDate: Option<string> ,
- nameonly Enabled: Option<BooleanType> ,
- nameonly Description: Option<DescriptionType> ,
- nameonly KeyUsage: Option<KeyUsageType> ,
- nameonly KeyState: Option<KeyState> ,
- nameonly DeletionDate: Option<string> ,
- nameonly ValidTo: Option<string> ,
- nameonly Origin: Option<OriginType> ,
- nameonly CustomKeyStoreId: Option<CustomKeyStoreIdType> ,
- nameonly CloudHsmClusterId: Option<CloudHsmClusterIdType> ,
- nameonly ExpirationModel: Option<ExpirationModelType> ,
- nameonly KeyManager: Option<KeyManagerType> ,
- nameonly CustomerMasterKeySpec: Option<CustomerMasterKeySpec> ,
- nameonly KeySpec: Option<KeySpec> ,
- nameonly EncryptionAlgorithms: Option<EncryptionAlgorithmSpecList> ,
- nameonly SigningAlgorithms: Option<SigningAlgorithmSpecList> ,
- nameonly MultiRegion: Option<NullableBooleanType> ,
- nameonly MultiRegionConfiguration: Option<MultiRegionConfiguration> ,
- nameonly PendingDeletionWindowInDays: Option<PendingWindowInDaysType>
- )
- datatype KeySpec =
-	| RSA_2048
-	| RSA_3072
-	| RSA_4096
-	| ECC_NIST_P256
-	| ECC_NIST_P384
-	| ECC_NIST_P521
-	| ECC_SECG_P256K1
-	| SYMMETRIC_DEFAULT
- datatype KeyState =
-	| Creating
-	| Enabled
-	| Disabled
-	| PendingDeletion
-	| PendingImport
-	| PendingReplicaDeletion
-	| Unavailable
-	| Updating
- type KeyStorePasswordType = x: string | IsValid_KeyStorePasswordType(x) witness *
- predicate method IsValid_KeyStorePasswordType(x: string) {
- ( 7 <= |x| <= 32 )
-}
- datatype KeyUsageType =
-	| SIGN_VERIFY
-	| ENCRYPT_DECRYPT
- type LimitType = x: int32 | IsValid_LimitType(x) witness *
- predicate method IsValid_LimitType(x: int32) {
- ( 1 <= x <= 1000 )
-}
- datatype ListAliasesRequest = | ListAliasesRequest (
- nameonly KeyId: Option<KeyIdType> ,
- nameonly Limit: Option<LimitType> ,
- nameonly Marker: Option<MarkerType>
- )
- datatype ListAliasesResponse = | ListAliasesResponse (
- nameonly Aliases: Option<AliasList> ,
- nameonly NextMarker: Option<MarkerType> ,
- nameonly Truncated: Option<BooleanType>
- )
- datatype ListGrantsRequest = | ListGrantsRequest (
- nameonly Limit: Option<LimitType> ,
- nameonly Marker: Option<MarkerType> ,
- nameonly KeyId: KeyIdType ,
- nameonly GrantId: Option<GrantIdType> ,
- nameonly GranteePrincipal: Option<PrincipalIdType>
- )
- datatype ListGrantsResponse = | ListGrantsResponse (
- nameonly Grants: Option<GrantList> ,
- nameonly NextMarker: Option<MarkerType> ,
- nameonly Truncated: Option<BooleanType>
- )
- datatype ListKeyPoliciesRequest = | ListKeyPoliciesRequest (
- nameonly KeyId: KeyIdType ,
- nameonly Limit: Option<LimitType> ,
- nameonly Marker: Option<MarkerType>
- )
- datatype ListKeyPoliciesResponse = | ListKeyPoliciesResponse (
- nameonly PolicyNames: Option<PolicyNameList> ,
- nameonly NextMarker: Option<MarkerType> ,
- nameonly Truncated: Option<BooleanType>
- )
- datatype ListKeysRequest = | ListKeysRequest (
- nameonly Limit: Option<LimitType> ,
- nameonly Marker: Option<MarkerType>
- )
- datatype ListResourceTagsRequest = | ListResourceTagsRequest (
- nameonly KeyId: KeyIdType ,
- nameonly Limit: Option<LimitType> ,
- nameonly Marker: Option<MarkerType>
- )
- datatype ListResourceTagsResponse = | ListResourceTagsResponse (
- nameonly Tags: Option<TagList> ,
- nameonly NextMarker: Option<MarkerType> ,
- nameonly Truncated: Option<BooleanType>
- )
- datatype ListRetirableGrantsRequest = | ListRetirableGrantsRequest (
- nameonly Limit: Option<LimitType> ,
- nameonly Marker: Option<MarkerType> ,
- nameonly RetiringPrincipal: PrincipalIdType
- )
- type MarkerType = x: string | IsValid_MarkerType(x) witness *
- predicate method IsValid_MarkerType(x: string) {
- ( 1 <= |x| <= 1024 )
-}
- datatype MessageType =
-	| RAW
-	| DIGEST
- datatype MultiRegionConfiguration = | MultiRegionConfiguration (
- nameonly MultiRegionKeyType: Option<MultiRegionKeyType> ,
- nameonly PrimaryKey: Option<MultiRegionKey> ,
- nameonly ReplicaKeys: Option<MultiRegionKeyList>
- )
- datatype MultiRegionKey = | MultiRegionKey (
- nameonly Arn: Option<ArnType> ,
- nameonly Region: Option<RegionType>
- )
- type MultiRegionKeyList = seq<MultiRegionKey>
- datatype MultiRegionKeyType =
-	| PRIMARY
-	| REPLICA
- type NullableBooleanType = bool
- type NumberOfBytesType = x: int32 | IsValid_NumberOfBytesType(x) witness *
- predicate method IsValid_NumberOfBytesType(x: int32) {
- ( 1 <= x <= 1024 )
-}
- datatype OriginType =
-	| AWS_KMS
-	| EXTERNAL
-	| AWS_CLOUDHSM
- type PendingWindowInDaysType = x: int32 | IsValid_PendingWindowInDaysType(x) witness *
- predicate method IsValid_PendingWindowInDaysType(x: int32) {
- ( 1 <= x <= 365 )
-}
- type PlaintextType = x: seq<uint8> | IsValid_PlaintextType(x) witness *
- predicate method IsValid_PlaintextType(x: seq<uint8>) {
- ( 1 <= |x| <= 4096 )
-}
- type PolicyNameList = seq<PolicyNameType>
- type PolicyNameType = x: string | IsValid_PolicyNameType(x) witness *
- predicate method IsValid_PolicyNameType(x: string) {
- ( 1 <= |x| <= 128 )
-}
- type PolicyType = x: string | IsValid_PolicyType(x) witness *
- predicate method IsValid_PolicyType(x: string) {
- ( 1 <= |x| <= 131072 )
-}
- type PrincipalIdType = x: string | IsValid_PrincipalIdType(x) witness *
- predicate method IsValid_PrincipalIdType(x: string) {
- ( 1 <= |x| <= 256 )
-}
- type PublicKeyType = x: seq<uint8> | IsValid_PublicKeyType(x) witness *
- predicate method IsValid_PublicKeyType(x: seq<uint8>) {
- ( 1 <= |x| <= 8192 )
-}
- datatype PutKeyPolicyRequest = | PutKeyPolicyRequest (
- nameonly KeyId: KeyIdType ,
- nameonly PolicyName: PolicyNameType ,
- nameonly Policy: PolicyType ,
- nameonly BypassPolicyLockoutSafetyCheck: Option<BooleanType>
- )
- datatype ReEncryptRequest = | ReEncryptRequest (
- nameonly CiphertextBlob: CiphertextType ,
- nameonly SourceEncryptionContext: Option<EncryptionContextType> ,
- nameonly SourceKeyId: Option<KeyIdType> ,
- nameonly DestinationKeyId: KeyIdType ,
- nameonly DestinationEncryptionContext: Option<EncryptionContextType> ,
- nameonly SourceEncryptionAlgorithm: Option<EncryptionAlgorithmSpec> ,
- nameonly DestinationEncryptionAlgorithm: Option<EncryptionAlgorithmSpec> ,
- nameonly GrantTokens: Option<GrantTokenList>
- )
- datatype ReEncryptResponse = | ReEncryptResponse (
- nameonly CiphertextBlob: Option<CiphertextType> ,
- nameonly SourceKeyId: Option<KeyIdType> ,
- nameonly KeyId: Option<KeyIdType> ,
- nameonly SourceEncryptionAlgorithm: Option<EncryptionAlgorithmSpec> ,
- nameonly DestinationEncryptionAlgorithm: Option<EncryptionAlgorithmSpec>
- )
- type RegionType = x: string | IsValid_RegionType(x) witness *
- predicate method IsValid_RegionType(x: string) {
- ( 1 <= |x| <= 32 )
-}
- datatype ReplicateKeyRequest = | ReplicateKeyRequest (
- nameonly KeyId: KeyIdType ,
- nameonly ReplicaRegion: RegionType ,
- nameonly Policy: Option<PolicyType> ,
- nameonly BypassPolicyLockoutSafetyCheck: Option<BooleanType> ,
- nameonly Description: Option<DescriptionType> ,
- nameonly Tags: Option<TagList>
- )
- datatype ReplicateKeyResponse = | ReplicateKeyResponse (
- nameonly ReplicaKeyMetadata: Option<KeyMetadata> ,
- nameonly ReplicaPolicy: Option<PolicyType> ,
- nameonly ReplicaTags: Option<TagList>
- )
- datatype RetireGrantRequest = | RetireGrantRequest (
- nameonly GrantToken: Option<GrantTokenType> ,
- nameonly KeyId: Option<KeyIdType> ,
- nameonly GrantId: Option<GrantIdType>
- )
- datatype RevokeGrantRequest = | RevokeGrantRequest (
- nameonly KeyId: KeyIdType ,
- nameonly GrantId: GrantIdType
- )
- datatype ScheduleKeyDeletionRequest = | ScheduleKeyDeletionRequest (
- nameonly KeyId: KeyIdType ,
- nameonly PendingWindowInDays: Option<PendingWindowInDaysType>
- )
- datatype ScheduleKeyDeletionResponse = | ScheduleKeyDeletionResponse (
- nameonly KeyId: Option<KeyIdType> ,
- nameonly DeletionDate: Option<string> ,
- nameonly KeyState: Option<KeyState> ,
- nameonly PendingWindowInDays: Option<PendingWindowInDaysType>
- )
- datatype SigningAlgorithmSpec =
-	| RSASSA_PSS_SHA_256
-	| RSASSA_PSS_SHA_384
-	| RSASSA_PSS_SHA_512
-	| RSASSA_PKCS1_V1_5_SHA_256
-	| RSASSA_PKCS1_V1_5_SHA_384
-	| RSASSA_PKCS1_V1_5_SHA_512
-	| ECDSA_SHA_256
-	| ECDSA_SHA_384
-	| ECDSA_SHA_512
- type SigningAlgorithmSpecList = seq<SigningAlgorithmSpec>
- datatype SignRequest = | SignRequest (
- nameonly KeyId: KeyIdType ,
- nameonly Message: PlaintextType ,
- nameonly MessageType: Option<MessageType> ,
- nameonly GrantTokens: Option<GrantTokenList> ,
- nameonly SigningAlgorithm: SigningAlgorithmSpec
- )
- datatype SignResponse = | SignResponse (
- nameonly KeyId: Option<KeyIdType> ,
- nameonly Signature: Option<CiphertextType> ,
- nameonly SigningAlgorithm: Option<SigningAlgorithmSpec>
- )
- datatype Tag = | Tag (
- nameonly TagKey: TagKeyType ,
- nameonly TagValue: TagValueType
- )
- type TagKeyList = seq<TagKeyType>
- type TagKeyType = x: string | IsValid_TagKeyType(x) witness *
- predicate method IsValid_TagKeyType(x: string) {
- ( 1 <= |x| <= 128 )
-}
- type TagList = seq<Tag>
- datatype TagResourceRequest = | TagResourceRequest (
- nameonly KeyId: KeyIdType ,
- nameonly Tags: TagList
- )
- type TagValueType = x: string | IsValid_TagValueType(x) witness *
- predicate method IsValid_TagValueType(x: string) {
- ( 0 <= |x| <= 256 )
-}
  type TrustAnchorCertificateType = x: string | IsValid_TrustAnchorCertificateType(x) witness *
  predicate method IsValid_TrustAnchorCertificateType(x: string) {
  ( 1 <= |x| <= 5000 )
@@ -1654,7 +1654,7 @@ include "../../StandardLibrary/src/Index.dfy"
  datatype KMSClientConfigType = KMSClientConfigType
  function method DefaultKMSClientConfigType(): KMSClientConfigType
  method {:extern} KMSClient()
- returns (res: Result<IKeyManagementServiceClient, Error>)
+ returns (res: Result<IKMSClient, Error>)
  ensures res.Success? ==> 
  && fresh(res.value)
  && fresh(res.value.Modifies)

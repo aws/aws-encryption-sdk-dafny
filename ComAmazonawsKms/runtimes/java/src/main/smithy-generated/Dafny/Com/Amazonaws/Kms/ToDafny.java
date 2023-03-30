@@ -98,7 +98,7 @@ import Dafny.Com.Amazonaws.Kms.Types.GetPublicKeyResponse;
 import Dafny.Com.Amazonaws.Kms.Types.GrantConstraints;
 import Dafny.Com.Amazonaws.Kms.Types.GrantListEntry;
 import Dafny.Com.Amazonaws.Kms.Types.GrantOperation;
-import Dafny.Com.Amazonaws.Kms.Types.IKeyManagementServiceClient;
+import Dafny.Com.Amazonaws.Kms.Types.IKMSClient;
 import Dafny.Com.Amazonaws.Kms.Types.ImportKeyMaterialRequest;
 import Dafny.Com.Amazonaws.Kms.Types.ImportKeyMaterialResponse;
 import Dafny.Com.Amazonaws.Kms.Types.KeyManagerType;
@@ -2424,7 +2424,7 @@ public class ToDafny {
     return new Error_Opaque(message);
   }
 
-  public static IKeyManagementServiceClient KeyManagementService(KmsClient nativeValue) {
+  public static IKMSClient TrentService(KmsClient nativeValue) {
     return new Shim(nativeValue, null);
   }
 }

@@ -74,9 +74,6 @@ The following type names for native types were manually updated:
 - All Input types end with "Request" instead of "Input"
 - All Output types end with "Response" instead of "Output"
 
-There is also the following inconsistency for Dafny type names which was manually updated:
-- IDynamoDB_20120810Client -> IDynamoDB__20120810Client
-
 ### CapacityUnit type inconsistencies
 
 In Smithy ConsumedCapacityUnits are modelled as `integer`, however these fields are Doubles in the Java SDK.

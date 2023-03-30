@@ -39,7 +39,7 @@ module AwsKmsRsaKeyring {
   class AwsKmsRsaKeyring
     extends Keyring.VerifiableInterface
   {
-    const client: Option<KMS.IKeyManagementServiceClient>
+    const client: Option<KMS.IKMSClient>
     const grantTokens: KMS.GrantTokenList
     const awsKmsKey: AwsArnParsing.AwsKmsIdentifierString
     const awsKmsArn: AwsArnParsing.AwsKmsIdentifier
@@ -74,7 +74,7 @@ module AwsKmsRsaKeyring {
       publicKey: Option<seq<uint8>>,
       awsKmsKey: AwsArnParsing.AwsKmsIdentifierString,
       paddingScheme: KMS.EncryptionAlgorithmSpec,
-      client: Option<KMS.IKeyManagementServiceClient>,
+      client: Option<KMS.IKMSClient>,
       cryptoPrimitives: Primitives.AtomicPrimitivesClient,
       grantTokens: KMS.GrantTokenList
     )
@@ -265,7 +265,7 @@ module AwsKmsRsaKeyring {
       Types.Error>
   {
     const materials: Materials.DecryptionMaterialsPendingPlaintextDataKey
-    const client: KMS.IKeyManagementServiceClient
+    const client: KMS.IKMSClient
     const awsKmsKey: AwsArnParsing.AwsKmsIdentifierString
     const paddingScheme: KMS.EncryptionAlgorithmSpec
     const encryptionContextDigest: seq<uint8>
@@ -273,7 +273,7 @@ module AwsKmsRsaKeyring {
 
     constructor(
       materials: Materials.DecryptionMaterialsPendingPlaintextDataKey,
-      client: KMS.IKeyManagementServiceClient,
+      client: KMS.IKMSClient,
       awsKmsKey: AwsArnParsing.AwsKmsIdentifierString,
       paddingScheme: KMS.EncryptionAlgorithmSpec,
       encryptionContextDigest: seq<uint8>,
@@ -528,14 +528,14 @@ module AwsKmsRsaKeyring {
   class KmsRsaUnwrapKeyMaterial
     extends MaterialWrapping.UnwrapMaterial<KmsRsaUnwrapInfo>
   {
-    const client: KMS.IKeyManagementServiceClient
+    const client: KMS.IKMSClient
     const awsKmsKey: AwsArnParsing.AwsKmsIdentifierString
     const paddingScheme: KMS.EncryptionAlgorithmSpec
     const encryptionContextDigest: seq<uint8>
     const grantTokens: KMS.GrantTokenList
 
     constructor(
-      client: KMS.IKeyManagementServiceClient,
+      client: KMS.IKMSClient,
       awsKmsKey: AwsArnParsing.AwsKmsIdentifierString,
       paddingScheme: KMS.EncryptionAlgorithmSpec,
       encryptionContextDigest: seq<uint8>,

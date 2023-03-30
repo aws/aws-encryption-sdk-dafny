@@ -5,7 +5,7 @@ package software.amazon.cryptography.materialProviders;
 
 import Dafny.Aws.Cryptography.MaterialProviders.Types.Error;
 import Dafny.Com.Amazonaws.Kms.Shim;
-import Dafny.Com.Amazonaws.Kms.Types.IKeyManagementServiceClient;
+import Dafny.Com.Amazonaws.Kms.Types.IKMSClient;
 import Wrappers_Compile.Result;
 import java.lang.Exception;
 import java.lang.IllegalArgumentException;
@@ -43,11 +43,11 @@ public final class ClientSupplier implements IClientSupplier {
 
   public KmsClient GetClient(GetClientInput nativeValue) {
     Dafny.Aws.Cryptography.MaterialProviders.Types.GetClientInput dafnyValue = ToDafny.GetClientInput(nativeValue);
-    Result<IKeyManagementServiceClient, Error> result = this._impl.GetClient(dafnyValue);
+    Result<IKMSClient, Error> result = this._impl.GetClient(dafnyValue);
     if (result.is_Failure()) {
       throw ToNative.Error(result.dtor_error());
     }
-    return Dafny.Com.Amazonaws.Kms.ToNative.KeyManagementService(result.dtor_value());
+    return Dafny.Com.Amazonaws.Kms.ToNative.TrentService(result.dtor_value());
   }
 
   private static final class NativeWrapper implements Dafny.Aws.Cryptography.MaterialProviders.Types.IClientSupplier {
@@ -60,12 +60,12 @@ public final class ClientSupplier implements IClientSupplier {
       this._impl = nativeImpl;
     }
 
-    public Result<IKeyManagementServiceClient, Error> GetClient(
+    public Result<IKMSClient, Error> GetClient(
         Dafny.Aws.Cryptography.MaterialProviders.Types.GetClientInput dafnyInput) {
       GetClientInput nativeInput = ToNative.GetClientInput(dafnyInput);
       try {
         KmsClient nativeOutput = this._impl.GetClient(nativeInput);
-        IKeyManagementServiceClient dafnyOutput = new Shim(nativeOutput, null);
+        IKMSClient dafnyOutput = new Shim(nativeOutput, null);
         return Result.create_Success(dafnyOutput);
       } catch (NativeError ex) {
         return Result.create_Failure(ToDafny.Error(ex));
@@ -75,7 +75,7 @@ public final class ClientSupplier implements IClientSupplier {
       }
     }
 
-    public Result<IKeyManagementServiceClient, Error> GetClient_k(
+    public Result<IKMSClient, Error> GetClient_k(
         Dafny.Aws.Cryptography.MaterialProviders.Types.GetClientInput dafnyInput) {
       throw NativeError.builder().message("Not supported at this time.").build();
     }

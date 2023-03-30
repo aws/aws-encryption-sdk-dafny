@@ -51,7 +51,7 @@ import Dafny.Com.Amazonaws.Kms.Types.GetParametersForImportRequest;
 import Dafny.Com.Amazonaws.Kms.Types.GetParametersForImportResponse;
 import Dafny.Com.Amazonaws.Kms.Types.GetPublicKeyRequest;
 import Dafny.Com.Amazonaws.Kms.Types.GetPublicKeyResponse;
-import Dafny.Com.Amazonaws.Kms.Types.IKeyManagementServiceClient;
+import Dafny.Com.Amazonaws.Kms.Types.IKMSClient;
 import Dafny.Com.Amazonaws.Kms.Types.ImportKeyMaterialRequest;
 import Dafny.Com.Amazonaws.Kms.Types.ImportKeyMaterialResponse;
 import Dafny.Com.Amazonaws.Kms.Types.ListAliasesRequest;
@@ -122,7 +122,7 @@ import software.amazon.awssdk.services.kms.model.NotFoundException;
 import software.amazon.awssdk.services.kms.model.TagException;
 import software.amazon.awssdk.services.kms.model.UnsupportedOperationException;
 
-public class Shim implements IKeyManagementServiceClient {
+public class Shim implements IKMSClient {
   private final KmsClient _impl;
 
   private final String region;

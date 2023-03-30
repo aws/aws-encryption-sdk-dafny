@@ -36,7 +36,7 @@ import Dafny.Com.Amazonaws.Kms.Types.Error_MalformedPolicyDocumentException;
 import Dafny.Com.Amazonaws.Kms.Types.Error_NotFoundException;
 import Dafny.Com.Amazonaws.Kms.Types.Error_TagException;
 import Dafny.Com.Amazonaws.Kms.Types.Error_UnsupportedOperationException;
-import Dafny.Com.Amazonaws.Kms.Types.IKeyManagementServiceClient;
+import Dafny.Com.Amazonaws.Kms.Types.IKMSClient;
 import dafny.DafnyMap;
 import dafny.DafnySequence;
 import java.lang.Character;
@@ -2067,7 +2067,7 @@ public class ToNative {
     return builder.build();
   }
 
-  public static KmsClient KeyManagementService(IKeyManagementServiceClient dafnyValue) {
+  public static KmsClient TrentService(IKMSClient dafnyValue) {
     return ((Shim) dafnyValue).impl();
   }
 }

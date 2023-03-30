@@ -671,7 +671,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ghost constructor() {
  GetClient := [];
 }
- ghost var GetClient: seq<DafnyCallEvent<GetClientInput, Result<ComAmazonawsKmsTypes.IKeyManagementServiceClient, Error>>>
+ ghost var GetClient: seq<DafnyCallEvent<GetClientInput, Result<ComAmazonawsKmsTypes.IKMSClient, Error>>>
 }
  trait {:termination false} IClientSupplier
  {
@@ -700,10 +700,10 @@ include "../../StandardLibrary/src/Index.dfy"
  predicate ValidState()
  ensures ValidState() ==> History in Modifies
   ghost const History: IClientSupplierCallHistory
- predicate GetClientEnsuresPublicly(input: GetClientInput , output: Result<ComAmazonawsKmsTypes.IKeyManagementServiceClient, Error>)
+ predicate GetClientEnsuresPublicly(input: GetClientInput , output: Result<ComAmazonawsKmsTypes.IKMSClient, Error>)
  // The public method to be called by library consumers
  method GetClient ( input: GetClientInput )
- returns (output: Result<ComAmazonawsKmsTypes.IKeyManagementServiceClient, Error>)
+ returns (output: Result<ComAmazonawsKmsTypes.IKMSClient, Error>)
  requires
  && ValidState()
  modifies Modifies - {History} ,
@@ -725,7 +725,7 @@ include "../../StandardLibrary/src/Index.dfy"
 }
  // The method to implement in the concrete class. 
  method GetClient' ( input: GetClientInput )
- returns (output: Result<ComAmazonawsKmsTypes.IKeyManagementServiceClient, Error>)
+ returns (output: Result<ComAmazonawsKmsTypes.IKMSClient, Error>)
  requires
  && ValidState()
  modifies Modifies - {History}
@@ -746,7 +746,7 @@ include "../../StandardLibrary/src/Index.dfy"
  | ESDK(ESDK: ESDKCommitmentPolicy)
  | DBE(DBE: DBECommitmentPolicy)
  datatype CreateAwsKmsDiscoveryKeyringInput = | CreateAwsKmsDiscoveryKeyringInput (
- nameonly kmsClient: ComAmazonawsKmsTypes.IKeyManagementServiceClient ,
+ nameonly kmsClient: ComAmazonawsKmsTypes.IKMSClient ,
  nameonly discoveryFilter: Option<DiscoveryFilter> ,
  nameonly grantTokens: Option<GrantTokenList>
  )
@@ -760,8 +760,8 @@ include "../../StandardLibrary/src/Index.dfy"
  nameonly branchKeyId: Option<string> ,
  nameonly branchKeyIdSupplier: Option<IBranchKeyIdSupplier> ,
  nameonly kmsKeyId: KmsKeyId ,
- nameonly kmsClient: ComAmazonawsKmsTypes.IKeyManagementServiceClient ,
- nameonly ddbClient: ComAmazonawsDynamodbTypes.IDynamoDB_20120810Client ,
+ nameonly kmsClient: ComAmazonawsKmsTypes.IKMSClient ,
+ nameonly ddbClient: ComAmazonawsDynamodbTypes.IDynamoDBClient ,
  nameonly branchKeyStoreArn: DdbTableArn ,
  nameonly ttlSeconds: PositiveLong ,
  nameonly maxCacheSize: Option<PositiveInteger> ,
@@ -769,11 +769,11 @@ include "../../StandardLibrary/src/Index.dfy"
  )
  datatype CreateAwsKmsKeyringInput = | CreateAwsKmsKeyringInput (
  nameonly kmsKeyId: KmsKeyId ,
- nameonly kmsClient: ComAmazonawsKmsTypes.IKeyManagementServiceClient ,
+ nameonly kmsClient: ComAmazonawsKmsTypes.IKMSClient ,
  nameonly grantTokens: Option<GrantTokenList>
  )
  datatype CreateAwsKmsMrkDiscoveryKeyringInput = | CreateAwsKmsMrkDiscoveryKeyringInput (
- nameonly kmsClient: ComAmazonawsKmsTypes.IKeyManagementServiceClient ,
+ nameonly kmsClient: ComAmazonawsKmsTypes.IKMSClient ,
  nameonly discoveryFilter: Option<DiscoveryFilter> ,
  nameonly grantTokens: Option<GrantTokenList> ,
  nameonly region: Region
@@ -786,7 +786,7 @@ include "../../StandardLibrary/src/Index.dfy"
  )
  datatype CreateAwsKmsMrkKeyringInput = | CreateAwsKmsMrkKeyringInput (
  nameonly kmsKeyId: KmsKeyId ,
- nameonly kmsClient: ComAmazonawsKmsTypes.IKeyManagementServiceClient ,
+ nameonly kmsClient: ComAmazonawsKmsTypes.IKMSClient ,
  nameonly grantTokens: Option<GrantTokenList>
  )
  datatype CreateAwsKmsMrkMultiKeyringInput = | CreateAwsKmsMrkMultiKeyringInput (
@@ -805,7 +805,7 @@ include "../../StandardLibrary/src/Index.dfy"
  nameonly publicKey: Option<Secret> ,
  nameonly kmsKeyId: KmsKeyId ,
  nameonly encryptionAlgorithm: ComAmazonawsKmsTypes.EncryptionAlgorithmSpec ,
- nameonly kmsClient: Option<ComAmazonawsKmsTypes.IKeyManagementServiceClient> ,
+ nameonly kmsClient: Option<ComAmazonawsKmsTypes.IKMSClient> ,
  nameonly grantTokens: Option<GrantTokenList>
  )
  datatype CreateCryptographicMaterialsCacheInput = | CreateCryptographicMaterialsCacheInput (

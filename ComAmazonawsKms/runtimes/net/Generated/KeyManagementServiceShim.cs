@@ -4,7 +4,7 @@
 using System;
  using System.IO;
  using System.Collections.Generic; namespace Com.Amazonaws.Kms {
- public class KeyManagementServiceShim : Dafny.Com.Amazonaws.Kms.Types.IKeyManagementServiceClient {
+ public class KeyManagementServiceShim : Dafny.Com.Amazonaws.Kms.Types.IKMSClient {
  public Amazon.KeyManagementService.AmazonKeyManagementServiceClient _impl;
  public KeyManagementServiceShim(Amazon.KeyManagementService.AmazonKeyManagementServiceClient impl) {
     this._impl = impl;

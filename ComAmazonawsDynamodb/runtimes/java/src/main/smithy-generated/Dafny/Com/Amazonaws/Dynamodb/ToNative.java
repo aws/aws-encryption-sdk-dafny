@@ -88,7 +88,7 @@ import Dafny.Com.Amazonaws.Dynamodb.Types.ExportTableToPointInTimeInput;
 import Dafny.Com.Amazonaws.Dynamodb.Types.ExportTableToPointInTimeOutput;
 import Dafny.Com.Amazonaws.Dynamodb.Types.GetItemInput;
 import Dafny.Com.Amazonaws.Dynamodb.Types.GetItemOutput;
-import Dafny.Com.Amazonaws.Dynamodb.Types.IDynamoDB__20120810Client;
+import Dafny.Com.Amazonaws.Dynamodb.Types.IDynamoDBClient;
 import Dafny.Com.Amazonaws.Dynamodb.Types.ImportTableInput;
 import Dafny.Com.Amazonaws.Dynamodb.Types.ImportTableOutput;
 import Dafny.Com.Amazonaws.Dynamodb.Types.ListBackupsInput;
@@ -4833,7 +4833,7 @@ public class ToNative {
     return builder.build();
   }
 
-  public static DynamoDbClient DynamoDB_20120810(IDynamoDB__20120810Client dafnyValue) {
+  public static DynamoDbClient DynamoDB_20120810(IDynamoDBClient dafnyValue) {
     return ((Shim) dafnyValue).impl();
   }
 }

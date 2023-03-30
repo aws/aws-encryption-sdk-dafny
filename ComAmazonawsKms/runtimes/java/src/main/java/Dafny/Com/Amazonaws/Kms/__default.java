@@ -11,7 +11,7 @@ import software.amazon.awssdk.services.kms.KmsClient;
 import software.amazon.awssdk.services.kms.KmsClientBuilder;
 
 import Dafny.Com.Amazonaws.Kms.Types.Error;
-import Dafny.Com.Amazonaws.Kms.Types.IKeyManagementServiceClient;
+import Dafny.Com.Amazonaws.Kms.Types.IKMSClient;
 import Wrappers_Compile.Option;
 import Wrappers_Compile.Result;
 
@@ -19,13 +19,13 @@ import static software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence;
 import static software.amazon.dafny.conversion.ToNative.Simple.String;
 
 public class __default extends Dafny.Com.Amazonaws.Kms._ExternBase___default{
-    public static Result<IKeyManagementServiceClient, Error> KMSClient() {
+    public static Result<IKMSClient, Error> KMSClient() {
         try {
             KmsClientBuilder builder = KmsClient.builder();
             AwsRegionProviderChain regionProvider = DefaultAwsRegionProviderChain.builder().build();
             String region = regionProvider.getRegion().toString();
             KmsClient client = builder.build();
-            IKeyManagementServiceClient shim = new Shim(client, region);
+            IKMSClient shim = new Shim(client, region);
             return Result.create_Success(shim);
         } catch (Exception e) {
             Error dafny_error = Error.create_KMSInternalException(
@@ -34,11 +34,11 @@ public class __default extends Dafny.Com.Amazonaws.Kms._ExternBase___default{
         }
     }
 
-    public static Result<IKeyManagementServiceClient, Error> KMSClient(final String region) {
+    public static Result<IKMSClient, Error> KMSClient(final String region) {
         try {
             KmsClientBuilder builder = KmsClient.builder();
             KmsClient client = builder.region(Region.of(region)).build();
-            IKeyManagementServiceClient shim = new Shim(client, region);
+            IKMSClient shim = new Shim(client, region);
             return Result.create_Success(shim);
         } catch (Exception e) {
             Error dafny_error = Error.create_KMSInternalException(
@@ -48,7 +48,7 @@ public class __default extends Dafny.Com.Amazonaws.Kms._ExternBase___default{
     }
 
     public static Wrappers_Compile.Option<Boolean> RegionMatch(
-      final IKeyManagementServiceClient client,
+      final IKMSClient client,
       final DafnySequence<? extends Character> region
     ) {
         // We should never be passing anything other than Shim as the 'client'.

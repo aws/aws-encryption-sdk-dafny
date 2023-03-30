@@ -26,11 +26,11 @@ module DefaultClientSupplier {
       Modifies := { History };
     }
 
-    predicate GetClientEnsuresPublicly(input: GetClientInput, output: Result<ComAmazonawsKmsTypes.IKeyManagementServiceClient, Error>)
+    predicate GetClientEnsuresPublicly(input: GetClientInput, output: Result<ComAmazonawsKmsTypes.IKMSClient, Error>)
     {true}
     
     method GetClient'(input: GetClientInput)
-      returns (output: Result<ComAmazonawsKmsTypes.IKeyManagementServiceClient, Error>)
+      returns (output: Result<ComAmazonawsKmsTypes.IKMSClient, Error>)
       requires
       && ValidState() 
       modifies Modifies - {History}

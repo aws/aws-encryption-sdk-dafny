@@ -528,10 +528,10 @@ throw new System.ArgumentException("Invalid AWS.Cryptography.MaterialProviders.E
 
  return new Dafny.Aws.Cryptography.MaterialProviders.Types.GetClientInput ( ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S14_GetClientInput__M6_region(value.Region) ) ;
 }
- internal static Amazon.KeyManagementService.IAmazonKeyManagementService FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S15_GetClientOutput (Dafny.Com.Amazonaws.Kms.Types.IKeyManagementServiceClient value) {
+ internal static Amazon.KeyManagementService.IAmazonKeyManagementService FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S15_GetClientOutput (Dafny.Com.Amazonaws.Kms.Types.IKMSClient value) {
  return FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S15_GetClientOutput__M6_client(value);
 }
- internal static Dafny.Com.Amazonaws.Kms.Types.IKeyManagementServiceClient ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S15_GetClientOutput (Amazon.KeyManagementService.IAmazonKeyManagementService value) {
+ internal static Dafny.Com.Amazonaws.Kms.Types.IKMSClient ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S15_GetClientOutput (Amazon.KeyManagementService.IAmazonKeyManagementService value) {
  return ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S15_GetClientOutput__M6_client(value);
 }
  internal static AWS.Cryptography.MaterialProviders.GetEncryptionMaterialsInput FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S27_GetEncryptionMaterialsInput (Dafny.Aws.Cryptography.MaterialProviders.Types._IGetEncryptionMaterialsInput value) {
@@ -903,10 +903,10 @@ throw new System.ArgumentException("Invalid AWS.Cryptography.MaterialProviders.S
  internal static Dafny.Aws.Cryptography.MaterialProviders.Types._IDBECommitmentPolicy ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S16_CommitmentPolicy__M3_DBE (AWS.Cryptography.MaterialProviders.DBECommitmentPolicy value) {
  return ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_DBECommitmentPolicy(value);
 }
- internal static Amazon.KeyManagementService.IAmazonKeyManagementService FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S33_CreateAwsKmsDiscoveryKeyringInput__M9_kmsClient (Dafny.Com.Amazonaws.Kms.Types.IKeyManagementServiceClient value) {
+ internal static Amazon.KeyManagementService.IAmazonKeyManagementService FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S33_CreateAwsKmsDiscoveryKeyringInput__M9_kmsClient (Dafny.Com.Amazonaws.Kms.Types.IKMSClient value) {
  return FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S18_KmsClientReference(value);
 }
- internal static Dafny.Com.Amazonaws.Kms.Types.IKeyManagementServiceClient ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S33_CreateAwsKmsDiscoveryKeyringInput__M9_kmsClient (Amazon.KeyManagementService.IAmazonKeyManagementService value) {
+ internal static Dafny.Com.Amazonaws.Kms.Types.IKMSClient ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S33_CreateAwsKmsDiscoveryKeyringInput__M9_kmsClient (Amazon.KeyManagementService.IAmazonKeyManagementService value) {
  return ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S18_KmsClientReference(value);
 }
  internal static AWS.Cryptography.MaterialProviders.DiscoveryFilter FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S33_CreateAwsKmsDiscoveryKeyringInput__M15_discoveryFilter (Wrappers_Compile._IOption<Dafny.Aws.Cryptography.MaterialProviders.Types._IDiscoveryFilter> value) {
@@ -963,16 +963,16 @@ throw new System.ArgumentException("Invalid AWS.Cryptography.MaterialProviders.S
  internal static Dafny.ISequence<char> ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S36_CreateAwsKmsHierarchicalKeyringInput__M8_kmsKeyId (string value) {
  return ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S8_KmsKeyId(value);
 }
- internal static Amazon.KeyManagementService.IAmazonKeyManagementService FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S36_CreateAwsKmsHierarchicalKeyringInput__M9_kmsClient (Dafny.Com.Amazonaws.Kms.Types.IKeyManagementServiceClient value) {
+ internal static Amazon.KeyManagementService.IAmazonKeyManagementService FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S36_CreateAwsKmsHierarchicalKeyringInput__M9_kmsClient (Dafny.Com.Amazonaws.Kms.Types.IKMSClient value) {
  return FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S18_KmsClientReference(value);
 }
- internal static Dafny.Com.Amazonaws.Kms.Types.IKeyManagementServiceClient ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S36_CreateAwsKmsHierarchicalKeyringInput__M9_kmsClient (Amazon.KeyManagementService.IAmazonKeyManagementService value) {
+ internal static Dafny.Com.Amazonaws.Kms.Types.IKMSClient ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S36_CreateAwsKmsHierarchicalKeyringInput__M9_kmsClient (Amazon.KeyManagementService.IAmazonKeyManagementService value) {
  return ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S18_KmsClientReference(value);
 }
- internal static Amazon.DynamoDBv2.IAmazonDynamoDB FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S36_CreateAwsKmsHierarchicalKeyringInput__M9_ddbClient (Dafny.Com.Amazonaws.Dynamodb.Types.IDynamoDB__20120810Client value) {
+ internal static Amazon.DynamoDBv2.IAmazonDynamoDB FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S36_CreateAwsKmsHierarchicalKeyringInput__M9_ddbClient (Dafny.Com.Amazonaws.Dynamodb.Types.IDynamoDBClient value) {
  return FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S18_DdbClientReference(value);
 }
- internal static Dafny.Com.Amazonaws.Dynamodb.Types.IDynamoDB__20120810Client ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S36_CreateAwsKmsHierarchicalKeyringInput__M9_ddbClient (Amazon.DynamoDBv2.IAmazonDynamoDB value) {
+ internal static Dafny.Com.Amazonaws.Dynamodb.Types.IDynamoDBClient ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S36_CreateAwsKmsHierarchicalKeyringInput__M9_ddbClient (Amazon.DynamoDBv2.IAmazonDynamoDB value) {
  return ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S18_DdbClientReference(value);
 }
  internal static string FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S36_CreateAwsKmsHierarchicalKeyringInput__M17_branchKeyStoreArn (Dafny.ISequence<char> value) {
@@ -1005,10 +1005,10 @@ throw new System.ArgumentException("Invalid AWS.Cryptography.MaterialProviders.S
  internal static Dafny.ISequence<char> ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S24_CreateAwsKmsKeyringInput__M8_kmsKeyId (string value) {
  return ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S8_KmsKeyId(value);
 }
- internal static Amazon.KeyManagementService.IAmazonKeyManagementService FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S24_CreateAwsKmsKeyringInput__M9_kmsClient (Dafny.Com.Amazonaws.Kms.Types.IKeyManagementServiceClient value) {
+ internal static Amazon.KeyManagementService.IAmazonKeyManagementService FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S24_CreateAwsKmsKeyringInput__M9_kmsClient (Dafny.Com.Amazonaws.Kms.Types.IKMSClient value) {
  return FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S18_KmsClientReference(value);
 }
- internal static Dafny.Com.Amazonaws.Kms.Types.IKeyManagementServiceClient ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S24_CreateAwsKmsKeyringInput__M9_kmsClient (Amazon.KeyManagementService.IAmazonKeyManagementService value) {
+ internal static Dafny.Com.Amazonaws.Kms.Types.IKMSClient ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S24_CreateAwsKmsKeyringInput__M9_kmsClient (Amazon.KeyManagementService.IAmazonKeyManagementService value) {
  return ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S18_KmsClientReference(value);
 }
  internal static System.Collections.Generic.List<string> FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S24_CreateAwsKmsKeyringInput__M11_grantTokens (Wrappers_Compile._IOption<Dafny.ISequence<Dafny.ISequence<char>>> value) {
@@ -1017,10 +1017,10 @@ throw new System.ArgumentException("Invalid AWS.Cryptography.MaterialProviders.S
  internal static Wrappers_Compile._IOption<Dafny.ISequence<Dafny.ISequence<char>>> ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S24_CreateAwsKmsKeyringInput__M11_grantTokens (System.Collections.Generic.List<string> value) {
  return value == null ? Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_Some(ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S14_GrantTokenList((System.Collections.Generic.List<string>) value));
 }
- internal static Amazon.KeyManagementService.IAmazonKeyManagementService FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S36_CreateAwsKmsMrkDiscoveryKeyringInput__M9_kmsClient (Dafny.Com.Amazonaws.Kms.Types.IKeyManagementServiceClient value) {
+ internal static Amazon.KeyManagementService.IAmazonKeyManagementService FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S36_CreateAwsKmsMrkDiscoveryKeyringInput__M9_kmsClient (Dafny.Com.Amazonaws.Kms.Types.IKMSClient value) {
  return FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S18_KmsClientReference(value);
 }
- internal static Dafny.Com.Amazonaws.Kms.Types.IKeyManagementServiceClient ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S36_CreateAwsKmsMrkDiscoveryKeyringInput__M9_kmsClient (Amazon.KeyManagementService.IAmazonKeyManagementService value) {
+ internal static Dafny.Com.Amazonaws.Kms.Types.IKMSClient ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S36_CreateAwsKmsMrkDiscoveryKeyringInput__M9_kmsClient (Amazon.KeyManagementService.IAmazonKeyManagementService value) {
  return ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S18_KmsClientReference(value);
 }
  internal static AWS.Cryptography.MaterialProviders.DiscoveryFilter FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S36_CreateAwsKmsMrkDiscoveryKeyringInput__M15_discoveryFilter (Wrappers_Compile._IOption<Dafny.Aws.Cryptography.MaterialProviders.Types._IDiscoveryFilter> value) {
@@ -1071,10 +1071,10 @@ throw new System.ArgumentException("Invalid AWS.Cryptography.MaterialProviders.S
  internal static Dafny.ISequence<char> ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S27_CreateAwsKmsMrkKeyringInput__M8_kmsKeyId (string value) {
  return ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S8_KmsKeyId(value);
 }
- internal static Amazon.KeyManagementService.IAmazonKeyManagementService FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S27_CreateAwsKmsMrkKeyringInput__M9_kmsClient (Dafny.Com.Amazonaws.Kms.Types.IKeyManagementServiceClient value) {
+ internal static Amazon.KeyManagementService.IAmazonKeyManagementService FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S27_CreateAwsKmsMrkKeyringInput__M9_kmsClient (Dafny.Com.Amazonaws.Kms.Types.IKMSClient value) {
  return FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S18_KmsClientReference(value);
 }
- internal static Dafny.Com.Amazonaws.Kms.Types.IKeyManagementServiceClient ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S27_CreateAwsKmsMrkKeyringInput__M9_kmsClient (Amazon.KeyManagementService.IAmazonKeyManagementService value) {
+ internal static Dafny.Com.Amazonaws.Kms.Types.IKMSClient ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S27_CreateAwsKmsMrkKeyringInput__M9_kmsClient (Amazon.KeyManagementService.IAmazonKeyManagementService value) {
  return ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S18_KmsClientReference(value);
 }
  internal static System.Collections.Generic.List<string> FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S27_CreateAwsKmsMrkKeyringInput__M11_grantTokens (Wrappers_Compile._IOption<Dafny.ISequence<Dafny.ISequence<char>>> value) {
@@ -1149,11 +1149,11 @@ throw new System.ArgumentException("Invalid AWS.Cryptography.MaterialProviders.S
  internal static Dafny.Com.Amazonaws.Kms.Types._IEncryptionAlgorithmSpec ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S27_CreateAwsKmsRsaKeyringInput__M19_encryptionAlgorithm (Amazon.KeyManagementService.EncryptionAlgorithmSpec value) {
  return ToDafny_N3_com__N9_amazonaws__N3_kms__S23_EncryptionAlgorithmSpec(value);
 }
- internal static Amazon.KeyManagementService.IAmazonKeyManagementService FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S27_CreateAwsKmsRsaKeyringInput__M9_kmsClient (Wrappers_Compile._IOption<Dafny.Com.Amazonaws.Kms.Types.IKeyManagementServiceClient> value) {
+ internal static Amazon.KeyManagementService.IAmazonKeyManagementService FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S27_CreateAwsKmsRsaKeyringInput__M9_kmsClient (Wrappers_Compile._IOption<Dafny.Com.Amazonaws.Kms.Types.IKMSClient> value) {
  return value.is_None ? (Amazon.KeyManagementService.IAmazonKeyManagementService) null : FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S18_KmsClientReference(value.Extract());
 }
- internal static Wrappers_Compile._IOption<Dafny.Com.Amazonaws.Kms.Types.IKeyManagementServiceClient> ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S27_CreateAwsKmsRsaKeyringInput__M9_kmsClient (Amazon.KeyManagementService.IAmazonKeyManagementService value) {
- return value == null ? Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms.Types.IKeyManagementServiceClient>.create_None() : Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms.Types.IKeyManagementServiceClient>.create_Some(ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S18_KmsClientReference((Amazon.KeyManagementService.IAmazonKeyManagementService) value));
+ internal static Wrappers_Compile._IOption<Dafny.Com.Amazonaws.Kms.Types.IKMSClient> ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S27_CreateAwsKmsRsaKeyringInput__M9_kmsClient (Amazon.KeyManagementService.IAmazonKeyManagementService value) {
+ return value == null ? Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms.Types.IKMSClient>.create_None() : Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms.Types.IKMSClient>.create_Some(ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S18_KmsClientReference((Amazon.KeyManagementService.IAmazonKeyManagementService) value));
 }
  internal static System.Collections.Generic.List<string> FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S27_CreateAwsKmsRsaKeyringInput__M11_grantTokens (Wrappers_Compile._IOption<Dafny.ISequence<Dafny.ISequence<char>>> value) {
  return value.is_None ? (System.Collections.Generic.List<string>) null : FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S14_GrantTokenList(value.Extract());
@@ -1527,10 +1527,10 @@ throw new System.ArgumentException("Invalid AWS.Cryptography.MaterialProviders.S
  internal static Dafny.ISequence<char> ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S14_GetClientInput__M6_region (string value) {
  return ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S6_Region(value);
 }
- internal static Amazon.KeyManagementService.IAmazonKeyManagementService FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S15_GetClientOutput__M6_client (Dafny.Com.Amazonaws.Kms.Types.IKeyManagementServiceClient value) {
+ internal static Amazon.KeyManagementService.IAmazonKeyManagementService FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S15_GetClientOutput__M6_client (Dafny.Com.Amazonaws.Kms.Types.IKMSClient value) {
  return FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S18_KmsClientReference(value);
 }
- internal static Dafny.Com.Amazonaws.Kms.Types.IKeyManagementServiceClient ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S15_GetClientOutput__M6_client (Amazon.KeyManagementService.IAmazonKeyManagementService value) {
+ internal static Dafny.Com.Amazonaws.Kms.Types.IKMSClient ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S15_GetClientOutput__M6_client (Amazon.KeyManagementService.IAmazonKeyManagementService value) {
  return ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S18_KmsClientReference(value);
 }
  internal static System.Collections.Generic.Dictionary<string, string> FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S27_GetEncryptionMaterialsInput__M17_encryptionContext (Dafny.IMap<Dafny.ISequence<byte>, Dafny.ISequence<byte>> value) {
@@ -1845,12 +1845,12 @@ throw new System.ArgumentException("Invalid AWS.Cryptography.MaterialProviders.S
  internal static Dafny.ISequence<char> ToDafny_N6_smithy__N3_api__S6_String (string value) {
  return Dafny.Sequence<char>.FromString(value);
 }
- internal static Amazon.KeyManagementService.IAmazonKeyManagementService FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S18_KmsClientReference (Dafny.Com.Amazonaws.Kms.Types.IKeyManagementServiceClient value) {
+ internal static Amazon.KeyManagementService.IAmazonKeyManagementService FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S18_KmsClientReference (Dafny.Com.Amazonaws.Kms.Types.IKMSClient value) {
  // This is converting a reference type in a dependant module.
  // Therefore it defers to the dependant module for conversion
  return AWS.Cryptography.MaterialProviders.TypeConversion.FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S18_KmsClientReference(value);
 }
- internal static Dafny.Com.Amazonaws.Kms.Types.IKeyManagementServiceClient ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S18_KmsClientReference (Amazon.KeyManagementService.IAmazonKeyManagementService value) {
+ internal static Dafny.Com.Amazonaws.Kms.Types.IKMSClient ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S18_KmsClientReference (Amazon.KeyManagementService.IAmazonKeyManagementService value) {
  // This is converting a reference type in a dependant module.
  // Therefore it defers to the dependant module for conversion
  return AWS.Cryptography.MaterialProviders.TypeConversion.ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S18_KmsClientReference(value);
@@ -1901,12 +1901,12 @@ throw new System.ArgumentException("Invalid AWS.Cryptography.MaterialProviders.S
  internal static Dafny.ISequence<char> ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S8_KmsKeyId (string value) {
  return Dafny.Sequence<char>.FromString(value);
 }
- internal static Amazon.DynamoDBv2.IAmazonDynamoDB FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S18_DdbClientReference (Dafny.Com.Amazonaws.Dynamodb.Types.IDynamoDB__20120810Client value) {
+ internal static Amazon.DynamoDBv2.IAmazonDynamoDB FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S18_DdbClientReference (Dafny.Com.Amazonaws.Dynamodb.Types.IDynamoDBClient value) {
  // This is converting a reference type in a dependant module.
  // Therefore it defers to the dependant module for conversion
  return AWS.Cryptography.MaterialProviders.TypeConversion.FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S18_DdbClientReference(value);
 }
- internal static Dafny.Com.Amazonaws.Dynamodb.Types.IDynamoDB__20120810Client ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S18_DdbClientReference (Amazon.DynamoDBv2.IAmazonDynamoDB value) {
+ internal static Dafny.Com.Amazonaws.Dynamodb.Types.IDynamoDBClient ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S18_DdbClientReference (Amazon.DynamoDBv2.IAmazonDynamoDB value) {
  // This is converting a reference type in a dependant module.
  // Therefore it defers to the dependant module for conversion
  return AWS.Cryptography.MaterialProviders.TypeConversion.ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S18_DdbClientReference(value);

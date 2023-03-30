@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package Dafny.Com.Amazonaws.Dynamodb;
 
-import Dafny.Com.Amazonaws.Dynamodb.Types.IDynamoDB__20120810Client;
+import Dafny.Com.Amazonaws.Dynamodb.Types.IDynamoDBClient;
 import Dafny.Com.Amazonaws.Dynamodb.Types.Error;
 import Wrappers_Compile.Option;
 import Wrappers_Compile.Result;
@@ -17,14 +17,14 @@ import static software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence;
 import static software.amazon.dafny.conversion.ToNative.Simple.String;
 
 public class __default extends Dafny.Com.Amazonaws.Dynamodb._ExternBase___default{
-    public static Result<IDynamoDB__20120810Client, Error> DynamoDBClient() {
+    public static Result<IDynamoDBClient, Error> DynamoDBClient() {
         try {
             Region region = new DefaultAwsRegionProviderChain().getRegion();
             final DynamoDbClient ddbClient = DynamoDbClient.builder()
                     .region(region)
                     .build();
 
-            IDynamoDB__20120810Client shim = new Shim(ddbClient, region.toString());
+            IDynamoDBClient shim = new Shim(ddbClient, region.toString());
             return Result.create_Success(shim);
         } catch (Exception e) {
             Error dafny_error = Error.create_InternalServerError(

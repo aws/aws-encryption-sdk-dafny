@@ -38,7 +38,7 @@ module AwsKmsMrkKeyring {
     extends Keyring.VerifiableInterface
   {
 
-    const client: KMS.IKeyManagementServiceClient
+    const client: KMS.IKMSClient
     const awsKmsKey: AwsKmsIdentifierString
     const awsKmsArn: AwsKmsIdentifier
     const grantTokens: KMS.GrantTokenList
@@ -56,7 +56,7 @@ module AwsKmsMrkKeyring {
       //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-mrk-keyring.md#initialization
       //= type=implication
       //# The AWS KMS SDK client MUST NOT be null.
-      client: KMS.IKeyManagementServiceClient,
+      client: KMS.IKMSClient,
       awsKmsKey: string,
       grantTokens: KMS.GrantTokenList
     )
@@ -533,13 +533,13 @@ module AwsKmsMrkKeyring {
       Types.Error>
   {
     const materials: Materials.DecryptionMaterialsPendingPlaintextDataKey
-    const client: KMS.IKeyManagementServiceClient
+    const client: KMS.IKMSClient
     const awsKmsKey: AwsKmsIdentifierString
     const grantTokens: KMS.GrantTokenList
 
     constructor(
       materials: Materials.DecryptionMaterialsPendingPlaintextDataKey,
-      client: KMS.IKeyManagementServiceClient,
+      client: KMS.IKMSClient,
       awsKmsKey: AwsKmsIdentifierString,
       grantTokens: KMS.GrantTokenList
     )
