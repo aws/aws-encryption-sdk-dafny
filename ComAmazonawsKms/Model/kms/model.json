@@ -4765,7 +4765,7 @@
                 }
             }
         },
-        "com.amazonaws.kms#KeyManagementService": {
+        "com.amazonaws.kms#TrentService": {
             "type": "service",
             "version": "2014-11-01",
             "operations": [

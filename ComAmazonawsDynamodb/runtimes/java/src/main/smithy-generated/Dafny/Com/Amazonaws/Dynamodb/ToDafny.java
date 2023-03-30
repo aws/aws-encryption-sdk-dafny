@@ -154,7 +154,7 @@ import Dafny.Com.Amazonaws.Dynamodb.Types.GlobalTable;
 import Dafny.Com.Amazonaws.Dynamodb.Types.GlobalTableDescription;
 import Dafny.Com.Amazonaws.Dynamodb.Types.GlobalTableGlobalSecondaryIndexSettingsUpdate;
 import Dafny.Com.Amazonaws.Dynamodb.Types.GlobalTableStatus;
-import Dafny.Com.Amazonaws.Dynamodb.Types.IDynamoDB__20120810Client;
+import Dafny.Com.Amazonaws.Dynamodb.Types.IDynamoDBClient;
 import Dafny.Com.Amazonaws.Dynamodb.Types.ImportStatus;
 import Dafny.Com.Amazonaws.Dynamodb.Types.ImportSummary;
 import Dafny.Com.Amazonaws.Dynamodb.Types.ImportTableDescription;
@@ -5732,7 +5732,7 @@ public class ToDafny {
     return new Error_Opaque(message);
   }
 
-  public static IDynamoDB__20120810Client DynamoDB_20120810(DynamoDbClient nativeValue) {
+  public static IDynamoDBClient DynamoDB_20120810(DynamoDbClient nativeValue) {
     return new Shim(nativeValue, null);
   }
 }

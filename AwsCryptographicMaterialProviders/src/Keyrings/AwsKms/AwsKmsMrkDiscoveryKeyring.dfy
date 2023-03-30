@@ -31,7 +31,7 @@ module AwsKmsMrkDiscoveryKeyring {
     //# interface.md#interface)
     extends Keyring.VerifiableInterface
   {
-    const client: KMS.IKeyManagementServiceClient
+    const client: KMS.IKMSClient
     const discoveryFilter: Option<Types.DiscoveryFilter>
     const grantTokens: KMS.GrantTokenList
     const region: string
@@ -54,7 +54,7 @@ module AwsKmsMrkDiscoveryKeyring {
       //# They keyring MUST fail initialization if any required parameters are
       //# missing or null.
       // Dafny does not allow null values for parameters unless explicitly told to (Option or '?')
-      client: KMS.IKeyManagementServiceClient,
+      client: KMS.IKMSClient,
       region: string,
       discoveryFilter: Option<Types.DiscoveryFilter>,
       grantTokens: KMS.GrantTokenList
@@ -396,13 +396,13 @@ module AwsKmsMrkDiscoveryKeyring {
       Types.Error>
   {
     const materials: Materials.DecryptionMaterialsPendingPlaintextDataKey
-    const client: KMS.IKeyManagementServiceClient
+    const client: KMS.IKMSClient
     const region : string
     const grantTokens: KMS.GrantTokenList
 
     constructor(
       materials: Materials.DecryptionMaterialsPendingPlaintextDataKey,
-      client: KMS.IKeyManagementServiceClient,
+      client: KMS.IKMSClient,
       region : string,
       grantTokens: KMS.GrantTokenList
     )

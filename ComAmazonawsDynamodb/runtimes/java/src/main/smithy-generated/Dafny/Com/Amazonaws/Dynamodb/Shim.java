@@ -60,7 +60,7 @@ import Dafny.Com.Amazonaws.Dynamodb.Types.ExportTableToPointInTimeInput;
 import Dafny.Com.Amazonaws.Dynamodb.Types.ExportTableToPointInTimeOutput;
 import Dafny.Com.Amazonaws.Dynamodb.Types.GetItemInput;
 import Dafny.Com.Amazonaws.Dynamodb.Types.GetItemOutput;
-import Dafny.Com.Amazonaws.Dynamodb.Types.IDynamoDB__20120810Client;
+import Dafny.Com.Amazonaws.Dynamodb.Types.IDynamoDBClient;
 import Dafny.Com.Amazonaws.Dynamodb.Types.ImportTableInput;
 import Dafny.Com.Amazonaws.Dynamodb.Types.ImportTableOutput;
 import Dafny.Com.Amazonaws.Dynamodb.Types.ListBackupsInput;
@@ -249,7 +249,7 @@ import software.amazon.awssdk.services.dynamodb.model.UpdateTableResponse;
 import software.amazon.awssdk.services.dynamodb.model.UpdateTimeToLiveRequest;
 import software.amazon.awssdk.services.dynamodb.model.UpdateTimeToLiveResponse;
 
-public class Shim implements IDynamoDB__20120810Client {
+public class Shim implements IDynamoDBClient {
   private final DynamoDbClient _impl;
 
   private final String region;

@@ -2,16 +2,12 @@
 // SPDX-License-Identifier: Apache-2.0
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 using System;
-using AWS.Cryptography.MaterialProviders;
-namespace AWS.Cryptography.MaterialProviders
-{
-  public class DIRECT_KEY_WRAPPING
-  {
+ using AWS.Cryptography.MaterialProviders; namespace AWS.Cryptography.MaterialProviders {
+ public class DIRECT_KEY_WRAPPING {
 
-
-    public void Validate()
-    {
-
-    }
-  }
+ 
+ public void Validate() {
+ 
+}
+}
 }

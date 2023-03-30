@@ -4,7 +4,7 @@ use aws.polymorph#reference
 use aws.polymorph#positional
 use aws.polymorph#extendable
 
-use com.amazonaws.kms#KeyManagementService
+use com.amazonaws.kms#TrentService
 
 ///////////////////
 // Basic structures
@@ -30,7 +30,7 @@ list AccountIdList {
 //////////
 // Clients
 
-@reference(service: KeyManagementService)
+@reference(service: TrentService)
 structure KmsClientReference {}
 
 ///////////////////

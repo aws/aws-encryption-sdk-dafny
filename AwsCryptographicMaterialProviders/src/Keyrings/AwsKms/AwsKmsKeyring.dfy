@@ -37,7 +37,7 @@ module AwsKmsKeyring {
   class AwsKmsKeyring
     extends Keyring.VerifiableInterface
   {
-    const client: KMS.IKeyManagementServiceClient
+    const client: KMS.IKMSClient
     const awsKmsKey: AwsKmsIdentifierString
     const awsKmsArn: AwsKmsIdentifier
     const grantTokens: KMS.GrantTokenList
@@ -59,7 +59,7 @@ module AwsKmsKeyring {
       //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-keyring.md#initialization
       //= type=implication
       //# The AWS KMS SDK client MUST NOT be null.
-      client: KMS.IKeyManagementServiceClient,
+      client: KMS.IKMSClient,
       //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-keyring.md#initialization
       //= type=implication
       //# - MUST provide an AWS KMS key identifier
@@ -604,13 +604,13 @@ module AwsKmsKeyring {
       Types.Error>
   {
     const materials: Materials.DecryptionMaterialsPendingPlaintextDataKey
-    const client: KMS.IKeyManagementServiceClient
+    const client: KMS.IKMSClient
     const awsKmsKey: AwsKmsIdentifierString
     const grantTokens: KMS.GrantTokenList
 
     constructor(
       materials: Materials.DecryptionMaterialsPendingPlaintextDataKey,
-      client: KMS.IKeyManagementServiceClient,
+      client: KMS.IKMSClient,
       awsKmsKey: AwsKmsIdentifierString,
       grantTokens: KMS.GrantTokenList
     )
@@ -715,12 +715,12 @@ module AwsKmsKeyring {
   class KmsUnwrapKeyMaterial
     extends MaterialWrapping.UnwrapMaterial<KmsUnwrapInfo>
   {
-    const client: KMS.IKeyManagementServiceClient
+    const client: KMS.IKMSClient
     const awsKmsKey: AwsKmsIdentifierString
     const grantTokens: KMS.GrantTokenList
 
     constructor(
-      client: KMS.IKeyManagementServiceClient,
+      client: KMS.IKMSClient,
       awsKmsKey: AwsKmsIdentifierString,
       grantTokens: KMS.GrantTokenList
     )
@@ -819,12 +819,12 @@ module AwsKmsKeyring {
   class KmsGenerateAndWrapKeyMaterial
     extends MaterialWrapping.GenerateAndWrapMaterial<KmsWrapInfo>
   {
-    const client: KMS.IKeyManagementServiceClient
+    const client: KMS.IKMSClient
     const awsKmsKey: AwsKmsIdentifierString
     const grantTokens: KMS.GrantTokenList
 
     constructor(
-      client: KMS.IKeyManagementServiceClient,
+      client: KMS.IKMSClient,
       awsKmsKey: AwsKmsIdentifierString,
       grantTokens: KMS.GrantTokenList
     )
@@ -956,12 +956,12 @@ module AwsKmsKeyring {
   class KmsWrapKeyMaterial
     extends MaterialWrapping.WrapMaterial<KmsWrapInfo>
   {
-    const client: KMS.IKeyManagementServiceClient
+    const client: KMS.IKMSClient
     const awsKmsKey: AwsKmsIdentifierString
     const grantTokens: KMS.GrantTokenList
 
     constructor(
-      client: KMS.IKeyManagementServiceClient,
+      client: KMS.IKMSClient,
       awsKmsKey: AwsKmsIdentifierString,
       grantTokens: KMS.GrantTokenList
     )

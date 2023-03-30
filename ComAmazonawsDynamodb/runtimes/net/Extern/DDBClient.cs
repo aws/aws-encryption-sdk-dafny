@@ -12,7 +12,7 @@ namespace Dafny.Com.Amazonaws.Dynamodb
     {
         public static
             _IResult<
-                Types.IDynamoDB__20120810Client,
+                Types.IDynamoDBClient,
                 Types._IError
             >
             DynamoDBClient()
@@ -20,7 +20,7 @@ namespace Dafny.Com.Amazonaws.Dynamodb
             var client = new AmazonDynamoDBClient();
 
             return Result<
-                    Types.IDynamoDB__20120810Client,
+                    Types.IDynamoDBClient,
                     Types._IError
                 >
                 .create_Success(new DynamoDBv2Shim(client));

@@ -30,7 +30,7 @@ module AwsKmsDiscoveryKeyring {
     //# MUST implement that [AWS Encryption SDK Keyring interface](../keyring-interface.md#interface)
     extends Keyring.VerifiableInterface
   {
-    const client: KMS.IKeyManagementServiceClient
+    const client: KMS.IKMSClient
     const discoveryFilter: Option<Types.DiscoveryFilter>
     const grantTokens: KMS.GrantTokenList
 
@@ -52,7 +52,7 @@ module AwsKmsDiscoveryKeyring {
       //# The AWS KMS SDK client MUST NOT be null.
       // This is trivially true because the type we accept in this constructor
       // is non-nullable (as evidenced by the lack of a '?')
-      client: KMS.IKeyManagementServiceClient,
+      client: KMS.IKMSClient,
       discoveryFilter: Option<Types.DiscoveryFilter>,
       grantTokens: KMS.GrantTokenList
     )
@@ -416,12 +416,12 @@ module AwsKmsDiscoveryKeyring {
       Types.Error>
   {
     const materials: Materials.DecryptionMaterialsPendingPlaintextDataKey
-    const client: KMS.IKeyManagementServiceClient
+    const client: KMS.IKMSClient
     const grantTokens: KMS.GrantTokenList
 
     constructor(
       materials: Materials.DecryptionMaterialsPendingPlaintextDataKey,
-      client: KMS.IKeyManagementServiceClient,
+      client: KMS.IKMSClient,
       grantTokens: KMS.GrantTokenList
     )
       requires client.ValidState()

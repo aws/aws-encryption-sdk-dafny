@@ -87,11 +87,7 @@ public final class CryptographicMaterialsCache implements ICryptographicMaterial
       this._impl = nativeImpl;
     }
 
-    ///// BEGIN MANUAL EDIT
-    // TODO: Polymorph-Java's "Dafny" treats void methods in-correctly
-    // https://sim.amazon.com/issues/CrypTool-5108
     public Result<Tuple0, Error> PutCacheEntry(
-        ///// END MANUAL EDIT
         Dafny.Aws.Cryptography.MaterialProviders.Types.PutCacheEntryInput dafnyInput) {
       PutCacheEntryInput nativeInput = ToNative.PutCacheEntryInput(dafnyInput);
       try {
@@ -105,11 +101,7 @@ public final class CryptographicMaterialsCache implements ICryptographicMaterial
       }
     }
 
-    ///// BEGIN MANUAL EDIT
-    // TODO: Polymorph-Java's "Dafny" treats void methods in-correctly
-    // https://sim.amazon.com/issues/CrypTool-5108
     public Result<Tuple0, Error> PutCacheEntry_k(
-        ///// END MANUAL EDIT
         Dafny.Aws.Cryptography.MaterialProviders.Types.PutCacheEntryInput dafnyInput) {
       throw NativeError.builder().message("Not supported at this time.").build();
     }
@@ -134,11 +126,7 @@ public final class CryptographicMaterialsCache implements ICryptographicMaterial
       throw NativeError.builder().message("Not supported at this time.").build();
     }
 
-    ///// BEGIN MANUAL EDIT
-    // TODO: Polymorph-Java's "Dafny" treats void methods in-correctly
-    // https://sim.amazon.com/issues/CrypTool-5108
     public Result<Tuple0, Error> UpdaterUsageMetadata(
-        ///// END MANUAL EDIT
         Dafny.Aws.Cryptography.MaterialProviders.Types.UpdaterUsageMetadataInput dafnyInput) {
       UpdaterUsageMetadataInput nativeInput = ToNative.UpdaterUsageMetadataInput(dafnyInput);
       try {
@@ -152,20 +140,12 @@ public final class CryptographicMaterialsCache implements ICryptographicMaterial
       }
     }
 
-    ///// BEGIN MANUAL EDIT
-    // TODO: Polymorph-Java's "Dafny" treats void methods in-correctly
-    // https://sim.amazon.com/issues/CrypTool-5108
     public Result<Tuple0, Error> UpdaterUsageMetadata_k(
-        ///// END MANUAL EDIT
         Dafny.Aws.Cryptography.MaterialProviders.Types.UpdaterUsageMetadataInput dafnyInput) {
       throw NativeError.builder().message("Not supported at this time.").build();
     }
 
-    ///// BEGIN MANUAL EDIT
-    // TODO: Polymorph-Java's "Dafny" treats void methods in-correctly
-    // https://sim.amazon.com/issues/CrypTool-5108
     public Result<Tuple0, Error> DeleteCacheEntry(
-        ///// END MANUAL EDIT
         Dafny.Aws.Cryptography.MaterialProviders.Types.DeleteCacheEntryInput dafnyInput) {
       DeleteCacheEntryInput nativeInput = ToNative.DeleteCacheEntryInput(dafnyInput);
       try {
@@ -179,11 +159,7 @@ public final class CryptographicMaterialsCache implements ICryptographicMaterial
       }
     }
 
-    ///// BEGIN MANUAL EDIT
-    // TODO: Polymorph-Java's "Dafny" treats void methods in-correctly
-    // https://sim.amazon.com/issues/CrypTool-5108
     public Result<Tuple0, Error> DeleteCacheEntry_k(
-        ///// END MANUAL EDIT
         Dafny.Aws.Cryptography.MaterialProviders.Types.DeleteCacheEntryInput dafnyInput) {
       throw NativeError.builder().message("Not supported at this time.").build();
     }

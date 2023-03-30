@@ -128,8 +128,8 @@ module AwsKmsHierarchicalKeyring {
   class AwsKmsHierarchicalKeyring
     extends Keyring.VerifiableInterface
   {
-    const kmsClient: KMS.IKeyManagementServiceClient
-    const ddbClient: DDB.IDynamoDB_20120810Client
+    const kmsClient: KMS.IKMSClient
+    const ddbClient: DDB.IDynamoDBClient
     const branchKeyId: Option<string>
     const branchKeyIdSupplier: Option<Types.IBranchKeyIdSupplier>
     const awsKmsKey: AwsKmsIdentifierString
@@ -170,7 +170,7 @@ module AwsKmsHierarchicalKeyring {
       //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-hierarchical-keyring.md#initialization
       //= type=implication
       //# - MUST provide an AWS KMS SDK client
-      kmsClient: KMS.IKeyManagementServiceClient,
+      kmsClient: KMS.IKMSClient,
       //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-hierarchical-keyring.md#initialization
       //= type=implication
       //# - MUST provide an AWS KMS key identifier
@@ -182,7 +182,7 @@ module AwsKmsHierarchicalKeyring {
       //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-hierarchical-keyring.md#initialization
       //= type=implication
       //# - MUST provide an AWS DDB SDK client
-      ddbClient: DDB.IDynamoDB_20120810Client,
+      ddbClient: DDB.IDynamoDBClient,
       //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-hierarchical-keyring.md#initialization
       //= type=implication
       //# - MUST provide an AWS DDB Table ARN
@@ -639,7 +639,7 @@ module AwsKmsHierarchicalKeyring {
     branchKeyRecord: branchKeyItem,
     awsKmsKey: AwsKmsIdentifierString,
     grantTokens: KMS.GrantTokenList,
-    kmsClient: KMS.IKeyManagementServiceClient
+    kmsClient: KMS.IKMSClient
   )
     returns (output: Result<KMS.DecryptResponse, Types.Error>)
 
@@ -838,8 +838,8 @@ module AwsKmsHierarchicalKeyring {
       Types.Error>
   {
     const materials: Materials.DecryptionMaterialsPendingPlaintextDataKey
-    const kmsClient: KMS.IKeyManagementServiceClient
-    const ddbClient: DDB.IDynamoDB_20120810Client
+    const kmsClient: KMS.IKMSClient
+    const ddbClient: DDB.IDynamoDBClient
     const cryptoPrimitives: Primitives.AtomicPrimitivesClient
     const branchKeyStoreName: string
     const branchKeyId: string
@@ -850,8 +850,8 @@ module AwsKmsHierarchicalKeyring {
 
     constructor(
       materials: Materials.DecryptionMaterialsPendingPlaintextDataKey,
-      kmsClient: KMS.IKeyManagementServiceClient,
-      ddbClient: DDB.IDynamoDB_20120810Client,
+      kmsClient: KMS.IKMSClient,
+      ddbClient: DDB.IDynamoDBClient,
       cryptoPrimitives: Primitives.AtomicPrimitivesClient,
       branchKeyStoreName: string,
       branchKeyId: string,

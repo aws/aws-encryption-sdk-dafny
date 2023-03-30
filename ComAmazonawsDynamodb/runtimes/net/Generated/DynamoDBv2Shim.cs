@@ -4,7 +4,7 @@
 using System;
  using System.IO;
  using System.Collections.Generic; namespace Com.Amazonaws.Dynamodb {
- public class DynamoDBv2Shim : Dafny.Com.Amazonaws.Dynamodb.Types.IDynamoDB__20120810Client {
+ public class DynamoDBv2Shim : Dafny.Com.Amazonaws.Dynamodb.Types.IDynamoDBClient {
  public Amazon.DynamoDBv2.AmazonDynamoDBClient _impl;
  public DynamoDBv2Shim(Amazon.DynamoDBv2.AmazonDynamoDBClient impl) {
     this._impl = impl;

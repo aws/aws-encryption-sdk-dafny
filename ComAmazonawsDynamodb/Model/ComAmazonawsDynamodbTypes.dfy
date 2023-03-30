@@ -542,7 +542,7 @@ include "../../StandardLibrary/src/Index.dfy"
  predicate method IsValid_Double(x: seq<uint8>) {
  ( 8 <= |x| <= 8 )
 }
- class IDynamoDB_20120810ClientCallHistory {
+ class IDynamoDBClientCallHistory {
  ghost constructor() {
  BatchExecuteStatement := [];
  BatchGetItem := [];
@@ -652,7 +652,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ghost var UpdateTableReplicaAutoScaling: seq<DafnyCallEvent<UpdateTableReplicaAutoScalingInput, Result<UpdateTableReplicaAutoScalingOutput, Error>>>
  ghost var UpdateTimeToLive: seq<DafnyCallEvent<UpdateTimeToLiveInput, Result<UpdateTimeToLiveOutput, Error>>>
 }
- trait {:termination false} IDynamoDB_20120810Client
+ trait {:termination false} IDynamoDBClient
  {
  // Helper to define any additional modifies/reads clauses.
  // If your operations need to mutate state,
@@ -678,7 +678,7 @@ include "../../StandardLibrary/src/Index.dfy"
  // You MUST also ensure ValidState in your constructor.
  predicate ValidState()
  ensures ValidState() ==> History in Modifies
-  ghost const History: IDynamoDB_20120810ClientCallHistory
+  ghost const History: IDynamoDBClientCallHistory
  predicate BatchExecuteStatementEnsuresPublicly(input: BatchExecuteStatementInput , output: Result<BatchExecuteStatementOutput, Error>)
  // The public method to be called by library consumers
  method BatchExecuteStatement ( input: BatchExecuteStatementInput )
@@ -2759,7 +2759,7 @@ include "../../StandardLibrary/src/Index.dfy"
  datatype DynamoDBClientConfigType = DynamoDBClientConfigType
  function method DefaultDynamoDBClientConfigType(): DynamoDBClientConfigType
  method {:extern} DynamoDBClient()
- returns (res: Result<IDynamoDB_20120810Client, Error>)
+ returns (res: Result<IDynamoDBClient, Error>)
  ensures res.Success? ==> 
  && fresh(res.value)
  && fresh(res.value.Modifies)
