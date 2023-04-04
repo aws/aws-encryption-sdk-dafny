@@ -53,7 +53,10 @@ structure dafnyUtf8Bytes {}
 
 // A trait indicating that the resource may be implemented by native code (instead of Dafny code).
 // i.e.: Users may author their own classes that implement and extend this resource.
-// Polymorph will generate and utilize NativeWrappers for these resources.
+// Polymorph MUST generate and utilize NativeWrappers for these resources.
+// Polymorph MUST generate conversion methods capabale of wrapping & un-wrapping
+// these native resources.
+// i.e.: The wrapping MUST NOT be a one way door.
 @trait(selector: "resource")
 structure extendable {}
 
