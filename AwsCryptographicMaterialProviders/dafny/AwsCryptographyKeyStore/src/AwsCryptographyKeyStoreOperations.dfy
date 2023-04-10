@@ -1,0 +1,87 @@
+// Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+include "../Model/AwsCryptographyKeyStoreTypes.dfy"
+
+include "KeyStoreOperations.dfy"
+
+module AwsCryptographyKeyStoreOperations refines AbstractAwsCryptographyKeyStoreOperations {
+  import KMS = ComAmazonawsKmsTypes
+  import DDB = ComAmazonawsDynamodbTypes
+  import MPL = AwsCryptographyMaterialProvidersTypes
+  import MaterialProviders
+  import KeyStoreOperations
+
+  datatype Config = Config(
+    nameonly ddbTableName: DDB.TableName,
+    nameonly kmsClient: ComAmazonawsKmsTypes.IKMSClient,
+    nameonly ddbClient: ComAmazonawsDynamodbTypes.IDynamoDBClient
+  )
+
+  type InternalConfig = Config
+
+  predicate ValidInternalConfig?(config: InternalConfig)
+  {
+    && DDB.IsValid_TableName(config.ddbTableName)
+    && config.kmsClient.ValidState()
+    && config.ddbClient.ValidState()
+  }
+
+  function ModifiesInternalConfig(config: InternalConfig) : set<object>
+  {
+    config.kmsClient.Modifies + config.ddbClient.Modifies
+  }
+
+  predicate CreateKeyStoreEnsuresPublicly(input: CreateKeyStoreInput, output: Result<CreateKeyStoreOutput, Error>)
+  {true}
+
+  method CreateKeyStore ( config: InternalConfig, input: CreateKeyStoreInput )
+    returns (output: Result<CreateKeyStoreOutput, Error>)
+  {
+    return Failure(KeyStoreException(message := "Implement me"));
+  }
+
+  predicate CreateKeyEnsuresPublicly(input: CreateKeyInput, output: Result<CreateKeyOutput, Error>)
+  {true}
+
+  method CreateKey(config: InternalConfig, input: CreateKeyInput)
+    returns (output: Result<CreateKeyOutput, Error>)
+  {
+    return Failure(KeyStoreException(message := "Implement me"));
+  }
+  
+  predicate VersionKeyEnsuresPublicly(input: VersionKeyInput, output: Result<(), Error>)
+  {true}
+
+  method VersionKey(config: InternalConfig, input: VersionKeyInput)
+    returns (output: Result<(), Error>)
+  {
+    return Failure(KeyStoreException(message := "Implement me"));
+  }
+
+  predicate GetActiveBranchKeyEnsuresPublicly(input: GetActiveBranchKeyInput, output: Result<GetActiveBranchKeyOutput, Error>)
+  {true}
+
+  method GetActiveBranchKey(config: InternalConfig, input: GetActiveBranchKeyInput) 
+    returns (output: Result<GetActiveBranchKeyOutput, Error>)
+  { 
+    return Failure(KeyStoreException(message := "Implement me"));
+  }
+
+  predicate GetBranchKeyVersionEnsuresPublicly(input: GetBranchKeyVersionInput, output: Result<GetBranchKeyVersionOutput, Error>)
+  {true}
+
+  method GetBranchKeyVersion(config: InternalConfig, input: GetBranchKeyVersionInput)
+    returns (output: Result<GetBranchKeyVersionOutput, Error>)
+  {
+    return Failure(KeyStoreException(message := "Implement me"));
+  }
+
+  predicate GetBeaconKeyEnsuresPublicly(input: GetBeaconKeyInput, output: Result<GetBeaconKeyOutput, Error>)
+  {true}
+
+  method GetBeaconKey(config: InternalConfig, input: GetBeaconKeyInput)
+    returns (output: Result<GetBeaconKeyOutput, Error>)
+  {
+    output := KeyStoreOperations.GetBeaconKeyAndUnwrap(input, config.ddbTableName, config.kmsClient, config.ddbClient);
+  }
+}

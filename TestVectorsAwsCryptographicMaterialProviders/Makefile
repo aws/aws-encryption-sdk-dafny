@@ -5,7 +5,7 @@ CORES=2
 
 include ../SharedMakefile.mk
 
-SMITHY_MODEL_ROOT := $(PROJECT_ROOT)/AwsCryptographicMaterialProviders/Model
+SMITHY_MODEL_ROOT := $(PROJECT_ROOT)/AwsCryptographicMaterialProviders/dafny/AwsCryptographicMaterialProviders/Model
 OUTPUT_LOCAL_SERVICE := --local-service-test
 
 SMITHY_NAMESPACE=aws.cryptography.materialProviders
@@ -18,6 +18,22 @@ LIBRARIES := \
 	ComAmazonawsKms \
 	ComAmazonawsDynamodb \
 	AwsCryptographicMaterialProviders
+
+# Since we are packaging projects differently, we cannot make assumptions
+# about where the files are located. 
+# This is here to get unblocked but should be removed once we have migrated packages
+# to the new packaging format.
+LIBRARIES_INDEX := \
+	AwsCryptographyPrimitives/src/Index.dfy \
+	ComAmazonawsKms/src/Index.dfy \
+	ComAmazonawsDynamodb/src/Index.dfy \
+	AwsCryptographicMaterialProviders/dafny/AwsCryptographicMaterialProviders/src/Index.dfy \
+
+LIBRARY_MODEL := \
+	AwsCryptographyPrimitives/Model \
+	ComAmazonawsKms/Model \
+	ComAmazonawsDynamodb/Model \
+	AwsCryptographicMaterialProviders/dafny/AwsCryptographicMaterialProviders/Model
 
 format_net:
 	pushd runtimes/net && dotnet format && popd
