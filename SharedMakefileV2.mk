@@ -56,7 +56,20 @@ verify:
 		-verificationLogger:csv \
 		-timeLimit:300 \
 		-trace \
-		`find . -name '*.dfy'`
+		`find . -name *.dfy`
+
+# Verify single file FILE with text logger.
+# This is useful for debugging resource count usage within a file.
+verify_single:
+	@: $(if ${CORES},,CORES=2);
+	dafny \
+		-vcsCores:$(CORES) \
+		-compile:0 \
+		-definiteAssignment:3 \
+		-verificationLogger:text \
+		-timeLimit:300 \
+		-trace \
+		$(FILE)
 
 #Verify only a specific namespace at env var $(SERVICE)
 verify_service:
@@ -80,7 +93,7 @@ dafny-reportgenerator:
 
 # Transpile the entire project's impl
 _transpile_implementation_all: TRANSPILE_TARGETS=$(patsubst %, ./dafny/%/src/Index.dfy, $(PROJECT_SERVICES))
-_transpile_implementation_all: TRANSPILE_DEPENDENCIES=$(patsubst %, -library:$(PROJECT_ROOT)/%/src/Index.dfy, $(PROJECT_DEPENDENCIES))
+_transpile_implementation_all: TRANSPILE_DEPENDENCIES=$(patsubst %, -library:$(PROJECT_ROOT)/%, $(PROJECT_INDEX))
 _transpile_implementation_all: transpile_implementation
 
 # The `$(OUT)` and $(TARGET) variables are problematic.
@@ -112,7 +125,7 @@ transpile_implementation:
 
 # Transpile the entire project's tests
 _transpile_test_all: TRANSPILE_TARGETS=$(patsubst %, `find ./dafny/%/test -name '*.dfy'`, $(PROJECT_SERVICES))
-_transpile_test_all: TRANSPILE_DEPENDENCIES=$(patsubst %, -library:dafny/%/src/Index.dfy, $(PROJECT_SERVICES))
+_transpile_test_all: TRANSPILE_DEPENDENCIES=$(patsubst %, -library:$(PROJECT_ROOT)/%, $(PROJECT_INDEX))
 _transpile_test_all: transpile_test
 
 transpile_test:
@@ -286,9 +299,7 @@ mvn_local_deploy:
 
 test_java:
     # run Dafny generated tests
-	gradle -p runtimes/java runDafnyTests
-    # run hand written Java tests
-	gradle -p runtimes/java test
+	gradle -p runtimes/java runTests
 
 ########################## local testing targets
 

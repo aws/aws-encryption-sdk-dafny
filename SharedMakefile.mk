@@ -83,7 +83,7 @@ transpile_implementation:
 		-out $(OUT) \
 		./src/Index.dfy \
 		-library:$(PROJECT_ROOT)/StandardLibrary/src/Index.dfy \
-		$(patsubst %, -library:$(PROJECT_ROOT)/%/src/Index.dfy, $(LIBRARIES))
+		$(patsubst %, -library:$(PROJECT_ROOT)/%, $(LIBRARIES_INDEX))
 
 transpile_test:
 	dafny \
@@ -123,7 +123,7 @@ _polymorph:
 	$(OUTPUT_JAVA) \
 	--model $(SMITHY_MODEL_ROOT) \
 	--dependent-model $(PROJECT_ROOT)/model \
-	$(patsubst %, --dependent-model $(PROJECT_ROOT)/%/Model, $(LIBRARIES)) \
+	$(patsubst %, --dependent-model $(PROJECT_ROOT)/%, $(LIBRARY_MODEL)) \
 	--namespace $(SMITHY_NAMESPACE) \
 	$(AWS_SDK_CMD) \
 	$(OUTPUT_LOCAL_SERVICE) \

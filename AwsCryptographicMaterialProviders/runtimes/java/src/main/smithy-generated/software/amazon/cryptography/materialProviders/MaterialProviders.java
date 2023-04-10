@@ -42,19 +42,6 @@ import software.amazon.cryptography.materialProviders.model.ValidEncryptionMater
 import software.amazon.cryptography.materialProviders.model.ValidateCommitmentPolicyOnDecryptInput;
 import software.amazon.cryptography.materialProviders.model.ValidateCommitmentPolicyOnEncryptInput;
 
-// BEGIN MANUAL EDITS
-import software.amazon.cryptography.materialProviders.model.BranchKeySupplier;
-import software.amazon.cryptography.materialProviders.model.CreateDynamoDbEncryptionBranchKeySupplierInput;
-import software.amazon.cryptography.materialProviders.model.DynamoDbEncryptionBranchKeySupplier;
-import software.amazon.cryptography.materialProviders.model.CreateBranchKeyStoreOutput;
-import software.amazon.cryptography.materialProviders.model.CreateBranchKeyStoreInput;
-import software.amazon.awssdk.services.dynamodb.model.TableDescription;
-import software.amazon.cryptography.materialProviders.model.CreateBranchKeyOutput;
-import software.amazon.cryptography.materialProviders.model.CreateBranchKeyInput;
-import software.amazon.cryptography.materialProviders.model.VersionBranchKeyOutput;
-import software.amazon.cryptography.materialProviders.model.VersionBranchKeyInput;
-// END MANUAL EDIT
-
 public class MaterialProviders {
   private final IAwsCryptographicMaterialProvidersClient _impl;
 
@@ -70,38 +57,6 @@ public class MaterialProviders {
 
   public static Builder builder() {
     return new BuilderImpl();
-  }
-
-  // TODO This is manually added and needs to be added to smithy and generated properly
-  public BranchKeySupplier CreateDynamoDbEncryptionBranchKeySupplier(CreateDynamoDbEncryptionBranchKeySupplierInput nativeValue) {
-    // Stubbed implementation ignores input and returns a 'DynamoDbEncryptionBranchKeySupplier'
-    // which currently is stubbed to return 'foobar'
-    return new DynamoDbEncryptionBranchKeySupplier();
-  }
-
-  // TODO This is manually added and needs to be added to smithy and generated properly
-  public CreateBranchKeyStoreOutput CreateBranchKeyStore(CreateBranchKeyStoreInput input) {
-    // Stubbed to return an empty TableDescription
-    return CreateBranchKeyStoreOutput.builder()
-            .tableDescription(TableDescription.builder().build())
-            .build();
-  }
-
-  // TODO This is manually added and needs to be added to smithy and generated properly
-  public CreateBranchKeyOutput CreateBranchKey(CreateBranchKeyInput input) {
-    // Stubbed to return an constant guid
-    return CreateBranchKeyOutput.builder()
-            .branchKeyId("a89b547a-7062-4048-b455-d850e32ef808")
-            .build();
-
-  }
-
-  // TODO This is manually added and needs to be added to smithy and generated properly
-  public VersionBranchKeyOutput VersionBranchKey(VersionBranchKeyInput input) {
-    // Stubbed to always return 1
-    return VersionBranchKeyOutput.builder()
-            .versionCreated(1)
-            .build();
   }
 
   public IKeyring CreateAwsKmsKeyring(CreateAwsKmsKeyringInput nativeValue) {
