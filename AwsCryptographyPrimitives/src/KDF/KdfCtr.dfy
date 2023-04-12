@@ -84,7 +84,7 @@ module KdfCtr {
 
     var macLengthBytes := Digest.Length(derivationMac) as int32; // "h" in SP800-108
     // Number of iterations required to compose output of required length.
-    var iterations := ((length + macLengthBytes) + 1) / macLengthBytes; // "n" in SP800-108
+    var iterations := (length + macLengthBytes - 1) / macLengthBytes; // "n" in SP800-108
     var buffer := [];
 
     // Counter "i"
@@ -103,7 +103,7 @@ module KdfCtr {
       var tmp := hmac.GetResult();
       buffer := buffer + tmp;
 
-      i := Increment(i);
+      i :- Increment(i);
     }
 
     :- Need(
@@ -114,22 +114,22 @@ module KdfCtr {
     return Success(buffer[..length]);
   }
   
-  function method Increment(x : seq<uint8>) : (ret : seq<uint8>)
+  function method Increment(x : seq<uint8>) : (ret : Result<seq<uint8>, Types.Error>)
     requires |x| == 4
-    ensures |ret| == 4
+    ensures ret.Success? ==> |ret.value| == 4
   {
     // increments the counter x which represents the number of iterations
     // as a bit sequence
     if x[3] < 255 then
-      [x[0], x[1], x[2], x[3]+1]
+      Success([x[0], x[1], x[2], x[3]+1])
     else if x[2] < 255 then
-      [x[0], x[1], x[2]+1, 0]
+      Success([x[0], x[1], x[2]+1, 0])
     else if x[1] < 255 then
-      [x[0], x[1]+1, 0, 0]
+      Success([x[0], x[1]+1, 0, 0])
     else if x[0] < 255 then
-      [x[0]+1, 0, 0, 0]
+      Success([x[0]+1, 0, 0, 0])
     else
-      [0, 0, 0, 0]
+      Failure(Types.AwsCryptographicPrimitivesError(message := "Unable to derive key material; may have exceeded limit."))
   }
 
 }
