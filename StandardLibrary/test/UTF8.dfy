@@ -24,7 +24,9 @@ module TestUTF8 {
 
   method {:test} TestDecodeHappyCase() {
     var unicodeBytes := [0x61, 0x62, 0x63, 0xCC, 0x86, 0xC7, 0xBD, 0xCE, 0xB2];
-    assert UTF8.ValidUTF8Range(unicodeBytes, 3, 9);
+    assert UTF8.Uses2Bytes([0xC7, 0xBD, 0xCE, 0xB2]);
+    assert [0xC7, 0xBD, 0xCE, 0xB2] == unicodeBytes[5..9];
+    assert UTF8.ValidUTF8Range(unicodeBytes, 7, 9);
     assert UTF8.ValidUTF8Range(unicodeBytes, 0, 9);
     var expectedString := "abc\u0306\u01FD\u03B2";
     var decoded :- expect UTF8.Decode(unicodeBytes);

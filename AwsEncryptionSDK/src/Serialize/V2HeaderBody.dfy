@@ -142,7 +142,7 @@ module V2HeaderBody {
       } else {
         if 0 < |body.encryptionContext| {
           assert WriteV2ExpandedAADSectionHeaderBody(body) == WriteV2HeaderBody(body) by { HeadersAreTheSameWhenThereIsEncryptionContext(body); }
-           assert WriteV2ExpandedAADSectionHeaderBody(body) == 
+          assert WriteV2ExpandedAADSectionHeaderBody(body) == 
             (((((((WriteMessageFormatVersion(HeaderTypes.MessageFormatVersion.V2)
             + WriteESDKSuiteId(body.algorithmSuite))
             + WriteMessageId(body.messageId))
@@ -163,6 +163,22 @@ module V2HeaderBody {
             + WriteESDKSuiteId(body.algorithmSuite))
             + WriteMessageId(body.messageId)) 
             <= buffer.bytes[buffer.start..];
+          assert 
+            (((WriteMessageFormatVersion(HeaderTypes.MessageFormatVersion.V2)
+            + WriteESDKSuiteId(body.algorithmSuite))
+            + WriteMessageId(body.messageId))
+            + WriteAADSection(body.encryptionContext))
+            <= buffer.bytes[buffer.start..];
+
+          assert WriteEncryptedDataKeysSection(body.encryptedDataKeys) <= buffer.bytes[encryptionContext.tail.start..];
+
+          assert 
+            (((WriteMessageFormatVersion(HeaderTypes.MessageFormatVersion.V2)
+            + WriteESDKSuiteId(body.algorithmSuite))
+            + WriteMessageId(body.messageId))
+            + WriteAADSection(body.encryptionContext))
+            == buffer.bytes[buffer.start..encryptionContext.tail.start];
+
           assert 
             ((((WriteMessageFormatVersion(HeaderTypes.MessageFormatVersion.V2)
             + WriteESDKSuiteId(body.algorithmSuite))

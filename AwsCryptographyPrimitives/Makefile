@@ -3,11 +3,10 @@
 
 CORES=2
 
-include ../SharedMakefile.mk
+include ../SharedMakefileV2.mk
 
 SMITHY_NAMESPACE=aws.cryptography.primitives
 MAX_RESOURCE_COUNT=10000000
-# Order is important
-# In java they MUST be built
-# in the order they depend on each other
-LIBRARIES := 
+
+STD_LIBRARY=StandardLibrary
+SMITHY_DEPS=model

@@ -161,6 +161,9 @@ module V1HeaderBody {
         assert messageId.tail.start + 4 == encryptionContext.tail.start;
 
         assert CorrectlyReadRange(buffer, frameLength.tail);
+        assert 
+          WriteMessageFormatVersion(HeaderTypes.MessageFormatVersion.V1) 
+          <= buffer.bytes[buffer.start..];
         assert WriteV1ExpandedAADSectionHeaderBody(body) <= buffer.bytes[buffer.start..];
         assert frameLength.tail.start == buffer.start + |WriteV1ExpandedAADSectionHeaderBody(body)|;
 
@@ -169,8 +172,86 @@ module V1HeaderBody {
       } else {
          if 0 < |body.encryptionContext| {
           assert WriteV1ExpandedAADSectionHeaderBody(body) == WriteV1HeaderBody(body) by { HeadersAreTheSameWhenThereIsEncryptionContext(body); }
-          assert WriteV1ExpandedAADSectionHeaderBody(body) <= buffer.bytes[buffer.start..];
+          assert WriteV1ExpandedAADSectionHeaderBody(body) == 
+            (((((((((WriteMessageFormatVersion(HeaderTypes.MessageFormatVersion.V1)
+            + WriteV1MessageType(body.messageType))
+            + WriteESDKSuiteId(body.algorithmSuite))
+            + WriteMessageId(body.messageId))
+            + WriteExpandedAADSection(body.encryptionContext))
+            + WriteEncryptedDataKeysSection(body.encryptedDataKeys))
+            + WriteContentType(body.contentType))
+            + WriteV1ReservedBytes(RESERVED_BYTES))
+            + WriteV1HeaderIvLength(GetIvLength(body.algorithmSuite)))
+            + WriteUint32(body.frameLength));
+          assert 
+            WriteMessageFormatVersion(HeaderTypes.MessageFormatVersion.V1) 
+            <= buffer.bytes[buffer.start..];
+          assert 
+            ((WriteMessageFormatVersion(HeaderTypes.MessageFormatVersion.V1) 
+            + WriteV1MessageType(body.messageType))
+            + WriteESDKSuiteId(body.algorithmSuite))
+            <= buffer.bytes[buffer.start..];
+          assert 
+            ((WriteMessageFormatVersion(HeaderTypes.MessageFormatVersion.V1) 
+            + WriteV1MessageType(body.messageType))
+            + WriteESDKSuiteId(body.algorithmSuite)) 
+            <= buffer.bytes[buffer.start..];
+          assert 
+            (((WriteMessageFormatVersion(HeaderTypes.MessageFormatVersion.V1)
+            + WriteV1MessageType(body.messageType))
+            + WriteESDKSuiteId(body.algorithmSuite)) 
+            + WriteMessageId(body.messageId)) 
+            <= buffer.bytes[buffer.start..];
+          assert 
+            ((((WriteMessageFormatVersion(HeaderTypes.MessageFormatVersion.V1)
+            + WriteV1MessageType(body.messageType))
+            + WriteESDKSuiteId(body.algorithmSuite)) 
+            + WriteMessageId(body.messageId))
+            + WriteAADSection(body.encryptionContext))
+            <= buffer.bytes[buffer.start..];
 
+          assert WriteEncryptedDataKeysSection(body.encryptedDataKeys) <= buffer.bytes[encryptionContext.tail.start..];
+
+          assert 
+            ((((WriteMessageFormatVersion(HeaderTypes.MessageFormatVersion.V1)
+            + WriteV1MessageType(body.messageType))
+            + WriteESDKSuiteId(body.algorithmSuite)) 
+            + WriteMessageId(body.messageId))
+            + WriteAADSection(body.encryptionContext))
+            == buffer.bytes[buffer.start..encryptionContext.tail.start];
+
+          assert 
+            (((((WriteMessageFormatVersion(HeaderTypes.MessageFormatVersion.V1)
+            + WriteV1MessageType(body.messageType))
+            + WriteESDKSuiteId(body.algorithmSuite)) 
+            + WriteMessageId(body.messageId))
+            + WriteAADSection(body.encryptionContext))
+            + WriteEncryptedDataKeysSection(body.encryptedDataKeys))
+            <= buffer.bytes[buffer.start..];
+          assert 
+            ((((((WriteMessageFormatVersion(HeaderTypes.MessageFormatVersion.V1)
+            + WriteV1MessageType(body.messageType))
+            + WriteESDKSuiteId(body.algorithmSuite)) 
+            + WriteMessageId(body.messageId))
+            + WriteAADSection(body.encryptionContext))
+            + WriteEncryptedDataKeysSection(body.encryptedDataKeys))
+            + WriteContentType(body.contentType))
+            <= buffer.bytes[buffer.start..];
+          assert 
+            (((((((((WriteMessageFormatVersion(HeaderTypes.MessageFormatVersion.V1)
+            + WriteV1MessageType(body.messageType))
+            + WriteESDKSuiteId(body.algorithmSuite)) 
+            + WriteMessageId(body.messageId))
+            + WriteAADSection(body.encryptionContext))
+            + WriteEncryptedDataKeysSection(body.encryptedDataKeys))
+            + WriteContentType(body.contentType))
+            + WriteV1ReservedBytes(RESERVED_BYTES))
+            + WriteV1HeaderIvLength(GetIvLength(body.algorithmSuite)))
+            + WriteUint32(body.frameLength))
+          <= buffer.bytes[buffer.start..];
+          assert WriteV1ExpandedAADSectionHeaderBody(body) <= buffer.bytes[buffer.start..];
+          assert WriteMessageFormatVersion(HeaderTypes.MessageFormatVersion.V1) <= buffer.bytes[buffer.start..];
+          
           assert CorrectlyReadRange(buffer, frameLength.tail);
           assert WriteV1HeaderBody(body) <= buffer.bytes[buffer.start..];
           assert frameLength.tail.start == buffer.start + |WriteV1HeaderBody(body)|;
