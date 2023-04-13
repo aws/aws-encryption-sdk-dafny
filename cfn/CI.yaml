@@ -6,6 +6,10 @@ Parameters:
     Type: String
     Description: Test Table Name
     Default: HierarchicalKeyringTestTable
+  KeyStoreTable:
+    Type: String
+    Description: Key Store Test Table Name
+    Default: KeyStoreTestTable
   ProjectName:
     Type: String
     Description: A prefix that will be applied to any names
@@ -16,6 +20,38 @@ Parameters:
     Default: aws/private-aws-encryption-sdk-dafny-staging
 
 Resources:
+  KeyStoreTestTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: "branch-key-id"
+          AttributeType: "S"
+        - AttributeName: "type"
+          AttributeType: "S"
+        - AttributeName: "status"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "branch-key-id"
+          KeyType: "HASH"
+        - AttributeName: "type"
+          KeyType: "RANGE"
+      ProvisionedThroughput:
+        ReadCapacityUnits: "5"
+        WriteCapacityUnits: "5"
+      TableName: !Ref KeyStoreTable
+      GlobalSecondaryIndexes:
+      - IndexName: !Sub "Active-Keys-${KeyStoreTable}"
+        KeySchema:
+          - AttributeName: "branch-key-id"
+            KeyType: "HASH"
+          - AttributeName: "status"
+            KeyType: "RANGE"
+        Projection:
+          ProjectionType: "ALL"
+        ProvisionedThroughput:
+          ReadCapacityUnits: "5"
+          WriteCapacityUnits: "5"
+
   HierarchicalKeyringTestTable:
     Type: AWS::DynamoDB::Table
     Properties:
@@ -68,6 +104,20 @@ Resources:
             Resource:
               - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${TableName}"
               - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${TableName}/index/*"
+          - Effect: Allow
+            Action:
+              - dynamodb:DescribeTable
+              - dynamodb:CreateTable
+              - dynamodb:PutItem
+              - dynamodb:DeleteItem
+              - dynamodb:GetItem
+              - dynamodb:Query
+              - dynamodb:ConditionCheckItem
+              - dynamodb:UpdateItem
+            Resource:
+              - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${KeyStoreTable}"
+              - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${KeyStoreTable}/index/*"
+
   
   HierarchicalGitHubKMSKeyID:
     Type: 'AWS::KMS::Key'
