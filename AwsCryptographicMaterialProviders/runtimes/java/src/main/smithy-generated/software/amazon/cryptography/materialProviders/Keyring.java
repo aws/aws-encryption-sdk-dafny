@@ -57,8 +57,8 @@ public final class Keyring implements IKeyring {
     return ToNative.OnDecryptOutput(result.dtor_value());
   }
 
-  private static final class NativeWrapper implements Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring {
-    private final IKeyring _impl;
+  protected static final class NativeWrapper implements Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring {
+    protected final IKeyring _impl;
 
     NativeWrapper(IKeyring nativeImpl) {
       if (nativeImpl instanceof Keyring) {

@@ -1,15 +1,19 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 include "../Model/AwsCryptographyKeyStoreTypes.dfy"
+include "../../AwsCryptographicMaterialProviders/src/AwsArnParsing.dfy"
 
-include "KeyStoreOperations.dfy"
+include "GetKeys.dfy"
+include "CreateKeyStoreTable.dfy"
 
 module AwsCryptographyKeyStoreOperations refines AbstractAwsCryptographyKeyStoreOperations {
+  import opened AwsArnParsing
   import KMS = ComAmazonawsKmsTypes
   import DDB = ComAmazonawsDynamodbTypes
   import MPL = AwsCryptographyMaterialProvidersTypes
   import MaterialProviders
-  import KeyStoreOperations
+  import GetKeys
+  import CreateKeyStoreTable
 
   datatype Config = Config(
     nameonly ddbTableName: DDB.TableName,
@@ -36,8 +40,24 @@ module AwsCryptographyKeyStoreOperations refines AbstractAwsCryptographyKeyStore
 
   method CreateKeyStore ( config: InternalConfig, input: CreateKeyStoreInput )
     returns (output: Result<CreateKeyStoreOutput, Error>)
+    ensures output.Success? ==>
+      && AwsArnParsing.ParseAmazonDynamodbTableName(output.value.tableArn).Success?
+      && AwsArnParsing.ParseAmazonDynamodbTableName(output.value.tableArn).value == config.ddbTableName
   {
-    return Failure(KeyStoreException(message := "Implement me"));
+    :- Need(
+      DDB.IsValid_IndexName("Active-Keys-" + config.ddbTableName),
+      Types.KeyStoreException(message := "Invalid table name length.")
+    );
+
+    var ddbTableArn :- CreateKeyStoreTable.CreateKeyStoreTable(config.ddbTableName, config.ddbClient);
+    :- Need(
+      && AwsArnParsing.ParseAmazonDynamodbTableName(ddbTableArn).Success?
+      && var tableName := AwsArnParsing.ParseAmazonDynamodbTableName(ddbTableArn);
+      && tableName.value == config.ddbTableName,
+      Types.KeyStoreException(message := "Configured DDB Table Name does not match parsed Table Name from DDB Table Arn.") 
+    );
+
+    output := Success(Types.CreateKeyStoreOutput(tableArn := ddbTableArn));
   }
 
   predicate CreateKeyEnsuresPublicly(input: CreateKeyInput, output: Result<CreateKeyOutput, Error>)
@@ -63,8 +83,12 @@ module AwsCryptographyKeyStoreOperations refines AbstractAwsCryptographyKeyStore
 
   method GetActiveBranchKey(config: InternalConfig, input: GetActiveBranchKeyInput) 
     returns (output: Result<GetActiveBranchKeyOutput, Error>)
-  { 
-    return Failure(KeyStoreException(message := "Implement me"));
+  {
+    :- Need(
+      DDB.IsValid_IndexName("Active-Keys-" + config.ddbTableName),
+      Types.KeyStoreException(message := "Invalid table name length.")
+    );
+    output := GetKeys.GetActiveKeyAndUnwrap(input, config.ddbTableName, config.kmsClient, config.ddbClient);
   }
 
   predicate GetBranchKeyVersionEnsuresPublicly(input: GetBranchKeyVersionInput, output: Result<GetBranchKeyVersionOutput, Error>)
@@ -73,7 +97,11 @@ module AwsCryptographyKeyStoreOperations refines AbstractAwsCryptographyKeyStore
   method GetBranchKeyVersion(config: InternalConfig, input: GetBranchKeyVersionInput)
     returns (output: Result<GetBranchKeyVersionOutput, Error>)
   {
-    return Failure(KeyStoreException(message := "Implement me"));
+    :- Need(
+      |input.branchKeyVersion| == 16,
+      Types.KeyStoreException(message := "Invalid branch key version length.")
+    );
+    output := GetKeys.GetBranchKeyVersion(input, config.ddbTableName, config.kmsClient, config.ddbClient);
   }
 
   predicate GetBeaconKeyEnsuresPublicly(input: GetBeaconKeyInput, output: Result<GetBeaconKeyOutput, Error>)
@@ -82,6 +110,6 @@ module AwsCryptographyKeyStoreOperations refines AbstractAwsCryptographyKeyStore
   method GetBeaconKey(config: InternalConfig, input: GetBeaconKeyInput)
     returns (output: Result<GetBeaconKeyOutput, Error>)
   {
-    output := KeyStoreOperations.GetBeaconKeyAndUnwrap(input, config.ddbTableName, config.kmsClient, config.ddbClient);
+    output := GetKeys.GetBeaconKeyAndUnwrap(input, config.ddbTableName, config.kmsClient, config.ddbClient);
   }
 }

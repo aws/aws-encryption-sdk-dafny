@@ -3,32 +3,18 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.keyStore.model;
 
-import java.nio.ByteBuffer;
 import java.util.Objects;
+import software.amazon.cryptography.materialProviders.model.HierarchicalMaterials;
 
 public class GetActiveBranchKeyOutput {
-  private final ByteBuffer branchKey;
-
-  private final String branchKeyVersion;
-
-  private final String awsKmsKeyArn;
+  private final HierarchicalMaterials hierarchicalMaterials;
 
   protected GetActiveBranchKeyOutput(BuilderImpl builder) {
-    this.branchKey = builder.branchKey();
-    this.branchKeyVersion = builder.branchKeyVersion();
-    this.awsKmsKeyArn = builder.awsKmsKeyArn();
+    this.hierarchicalMaterials = builder.hierarchicalMaterials();
   }
 
-  public ByteBuffer branchKey() {
-    return this.branchKey;
-  }
-
-  public String branchKeyVersion() {
-    return this.branchKeyVersion;
-  }
-
-  public String awsKmsKeyArn() {
-    return this.awsKmsKeyArn;
+  public HierarchicalMaterials hierarchicalMaterials() {
+    return this.hierarchicalMaterials;
   }
 
   public Builder toBuilder() {
@@ -40,70 +26,35 @@ public class GetActiveBranchKeyOutput {
   }
 
   public interface Builder {
-    Builder branchKey(ByteBuffer branchKey);
+    Builder hierarchicalMaterials(HierarchicalMaterials hierarchicalMaterials);
 
-    ByteBuffer branchKey();
-
-    Builder branchKeyVersion(String branchKeyVersion);
-
-    String branchKeyVersion();
-
-    Builder awsKmsKeyArn(String awsKmsKeyArn);
-
-    String awsKmsKeyArn();
+    HierarchicalMaterials hierarchicalMaterials();
 
     GetActiveBranchKeyOutput build();
   }
 
   static class BuilderImpl implements Builder {
-    protected ByteBuffer branchKey;
-
-    protected String branchKeyVersion;
-
-    protected String awsKmsKeyArn;
+    protected HierarchicalMaterials hierarchicalMaterials;
 
     protected BuilderImpl() {
     }
 
     protected BuilderImpl(GetActiveBranchKeyOutput model) {
-      this.branchKey = model.branchKey();
-      this.branchKeyVersion = model.branchKeyVersion();
-      this.awsKmsKeyArn = model.awsKmsKeyArn();
+      this.hierarchicalMaterials = model.hierarchicalMaterials();
     }
 
-    public Builder branchKey(ByteBuffer branchKey) {
-      this.branchKey = branchKey;
+    public Builder hierarchicalMaterials(HierarchicalMaterials hierarchicalMaterials) {
+      this.hierarchicalMaterials = hierarchicalMaterials;
       return this;
     }
 
-    public ByteBuffer branchKey() {
-      return this.branchKey;
-    }
-
-    public Builder branchKeyVersion(String branchKeyVersion) {
-      this.branchKeyVersion = branchKeyVersion;
-      return this;
-    }
-
-    public String branchKeyVersion() {
-      return this.branchKeyVersion;
-    }
-
-    public Builder awsKmsKeyArn(String awsKmsKeyArn) {
-      this.awsKmsKeyArn = awsKmsKeyArn;
-      return this;
-    }
-
-    public String awsKmsKeyArn() {
-      return this.awsKmsKeyArn;
+    public HierarchicalMaterials hierarchicalMaterials() {
+      return this.hierarchicalMaterials;
     }
 
     public GetActiveBranchKeyOutput build() {
-      if (Objects.isNull(this.branchKey()))  {
-        throw new IllegalArgumentException("Missing value for required field `branchKey`");
-      }
-      if (Objects.isNull(this.branchKeyVersion()))  {
-        throw new IllegalArgumentException("Missing value for required field `branchKeyVersion`");
+      if (Objects.isNull(this.hierarchicalMaterials()))  {
+        throw new IllegalArgumentException("Missing value for required field `hierarchicalMaterials`");
       }
       return new GetActiveBranchKeyOutput(this);
     }

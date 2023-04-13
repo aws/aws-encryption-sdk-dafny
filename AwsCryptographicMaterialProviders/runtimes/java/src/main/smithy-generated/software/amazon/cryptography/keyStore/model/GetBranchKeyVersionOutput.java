@@ -3,25 +3,18 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.keyStore.model;
 
-import java.nio.ByteBuffer;
 import java.util.Objects;
+import software.amazon.cryptography.materialProviders.model.HierarchicalMaterials;
 
 public class GetBranchKeyVersionOutput {
-  private final ByteBuffer branchKey;
-
-  private final String branchKeyVersion;
+  private final HierarchicalMaterials hierarchicalMaterials;
 
   protected GetBranchKeyVersionOutput(BuilderImpl builder) {
-    this.branchKey = builder.branchKey();
-    this.branchKeyVersion = builder.branchKeyVersion();
+    this.hierarchicalMaterials = builder.hierarchicalMaterials();
   }
 
-  public ByteBuffer branchKey() {
-    return this.branchKey;
-  }
-
-  public String branchKeyVersion() {
-    return this.branchKeyVersion;
+  public HierarchicalMaterials hierarchicalMaterials() {
+    return this.hierarchicalMaterials;
   }
 
   public Builder toBuilder() {
@@ -33,54 +26,35 @@ public class GetBranchKeyVersionOutput {
   }
 
   public interface Builder {
-    Builder branchKey(ByteBuffer branchKey);
+    Builder hierarchicalMaterials(HierarchicalMaterials hierarchicalMaterials);
 
-    ByteBuffer branchKey();
-
-    Builder branchKeyVersion(String branchKeyVersion);
-
-    String branchKeyVersion();
+    HierarchicalMaterials hierarchicalMaterials();
 
     GetBranchKeyVersionOutput build();
   }
 
   static class BuilderImpl implements Builder {
-    protected ByteBuffer branchKey;
-
-    protected String branchKeyVersion;
+    protected HierarchicalMaterials hierarchicalMaterials;
 
     protected BuilderImpl() {
     }
 
     protected BuilderImpl(GetBranchKeyVersionOutput model) {
-      this.branchKey = model.branchKey();
-      this.branchKeyVersion = model.branchKeyVersion();
+      this.hierarchicalMaterials = model.hierarchicalMaterials();
     }
 
-    public Builder branchKey(ByteBuffer branchKey) {
-      this.branchKey = branchKey;
+    public Builder hierarchicalMaterials(HierarchicalMaterials hierarchicalMaterials) {
+      this.hierarchicalMaterials = hierarchicalMaterials;
       return this;
     }
 
-    public ByteBuffer branchKey() {
-      return this.branchKey;
-    }
-
-    public Builder branchKeyVersion(String branchKeyVersion) {
-      this.branchKeyVersion = branchKeyVersion;
-      return this;
-    }
-
-    public String branchKeyVersion() {
-      return this.branchKeyVersion;
+    public HierarchicalMaterials hierarchicalMaterials() {
+      return this.hierarchicalMaterials;
     }
 
     public GetBranchKeyVersionOutput build() {
-      if (Objects.isNull(this.branchKey()))  {
-        throw new IllegalArgumentException("Missing value for required field `branchKey`");
-      }
-      if (Objects.isNull(this.branchKeyVersion()))  {
-        throw new IllegalArgumentException("Missing value for required field `branchKeyVersion`");
+      if (Objects.isNull(this.hierarchicalMaterials()))  {
+        throw new IllegalArgumentException("Missing value for required field `hierarchicalMaterials`");
       }
       return new GetBranchKeyVersionOutput(this);
     }

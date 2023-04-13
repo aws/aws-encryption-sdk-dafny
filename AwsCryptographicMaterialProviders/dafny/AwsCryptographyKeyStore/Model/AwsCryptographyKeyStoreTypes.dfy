@@ -19,7 +19,8 @@ include "../../../../StandardLibrary/src/Index.dfy"
  // Begin Generated Types
  
  datatype CreateKeyInput = | CreateKeyInput (
- nameonly awsKmsKeyArn: AwsCryptographyMaterialProvidersTypes.KmsKeyId
+ nameonly awsKmsKeyArn: AwsCryptographyMaterialProvidersTypes.KmsKeyId ,
+ nameonly grantTokens: Option<AwsCryptographyMaterialProvidersTypes.GrantTokenList>
  )
  datatype CreateKeyOutput = | CreateKeyOutput (
  nameonly branchKeyIdentifier: string
@@ -28,20 +29,20 @@ include "../../../../StandardLibrary/src/Index.dfy"
  
  )
  datatype CreateKeyStoreOutput = | CreateKeyStoreOutput (
- 
+ nameonly tableArn: ComAmazonawsDynamodbTypes.TableArn
  )
  datatype GetActiveBranchKeyInput = | GetActiveBranchKeyInput (
  nameonly branchKeyIdentifier: string ,
- nameonly awsKmsKeyArn: Option<AwsCryptographyMaterialProvidersTypes.KmsKeyId>
+ nameonly awsKmsKeyArn: Option<AwsCryptographyMaterialProvidersTypes.KmsKeyId> ,
+ nameonly grantTokens: Option<AwsCryptographyMaterialProvidersTypes.GrantTokenList>
  )
  datatype GetActiveBranchKeyOutput = | GetActiveBranchKeyOutput (
- nameonly branchKey: AwsCryptographyMaterialProvidersTypes.Secret ,
- nameonly branchKeyVersion: string ,
- nameonly awsKmsKeyArn: Option<AwsCryptographyMaterialProvidersTypes.KmsKeyId>
+ nameonly hierarchicalMaterials: AwsCryptographyMaterialProvidersTypes.HierarchicalMaterials
  )
  datatype GetBeaconKeyInput = | GetBeaconKeyInput (
  nameonly branchKeyIdentifier: string ,
- nameonly awsKmsKeyArn: Option<AwsCryptographyMaterialProvidersTypes.KmsKeyId>
+ nameonly awsKmsKeyArn: Option<AwsCryptographyMaterialProvidersTypes.KmsKeyId> ,
+ nameonly grantTokens: Option<AwsCryptographyMaterialProvidersTypes.GrantTokenList>
  )
  datatype GetBeaconKeyOutput = | GetBeaconKeyOutput (
  nameonly beaconKey: AwsCryptographyMaterialProvidersTypes.Secret
@@ -49,11 +50,11 @@ include "../../../../StandardLibrary/src/Index.dfy"
  datatype GetBranchKeyVersionInput = | GetBranchKeyVersionInput (
  nameonly branchKeyIdentifier: string ,
  nameonly branchKeyVersion: string ,
- nameonly awsKmsKeyArn: Option<AwsCryptographyMaterialProvidersTypes.KmsKeyId>
+ nameonly awsKmsKeyArn: Option<AwsCryptographyMaterialProvidersTypes.KmsKeyId> ,
+ nameonly grantTokens: Option<AwsCryptographyMaterialProvidersTypes.GrantTokenList>
  )
  datatype GetBranchKeyVersionOutput = | GetBranchKeyVersionOutput (
- nameonly branchKey: AwsCryptographyMaterialProvidersTypes.Secret ,
- nameonly branchKeyVersion: string
+ nameonly hierarchicalMaterials: AwsCryptographyMaterialProvidersTypes.HierarchicalMaterials
  )
  class IKeyStoreClientCallHistory {
  ghost constructor() {
@@ -195,7 +196,8 @@ include "../../../../StandardLibrary/src/Index.dfy"
  nameonly kmsClient: Option<ComAmazonawsKmsTypes.IKMSClient>
  )
  datatype VersionKeyInput = | VersionKeyInput (
- nameonly branchKeyIdentifier: string
+ nameonly branchKeyIdentifier: string ,
+ nameonly grantTokens: Option<AwsCryptographyMaterialProvidersTypes.GrantTokenList>
  )
  datatype Error =
  // Local Error structures are listed here

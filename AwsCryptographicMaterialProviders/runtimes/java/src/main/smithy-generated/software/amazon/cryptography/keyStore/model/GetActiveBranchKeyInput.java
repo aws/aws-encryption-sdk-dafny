@@ -3,6 +3,7 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.keyStore.model;
 
+import java.util.List;
 import java.util.Objects;
 
 public class GetActiveBranchKeyInput {
@@ -10,9 +11,12 @@ public class GetActiveBranchKeyInput {
 
   private final String awsKmsKeyArn;
 
+  private final List<String> grantTokens;
+
   protected GetActiveBranchKeyInput(BuilderImpl builder) {
     this.branchKeyIdentifier = builder.branchKeyIdentifier();
     this.awsKmsKeyArn = builder.awsKmsKeyArn();
+    this.grantTokens = builder.grantTokens();
   }
 
   public String branchKeyIdentifier() {
@@ -21,6 +25,10 @@ public class GetActiveBranchKeyInput {
 
   public String awsKmsKeyArn() {
     return this.awsKmsKeyArn;
+  }
+
+  public List<String> grantTokens() {
+    return this.grantTokens;
   }
 
   public Builder toBuilder() {
@@ -40,6 +48,10 @@ public class GetActiveBranchKeyInput {
 
     String awsKmsKeyArn();
 
+    Builder grantTokens(List<String> grantTokens);
+
+    List<String> grantTokens();
+
     GetActiveBranchKeyInput build();
   }
 
@@ -48,12 +60,15 @@ public class GetActiveBranchKeyInput {
 
     protected String awsKmsKeyArn;
 
+    protected List<String> grantTokens;
+
     protected BuilderImpl() {
     }
 
     protected BuilderImpl(GetActiveBranchKeyInput model) {
       this.branchKeyIdentifier = model.branchKeyIdentifier();
       this.awsKmsKeyArn = model.awsKmsKeyArn();
+      this.grantTokens = model.grantTokens();
     }
 
     public Builder branchKeyIdentifier(String branchKeyIdentifier) {
@@ -72,6 +87,15 @@ public class GetActiveBranchKeyInput {
 
     public String awsKmsKeyArn() {
       return this.awsKmsKeyArn;
+    }
+
+    public Builder grantTokens(List<String> grantTokens) {
+      this.grantTokens = grantTokens;
+      return this;
+    }
+
+    public List<String> grantTokens() {
+      return this.grantTokens;
     }
 
     public GetActiveBranchKeyInput build() {
