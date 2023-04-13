@@ -20,7 +20,7 @@ module StrictMultiKeyring {
   import AwsKmsKeyring
   import opened AwsKmsUtils
 
-  method StrictMultiKeyring(
+  method {:vcs_split_on_every_assert} StrictMultiKeyring(
     generator: Option<string>,
     awsKmsKeys: Option<seq<string>>,
     clientSupplier: Types.IClientSupplier,

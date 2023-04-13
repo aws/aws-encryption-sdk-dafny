@@ -5,7 +5,7 @@ CORES=2
 include ../SharedMakefile.mk
 
 SMITHY_NAMESPACE=aws.encryptionSdk
-MAX_RESOURCE_COUNT=200000000
+MAX_RESOURCE_COUNT=100000000
 # Order is important
 # In java they MUST be built
 # in the order they depend on each other

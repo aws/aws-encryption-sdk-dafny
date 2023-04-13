@@ -111,7 +111,7 @@ module Base64 {
     [b0, b1, b2, b3]
   }
 
-  function method IndexSeqToUInt24(s: seq<index>): (x: uint24)
+  function method {:vcs_split_on_every_assert} IndexSeqToUInt24(s: seq<index>): (x: uint24)
     requires |s| == 4
     ensures UInt24ToIndexSeq(x) == s
   {

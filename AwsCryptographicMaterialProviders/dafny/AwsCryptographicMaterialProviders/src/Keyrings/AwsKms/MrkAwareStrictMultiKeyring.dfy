@@ -20,7 +20,7 @@ module MrkAwareStrictMultiKeyring {
   import AwsKmsMrkKeyring
   import opened AwsKmsUtils
 
-  method MrkAwareStrictMultiKeyring(
+  method {:vcs_split_on_every_assert} MrkAwareStrictMultiKeyring(
     generator: Option<string>,
     awsKmsKeys: Option<seq<string>>,
     clientSupplier: Types.IClientSupplier,

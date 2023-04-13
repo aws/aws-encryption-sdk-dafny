@@ -182,7 +182,7 @@ module {:options "/functionSyntax:4" } LocalCMC {
       assert (head.Ptr? <==> tail.Ptr?);
     }
 
-    method remove(toRemove: CacheEntry)
+    method {:vcs_split_on_every_assert} remove(toRemove: CacheEntry)
       requires Invariant()
       requires toRemove in Items
       modifies this, Items
@@ -280,6 +280,7 @@ module {:options "/functionSyntax:4" } LocalCMC {
 
     ghost predicate ValidState()
       reads this`Modifies, Modifies - {History}
+      ensures ValidState() ==> History in Modifies
     {
       && History in Modifies
       && this in Modifies
@@ -297,7 +298,7 @@ module {:options "/functionSyntax:4" } LocalCMC {
       // The cache is a cache of Cells, these Cells MUST be unique.
       // The actual value that the Cell contains MAY be a duplicate.
       // See the uniqueness comment on the DoublyLinkedList.Invariant.
-      && (forall k <- cache.Keys(), k' <- cache.Keys() | k != k' :: cache.Select(k) != cache.Select(k'))
+      && MutableMapIsInjective(cache)
       // Given that cache.Values and queue.Items are unique
       // they MUST contain exactly the same elements.
       && multiset(cache.Values()) == multiset(queue.Items)
@@ -410,7 +411,7 @@ module {:options "/functionSyntax:4" } LocalCMC {
     ghost predicate PutCacheEntryEnsuresPublicly(input: Types.PutCacheEntryInput, output: Result<(), Types.Error>)
     {true}
 
-    method PutCacheEntry'(input: Types.PutCacheEntryInput)
+    method {:vcs_split_on_every_assert} PutCacheEntry'(input: Types.PutCacheEntryInput)
       returns (output: Result<(), Types.Error>)
       requires ValidState()
       modifies Modifies - {History}
@@ -484,7 +485,7 @@ module {:options "/functionSyntax:4" } LocalCMC {
     ghost predicate DeleteCacheEntryEnsuresPublicly(input: Types.DeleteCacheEntryInput, output: Result<(), Types.Error>)
     {true}
 
-    method DeleteCacheEntry'(input: Types.DeleteCacheEntryInput)
+    method {:vcs_split_on_every_assert} DeleteCacheEntry'(input: Types.DeleteCacheEntryInput)
       returns (output: Result<(), Types.Error>)
       requires ValidState()
       modifies Modifies - {History}
@@ -510,11 +511,29 @@ module {:options "/functionSyntax:4" } LocalCMC {
         // to keep others from using this value.
         // This is "more" thread safe.
         cache.Remove(input.identifier);
-        assert |cache.Keys()| <= |old@CAN_REMOVE(cache.Keys())|;
+        assert cell !in cache.Values();
+
+        assert MutableMapIsInjective(cache) by {
+          // Since the map values are themselves heap objects, we need to check that they too are unchanged
+          assert forall k <- cache.Keys() :: old(allocated(cache.Select(k))) && unchanged(cache.Select(k));
+          assert MutableMapIsInjective(old@CAN_REMOVE(cache));
+
+          assert MutableMapContains(old@CAN_REMOVE(cache), cache);
+          LemmaMutableMapContainsPreservesInjectivity(old@CAN_REMOVE(cache), cache);
+        }
+        assert |cache.Keys()| == |old@CAN_REMOVE(cache.Keys())| - 1;
         assert cache.Size() <= old@CAN_REMOVE(cache.Size()) <= entryCapacity;
         queue.remove(cell);
+        assert multiset(cache.Values()) == multiset(queue.Items) by {
+          var cacheMultiset := multiset(cache.Values());
+          var queueMultiset := multiset(queue.Items);
+          assert cacheMultiset[cell := 0] == queueMultiset[cell := 0];
+          assert cell !in cacheMultiset;
+          assert cell !in queueMultiset;
+        }
         Modifies := Modifies - {cell};
       }
+
       output := Success(());
     }
 
@@ -602,4 +621,26 @@ module {:options "/functionSyntax:4" } LocalCMC {
       return Success(());
     }
   }
+
+  // TODO move this into MutableMap
+  ghost predicate MutableMapIsInjective<K, V>(m: MutableMap<K, V>)
+    reads m
+  {
+    forall k <- m.Keys(), k' <- m.Keys() | k != k' :: m.Select(k) != m.Select(k')
+  }
+
+  // TODO move this into MutableMap
+  ghost predicate MutableMapContains<K, V>(big: MutableMap<K, V>, small: MutableMap<K, V>)
+    reads {big, small}
+  {
+    && small.Keys() <= big.Keys()
+    && forall k <- small.Keys() :: small.Select(k) == big.Select(k)
+  }
+
+  // TODO move this into MutableMap
+  lemma LemmaMutableMapContainsPreservesInjectivity<K, V>(big: MutableMap<K, V>, small: MutableMap<K, V>)
+    requires MutableMapContains(big, small)
+    requires MutableMapIsInjective(big)
+    ensures MutableMapIsInjective(small)
+  {}
 }

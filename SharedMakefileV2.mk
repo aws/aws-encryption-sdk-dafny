@@ -53,22 +53,30 @@ verify:
 		-vcsCores:$(CORES) \
 		-compile:0 \
 		-definiteAssignment:3 \
+		-quantifierSyntax:3 \
+		-unicodeChar:0 \
+		-functionSyntax:3 \
 		-verificationLogger:csv \
-		-timeLimit:300 \
+		-timeLimit:100 \
 		-trace \
 		`find . -name *.dfy`
 
 # Verify single file FILE with text logger.
 # This is useful for debugging resource count usage within a file.
+# Use PROC to further scope the verification
 verify_single:
 	@: $(if ${CORES},,CORES=2);
 	dafny \
 		-vcsCores:$(CORES) \
 		-compile:0 \
 		-definiteAssignment:3 \
+		-quantifierSyntax:3 \
+		-unicodeChar:0 \
+		-functionSyntax:3 \
 		-verificationLogger:text \
-		-timeLimit:300 \
+		-timeLimit:100 \
 		-trace \
+		$(if ${PROC},-proc:*$(PROC)*,) \
 		$(FILE)
 
 #Verify only a specific namespace at env var $(SERVICE)
@@ -78,10 +86,28 @@ verify_service:
 		-vcsCores:$(CORES) \
 		-compile:0 \
 		-definiteAssignment:3 \
+		-quantifierSyntax:3 \
+		-unicodeChar:0 \
+		-functionSyntax:3 \
 		-verificationLogger:csv \
-		-timeLimit:300 \
+		-timeLimit:100 \
 		-trace \
 		`find ./dafny/$(SERVICE) -name '*.dfy'` \
+
+format:
+	dafny format \
+		--function-syntax 3 \
+		--quantifier-syntax 3 \
+		--unicode-char false \
+		`find . -name '*.dfy'`
+
+format-check:
+	dafny format \
+		--check \
+		--function-syntax 3 \
+		--quantifier-syntax 3 \
+		--unicode-char false \
+		`find . -name '*.dfy'`
 
 dafny-reportgenerator:
 	dafny-reportgenerator \
@@ -92,8 +118,8 @@ dafny-reportgenerator:
 # Dafny helper targets
 
 # Transpile the entire project's impl
-_transpile_implementation_all: TRANSPILE_TARGETS=$(patsubst %, ./dafny/%/src/Index.dfy, $(PROJECT_SERVICES))
-_transpile_implementation_all: TRANSPILE_DEPENDENCIES=$(patsubst %, -library:$(PROJECT_ROOT)/%, $(PROJECT_INDEX))
+_transpile_implementation_all: TRANSPILE_TARGETS=$(if ${PROJECT_SERVICES}, $(patsubst %, ./dafny/%/src/Index.dfy, $(PROJECT_SERVICES)), src/Index.dfy)
+_transpile_implementation_all: TRANSPILE_DEPENDENCIES=$(if ${PROJECT_INDEX}, $(patsubst %, -library:$(PROJECT_ROOT)/%, $(PROJECT_INDEX)), )
 _transpile_implementation_all: transpile_implementation
 
 # The `$(OUT)` and $(TARGET) variables are problematic.
@@ -117,15 +143,18 @@ transpile_implementation:
 		-spillTargetCode:3 \
 		-compile:0 \
 		-optimizeErasableDatatypeWrapper:0 \
+		-quantifierSyntax:3 \
+		-unicodeChar:0 \
+		-functionSyntax:3 \
 		-useRuntimeLib \
 		-out $(OUT) \
 		$(TRANSPILE_TARGETS) \
-		-library:$(PROJECT_ROOT)/$(STD_LIBRARY)/src/Index.dfy \
+		$(if $(strip $(STD_LIBRARY)) , -library:$(PROJECT_ROOT)/$(STD_LIBRARY)/src/Index.dfy, ) \
 		$(TRANSPILE_DEPENDENCIES)
 
 # Transpile the entire project's tests
-_transpile_test_all: TRANSPILE_TARGETS=$(patsubst %, `find ./dafny/%/test -name '*.dfy'`, $(PROJECT_SERVICES))
-_transpile_test_all: TRANSPILE_DEPENDENCIES=$(patsubst %, -library:$(PROJECT_ROOT)/%, $(PROJECT_INDEX))
+_transpile_test_all: TRANSPILE_TARGETS=$(if ${PROJECT_SERVICES}, $(patsubst %, `find ./dafny/%/test -name '*.dfy'`, $(PROJECT_SERVICES)), `find ./test -name '*.dfy'`)
+_transpile_test_all: TRANSPILE_DEPENDENCIES=$(if ${PROJECT_SERVICES}, $(patsubst %, -library:dafny/%/src/Index.dfy, $(PROJECT_SERVICES)), -library:src/Index.dfy)
 _transpile_test_all: transpile_test
 
 transpile_test:
@@ -136,15 +165,20 @@ transpile_test:
 		-runAllTests:1 \
 		-compile:0 \
 		-optimizeErasableDatatypeWrapper:0 \
+		-quantifierSyntax:3 \
+		-unicodeChar:0 \
+		-functionSyntax:3 \
 		-useRuntimeLib \
 		-out $(OUT) \
 		$(TRANSPILE_TARGETS) \
-		-library:$(PROJECT_ROOT)/$(STD_LIBRARY)/src/Index.dfy \
+		$(if $(strip $(STD_LIBRARY)) , -library:$(PROJECT_ROOT)/$(STD_LIBRARY)/src/Index.dfy, ) \
 		$(TRANSPILE_DEPENDENCIES)
 
 
+# If we are not the StandardLibrary, transpile the StandardLibrary.
+# Transpile all other dependencies
 transpile_dependencies:
-	$(MAKE) -C $(PROJECT_ROOT)/$(STD_LIBRARY) transpile_implementation_$(LANG)
+	$(if $(strip $(STD_LIBRARY)), $(MAKE) -C $(PROJECT_ROOT)/$(STD_LIBRARY) transpile_implementation_$(LANG), )
 	$(patsubst %, $(MAKE) -C $(PROJECT_ROOT)/% transpile_implementation_$(LANG);, $(PROJECT_DEPENDENCIES))
 
 ########################## Code-Gen targets
@@ -159,6 +193,32 @@ transpile_dependencies:
 # a single target can decide what parts it wants to build.
 
 _polymorph:
+	$(if $(PROJECT_SERVICES), $(MAKE) _polymorph_v2, $(MAKE) _polymorph_v1)
+
+_polymorph_v1:
+	@: $(if ${CODEGEN_CLI_ROOT},,$(error You must pass the path CODEGEN_CLI_ROOT: CODEGEN_CLI_ROOT=/[path]/[to]/smithy-dafny/codegen/smithy-dafny-codegen-cli));
+	cd $(CODEGEN_CLI_ROOT); \
+	./../gradlew run --args="\
+	$(OUTPUT_DAFNY) \
+	$(OUTPUT_DOTNET) \
+	$(OUTPUT_JAVA) \
+	--model $(SMITHY_MODEL_ROOT) \
+	--dependent-model $(PROJECT_ROOT)/model \
+	$(patsubst %, --dependent-model $(PROJECT_ROOT)/%, $(LIBRARY_MODEL)) \
+	--namespace $(SMITHY_NAMESPACE) \
+	$(AWS_SDK_CMD) \
+	$(OUTPUT_LOCAL_SERVICE) \
+	";
+
+_polymorph_v2:
+	for service in $(PROJECT_SERVICES) ; do \
+		export service_deps_var=SERVICE_DEPS_$${service} ; \
+		export namespace_var=SERVICE_NAMESPACE_$${service} ; \
+		export SERVICE=$${service} ; \
+		$(MAKE) _polymorph_v2_per_service || exit 1; \
+	done
+
+_polymorph_v2_per_service:
 	@: $(if ${CODEGEN_CLI_ROOT},,$(error You must pass the path CODEGEN_CLI_ROOT: CODEGEN_CLI_ROOT=/[path]/[to]/smithy-dafny/codegen/smithy-dafny-codegen-cli));
 	cd $(CODEGEN_CLI_ROOT); \
 	./../gradlew run --args="\
@@ -175,57 +235,25 @@ _polymorph:
 
 # Generates all target runtime code for all namespaces in this project.
 .PHONY: polymorph_code_gen
-polymorph_code_gen:
-	for service in $(PROJECT_SERVICES) ; do \
-		export service_deps_var=SERVICE_DEPS_$${service} ; \
-		export namespace_var=SERVICE_NAMESPACE_$${service} ; \
-		export SERVICE=$${service} ; \
-		$(MAKE) _polymorph_code_gen || exit 1; \
-	done
-
-_polymorph_code_gen: OUTPUT_DAFNY=--output-dafny $(LIBRARY_ROOT)/dafny/$(SERVICE)/Model --include-dafny $(PROJECT_ROOT)/$(STD_LIBRARY)/src/Index.dfy
-_polymorph_code_gen: OUTPUT_DOTNET=--output-dotnet $(LIBRARY_ROOT)/runtimes/net/Generated/$(SERVICE)/
-_polymorph_code_gen: OUTPUT_JAVA=--output-java $(LIBRARY_ROOT)/runtimes/java/src/main/smithy-generated
-_polymorph_code_gen: _polymorph
+polymorph_code_gen: OUTPUT_DAFNY=--output-dafny $(LIBRARY_ROOT)/dafny/$(SERVICE)/Model --include-dafny $(PROJECT_ROOT)/$(STD_LIBRARY)/src/Index.dfy
+polymorph_code_gen: OUTPUT_DOTNET=--output-dotnet $(LIBRARY_ROOT)/runtimes/net/Generated/$(SERVICE)/
+polymorph_code_gen: OUTPUT_JAVA=--output-java $(LIBRARY_ROOT)/runtimes/java/src/main/smithy-generated
+polymorph_code_gen: _polymorph_code_gen
 
 # Generates dafny code for all namespaces in this project
 .PHONY: polymorph_dafny
-polymorph_dafny:
-	for service in $(PROJECT_SERVICES) ; do \
-		export service_deps_var=SERVICE_DEPS_$${service} ; \
-		export namespace_var=SERVICE_NAMESPACE_$${service} ; \
-		export SERVICE=$${service} ; \
-		$(MAKE) _polymorph_dafny || exit 1; \
-	done
-
-_polymorph_dafny: OUTPUT_DAFNY=--output-dafny $(LIBRARY_ROOT)/dafny/$(SERVICE)/Model --include-dafny $(PROJECT_ROOT)/$(STD_LIBRARY)/src/Index.dfy
-_polymorph_dafny: _polymorph
+polymorph_dafny: OUTPUT_DAFNY=--output-dafny $(LIBRARY_ROOT)/dafny/$(SERVICE)/Model --include-dafny $(PROJECT_ROOT)/$(STD_LIBRARY)/src/Index.dfy
+polymorph_dafny: _polymorph
 
 # Generates dotnet code for all namespaces in this project
 .PHONY: polymorph_dotnet
-polymorph_dotnet:
-	for service in $(PROJECT_SERVICES) ; do \
-		export service_deps_var=SERVICE_DEPS_$${service} ; \
-		export namespace_var=SERVICE_NAMESPACE_$${service} ; \
-		export SERVICE=$${service} ; \
-		$(MAKE) _polymorph_dotnet || exit 1; \
-	done
-
-_polymorph_dotnet: OUTPUT_DOTNET=--output-dotnet $(LIBRARY_ROOT)/runtimes/net/Generated/$(SMITHY_NAMESPACE)/
-_polymorph_dotnet: _polymorph
+polymorph_dotnet: OUTPUT_DOTNET=--output-dotnet $(LIBRARY_ROOT)/runtimes/net/Generated/$(SMITHY_NAMESPACE)/
+polymorph_dotnet: _polymorph
 
 # Generates java code for all namespaces in this project
 .PHONY: polymorph_java
-polymorph_java:
-	for service in $(PROJECT_SERVICES) ; do \
-		export service_deps_var=SERVICE_DEPS_$${service} ; \
-		export namespace_var=SERVICE_NAMESPACE_$${service} ; \
-		export SERVICE=$${service} ; \
-		$(MAKE) _polymorph_java || exit 1; \
-	done
-
-_polymorph_java: OUTPUT_JAVA=--output-java $(LIBRARY_ROOT)/runtimes/java/src/main/smithy-generated
-_polymorph_java: _polymorph
+polymorph_java: OUTPUT_JAVA=--output-java $(LIBRARY_ROOT)/runtimes/java/src/main/smithy-generated
+polymorph_java: _polymorph
 
 ########################## .NET targets
 
@@ -289,8 +317,10 @@ _mv_test_java:
 transpile_dependencies_java: LANG=java
 transpile_dependencies_java: transpile_dependencies
 
+# If we are not StandardLibrary, locally deploy the StandardLibrary.
+# Locally deploy all other dependencies 
 mvn_local_deploy_dependencies:
-	$(MAKE) -C $(PROJECT_ROOT)/$(STD_LIBRARY) mvn_local_deploy
+	$(if $(strip $(STD_LIBRARY)), $(MAKE) -C $(PROJECT_ROOT)/$(STD_LIBRARY) mvn_local_deploy, )
 	$(patsubst %, $(MAKE) -C $(PROJECT_ROOT)/% mvn_local_deploy;, $(PROJECT_DEPENDENCIES))
 
 # The Java MUST all exist already through the transpile step.

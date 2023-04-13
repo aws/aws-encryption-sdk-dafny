@@ -603,7 +603,7 @@ module AwsKmsHierarchicalKeyring {
     }
   }
 
-  method SortByTime(queryResponse: DDB.ItemList)
+  method {:vcs_split_on_every_assert} SortByTime(queryResponse: DDB.ItemList)
     returns (output: branchKeyItem)
     requires |queryResponse| > 0
     requires 

@@ -51,7 +51,7 @@ repositories {
 }
 
 dependencies {
-    implementation("dafny.lang:DafnyRuntime:3.10.0")
+    implementation("org.dafny:DafnyRuntime:4.0.0")
     implementation("software.amazon.dafny:conversion:1.0-SNAPSHOT")
 }
 publishing {

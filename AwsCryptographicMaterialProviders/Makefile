@@ -12,7 +12,7 @@ PROJECT_SERVICES := \
 SERVICE_NAMESPACE_AwsCryptographicMaterialProviders=aws.cryptography.materialProviders
 SERVICE_NAMESPACE_AwsCryptographyKeyStore=aws.cryptography.keyStore
 
-MAX_RESOURCE_COUNT=50000000
+MAX_RESOURCE_COUNT=60000000
 # Order is important
 # In java they MUST be built
 # in the order they depend on each other

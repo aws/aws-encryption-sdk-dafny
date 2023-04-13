@@ -230,6 +230,13 @@ module AwsArnParsing {
   {}
 
   function method ParseAwsKmsArn(identifier: string): (result: Result<AwsKmsArn, string>)
+    ensures result.Success? ==>
+      && "arn" <= identifier
+      && |Split(identifier, ':')| == 6
+      && |Split(identifier, ':')[1]| > 0
+      && Split(identifier, ':')[2] == "kms"
+      && |Split(identifier, ':')[3]| > 0
+      && |Split(identifier, ':')[4]| > 0
   {
     var components := Split(identifier, ':');
 
@@ -252,6 +259,13 @@ module AwsArnParsing {
   }
 
   function method ParseAmazonDynamodbTableArn(identifier: string): (result: Result<AmazonDynamodbTableArn, string>)
+    ensures result.Success? ==>
+      && "arn" <= identifier
+      && |Split(identifier, ':')| == 6
+      && |Split(identifier, ':')[1]| > 0
+      && Split(identifier, ':')[2] == "dynamodb"
+      && |Split(identifier, ':')[3]| > 0
+      && |Split(identifier, ':')[4]| > 0
   {
     var components := Split(identifier, ':');
 

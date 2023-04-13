@@ -3,7 +3,7 @@
 
 CORES=2
 
-include ../SharedMakefile.mk
+include ../SharedMakefileV2.mk
 
 SMITHY_MODEL_ROOT := $(PROJECT_ROOT)/AwsCryptographicMaterialProviders/dafny/AwsCryptographicMaterialProviders/Model
 OUTPUT_LOCAL_SERVICE := --local-service-test
@@ -13,7 +13,7 @@ MAX_RESOURCE_COUNT=10000000
 # Order is important
 # In java they MUST be built
 # in the order they depend on each other
-LIBRARIES := \
+PROJECT_DEPENDENCIES := \
 	AwsCryptographyPrimitives \
 	ComAmazonawsKms \
 	ComAmazonawsDynamodb \
@@ -23,17 +23,21 @@ LIBRARIES := \
 # about where the files are located. 
 # This is here to get unblocked but should be removed once we have migrated packages
 # to the new packaging format.
-LIBRARIES_INDEX := \
+PROJECT_INDEX := \
 	AwsCryptographyPrimitives/src/Index.dfy \
 	ComAmazonawsKms/src/Index.dfy \
 	ComAmazonawsDynamodb/src/Index.dfy \
 	AwsCryptographicMaterialProviders/dafny/AwsCryptographicMaterialProviders/src/Index.dfy \
+	AwsCryptographicMaterialProviders/dafny/AwsCryptographyKeyStore/src/Index.dfy \
 
-LIBRARY_MODEL := \
-	AwsCryptographyPrimitives/Model \
-	ComAmazonawsKms/Model \
-	ComAmazonawsDynamodb/Model \
-	AwsCryptographicMaterialProviders/dafny/AwsCryptographicMaterialProviders/Model
+STD_LIBRARY=StandardLibrary
+SMITHY_DEPS=model
+
+# LIBRARY_MODEL := \
+# 	AwsCryptographyPrimitives/Model \
+# 	ComAmazonawsKms/Model \
+# 	ComAmazonawsDynamodb/Model \
+# 	AwsCryptographicMaterialProviders/dafny/AwsCryptographicMaterialProviders/Model
 
 format_net:
 	pushd runtimes/net && dotnet format && popd

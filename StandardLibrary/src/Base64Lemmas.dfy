@@ -48,7 +48,7 @@ module Base64Lemmas {
     ensures DecodeValid(s)[(|DecodeValid(s)| - 2)..] == Decode1Padding(s[(|s| - 4)..])
   {}
 
-  lemma DecodeValidEncode1Padding(s: seq<char>)
+  lemma {:vcs_split_on_every_assert} DecodeValidEncode1Padding(s: seq<char>)
     requires IsBase64String(s)
     requires |s| >= 4
     requires Is1Padding(s[(|s| - 4)..])
@@ -60,6 +60,7 @@ module Base64Lemmas {
       assert |DecodeValid(s)| % 3 == 2;
       EncodeUnpadded(DecodeValid(s)[..(|DecodeValid(s)| - 2)]) + Encode1Padding(DecodeValid(s)[(|DecodeValid(s)| - 2)..]);
     == { DecodeValidUnpaddedPartialFrom1PaddedSeq(s); }
+      assert IsUnpaddedBase64String(s[..(|s| - 4)]);
       EncodeUnpadded(DecodeUnpadded(s[..(|s| - 4)])) + Encode1Padding(DecodeValid(s)[(|DecodeValid(s)| - 2)..]);
     == { DecodeEncodeUnpadded(s[..(|s| - 4)]); }
       s[..(|s| - 4)] + Encode1Padding(DecodeValid(s)[(|DecodeValid(s)| - 2)..]);
@@ -86,7 +87,7 @@ module Base64Lemmas {
     ensures DecodeValid(s)[(|DecodeValid(s)| - 1)..] == Decode2Padding(s[(|s| - 4)..])
   {}
 
-  lemma DecodeValidEncode2Padding(s: seq<char>)
+  lemma {:vcs_split_on_every_assert} DecodeValidEncode2Padding(s: seq<char>)
     requires IsBase64String(s)
     requires |s| >= 4
     requires Is2Padding(s[(|s| - 4)..])
@@ -95,6 +96,7 @@ module Base64Lemmas {
     calc {
       Encode(DecodeValid(s));
     ==
+      assert |DecodeUnpadded(s[..|s|-4])| % 3 == 0;
       assert |DecodeValid(s)| % 3 == 1;
       EncodeUnpadded(DecodeValid(s)[..(|DecodeValid(s)| - 1)]) + Encode2Padding(DecodeValid(s)[(|DecodeValid(s)| - 1)..]);
     == { DecodeValidUnpaddedPartialFrom2PaddedSeq(s); }
