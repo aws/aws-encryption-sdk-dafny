@@ -77,8 +77,8 @@ public final class CryptographicMaterialsCache implements ICryptographicMaterial
     }
   }
 
-  private static final class NativeWrapper implements Dafny.Aws.Cryptography.MaterialProviders.Types.ICryptographicMaterialsCache {
-    private final ICryptographicMaterialsCache _impl;
+  protected static final class NativeWrapper implements Dafny.Aws.Cryptography.MaterialProviders.Types.ICryptographicMaterialsCache {
+    protected final ICryptographicMaterialsCache _impl;
 
     NativeWrapper(ICryptographicMaterialsCache nativeImpl) {
       if (nativeImpl instanceof CryptographicMaterialsCache) {

@@ -45,6 +45,8 @@ structure CreateKeyStoreInput {
 }
 
 structure CreateKeyStoreOutput {
+  @required
+  tableArn: com.amazonaws.dynamodb#TableArn
 }
 
 // CreateKey will create two keys to add to the key store
@@ -59,6 +61,8 @@ operation CreateKey {
 structure CreateKeyInput {
   @required
   awsKmsKeyArn: aws.cryptography.materialProviders#KmsKeyId,
+
+  grantTokens: aws.cryptography.materialProviders#GrantTokenList
 }
 
 structure CreateKeyOutput {
@@ -77,6 +81,8 @@ operation VersionKey {
 structure VersionKeyInput {
   @required
   branchKeyIdentifier: String,
+  
+  grantTokens: aws.cryptography.materialProviders#GrantTokenList
 }
 
 operation GetActiveBranchKey {
@@ -88,17 +94,14 @@ structure GetActiveBranchKeyInput {
   @required
   branchKeyIdentifier: String,
 
-  awsKmsKeyArn: aws.cryptography.materialProviders#KmsKeyId
+  awsKmsKeyArn: aws.cryptography.materialProviders#KmsKeyId,
+  
+  grantTokens: aws.cryptography.materialProviders#GrantTokenList
 }
 
 structure GetActiveBranchKeyOutput {
   @required
-  branchKey: aws.cryptography.materialProviders#Secret,
-
-  @required
-  branchKeyVersion: String,
-  
-  awsKmsKeyArn: aws.cryptography.materialProviders#KmsKeyId
+  hierarchicalMaterials: aws.cryptography.materialProviders#HierarchicalMaterials
 }
 
 operation GetBranchKeyVersion {
@@ -113,15 +116,14 @@ structure GetBranchKeyVersionInput {
   @required
   branchKeyVersion: String,
   
-  awsKmsKeyArn: aws.cryptography.materialProviders#KmsKeyId
+  awsKmsKeyArn: aws.cryptography.materialProviders#KmsKeyId,
+  
+  grantTokens: aws.cryptography.materialProviders#GrantTokenList
 }
 
 structure GetBranchKeyVersionOutput {
   @required
-  branchKey: aws.cryptography.materialProviders#Secret,
-
-  @required
-  branchKeyVersion: String
+  hierarchicalMaterials: aws.cryptography.materialProviders#HierarchicalMaterials
 }
 
 operation GetBeaconKey {
@@ -133,12 +135,14 @@ structure GetBeaconKeyInput {
   @required
   branchKeyIdentifier: String,
   
-  awsKmsKeyArn: aws.cryptography.materialProviders#KmsKeyId
+  awsKmsKeyArn: aws.cryptography.materialProviders#KmsKeyId,
+
+  grantTokens: aws.cryptography.materialProviders#GrantTokenList
 }
 
 structure GetBeaconKeyOutput {
   @required
-  beaconKey: aws.cryptography.materialProviders#Secret 
+  beaconKey: aws.cryptography.materialProviders#Secret
 }
 
 ///////////////////

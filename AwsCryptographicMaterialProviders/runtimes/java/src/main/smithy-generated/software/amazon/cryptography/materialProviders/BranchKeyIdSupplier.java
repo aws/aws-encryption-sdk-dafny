@@ -48,8 +48,8 @@ public final class BranchKeyIdSupplier implements IBranchKeyIdSupplier {
     return ToNative.GetBranchKeyIdOutput(result.dtor_value());
   }
 
-  private static final class NativeWrapper implements Dafny.Aws.Cryptography.MaterialProviders.Types.IBranchKeyIdSupplier {
-    private final IBranchKeyIdSupplier _impl;
+  protected static final class NativeWrapper implements Dafny.Aws.Cryptography.MaterialProviders.Types.IBranchKeyIdSupplier {
+    protected final IBranchKeyIdSupplier _impl;
 
     NativeWrapper(IBranchKeyIdSupplier nativeImpl) {
       if (nativeImpl instanceof BranchKeyIdSupplier) {

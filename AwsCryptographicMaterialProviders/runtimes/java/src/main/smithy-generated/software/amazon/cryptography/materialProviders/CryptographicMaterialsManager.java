@@ -61,8 +61,8 @@ public final class CryptographicMaterialsManager implements ICryptographicMateri
     return ToNative.DecryptMaterialsOutput(result.dtor_value());
   }
 
-  private static final class NativeWrapper implements Dafny.Aws.Cryptography.MaterialProviders.Types.ICryptographicMaterialsManager {
-    private final ICryptographicMaterialsManager _impl;
+  protected static final class NativeWrapper implements Dafny.Aws.Cryptography.MaterialProviders.Types.ICryptographicMaterialsManager {
+    protected final ICryptographicMaterialsManager _impl;
 
     NativeWrapper(ICryptographicMaterialsManager nativeImpl) {
       if (nativeImpl instanceof CryptographicMaterialsManager) {

@@ -3,6 +3,7 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.keyStore.model;
 
+import java.util.List;
 import java.util.Objects;
 
 public class GetBranchKeyVersionInput {
@@ -12,10 +13,13 @@ public class GetBranchKeyVersionInput {
 
   private final String awsKmsKeyArn;
 
+  private final List<String> grantTokens;
+
   protected GetBranchKeyVersionInput(BuilderImpl builder) {
     this.branchKeyIdentifier = builder.branchKeyIdentifier();
     this.branchKeyVersion = builder.branchKeyVersion();
     this.awsKmsKeyArn = builder.awsKmsKeyArn();
+    this.grantTokens = builder.grantTokens();
   }
 
   public String branchKeyIdentifier() {
@@ -28,6 +32,10 @@ public class GetBranchKeyVersionInput {
 
   public String awsKmsKeyArn() {
     return this.awsKmsKeyArn;
+  }
+
+  public List<String> grantTokens() {
+    return this.grantTokens;
   }
 
   public Builder toBuilder() {
@@ -51,6 +59,10 @@ public class GetBranchKeyVersionInput {
 
     String awsKmsKeyArn();
 
+    Builder grantTokens(List<String> grantTokens);
+
+    List<String> grantTokens();
+
     GetBranchKeyVersionInput build();
   }
 
@@ -61,6 +73,8 @@ public class GetBranchKeyVersionInput {
 
     protected String awsKmsKeyArn;
 
+    protected List<String> grantTokens;
+
     protected BuilderImpl() {
     }
 
@@ -68,6 +82,7 @@ public class GetBranchKeyVersionInput {
       this.branchKeyIdentifier = model.branchKeyIdentifier();
       this.branchKeyVersion = model.branchKeyVersion();
       this.awsKmsKeyArn = model.awsKmsKeyArn();
+      this.grantTokens = model.grantTokens();
     }
 
     public Builder branchKeyIdentifier(String branchKeyIdentifier) {
@@ -95,6 +110,15 @@ public class GetBranchKeyVersionInput {
 
     public String awsKmsKeyArn() {
       return this.awsKmsKeyArn;
+    }
+
+    public Builder grantTokens(List<String> grantTokens) {
+      this.grantTokens = grantTokens;
+      return this;
+    }
+
+    public List<String> grantTokens() {
+      return this.grantTokens;
     }
 
     public GetBranchKeyVersionInput build() {

@@ -50,8 +50,8 @@ public final class ClientSupplier implements IClientSupplier {
     return Dafny.Com.Amazonaws.Kms.ToNative.TrentService(result.dtor_value());
   }
 
-  private static final class NativeWrapper implements Dafny.Aws.Cryptography.MaterialProviders.Types.IClientSupplier {
-    private final IClientSupplier _impl;
+  protected static final class NativeWrapper implements Dafny.Aws.Cryptography.MaterialProviders.Types.IClientSupplier {
+    protected final IClientSupplier _impl;
 
     NativeWrapper(IClientSupplier nativeImpl) {
       if (nativeImpl instanceof ClientSupplier) {
