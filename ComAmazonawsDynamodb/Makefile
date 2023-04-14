@@ -5,7 +5,10 @@ CORES=2
 
 include ../SharedMakefileV2.mk
 
-SMITHY_NAMESPACE=com.amazonaws.dynamodb
+PROJECT_SERVICES := \
+	ComAmazonawsDynamodb \
+
+SERVICE_NAMESPACE_ComAmazonawsDynamodb=com.amazonaws.dynamodb
 MAX_RESOURCE_COUNT=10000000
 AWS_SDK_CMD := --aws-sdk
 STD_LIBRARY=StandardLibrary

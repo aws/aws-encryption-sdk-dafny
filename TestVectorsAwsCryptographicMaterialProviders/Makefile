@@ -5,10 +5,14 @@ CORES=2
 
 include ../SharedMakefileV2.mk
 
+PROJECT_SERVICES := \
+	TestVectorsAwsCryptographicMaterialProviders \
+
 SMITHY_MODEL_ROOT := $(PROJECT_ROOT)/AwsCryptographicMaterialProviders/dafny/AwsCryptographicMaterialProviders/Model
 OUTPUT_LOCAL_SERVICE := --local-service-test
 
-SMITHY_NAMESPACE=aws.cryptography.materialProviders
+SERVICE_NAMESPACE_TestVectorsAwsCryptographicMaterialProviders=aws.cryptography.materialProviders
+
 MAX_RESOURCE_COUNT=10000000
 # Order is important
 # In java they MUST be built
