@@ -30,6 +30,8 @@ import software.amazon.cryptography.keyStore.model.KeyStoreException;
 import software.amazon.cryptography.keyStore.model.NativeError;
 import software.amazon.cryptography.keyStore.model.OpaqueError;
 
+import Dafny.Aws.Cryptography.KeyStore.Types.IKeyStoreClient;
+
 public class ToDafny {
   public static Error Error(NativeError nativeValue) {
     if (nativeValue instanceof KeyStoreException) {
@@ -186,5 +188,9 @@ public class ToDafny {
     DafnySequence<? extends Character> message;
     message = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.message());
     return new Error_KeyStoreException(message);
+  }
+
+  public static IKeyStoreClient KeyStore(KeyStore nativeValue) {
+    return nativeValue.impl();
   }
 }
