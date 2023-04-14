@@ -4,7 +4,10 @@ CORES=2
 
 include ../SharedMakefile.mk
 
-SMITHY_NAMESPACE=aws.encryptionSdk
+PROJECT_SERVICES := \
+	AwsEncryptionSdk \
+
+SERVICE_NAMESPACE_AwsEncryptionSdk=aws.encryptionSdk
 MAX_RESOURCE_COUNT=100000000
 # Order is important
 # In java they MUST be built

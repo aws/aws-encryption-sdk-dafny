@@ -5,7 +5,10 @@ CORES=2
 
 include ../SharedMakefileV2.mk
 
-SMITHY_NAMESPACE=com.amazonaws.kms
+PROJECT_SERVICES := \
+	ComAmazonawsKms \
+
+SERVICE_NAMESPACE_ComAmazonawsKms=com.amazonaws.kms
 MAX_RESOURCE_COUNT=10000000
 AWS_SDK_CMD := --aws-sdk
 STD_LIBRARY=StandardLibrary

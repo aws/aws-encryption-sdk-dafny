@@ -5,7 +5,10 @@ CORES=2
 
 include ../SharedMakefileV2.mk
 
-SMITHY_NAMESPACE=aws.cryptography.primitives
+PROJECT_SERVICES := \
+	AwsCryptographyPrimitives \
+
+SERVICE_NAMESPACE_AwsCryptographyPrimitives=aws.cryptography.primitives
 MAX_RESOURCE_COUNT=10000000
 
 STD_LIBRARY=StandardLibrary

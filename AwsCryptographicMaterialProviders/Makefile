@@ -29,6 +29,8 @@ PROJECT_INDEX := \
 STD_LIBRARY=StandardLibrary
 SMITHY_DEPS=model
 
+DIR_STRUCTURE_V2=V2
+
 # Dependencies for each local service
 SERVICE_DEPS_AwsCryptographicMaterialProviders := \
 	AwsCryptographyPrimitives \
