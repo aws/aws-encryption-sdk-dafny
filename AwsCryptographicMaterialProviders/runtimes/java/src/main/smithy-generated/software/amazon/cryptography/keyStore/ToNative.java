@@ -24,6 +24,8 @@ import software.amazon.cryptography.keyStore.model.NativeError;
 import software.amazon.cryptography.keyStore.model.OpaqueError;
 import software.amazon.cryptography.keyStore.model.VersionKeyInput;
 
+import Dafny.Aws.Cryptography.KeyStore.Types.IKeyStoreClient;
+
 public class ToNative {
   public static OpaqueError Error(Error_Opaque dafnyValue) {
     OpaqueError.Builder nativeBuilder = OpaqueError.builder();
@@ -175,5 +177,11 @@ public class ToNative {
       nativeBuilder.grantTokens(software.amazon.cryptography.materialProviders.ToNative.GrantTokenList(dafnyValue.dtor_grantTokens().dtor_value()));
     }
     return nativeBuilder.build();
+  }
+
+  public static KeyStore KeyStore(
+      IKeyStoreClient dafnyValue
+  ) {
+    return new software.amazon.cryptography.keyStore.KeyStore(dafnyValue);
   }
 }
