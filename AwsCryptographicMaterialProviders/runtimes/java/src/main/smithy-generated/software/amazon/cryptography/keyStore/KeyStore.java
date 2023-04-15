@@ -37,12 +37,12 @@ public class KeyStore {
     this._impl = result.dtor_value();
   }
 
-  KeyStore(IKeyStoreClient impl) {
-    this._impl = impl;
-  }
-
   public static Builder builder() {
     return new BuilderImpl();
+  }
+
+  KeyStore(IKeyStoreClient impl) {
+    this._impl = impl;
   }
 
   public CreateKeyStoreOutput CreateKeyStore(CreateKeyStoreInput nativeValue) {

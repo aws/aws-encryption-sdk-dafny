@@ -46,7 +46,6 @@ import java.util.Objects;
 import software.amazon.cryptography.materialProviders.MaterialProviders;
 import software.amazon.cryptography.materialProviders.ToDafny;
 import software.amazon.cryptography.materialProviders.ToNative;
-import software.amazon.cryptography.materialProviders.model.NativeError;
 import software.amazon.cryptography.materialProviders.model.OpaqueError;
 
 public class TestMaterialProviders implements IAwsCryptographicMaterialProvidersClient {
@@ -66,7 +65,7 @@ public class TestMaterialProviders implements IAwsCryptographicMaterialProviders
       software.amazon.cryptography.materialProviders.IKeyring nativeOutput = this._impl.CreateAwsKmsKeyring(nativeInput);
       IKeyring dafnyOutput = ToDafny.Keyring(nativeOutput);
       return Result.create_Success(dafnyOutput);
-    } catch (NativeError ex) {
+    } catch (RuntimeException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (Exception ex) {
       OpaqueError error = OpaqueError.builder().obj(ex).cause(ex).build();
@@ -81,7 +80,7 @@ public class TestMaterialProviders implements IAwsCryptographicMaterialProviders
       software.amazon.cryptography.materialProviders.IKeyring nativeOutput = this._impl.CreateAwsKmsDiscoveryKeyring(nativeInput);
       IKeyring dafnyOutput = ToDafny.Keyring(nativeOutput);
       return Result.create_Success(dafnyOutput);
-    } catch (NativeError ex) {
+    } catch (RuntimeException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (Exception ex) {
       OpaqueError error = OpaqueError.builder().obj(ex).cause(ex).build();
@@ -96,7 +95,7 @@ public class TestMaterialProviders implements IAwsCryptographicMaterialProviders
       software.amazon.cryptography.materialProviders.IKeyring nativeOutput = this._impl.CreateAwsKmsMultiKeyring(nativeInput);
       IKeyring dafnyOutput = ToDafny.Keyring(nativeOutput);
       return Result.create_Success(dafnyOutput);
-    } catch (NativeError ex) {
+    } catch (RuntimeException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (Exception ex) {
       OpaqueError error = OpaqueError.builder().obj(ex).cause(ex).build();
@@ -111,7 +110,7 @@ public class TestMaterialProviders implements IAwsCryptographicMaterialProviders
       software.amazon.cryptography.materialProviders.IKeyring nativeOutput = this._impl.CreateAwsKmsDiscoveryMultiKeyring(nativeInput);
       IKeyring dafnyOutput = ToDafny.Keyring(nativeOutput);
       return Result.create_Success(dafnyOutput);
-    } catch (NativeError ex) {
+    } catch (RuntimeException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (Exception ex) {
       OpaqueError error = OpaqueError.builder().obj(ex).cause(ex).build();
@@ -125,7 +124,7 @@ public class TestMaterialProviders implements IAwsCryptographicMaterialProviders
       software.amazon.cryptography.materialProviders.IKeyring nativeOutput = this._impl.CreateAwsKmsMrkKeyring(nativeInput);
       IKeyring dafnyOutput = ToDafny.Keyring(nativeOutput);
       return Result.create_Success(dafnyOutput);
-    } catch (NativeError ex) {
+    } catch (RuntimeException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (Exception ex) {
       OpaqueError error = OpaqueError.builder().obj(ex).cause(ex).build();
@@ -140,7 +139,7 @@ public class TestMaterialProviders implements IAwsCryptographicMaterialProviders
       software.amazon.cryptography.materialProviders.IKeyring nativeOutput = this._impl.CreateAwsKmsMrkMultiKeyring(nativeInput);
       IKeyring dafnyOutput = ToDafny.Keyring(nativeOutput);
       return Result.create_Success(dafnyOutput);
-    } catch (NativeError ex) {
+    } catch (RuntimeException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (Exception ex) {
       OpaqueError error = OpaqueError.builder().obj(ex).cause(ex).build();
@@ -155,7 +154,7 @@ public class TestMaterialProviders implements IAwsCryptographicMaterialProviders
       software.amazon.cryptography.materialProviders.IKeyring nativeOutput = this._impl.CreateAwsKmsMrkDiscoveryKeyring(nativeInput);
       IKeyring dafnyOutput = ToDafny.Keyring(nativeOutput);
       return Result.create_Success(dafnyOutput);
-    } catch (NativeError ex) {
+    } catch (RuntimeException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (Exception ex) {
       OpaqueError error = OpaqueError.builder().obj(ex).cause(ex).build();
@@ -170,7 +169,7 @@ public class TestMaterialProviders implements IAwsCryptographicMaterialProviders
       software.amazon.cryptography.materialProviders.IKeyring nativeOutput = this._impl.CreateAwsKmsMrkDiscoveryMultiKeyring(nativeInput);
       IKeyring dafnyOutput = ToDafny.Keyring(nativeOutput);
       return Result.create_Success(dafnyOutput);
-    } catch (NativeError ex) {
+    } catch (RuntimeException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (Exception ex) {
       OpaqueError error = OpaqueError.builder().obj(ex).cause(ex).build();
@@ -185,7 +184,7 @@ public class TestMaterialProviders implements IAwsCryptographicMaterialProviders
       software.amazon.cryptography.materialProviders.IKeyring nativeOutput = this._impl.CreateAwsKmsHierarchicalKeyring(nativeInput);
       IKeyring dafnyOutput = ToDafny.Keyring(nativeOutput);
       return Result.create_Success(dafnyOutput);
-    } catch (NativeError ex) {
+    } catch (RuntimeException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (Exception ex) {
       OpaqueError error = OpaqueError.builder().obj(ex).cause(ex).build();
@@ -199,7 +198,7 @@ public class TestMaterialProviders implements IAwsCryptographicMaterialProviders
       software.amazon.cryptography.materialProviders.IKeyring nativeOutput = this._impl.CreateMultiKeyring(nativeInput);
       IKeyring dafnyOutput = ToDafny.Keyring(nativeOutput);
       return Result.create_Success(dafnyOutput);
-    } catch (NativeError ex) {
+    } catch (RuntimeException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (Exception ex) {
       OpaqueError error = OpaqueError.builder().obj(ex).cause(ex).build();
@@ -213,7 +212,7 @@ public class TestMaterialProviders implements IAwsCryptographicMaterialProviders
       software.amazon.cryptography.materialProviders.IKeyring nativeOutput = this._impl.CreateRawAesKeyring(nativeInput);
       IKeyring dafnyOutput = ToDafny.Keyring(nativeOutput);
       return Result.create_Success(dafnyOutput);
-    } catch (NativeError ex) {
+    } catch (RuntimeException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (Exception ex) {
       OpaqueError error = OpaqueError.builder().obj(ex).cause(ex).build();
@@ -227,7 +226,7 @@ public class TestMaterialProviders implements IAwsCryptographicMaterialProviders
       software.amazon.cryptography.materialProviders.IKeyring nativeOutput = this._impl.CreateRawRsaKeyring(nativeInput);
       IKeyring dafnyOutput = ToDafny.Keyring(nativeOutput);
       return Result.create_Success(dafnyOutput);
-    } catch (NativeError ex) {
+    } catch (RuntimeException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (Exception ex) {
       OpaqueError error = OpaqueError.builder().obj(ex).cause(ex).build();
@@ -241,7 +240,7 @@ public class TestMaterialProviders implements IAwsCryptographicMaterialProviders
       software.amazon.cryptography.materialProviders.IKeyring nativeOutput = this._impl.CreateAwsKmsRsaKeyring(nativeInput);
       IKeyring dafnyOutput = ToDafny.Keyring(nativeOutput);
       return Result.create_Success(dafnyOutput);
-    } catch (NativeError ex) {
+    } catch (RuntimeException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (Exception ex) {
       OpaqueError error = OpaqueError.builder().obj(ex).cause(ex).build();
@@ -256,7 +255,7 @@ public class TestMaterialProviders implements IAwsCryptographicMaterialProviders
       software.amazon.cryptography.materialProviders.ICryptographicMaterialsManager nativeOutput = this._impl.CreateDefaultCryptographicMaterialsManager(nativeInput);
       ICryptographicMaterialsManager dafnyOutput = ToDafny.CryptographicMaterialsManager(nativeOutput);
       return Result.create_Success(dafnyOutput);
-    } catch (NativeError ex) {
+    } catch (RuntimeException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (Exception ex) {
       OpaqueError error = OpaqueError.builder().obj(ex).cause(ex).build();
@@ -271,7 +270,7 @@ public class TestMaterialProviders implements IAwsCryptographicMaterialProviders
       software.amazon.cryptography.materialProviders.ICryptographicMaterialsManager nativeOutput = this._impl.CreateExpectedEncryptionContextCMM(nativeInput);
       ICryptographicMaterialsManager dafnyOutput = ToDafny.CryptographicMaterialsManager(nativeOutput);
       return Result.create_Success(dafnyOutput);
-    } catch (NativeError ex) {
+    } catch (RuntimeException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (Exception ex) {
       OpaqueError error = OpaqueError.builder().obj(ex).cause(ex).build();
@@ -286,7 +285,7 @@ public class TestMaterialProviders implements IAwsCryptographicMaterialProviders
       software.amazon.cryptography.materialProviders.ICryptographicMaterialsCache nativeOutput = this._impl.CreateCryptographicMaterialsCache(nativeInput);
       ICryptographicMaterialsCache dafnyOutput = ToDafny.CryptographicMaterialsCache(nativeOutput);
       return Result.create_Success(dafnyOutput);
-    } catch (NativeError ex) {
+    } catch (RuntimeException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (Exception ex) {
       OpaqueError error = OpaqueError.builder().obj(ex).cause(ex).build();
@@ -301,7 +300,7 @@ public class TestMaterialProviders implements IAwsCryptographicMaterialProviders
       software.amazon.cryptography.materialProviders.IClientSupplier nativeOutput = this._impl.CreateDefaultClientSupplier(nativeInput);
       IClientSupplier dafnyOutput = ToDafny.ClientSupplier(nativeOutput);
       return Result.create_Success(dafnyOutput);
-    } catch (NativeError ex) {
+    } catch (RuntimeException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (Exception ex) {
       OpaqueError error = OpaqueError.builder().obj(ex).cause(ex).build();
@@ -316,7 +315,7 @@ public class TestMaterialProviders implements IAwsCryptographicMaterialProviders
       software.amazon.cryptography.materialProviders.model.EncryptionMaterials nativeOutput = this._impl.InitializeEncryptionMaterials(nativeInput);
       EncryptionMaterials dafnyOutput = ToDafny.EncryptionMaterials(nativeOutput);
       return Result.create_Success(dafnyOutput);
-    } catch (NativeError ex) {
+    } catch (RuntimeException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (Exception ex) {
       OpaqueError error = OpaqueError.builder().obj(ex).cause(ex).build();
@@ -331,7 +330,7 @@ public class TestMaterialProviders implements IAwsCryptographicMaterialProviders
       software.amazon.cryptography.materialProviders.model.DecryptionMaterials nativeOutput = this._impl.InitializeDecryptionMaterials(nativeInput);
       DecryptionMaterials dafnyOutput = ToDafny.DecryptionMaterials(nativeOutput);
       return Result.create_Success(dafnyOutput);
-    } catch (NativeError ex) {
+    } catch (RuntimeException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (Exception ex) {
       OpaqueError error = OpaqueError.builder().obj(ex).cause(ex).build();
@@ -345,7 +344,7 @@ public class TestMaterialProviders implements IAwsCryptographicMaterialProviders
     try {
       this._impl.ValidEncryptionMaterialsTransition(nativeInput);
       return Result.create_Success(Tuple0.create());
-    } catch (NativeError ex) {
+    } catch (RuntimeException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (Exception ex) {
       OpaqueError error = OpaqueError.builder().obj(ex).cause(ex).build();
@@ -359,7 +358,7 @@ public class TestMaterialProviders implements IAwsCryptographicMaterialProviders
     try {
       this._impl.ValidDecryptionMaterialsTransition(nativeInput);
       return Result.create_Success(Tuple0.create());
-    } catch (NativeError ex) {
+    } catch (RuntimeException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (Exception ex) {
       OpaqueError error = OpaqueError.builder().obj(ex).cause(ex).build();
@@ -373,7 +372,7 @@ public class TestMaterialProviders implements IAwsCryptographicMaterialProviders
     try {
       this._impl.EncryptionMaterialsHasPlaintextDataKey(nativeInput);
       return Result.create_Success(Tuple0.create());
-    } catch (NativeError ex) {
+    } catch (RuntimeException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (Exception ex) {
       OpaqueError error = OpaqueError.builder().obj(ex).cause(ex).build();
@@ -387,7 +386,7 @@ public class TestMaterialProviders implements IAwsCryptographicMaterialProviders
     try {
       this._impl.DecryptionMaterialsWithPlaintextDataKey(nativeInput);
       return Result.create_Success(Tuple0.create());
-    } catch (NativeError ex) {
+    } catch (RuntimeException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (Exception ex) {
       OpaqueError error = OpaqueError.builder().obj(ex).cause(ex).build();
@@ -402,7 +401,7 @@ public class TestMaterialProviders implements IAwsCryptographicMaterialProviders
       software.amazon.cryptography.materialProviders.model.AlgorithmSuiteInfo nativeOutput = this._impl.GetAlgorithmSuiteInfo(nativeInput);
       AlgorithmSuiteInfo dafnyOutput = ToDafny.AlgorithmSuiteInfo(nativeOutput);
       return Result.create_Success(dafnyOutput);
-    } catch (NativeError ex) {
+    } catch (RuntimeException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (Exception ex) {
       OpaqueError error = OpaqueError.builder().obj(ex).cause(ex).build();
@@ -415,7 +414,7 @@ public class TestMaterialProviders implements IAwsCryptographicMaterialProviders
     try {
       this._impl.ValidAlgorithmSuiteInfo(nativeInput);
       return Result.create_Success(Tuple0.create());
-    } catch (NativeError ex) {
+    } catch (RuntimeException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (Exception ex) {
       OpaqueError error = OpaqueError.builder().obj(ex).cause(ex).build();
@@ -429,7 +428,7 @@ public class TestMaterialProviders implements IAwsCryptographicMaterialProviders
     try {
       this._impl.ValidateCommitmentPolicyOnEncrypt(nativeInput);
       return Result.create_Success(Tuple0.create());
-    } catch (NativeError ex) {
+    } catch (RuntimeException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (Exception ex) {
       OpaqueError error = OpaqueError.builder().obj(ex).cause(ex).build();
@@ -443,7 +442,7 @@ public class TestMaterialProviders implements IAwsCryptographicMaterialProviders
     try {
       this._impl.ValidateCommitmentPolicyOnDecrypt(nativeInput);
       return Result.create_Success(Tuple0.create());
-    } catch (NativeError ex) {
+    } catch (RuntimeException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
     } catch (Exception ex) {
       OpaqueError error = OpaqueError.builder().obj(ex).cause(ex).build();

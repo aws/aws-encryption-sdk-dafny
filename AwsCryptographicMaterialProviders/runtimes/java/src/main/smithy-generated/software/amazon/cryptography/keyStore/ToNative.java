@@ -7,6 +7,7 @@ import Dafny.Aws.Cryptography.KeyStore.Types.*;
 import Dafny.Aws.Cryptography.KeyStore.Types.Error;
 import dafny.DafnySequence;
 import java.lang.Character;
+import java.lang.RuntimeException;
 import java.lang.String;
 import java.util.List;
 import software.amazon.cryptography.keyStore.model.CollectionOfErrors;
@@ -22,11 +23,17 @@ import software.amazon.cryptography.keyStore.model.GetBranchKeyVersionInput;
 import software.amazon.cryptography.keyStore.model.GetBranchKeyVersionOutput;
 import software.amazon.cryptography.keyStore.model.KeyStoreConfig;
 import software.amazon.cryptography.keyStore.model.KeyStoreException;
-import software.amazon.cryptography.keyStore.model.NativeError;
 import software.amazon.cryptography.keyStore.model.OpaqueError;
 import software.amazon.cryptography.keyStore.model.VersionKeyInput;
 
 public class ToNative {
+
+  public static KeyStore KeyStore(
+          IKeyStoreClient dafnyValue
+  ) {
+    return new software.amazon.cryptography.keyStore.KeyStore(dafnyValue);
+  }
+
   public static OpaqueError Error(Error_Opaque dafnyValue) {
     OpaqueError.Builder nativeBuilder = OpaqueError.builder();
     nativeBuilder.obj(dafnyValue.dtor_obj());
@@ -48,7 +55,7 @@ public class ToNative {
     return nativeBuilder.build();
   }
 
-  public static NativeError Error(Error dafnyValue) {
+  public static RuntimeException Error(Error dafnyValue) {
     if (dafnyValue.is_KeyStoreException()) {
       return ToNative.Error((Error_KeyStoreException) dafnyValue);
     }
@@ -62,12 +69,6 @@ public class ToNative {
     nativeBuilder.obj(dafnyValue);
     return nativeBuilder.build();
   }
-  public static KeyStore KeyStore(
-          IKeyStoreClient dafnyValue
-  ) {
-    return new software.amazon.cryptography.keyStore.KeyStore(dafnyValue);
-  }
-
 
   public static CreateKeyInput CreateKeyInput(
       Dafny.Aws.Cryptography.KeyStore.Types.CreateKeyInput dafnyValue) {

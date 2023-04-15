@@ -5,12 +5,29 @@ package software.amazon.cryptography.materialProviders.model;
 
 import java.util.Objects;
 
-public class InvalidEncryptionMaterials extends NativeError {
+public class InvalidEncryptionMaterials extends RuntimeException {
   protected InvalidEncryptionMaterials(BuilderImpl builder) {
-    super(builder);
+    super(messageFromBuilder(builder), builder.cause());
   }
 
-  @Override
+  private static String messageFromBuilder(Builder builder) {
+    if (builder.message() != null) {
+      return builder.message();
+    }
+    if (builder.cause() != null) {
+      return builder.cause().getMessage();
+    }
+    return null;
+  }
+
+  public String message() {
+    return this.getMessage();
+  }
+
+  public Throwable cause() {
+    return this.getCause();
+  }
+
   public Builder toBuilder() {
     return new BuilderImpl(this);
   }
@@ -19,35 +36,49 @@ public class InvalidEncryptionMaterials extends NativeError {
     return new BuilderImpl();
   }
 
-  public interface Builder extends NativeError.Builder {
+  public interface Builder {
     Builder message(String message);
 
+    String message();
+
     Builder cause(Throwable cause);
+
+    Throwable cause();
 
     InvalidEncryptionMaterials build();
   }
 
-  static class BuilderImpl extends NativeError.BuilderImpl implements Builder {
+  static class BuilderImpl implements Builder {
+    protected String message;
+
+    protected Throwable cause;
+
     protected BuilderImpl() {
     }
 
     protected BuilderImpl(InvalidEncryptionMaterials model) {
-      super(model);
+      this.message = model.message();
+      this.cause = model.cause();
     }
 
-    @Override
     public Builder message(String message) {
-      super.message(message);
+      this.message = message;
       return this;
     }
 
-    @Override
+    public String message() {
+      return this.message;
+    }
+
     public Builder cause(Throwable cause) {
-      super.cause(cause);
+      this.cause = cause;
       return this;
     }
 
-    @Override
+    public Throwable cause() {
+      return this.cause;
+    }
+
     public InvalidEncryptionMaterials build() {
       if (Objects.isNull(this.message()))  {
         throw new IllegalArgumentException("Missing value for required field `message`");

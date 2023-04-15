@@ -5,15 +5,13 @@ package software.amazon.cryptography.materialProviders;
 
 import Dafny.Aws.Cryptography.MaterialProviders.Types.Error;
 import Wrappers_Compile.Result;
-import java.lang.Exception;
 import java.lang.IllegalArgumentException;
+import java.lang.RuntimeException;
 import java.util.Objects;
 import software.amazon.cryptography.materialProviders.model.DecryptMaterialsInput;
 import software.amazon.cryptography.materialProviders.model.DecryptMaterialsOutput;
 import software.amazon.cryptography.materialProviders.model.GetEncryptionMaterialsInput;
 import software.amazon.cryptography.materialProviders.model.GetEncryptionMaterialsOutput;
-import software.amazon.cryptography.materialProviders.model.NativeError;
-import software.amazon.cryptography.materialProviders.model.OpaqueError;
 
 public final class CryptographicMaterialsManager implements ICryptographicMaterialsManager {
   private final Dafny.Aws.Cryptography.MaterialProviders.Types.ICryptographicMaterialsManager _impl;
@@ -78,17 +76,14 @@ public final class CryptographicMaterialsManager implements ICryptographicMateri
         GetEncryptionMaterialsOutput nativeOutput = this._impl.GetEncryptionMaterials(nativeInput);
         Dafny.Aws.Cryptography.MaterialProviders.Types.GetEncryptionMaterialsOutput dafnyOutput = ToDafny.GetEncryptionMaterialsOutput(nativeOutput);
         return Result.create_Success(dafnyOutput);
-      } catch (NativeError ex) {
+      } catch (RuntimeException ex) {
         return Result.create_Failure(ToDafny.Error(ex));
-      } catch (Exception ex) {
-        OpaqueError error = OpaqueError.builder().obj(ex).cause(ex).build();
-        return Result.create_Failure(ToDafny.Error(error));
       }
     }
 
     public Result<Dafny.Aws.Cryptography.MaterialProviders.Types.GetEncryptionMaterialsOutput, Error> GetEncryptionMaterials_k(
         Dafny.Aws.Cryptography.MaterialProviders.Types.GetEncryptionMaterialsInput dafnyInput) {
-      throw NativeError.builder().message("Not supported at this time.").build();
+      throw new RuntimeException("Not supported at this time.");
     }
 
     public Result<Dafny.Aws.Cryptography.MaterialProviders.Types.DecryptMaterialsOutput, Error> DecryptMaterials(
@@ -98,17 +93,14 @@ public final class CryptographicMaterialsManager implements ICryptographicMateri
         DecryptMaterialsOutput nativeOutput = this._impl.DecryptMaterials(nativeInput);
         Dafny.Aws.Cryptography.MaterialProviders.Types.DecryptMaterialsOutput dafnyOutput = ToDafny.DecryptMaterialsOutput(nativeOutput);
         return Result.create_Success(dafnyOutput);
-      } catch (NativeError ex) {
+      } catch (RuntimeException ex) {
         return Result.create_Failure(ToDafny.Error(ex));
-      } catch (Exception ex) {
-        OpaqueError error = OpaqueError.builder().obj(ex).cause(ex).build();
-        return Result.create_Failure(ToDafny.Error(error));
       }
     }
 
     public Result<Dafny.Aws.Cryptography.MaterialProviders.Types.DecryptMaterialsOutput, Error> DecryptMaterials_k(
         Dafny.Aws.Cryptography.MaterialProviders.Types.DecryptMaterialsInput dafnyInput) {
-      throw NativeError.builder().message("Not supported at this time.").build();
+      throw new RuntimeException("Not supported at this time.");
     }
   }
 }

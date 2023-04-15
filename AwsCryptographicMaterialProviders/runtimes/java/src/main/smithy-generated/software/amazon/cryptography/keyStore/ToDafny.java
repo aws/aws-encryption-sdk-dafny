@@ -12,16 +12,21 @@ import dafny.DafnySequence;
 import dafny.TypeDescriptor;
 import java.lang.Byte;
 import java.lang.Character;
+import java.lang.RuntimeException;
 import java.lang.String;
 import java.util.List;
 import java.util.Objects;
 import software.amazon.cryptography.keyStore.model.CollectionOfErrors;
 import software.amazon.cryptography.keyStore.model.KeyStoreException;
-import software.amazon.cryptography.keyStore.model.NativeError;
 import software.amazon.cryptography.keyStore.model.OpaqueError;
 
 public class ToDafny {
-  public static Error Error(NativeError nativeValue) {
+
+  public static IKeyStoreClient KeyStore(KeyStore nativeValue) {
+    return nativeValue.impl();
+  }
+
+  public static Error Error(RuntimeException nativeValue) {
     if (nativeValue instanceof KeyStoreException) {
       return ToDafny.Error((KeyStoreException) nativeValue);
     }
@@ -44,10 +49,6 @@ public class ToDafny {
         ToDafny::Error, 
         Error._typeDescriptor());
     return Error.create_CollectionOfErrors(list);
-  }
-
-  public static IKeyStoreClient KeyStore(KeyStore nativeValue) {
-    return nativeValue.impl();
   }
 
   public static CreateKeyInput CreateKeyInput(
