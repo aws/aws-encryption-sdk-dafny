@@ -8,6 +8,8 @@ include "../../../Model/AwsCryptographyMaterialProvidersTypes.dfy"
 include "Constants.dfy"
 include "AwsKmsUtils.dfy"
 include "../../AwsArnParsing.dfy"
+include "../../KeyWrapping/EdkWrapping.dfy"
+include "AwsKmsKeyring.dfy"
 
 module AwsKmsMrkDiscoveryKeyring {
   import opened StandardLibrary
@@ -23,6 +25,9 @@ module AwsKmsMrkDiscoveryKeyring {
   import Types = AwsCryptographyMaterialProvidersTypes
   import KMS = Types.ComAmazonawsKmsTypes
   import opened AwsKmsUtils
+  import AwsKmsKeyring
+  import EdkWrapping
+  import MaterialWrapping
 
   class AwsKmsMrkDiscoveryKeyring
     //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-mrk-discovery-keyring.md#interface
@@ -104,7 +109,7 @@ module AwsKmsMrkDiscoveryKeyring {
     //# OnDecrypt MUST take [decryption materials](../structures.md#decryption-
     //# materials) and a list of [encrypted data keys]
     //# (../structures.md#encrypted-data-key) as input.
-    method OnDecrypt'(
+    method {:vcs_split_on_every_assert} OnDecrypt'(
       input: Types.OnDecryptInput
     )
       returns (output: Result<Types.OnDecryptOutput, Types.Error>)
@@ -120,7 +125,7 @@ module AwsKmsMrkDiscoveryKeyring {
           input.materials,
           output.value.materials
         )
-
+        
       //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-mrk-discovery-keyring.md#ondecrypt
       //= type=implication
       //# If the [decryption materials](../structures.md#decryption-materials)
@@ -143,66 +148,53 @@ module AwsKmsMrkDiscoveryKeyring {
       ensures
         && output.Success?
       ==>
+
+        //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-mrk-discovery-keyring.md#ondecrypt
+        //= type=implication
+        //# - The length of the response’s `Plaintext` MUST equal the [key
+        //# derivation input length](../algorithm-suites.md#key-derivation-
+        //# input-length) specified by the [algorithm suite](../algorithm-
+        //# suites.md) included in the input [decryption materials]
+        //# (../structures.md#decryption-materials).
+        && Materials.DecryptionMaterialsWithPlaintextDataKey(output.value.materials)
+
         && var stringifiedEncCtx := StringifyEncryptionContext(input.materials.encryptionContext).Extract();
         && output.value.materials.plaintextDataKey.Some?
         && 0 < |client.History.Decrypt|
-        && Seq.Last(client.History.Decrypt).output.Success?
+
+        //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-mrk-discovery-keyring.md#ondecrypt
+        //= type=implication
+        //# To attempt to decrypt a particular [encrypted data key](../structures.md#encrypted-data-key),
+        //# OnDecrypt MUST call [AWS KMS Decrypt](https://docs.aws.amazon.com/kms/latest/APIReference/API_Decrypt.html) with the configured AWS KMS client.
+        && var LastDecrypt := Seq.Last(client.History.Decrypt);
+        && LastDecrypt.output.Success?
         && exists edk: Types.EncryptedDataKey, awsKmsKey: string
         |
           && edk in input.encryptedDataKeys
         ::
-          // && edk is EncryptedDataKey
+          && var maybeProviderWrappedMaterial := 
+            EdkWrapping.GetProviderWrappedMaterial(edk.ciphertext, output.value.materials.algorithmSuite);
+          && maybeProviderWrappedMaterial.Success?
+          && KMS.IsValid_CiphertextType(maybeProviderWrappedMaterial.value)
           //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-mrk-discovery-keyring.md#ondecrypt
           //= type=implication
           //# - Its provider ID MUST exactly match the value “aws-kms”.
           && edk.keyProviderId == PROVIDER_ID
-          && KMS.IsValid_CiphertextType(edk.ciphertext)
           && KMS.IsValid_KeyIdType(awsKmsKey)
           && var request := KMS.DecryptRequest(
             KeyId := Option.Some(awsKmsKey),
-            CiphertextBlob :=  edk.ciphertext,
+            CiphertextBlob :=  maybeProviderWrappedMaterial.value,
             EncryptionContext := Option.Some(stringifiedEncCtx),
             GrantTokens := Option.Some(grantTokens),
             EncryptionAlgorithm := Option.None()
           );
-
-          //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-mrk-discovery-keyring.md#ondecrypt
-          //= type=implication
-          //# - The length of the response’s `Plaintext` MUST equal the [key
-          //# derivation input length](../algorithm-suites.md#key-derivation-
-          //# input-length) specified by the [algorithm suite](../algorithm-
-          //# suites.md) included in the input [decryption materials]
-          //# (../structures.md#decryption-materials).
-          && Materials.DecryptionMaterialsWithPlaintextDataKey(output.value.materials)
-
-          //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-mrk-discovery-keyring.md#ondecrypt
-          //= type=implication
-          //# To attempt to decrypt a particular [encrypted data key]
-          //# (../structures.md#encrypted-data-key), OnDecrypt MUST call [AWS KMS
-          //# Decrypt](https://docs.aws.amazon.com/kms/latest/APIReference/
-          //# API_Decrypt.html) with the configured AWS KMS client.
           && Seq.Last(client.History.Decrypt).input
-            //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-mrk-discovery-keyring.md#ondecrypt
-            //= type=implication
-            //# When calling [AWS KMS Decrypt]
-            //# (https://docs.aws.amazon.com/kms/latest/APIReference/
-            //# API_Decrypt.html), the keyring MUST call with a request constructed
-            //# as follows:
             == request
-            
-          //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-mrk-discovery-keyring.md#ondecrypt
-          //= type=implication
-          //# Since the response does satisfies these requirements then OnDecrypt
-          //# MUST do the following with the response:
-          //#*  set the plaintext data key on the [decryption materials]
-          //#   (../structures.md#decryption-materials) as the response `Plaintext`.
-          && (exists returnedKeyId, returnedEncryptionAlgorithm ::
-            && var response := KMS.DecryptResponse(
-              KeyId := returnedKeyId,
-              Plaintext := output.value.materials.plaintextDataKey,
-              EncryptionAlgorithm := returnedEncryptionAlgorithm
-            );
-            && Seq.Last(client.History.Decrypt).output.value == response)
+          && Seq.Last(client.History.Decrypt).output.value.Plaintext.Some?
+          && (
+            input.materials.algorithmSuite.edkWrapping.DIRECT_KEY_WRAPPING? ==>
+              Seq.Last(client.History.Decrypt).output.value.Plaintext
+                == output.value.materials.plaintextDataKey)
     {
 
       var materials := input.materials;
@@ -336,6 +328,9 @@ module AwsKmsMrkDiscoveryKeyring {
           && var h := res.value[0];
           && h.edk.keyProviderId == PROVIDER_ID
           && UTF8.ValidUTF8Seq(h.edk.keyProviderInfo)
+          && UTF8.Decode(h.edk.keyProviderInfo).Success?
+          && ParseAwsKmsArn(UTF8.Decode(h.edk.keyProviderInfo).value).Success?
+          && h.arn == ParseAwsKmsArn(UTF8.Decode(h.edk.keyProviderInfo).value).value
           && h.edk == edk
           && h.arn.resource.resourceType == "key"
           && DiscoveryMatch(h.arn, discoveryFilter, region)
@@ -446,8 +441,11 @@ module AwsKmsMrkDiscoveryKeyring {
 
         // Confirm that all our input values were valid
         && var keyArn := ToStringForRegion(helper.arn, region);
+        && var maybeProviderWrappedMaterial := 
+          EdkWrapping.GetProviderWrappedMaterial(helper.edk.ciphertext, materials.algorithmSuite);
+        && maybeProviderWrappedMaterial.Success?
         && var maybeStringifiedEncCtx := StringifyEncryptionContext(materials.encryptionContext);
-        && KMS.IsValid_CiphertextType(helper.edk.ciphertext)
+        && KMS.IsValid_CiphertextType(maybeProviderWrappedMaterial.value)
         && KMS.IsValid_KeyIdType(keyArn)
         && maybeStringifiedEncCtx.Success?
 
@@ -455,20 +453,23 @@ module AwsKmsMrkDiscoveryKeyring {
         // Confirm that we called KMS in the right way and correctly returned the values
         // it gave us
         && KMS.DecryptRequest(
-            KeyId := Option.Some(keyArn),
-            CiphertextBlob := helper.edk.ciphertext,
-            EncryptionContext := Option.Some(maybeStringifiedEncCtx.Extract()),
-            GrantTokens := Option.Some(grantTokens),
-            EncryptionAlgorithm := Option.None()
+            KeyId := Some(keyArn),
+            CiphertextBlob := maybeProviderWrappedMaterial.value,
+            EncryptionContext := Some(maybeStringifiedEncCtx.value),
+            GrantTokens := Some(grantTokens),
+            EncryptionAlgorithm := None
           ) == Seq.Last(client.History.Decrypt).input
         && Seq.Last(client.History.Decrypt).output.Success?
-        && exists returnedKeyId, returnedEncryptionAlgorithm ::
-          && var response := KMS.DecryptResponse(
-            KeyId := returnedKeyId,
-            Plaintext := Option.Some(res.value.plaintextDataKey.value),
-            EncryptionAlgorithm := returnedEncryptionAlgorithm
-          );
-          && Seq.Last(client.History.Decrypt).output.value == response
+        && (
+          materials.algorithmSuite.edkWrapping.DIRECT_KEY_WRAPPING? ==>
+            Seq.Last(client.History.Decrypt).output.value.Plaintext
+              == res.value.plaintextDataKey)
+        && Seq.Last(client.History.Decrypt).output.value.KeyId == Some(keyArn)
+        && Seq.Last(client.History.Decrypt).output.value.Plaintext.Some?
+        && (
+          materials.algorithmSuite.edkWrapping.DIRECT_KEY_WRAPPING? ==>
+            Seq.Last(client.History.Decrypt).output.value.Plaintext
+              == res.value.plaintextDataKey)
     }
 
     method Invoke(
@@ -483,42 +484,23 @@ module AwsKmsMrkDiscoveryKeyring {
       ensures Ensures(helper, res, attemptsState)
     {
       var awsKmsKey := ToStringForRegion(helper.arn, region);
-      var stringifiedEncCtx :- StringifyEncryptionContext(materials.encryptionContext);
+      var _ :- ValidateKmsKeyId(awsKmsKey);
 
-      :- Need(KMS.IsValid_CiphertextType(helper.edk.ciphertext), 
-        Types.AwsCryptographicMaterialProvidersException( message := "Ciphertext length invalid"));
-      :- Need(KMS.IsValid_KeyIdType(awsKmsKey),
-        Types.AwsCryptographicMaterialProvidersException( message := "KMS key arn invalid"));
-
-      var decryptRequest := KMS.DecryptRequest(
-        KeyId := Option.Some(awsKmsKey),
-        CiphertextBlob := helper.edk.ciphertext,
-        EncryptionContext := Option.Some(stringifiedEncCtx),
-        GrantTokens := Option.Some(grantTokens),
-        EncryptionAlgorithm := Option.None()
+      var kmsUnwrap := new AwsKmsKeyring.KmsUnwrapKeyMaterial(
+        client,
+        awsKmsKey, 
+        grantTokens
       );
 
-      var maybeDecryptResponse := client.Decrypt(decryptRequest);
-      var decryptResponse :- maybeDecryptResponse
-        .MapFailure(e => Types.ComAmazonawsKms(ComAmazonawsKms := e));
+      var unwrapOutputRes := EdkWrapping.UnwrapEdkMaterial(
+        helper.edk.ciphertext,
+        materials,
+        kmsUnwrap
+      );
 
-      var algId := materials.algorithmSuite;
-      //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-mrk-discovery-keyring.md#ondecrypt
-      //# - The `KeyId` field in the response MUST equal the requested `KeyId`
-      :- Need(
-        && decryptResponse.KeyId.Some?
-        && decryptResponse.KeyId.value == awsKmsKey
-        && decryptResponse.Plaintext.Some?
-        && AlgorithmSuites.GetEncryptKeyLength(algId) as nat == |decryptResponse.Plaintext.value|
-        , Types.AwsCryptographicMaterialProvidersException( message := "Invalid response from KMS Decrypt"));
+      var unwrapOutput :- unwrapOutputRes;
 
-      // TODO add support
-      :- Need(materials.algorithmSuite.symmetricSignature.None?,
-        Types.AwsCryptographicMaterialProvidersException(
-          message := "Symmetric Signatures not yet implemented."));
-
-      var result :-  Materials.DecryptionMaterialsAddDataKey(materials, decryptResponse.Plaintext.value, None);
-      return Success(result);
+      res := Materials.DecryptionMaterialsAddDataKey(materials, unwrapOutput.plaintextDataKey, unwrapOutput.symmetricSigningKey);
     }
   }
 
