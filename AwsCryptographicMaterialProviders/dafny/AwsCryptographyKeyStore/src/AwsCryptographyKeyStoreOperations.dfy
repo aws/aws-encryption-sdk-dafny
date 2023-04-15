@@ -12,12 +12,12 @@ module AwsCryptographyKeyStoreOperations refines AbstractAwsCryptographyKeyStore
   import KMS = ComAmazonawsKmsTypes
   import DDB = ComAmazonawsDynamodbTypes
   import MPL = AwsCryptographyMaterialProvidersTypes
-  import MaterialProviders
   import GetKeys
   import CreateKeys
   import CreateKeyStoreTable
 
   datatype Config = Config(
+    nameonly id: string,
     nameonly ddbTableName: DDB.TableName,
     nameonly kmsClient: ComAmazonawsKmsTypes.IKMSClient,
     nameonly ddbClient: ComAmazonawsDynamodbTypes.IDynamoDBClient

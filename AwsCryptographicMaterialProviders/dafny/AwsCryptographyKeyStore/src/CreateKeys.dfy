@@ -20,7 +20,6 @@ module CreateKeys {
   import Types = AwsCryptographyKeyStoreTypes
   import DDB = ComAmazonawsDynamodbTypes
   import KMS = ComAmazonawsKmsTypes
-  import MPL = AwsCryptographyMaterialProvidersTypes
   import UUID
   import Time
 

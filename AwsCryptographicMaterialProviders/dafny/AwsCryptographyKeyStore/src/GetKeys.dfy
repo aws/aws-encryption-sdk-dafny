@@ -153,10 +153,8 @@ module GetKeys {
     var branchKeyVersionUtf8 :- UTF8.Encode(branchKeyVersion).MapFailure(e => E(e));
 
     return Success(Types.GetActiveBranchKeyOutput(
-      branchKeyMaterials := MPL.BranchKeyMaterials(
-        branchKey := branchKeyResponse.Plaintext.value,
-        branchKeyVersion := branchKeyVersionUtf8
-      )
+      branchKeyVersion := branchKeyVersionUtf8,
+      branchKey := branchKeyResponse.Plaintext.value
     ));
   }
 
@@ -216,10 +214,8 @@ module GetKeys {
     var branchKeyVersionUtf8 :- UTF8.Encode(branchKeyVersion).MapFailure(e => E(e));
 
     return Success(Types.GetBranchKeyVersionOutput(
-      branchKeyMaterials := MPL.BranchKeyMaterials(
-        branchKey := branchKeyResponse.Plaintext.value,
-        branchKeyVersion := branchKeyVersionUtf8
-      )
+      branchKey := branchKeyResponse.Plaintext.value,
+      branchKeyVersion := branchKeyVersionUtf8
     ));
   }
   
@@ -291,11 +287,8 @@ module GetKeys {
     //= aws-encryption-sdk-specification/framework/branch-key-store.md#getbeaconkeyi
     //# This operation MUST output the decrypted beacon key and branch key version.
     return Success(Types.GetBeaconKeyOutput(
-      beaconKeyMaterials := MPL.BeaconKeyMaterials(
-        beaconKeyIdentifier := input.branchKeyIdentifier,
-        beaconKey := Some(beaconKeyResponse.Plaintext.value),
-        hmacKeys := None
-      )
+      beaconKeyIdentifier := input.branchKeyIdentifier,
+      beaconKey := beaconKeyResponse.Plaintext.value
     ));
   }
   

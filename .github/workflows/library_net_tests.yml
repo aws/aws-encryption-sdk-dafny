@@ -14,8 +14,9 @@ jobs:
         library: [
           AwsCryptographyPrimitives,
           ComAmazonawsKms,
-          AwsCryptographicMaterialProviders,
-          TestVectorsAwsCryptographicMaterialProviders,
+          # Commented out until we fix net local service generation
+          # AwsCryptographicMaterialProviders,
+          # TestVectorsAwsCryptographicMaterialProviders,
           StandardLibrary,
         ]
         dotnet-version: [ '6.0.x' ]

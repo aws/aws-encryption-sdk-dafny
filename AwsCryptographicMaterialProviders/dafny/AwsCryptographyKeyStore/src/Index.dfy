@@ -10,6 +10,7 @@ module {:extern "Dafny.Aws.Cryptography.KeyStore"}
   import Com.Amazonaws.Kms
   import KMS = ComAmazonawsKmsTypes
   import DDB = ComAmazonawsDynamodbTypes
+  import UUID
 
   // TODO there is no sensible default, so what should this do?
   // As is, the default config is invalid. Can we update the codegen to *not*
@@ -17,6 +18,7 @@ module {:extern "Dafny.Aws.Cryptography.KeyStore"}
   function method DefaultKeyStoreConfig(): KeyStoreConfig
   {
     KeyStoreConfig(
+      id := None,
       ddbTableName := None,
       kmsClient := None,
       ddbClient := None
@@ -34,8 +36,15 @@ module {:extern "Dafny.Aws.Cryptography.KeyStore"}
         message := "MUST supply Amazon DynamoDB Table Name, AWS KMS Client, and Amazon DynamoDB Client")
     );
 
+    
+    var keyStoreId :- if config.id.Some? then
+      Success(config.id.value)
+    else
+      UUID.GenerateUUID().MapFailure(e => Types.KeyStoreException(message := e));
+
     var client := new KeyStoreClient(
       Operations.Config(
+        id := keyStoreId,
         ddbTableName := config.ddbTableName.value,
         kmsClient := config.kmsClient.value,
         ddbClient := config.ddbClient.value

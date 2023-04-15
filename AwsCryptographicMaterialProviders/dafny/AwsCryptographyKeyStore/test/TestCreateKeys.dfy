@@ -8,7 +8,6 @@ module TestCreateKeys {
   import ComAmazonawsKmsTypes
   import KMS = Com.Amazonaws.Kms
   import DDB = Com.Amazonaws.Dynamodb
-  import MaterialProviders
   import KeyStore
   import opened Wrappers
 
@@ -21,6 +20,7 @@ module TestCreateKeys {
     var kmsClient :- expect KMS.KMSClient();
     var ddbClient :- expect DDB.DynamoDBClient();
     var keyStoreConfig := Types.KeyStoreConfig(
+      id := None,
       ddbTableName := Some(branchKeyStoreName),
       ddbClient := Some(ddbClient),
       kmsClient := Some(kmsClient)
@@ -45,8 +45,7 @@ module TestCreateKeys {
       grantTokens := None
     ));
     
-    expect beaconKeyResult.beaconKeyMaterials.beaconKey.Some?;
-    expect |beaconKeyResult.beaconKeyMaterials.beaconKey.value| == 32;
-    expect |activeResult.branchKeyMaterials.branchKey| == 32;
+    expect |beaconKeyResult.beaconKey| == 32;
+    expect |activeResult.branchKey| == 32;
   }
 }

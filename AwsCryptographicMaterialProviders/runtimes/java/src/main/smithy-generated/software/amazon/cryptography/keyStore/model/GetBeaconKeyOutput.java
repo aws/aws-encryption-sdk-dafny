@@ -3,18 +3,25 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.keyStore.model;
 
+import java.nio.ByteBuffer;
 import java.util.Objects;
-import software.amazon.cryptography.materialProviders.model.BeaconKeyMaterials;
 
 public class GetBeaconKeyOutput {
-  private final BeaconKeyMaterials beaconKeyMaterials;
+  private final String beaconKeyIdentifier;
+
+  private final ByteBuffer beaconKey;
 
   protected GetBeaconKeyOutput(BuilderImpl builder) {
-    this.beaconKeyMaterials = builder.beaconKeyMaterials();
+    this.beaconKeyIdentifier = builder.beaconKeyIdentifier();
+    this.beaconKey = builder.beaconKey();
   }
 
-  public BeaconKeyMaterials beaconKeyMaterials() {
-    return this.beaconKeyMaterials;
+  public String beaconKeyIdentifier() {
+    return this.beaconKeyIdentifier;
+  }
+
+  public ByteBuffer beaconKey() {
+    return this.beaconKey;
   }
 
   public Builder toBuilder() {
@@ -26,35 +33,54 @@ public class GetBeaconKeyOutput {
   }
 
   public interface Builder {
-    Builder beaconKeyMaterials(BeaconKeyMaterials beaconKeyMaterials);
+    Builder beaconKeyIdentifier(String beaconKeyIdentifier);
 
-    BeaconKeyMaterials beaconKeyMaterials();
+    String beaconKeyIdentifier();
+
+    Builder beaconKey(ByteBuffer beaconKey);
+
+    ByteBuffer beaconKey();
 
     GetBeaconKeyOutput build();
   }
 
   static class BuilderImpl implements Builder {
-    protected BeaconKeyMaterials beaconKeyMaterials;
+    protected String beaconKeyIdentifier;
+
+    protected ByteBuffer beaconKey;
 
     protected BuilderImpl() {
     }
 
     protected BuilderImpl(GetBeaconKeyOutput model) {
-      this.beaconKeyMaterials = model.beaconKeyMaterials();
+      this.beaconKeyIdentifier = model.beaconKeyIdentifier();
+      this.beaconKey = model.beaconKey();
     }
 
-    public Builder beaconKeyMaterials(BeaconKeyMaterials beaconKeyMaterials) {
-      this.beaconKeyMaterials = beaconKeyMaterials;
+    public Builder beaconKeyIdentifier(String beaconKeyIdentifier) {
+      this.beaconKeyIdentifier = beaconKeyIdentifier;
       return this;
     }
 
-    public BeaconKeyMaterials beaconKeyMaterials() {
-      return this.beaconKeyMaterials;
+    public String beaconKeyIdentifier() {
+      return this.beaconKeyIdentifier;
+    }
+
+    public Builder beaconKey(ByteBuffer beaconKey) {
+      this.beaconKey = beaconKey;
+      return this;
+    }
+
+    public ByteBuffer beaconKey() {
+      return this.beaconKey;
     }
 
     public GetBeaconKeyOutput build() {
-      if (Objects.isNull(this.beaconKeyMaterials()))  {
-        throw new IllegalArgumentException("Missing value for required field `beaconKeyMaterials`");
+      if (Objects.isNull(this.beaconKeyIdentifier()))  {
+        throw new IllegalArgumentException("Missing value for required field `beaconKeyIdentifier`");
+      }
+      if (Objects.isNull(this.beaconKey()))  {
+        throw new IllegalArgumentException("Missing value for required field `beaconKey`");
       }
       return new GetBeaconKeyOutput(this);
     }
