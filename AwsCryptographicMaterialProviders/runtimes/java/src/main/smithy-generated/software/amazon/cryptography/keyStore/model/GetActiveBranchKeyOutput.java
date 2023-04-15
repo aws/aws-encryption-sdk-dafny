@@ -4,17 +4,17 @@
 package software.amazon.cryptography.keyStore.model;
 
 import java.util.Objects;
-import software.amazon.cryptography.materialProviders.model.HierarchicalMaterials;
+import software.amazon.cryptography.materialProviders.model.BranchKeyMaterials;
 
 public class GetActiveBranchKeyOutput {
-  private final HierarchicalMaterials hierarchicalMaterials;
+  private final BranchKeyMaterials branchKeyMaterials;
 
   protected GetActiveBranchKeyOutput(BuilderImpl builder) {
-    this.hierarchicalMaterials = builder.hierarchicalMaterials();
+    this.branchKeyMaterials = builder.branchKeyMaterials();
   }
 
-  public HierarchicalMaterials hierarchicalMaterials() {
-    return this.hierarchicalMaterials;
+  public BranchKeyMaterials branchKeyMaterials() {
+    return this.branchKeyMaterials;
   }
 
   public Builder toBuilder() {
@@ -26,35 +26,35 @@ public class GetActiveBranchKeyOutput {
   }
 
   public interface Builder {
-    Builder hierarchicalMaterials(HierarchicalMaterials hierarchicalMaterials);
+    Builder branchKeyMaterials(BranchKeyMaterials branchKeyMaterials);
 
-    HierarchicalMaterials hierarchicalMaterials();
+    BranchKeyMaterials branchKeyMaterials();
 
     GetActiveBranchKeyOutput build();
   }
 
   static class BuilderImpl implements Builder {
-    protected HierarchicalMaterials hierarchicalMaterials;
+    protected BranchKeyMaterials branchKeyMaterials;
 
     protected BuilderImpl() {
     }
 
     protected BuilderImpl(GetActiveBranchKeyOutput model) {
-      this.hierarchicalMaterials = model.hierarchicalMaterials();
+      this.branchKeyMaterials = model.branchKeyMaterials();
     }
 
-    public Builder hierarchicalMaterials(HierarchicalMaterials hierarchicalMaterials) {
-      this.hierarchicalMaterials = hierarchicalMaterials;
+    public Builder branchKeyMaterials(BranchKeyMaterials branchKeyMaterials) {
+      this.branchKeyMaterials = branchKeyMaterials;
       return this;
     }
 
-    public HierarchicalMaterials hierarchicalMaterials() {
-      return this.hierarchicalMaterials;
+    public BranchKeyMaterials branchKeyMaterials() {
+      return this.branchKeyMaterials;
     }
 
     public GetActiveBranchKeyOutput build() {
-      if (Objects.isNull(this.hierarchicalMaterials()))  {
-        throw new IllegalArgumentException("Missing value for required field `hierarchicalMaterials`");
+      if (Objects.isNull(this.branchKeyMaterials()))  {
+        throw new IllegalArgumentException("Missing value for required field `branchKeyMaterials`");
       }
       return new GetActiveBranchKeyOutput(this);
     }

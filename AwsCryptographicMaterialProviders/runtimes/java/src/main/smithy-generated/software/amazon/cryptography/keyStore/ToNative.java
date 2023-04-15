@@ -76,7 +76,7 @@ public class ToNative {
   public static GetBeaconKeyOutput GetBeaconKeyOutput(
       Dafny.Aws.Cryptography.KeyStore.Types.GetBeaconKeyOutput dafnyValue) {
     GetBeaconKeyOutput.Builder nativeBuilder = GetBeaconKeyOutput.builder();
-    nativeBuilder.beaconKey(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_beaconKey()));
+    nativeBuilder.beaconKeyMaterials(software.amazon.cryptography.materialProviders.ToNative.BeaconKeyMaterials(dafnyValue.dtor_beaconKeyMaterials()));
     return nativeBuilder.build();
   }
 
@@ -89,7 +89,7 @@ public class ToNative {
   public static GetBranchKeyVersionOutput GetBranchKeyVersionOutput(
       Dafny.Aws.Cryptography.KeyStore.Types.GetBranchKeyVersionOutput dafnyValue) {
     GetBranchKeyVersionOutput.Builder nativeBuilder = GetBranchKeyVersionOutput.builder();
-    nativeBuilder.hierarchicalMaterials(software.amazon.cryptography.materialProviders.ToNative.HierarchicalMaterials(dafnyValue.dtor_hierarchicalMaterials()));
+    nativeBuilder.branchKeyMaterials(software.amazon.cryptography.materialProviders.ToNative.BranchKeyMaterials(dafnyValue.dtor_branchKeyMaterials()));
     return nativeBuilder.build();
   }
 
@@ -131,6 +131,9 @@ public class ToNative {
       Dafny.Aws.Cryptography.KeyStore.Types.VersionKeyInput dafnyValue) {
     VersionKeyInput.Builder nativeBuilder = VersionKeyInput.builder();
     nativeBuilder.branchKeyIdentifier(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_branchKeyIdentifier()));
+    if (dafnyValue.dtor_awsKmsKeyArn().is_Some()) {
+      nativeBuilder.awsKmsKeyArn(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_awsKmsKeyArn().dtor_value()));
+    }
     if (dafnyValue.dtor_grantTokens().is_Some()) {
       nativeBuilder.grantTokens(software.amazon.cryptography.materialProviders.ToNative.GrantTokenList(dafnyValue.dtor_grantTokens().dtor_value()));
     }
@@ -147,7 +150,7 @@ public class ToNative {
   public static GetActiveBranchKeyOutput GetActiveBranchKeyOutput(
       Dafny.Aws.Cryptography.KeyStore.Types.GetActiveBranchKeyOutput dafnyValue) {
     GetActiveBranchKeyOutput.Builder nativeBuilder = GetActiveBranchKeyOutput.builder();
-    nativeBuilder.hierarchicalMaterials(software.amazon.cryptography.materialProviders.ToNative.HierarchicalMaterials(dafnyValue.dtor_hierarchicalMaterials()));
+    nativeBuilder.branchKeyMaterials(software.amazon.cryptography.materialProviders.ToNative.BranchKeyMaterials(dafnyValue.dtor_branchKeyMaterials()));
     return nativeBuilder.build();
   }
 

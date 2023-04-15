@@ -37,6 +37,16 @@ PROJECT_INDEX := \
 STD_LIBRARY=StandardLibrary
 SMITHY_DEPS=model
 
+DIR_STRUCTURE_V2=V2
+
+# Dependencies for each local service
+SERVICE_DEPS_TestVectorsAwsCryptographicMaterialProviders := \
+	AwsCryptographyPrimitives \
+	ComAmazonawsKms \
+	ComAmazonawsDynamodb \
+	AwsCryptographicMaterialProviders/dafny/AwsCryptographyKeyStore \
+	AwsCryptographicMaterialProviders/dafny/AwsCryptographicMaterialProviders \
+
 # LIBRARY_MODEL := \
 # 	AwsCryptographyPrimitives/Model \
 # 	ComAmazonawsKms/Model \

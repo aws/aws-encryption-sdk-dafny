@@ -10,12 +10,15 @@ public class Materials {
 
   private final DecryptionMaterials Decryption;
 
-  private final HierarchicalMaterials Hierarchical;
+  private final BranchKeyMaterials BranchKey;
+
+  private final BeaconKeyMaterials BeaconKey;
 
   protected Materials(BuilderImpl builder) {
     this.Encryption = builder.Encryption();
     this.Decryption = builder.Decryption();
-    this.Hierarchical = builder.Hierarchical();
+    this.BranchKey = builder.BranchKey();
+    this.BeaconKey = builder.BeaconKey();
   }
 
   public EncryptionMaterials Encryption() {
@@ -26,8 +29,12 @@ public class Materials {
     return this.Decryption;
   }
 
-  public HierarchicalMaterials Hierarchical() {
-    return this.Hierarchical;
+  public BranchKeyMaterials BranchKey() {
+    return this.BranchKey;
+  }
+
+  public BeaconKeyMaterials BeaconKey() {
+    return this.BeaconKey;
   }
 
   public Builder toBuilder() {
@@ -47,9 +54,13 @@ public class Materials {
 
     DecryptionMaterials Decryption();
 
-    Builder Hierarchical(HierarchicalMaterials Hierarchical);
+    Builder BranchKey(BranchKeyMaterials BranchKey);
 
-    HierarchicalMaterials Hierarchical();
+    BranchKeyMaterials BranchKey();
+
+    Builder BeaconKey(BeaconKeyMaterials BeaconKey);
+
+    BeaconKeyMaterials BeaconKey();
 
     Materials build();
   }
@@ -59,7 +70,9 @@ public class Materials {
 
     protected DecryptionMaterials Decryption;
 
-    protected HierarchicalMaterials Hierarchical;
+    protected BranchKeyMaterials BranchKey;
+
+    protected BeaconKeyMaterials BeaconKey;
 
     protected BuilderImpl() {
     }
@@ -67,7 +80,8 @@ public class Materials {
     protected BuilderImpl(Materials model) {
       this.Encryption = model.Encryption();
       this.Decryption = model.Decryption();
-      this.Hierarchical = model.Hierarchical();
+      this.BranchKey = model.BranchKey();
+      this.BeaconKey = model.BeaconKey();
     }
 
     public Builder Encryption(EncryptionMaterials Encryption) {
@@ -88,13 +102,22 @@ public class Materials {
       return this.Decryption;
     }
 
-    public Builder Hierarchical(HierarchicalMaterials Hierarchical) {
-      this.Hierarchical = Hierarchical;
+    public Builder BranchKey(BranchKeyMaterials BranchKey) {
+      this.BranchKey = BranchKey;
       return this;
     }
 
-    public HierarchicalMaterials Hierarchical() {
-      return this.Hierarchical;
+    public BranchKeyMaterials BranchKey() {
+      return this.BranchKey;
+    }
+
+    public Builder BeaconKey(BeaconKeyMaterials BeaconKey) {
+      this.BeaconKey = BeaconKey;
+      return this;
+    }
+
+    public BeaconKeyMaterials BeaconKey() {
+      return this.BeaconKey;
     }
 
     public Materials build() {
@@ -105,7 +128,7 @@ public class Materials {
     }
 
     private boolean onlyOneNonNull() {
-      Object[] allValues = {this.Encryption, this.Decryption, this.Hierarchical};
+      Object[] allValues = {this.Encryption, this.Decryption, this.BranchKey, this.BeaconKey};
       boolean haveOneNonNull = false;
       for (Object o : allValues) {
         if (Objects.nonNull(o)) {

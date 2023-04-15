@@ -21,6 +21,7 @@ module GetKeys {
   const TYPE_FIELD := "type";
   const BRANCH_KEY_TYPE_PREFIX := "version:";
   const BRANCH_KEY_IDENTIFIER_FIELD := "branch-key-id";
+  const TABLE_FIELD := "tablename";
   
   const BRANCH_KEY_FIELD := "enc";
   
@@ -147,12 +148,12 @@ module GetKeys {
       E("GetActiveBranchKey received invalid grant tokens")
     );
     
-    var branchKeyResponse :- decryptKeyStoreItem(branchKeyRecord, input.awsKmsKeyArn.value, grantTokens.value, kmsClient);
+    var branchKeyResponse :- decryptKeyStoreItem(branchKeyRecord, input.awsKmsKeyArn.value, grantTokens.value, tableName, kmsClient);
     var branchKeyVersion := branchKeyRecord["type"].S[|BRANCH_KEY_TYPE_PREFIX|..];
     var branchKeyVersionUtf8 :- UTF8.Encode(branchKeyVersion).MapFailure(e => E(e));
 
     return Success(Types.GetActiveBranchKeyOutput(
-      hierarchicalMaterials := MPL.HierarchicalMaterials(
+      branchKeyMaterials := MPL.BranchKeyMaterials(
         branchKey := branchKeyResponse.Plaintext.value,
         branchKeyVersion := branchKeyVersionUtf8
       )
@@ -205,17 +206,17 @@ module GetKeys {
     var grantTokens := GetValidGrantTokens(input.grantTokens);
     :- Need(
       && grantTokens.Success?,
-      E("GetActiveBranchKey received invalid grant tokens")
+      E("GetBranchKeyVersion received invalid grant tokens")
     );
 
-    var maybeBranchKeyResponse := decryptKeyStoreItem(branchKeyRecord, input.awsKmsKeyArn.value, grantTokens.value, kmsClient);
+    var maybeBranchKeyResponse := decryptKeyStoreItem(branchKeyRecord, input.awsKmsKeyArn.value, grantTokens.value, tableName, kmsClient);
     var branchKeyResponse :- maybeBranchKeyResponse;
 
     var branchKeyVersion := branchKeyRecord["type"].S[|BRANCH_KEY_TYPE_PREFIX|..];
     var branchKeyVersionUtf8 :- UTF8.Encode(branchKeyVersion).MapFailure(e => E(e));
 
     return Success(Types.GetBranchKeyVersionOutput(
-      hierarchicalMaterials := MPL.HierarchicalMaterials(
+      branchKeyMaterials := MPL.BranchKeyMaterials(
         branchKey := branchKeyResponse.Plaintext.value,
         branchKeyVersion := branchKeyVersionUtf8
       )
@@ -280,16 +281,21 @@ module GetKeys {
     var grantTokens := GetValidGrantTokens(input.grantTokens);
     :- Need(
       && grantTokens.Success?,
-      E("Get Beacon Key received invalid grant tokens")
+      E("GetBeaconKey received invalid grant tokens")
     );
+    
     //= aws-encryption-sdk-specification/framework/branch-key-store.md#getbeaconkey
     //# The operation MUST decrypt the beacon key according to the [AWS KMS Branch Key Decryption](#aws-kms-branch-key-decryption) section.
-    var beaconKeyResponse :- decryptKeyStoreItem(beaconKeyItem, input.awsKmsKeyArn.value, grantTokens.value, kmsClient);
+    var beaconKeyResponse :- decryptKeyStoreItem(beaconKeyItem, input.awsKmsKeyArn.value, grantTokens.value, tableName, kmsClient);
 
     //= aws-encryption-sdk-specification/framework/branch-key-store.md#getbeaconkeyi
     //# This operation MUST output the decrypted beacon key and branch key version.
     return Success(Types.GetBeaconKeyOutput(
-      beaconKey := beaconKeyResponse.Plaintext.value
+      beaconKeyMaterials := MPL.BeaconKeyMaterials(
+        beaconKeyIdentifier := input.branchKeyIdentifier,
+        beaconKey := Some(beaconKeyResponse.Plaintext.value),
+        hmacKeys := None
+      )
     ));
   }
   
@@ -297,6 +303,7 @@ module GetKeys {
     branchKeyRecord: baseKeyStoreItem,
     awsKmsKey: AwsKmsIdentifierString,
     grantTokens: KMS.GrantTokenList,
+    tableName: DDB.TableName,
     kmsClient: KMS.IKMSClient
   )
     returns (output: Result<KMS.DecryptResponse, Types.Error>)
@@ -325,7 +332,8 @@ module GetKeys {
     //# The operation MUST create a branch key [encryption context](../structures.md#encryption-context).
     var encCtxMap: map<string, string> :=
       map k <- encCtxDdbMap ::
-        k := ValueToString(encCtxDdbMap[k]).value; 
+        k := ValueToString(encCtxDdbMap[k]).value;
+    encCtxMap := encCtxMap + map[TABLE_FIELD := tableName];
     
     var decryptRequest :=
       KMS.DecryptRequest(

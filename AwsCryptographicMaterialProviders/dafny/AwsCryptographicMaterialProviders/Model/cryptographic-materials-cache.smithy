@@ -85,7 +85,8 @@ structure GetCacheEntryOutput {
 union Materials {
   Encryption: EncryptionMaterials,
   Decryption: DecryptionMaterials,
-  Hierarchical: HierarchicalMaterials,
+  BranchKey: BranchKeyMaterials,
+  BeaconKey: BeaconKeyMaterials
 }
 
 operation DeleteCacheEntry {

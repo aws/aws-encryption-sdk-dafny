@@ -5,6 +5,7 @@ include "../../AwsCryptographicMaterialProviders/src/AwsArnParsing.dfy"
 
 include "GetKeys.dfy"
 include "CreateKeyStoreTable.dfy"
+include "CreateKeys.dfy"
 
 module AwsCryptographyKeyStoreOperations refines AbstractAwsCryptographyKeyStoreOperations {
   import opened AwsArnParsing
@@ -13,6 +14,7 @@ module AwsCryptographyKeyStoreOperations refines AbstractAwsCryptographyKeyStore
   import MPL = AwsCryptographyMaterialProvidersTypes
   import MaterialProviders
   import GetKeys
+  import CreateKeys
   import CreateKeyStoreTable
 
   datatype Config = Config(
@@ -46,7 +48,7 @@ module AwsCryptographyKeyStoreOperations refines AbstractAwsCryptographyKeyStore
   {
     :- Need(
       DDB.IsValid_IndexName("Active-Keys-" + config.ddbTableName),
-      Types.KeyStoreException(message := "Invalid table name length.")
+      Types.KeyStoreException(message := "Invalid Table Name length.")
     );
 
     var ddbTableArn :- CreateKeyStoreTable.CreateKeyStoreTable(config.ddbTableName, config.ddbClient);
@@ -66,7 +68,12 @@ module AwsCryptographyKeyStoreOperations refines AbstractAwsCryptographyKeyStore
   method CreateKey(config: InternalConfig, input: CreateKeyInput)
     returns (output: Result<CreateKeyOutput, Error>)
   {
-    return Failure(KeyStoreException(message := "Implement me"));
+    :- Need(
+      DDB.IsValid_TableName(config.ddbTableName),
+      Types.KeyStoreException(message := "Invalid Table Name length.")
+    );
+
+    output := CreateKeys.CreateBranchAndBeaconKeys(input, config.ddbTableName, config.kmsClient, config.ddbClient);
   }
   
   predicate VersionKeyEnsuresPublicly(input: VersionKeyInput, output: Result<(), Error>)

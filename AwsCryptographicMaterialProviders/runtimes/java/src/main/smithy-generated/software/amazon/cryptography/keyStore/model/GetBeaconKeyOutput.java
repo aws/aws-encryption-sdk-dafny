@@ -3,18 +3,18 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.keyStore.model;
 
-import java.nio.ByteBuffer;
 import java.util.Objects;
+import software.amazon.cryptography.materialProviders.model.BeaconKeyMaterials;
 
 public class GetBeaconKeyOutput {
-  private final ByteBuffer beaconKey;
+  private final BeaconKeyMaterials beaconKeyMaterials;
 
   protected GetBeaconKeyOutput(BuilderImpl builder) {
-    this.beaconKey = builder.beaconKey();
+    this.beaconKeyMaterials = builder.beaconKeyMaterials();
   }
 
-  public ByteBuffer beaconKey() {
-    return this.beaconKey;
+  public BeaconKeyMaterials beaconKeyMaterials() {
+    return this.beaconKeyMaterials;
   }
 
   public Builder toBuilder() {
@@ -26,35 +26,35 @@ public class GetBeaconKeyOutput {
   }
 
   public interface Builder {
-    Builder beaconKey(ByteBuffer beaconKey);
+    Builder beaconKeyMaterials(BeaconKeyMaterials beaconKeyMaterials);
 
-    ByteBuffer beaconKey();
+    BeaconKeyMaterials beaconKeyMaterials();
 
     GetBeaconKeyOutput build();
   }
 
   static class BuilderImpl implements Builder {
-    protected ByteBuffer beaconKey;
+    protected BeaconKeyMaterials beaconKeyMaterials;
 
     protected BuilderImpl() {
     }
 
     protected BuilderImpl(GetBeaconKeyOutput model) {
-      this.beaconKey = model.beaconKey();
+      this.beaconKeyMaterials = model.beaconKeyMaterials();
     }
 
-    public Builder beaconKey(ByteBuffer beaconKey) {
-      this.beaconKey = beaconKey;
+    public Builder beaconKeyMaterials(BeaconKeyMaterials beaconKeyMaterials) {
+      this.beaconKeyMaterials = beaconKeyMaterials;
       return this;
     }
 
-    public ByteBuffer beaconKey() {
-      return this.beaconKey;
+    public BeaconKeyMaterials beaconKeyMaterials() {
+      return this.beaconKeyMaterials;
     }
 
     public GetBeaconKeyOutput build() {
-      if (Objects.isNull(this.beaconKey()))  {
-        throw new IllegalArgumentException("Missing value for required field `beaconKey`");
+      if (Objects.isNull(this.beaconKeyMaterials()))  {
+        throw new IllegalArgumentException("Missing value for required field `beaconKeyMaterials`");
       }
       return new GetBeaconKeyOutput(this);
     }

@@ -4,16 +4,16 @@
 using System;
  using AWS.Cryptography.KeyStore; namespace AWS.Cryptography.KeyStore {
  public class GetBranchKeyVersionOutput {
- private AWS.Cryptography.MaterialProviders.HierarchicalMaterials _hierarchicalMaterials ;
- public AWS.Cryptography.MaterialProviders.HierarchicalMaterials HierarchicalMaterials {
- get { return this._hierarchicalMaterials; }
- set { this._hierarchicalMaterials = value; }
+ private AWS.Cryptography.MaterialProviders.BranchKeyMaterials _branchKeyMaterials ;
+ public AWS.Cryptography.MaterialProviders.BranchKeyMaterials BranchKeyMaterials {
+ get { return this._branchKeyMaterials; }
+ set { this._branchKeyMaterials = value; }
 }
- public bool IsSetHierarchicalMaterials () {
- return this._hierarchicalMaterials != null;
+ public bool IsSetBranchKeyMaterials () {
+ return this._branchKeyMaterials != null;
 }
  public void Validate() {
- if (!IsSetHierarchicalMaterials()) throw new System.ArgumentException("Missing value for required property 'HierarchicalMaterials'");
+ if (!IsSetBranchKeyMaterials()) throw new System.ArgumentException("Missing value for required property 'BranchKeyMaterials'");
 
 }
 }

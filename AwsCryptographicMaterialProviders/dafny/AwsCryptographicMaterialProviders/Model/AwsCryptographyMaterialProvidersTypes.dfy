@@ -602,6 +602,11 @@ include "../../../../StandardLibrary/src/Index.dfy"
  // Functions that are transparent do not need ensures
  
 }
+ datatype BeaconKeyMaterials = | BeaconKeyMaterials (
+ nameonly beaconKeyIdentifier: string ,
+ nameonly beaconKey: Option<Secret> ,
+ nameonly hmacKeys: Option<HmacKeyList>
+ )
  class IBranchKeyIdSupplierCallHistory {
  ghost constructor() {
  GetBranchKeyId := [];
@@ -667,6 +672,10 @@ include "../../../../StandardLibrary/src/Index.dfy"
  ensures unchanged(History)
  
 }
+ datatype BranchKeyMaterials = | BranchKeyMaterials (
+ nameonly branchKeyVersion: Utf8Bytes ,
+ nameonly branchKey: Secret
+ )
  class IClientSupplierCallHistory {
  ghost constructor() {
  GetClient := [];
@@ -1225,16 +1234,13 @@ include "../../../../StandardLibrary/src/Index.dfy"
  nameonly encryptionMaterials: EncryptionMaterials
  )
  type GrantTokenList = seq<string>
- datatype HierarchicalMaterials = | HierarchicalMaterials (
- nameonly branchKeyVersion: Utf8Bytes ,
- nameonly branchKey: Secret
- )
  datatype HKDF = | HKDF (
  nameonly hmac: AwsCryptographyPrimitivesTypes.DigestAlgorithm ,
  nameonly saltLength: AwsCryptographyPrimitivesTypes.PositiveInteger ,
  nameonly inputKeyLength: AwsCryptographyPrimitivesTypes.SymmetricKeyLength ,
  nameonly outputKeyLength: AwsCryptographyPrimitivesTypes.SymmetricKeyLength
  )
+ type HmacKeyList = seq<Secret>
  datatype IDENTITY = | IDENTITY (
  
  )
@@ -1362,7 +1368,8 @@ include "../../../../StandardLibrary/src/Index.dfy"
  datatype Materials =
  | Encryption(Encryption: EncryptionMaterials)
  | Decryption(Decryption: DecryptionMaterials)
- | Hierarchical(Hierarchical: HierarchicalMaterials)
+ | BranchKey(BranchKey: BranchKeyMaterials)
+ | BeaconKey(BeaconKey: BeaconKeyMaterials)
  datatype None = | None (
  
  )

@@ -6,6 +6,7 @@ include "./UInt.dfy"
 
 module {:extern "Time"} Time {
   import opened StandardLibrary
+  import opened Wrappers
   import opened UInt = StandardLibrary.UInt
 
   // Returns the number of seconds since some fixed-as-long-as-this-program-is-running moment in the past
@@ -15,4 +16,8 @@ module {:extern "Time"} Time {
     // We are able to make this claim because it does not make sense for time to 
     // be negative.
     ensures res >= 0
+  
+  // Returns a timestamp for the current time in ISO8601 format in UTC
+  // to microsecond precision (e.g. “YYYY-MM-DDTHH:mm:ss.ssssssZ“)
+  function method {:extern "GetCurrentTimeStamp"} GetCurrentTimeStamp(): (res: Result<string, string>)
 }

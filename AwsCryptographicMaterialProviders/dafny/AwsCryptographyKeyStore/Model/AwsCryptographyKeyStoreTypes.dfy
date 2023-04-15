@@ -37,7 +37,7 @@ include "../../../../StandardLibrary/src/Index.dfy"
  nameonly grantTokens: Option<AwsCryptographyMaterialProvidersTypes.GrantTokenList>
  )
  datatype GetActiveBranchKeyOutput = | GetActiveBranchKeyOutput (
- nameonly hierarchicalMaterials: AwsCryptographyMaterialProvidersTypes.HierarchicalMaterials
+ nameonly branchKeyMaterials: AwsCryptographyMaterialProvidersTypes.BranchKeyMaterials
  )
  datatype GetBeaconKeyInput = | GetBeaconKeyInput (
  nameonly branchKeyIdentifier: string ,
@@ -45,7 +45,7 @@ include "../../../../StandardLibrary/src/Index.dfy"
  nameonly grantTokens: Option<AwsCryptographyMaterialProvidersTypes.GrantTokenList>
  )
  datatype GetBeaconKeyOutput = | GetBeaconKeyOutput (
- nameonly beaconKey: AwsCryptographyMaterialProvidersTypes.Secret
+ nameonly beaconKeyMaterials: AwsCryptographyMaterialProvidersTypes.BeaconKeyMaterials
  )
  datatype GetBranchKeyVersionInput = | GetBranchKeyVersionInput (
  nameonly branchKeyIdentifier: string ,
@@ -54,7 +54,7 @@ include "../../../../StandardLibrary/src/Index.dfy"
  nameonly grantTokens: Option<AwsCryptographyMaterialProvidersTypes.GrantTokenList>
  )
  datatype GetBranchKeyVersionOutput = | GetBranchKeyVersionOutput (
- nameonly hierarchicalMaterials: AwsCryptographyMaterialProvidersTypes.HierarchicalMaterials
+ nameonly branchKeyMaterials: AwsCryptographyMaterialProvidersTypes.BranchKeyMaterials
  )
  class IKeyStoreClientCallHistory {
  ghost constructor() {
@@ -197,6 +197,7 @@ include "../../../../StandardLibrary/src/Index.dfy"
  )
  datatype VersionKeyInput = | VersionKeyInput (
  nameonly branchKeyIdentifier: string ,
+ nameonly awsKmsKeyArn: Option<AwsCryptographyMaterialProvidersTypes.KmsKeyId> ,
  nameonly grantTokens: Option<AwsCryptographyMaterialProvidersTypes.GrantTokenList>
  )
  datatype Error =

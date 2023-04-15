@@ -95,7 +95,7 @@ structure DecryptionMaterials {
   symmetricSigningKey: Secret
 }
 
-structure HierarchicalMaterials {
+structure BranchKeyMaterials {
   // TODO we should revisit if it makes sense to model
   // as utf8bytes instead instead of integer so as to avoid 
   // runtime checks in dafny
@@ -104,6 +104,26 @@ structure HierarchicalMaterials {
 
     @required 
     branchKey: Secret
+}
+
+structure BeaconKeyMaterials {
+  //= aws-encryption-sdk-specification/framework/structures.md#beacon-key-materials
+  //= type=implication
+  //# This structure MUST include the following fields:
+  //#
+  //# - [Beacon Key Id](#beacon-key-id)
+  @required
+  beaconKeyIdentifier: String,
+
+  //= aws-encryption-sdk-specification/framework/structures.md#beacon-key-materials
+  //= type=implication
+  //# This structure MAY include the following fields:
+  //# - [Beacon Key](#beacon-key)
+  //# - [HMAC Keys](#hmac-keys)
+
+  beaconKey: Secret,
+
+  hmacKeys: HmacKeyList  
 }
 
 
@@ -151,6 +171,10 @@ list SymmetricSigningKeyList {
   //= aws-encryption-sdk-specification/framework/structures.md#symmetric-signing-keys
   //= type=implication
   //# The value of keys in this list MUST be kept secret.
+  member: Secret
+}
+
+list HmacKeyList {
   member: Secret
 }
 

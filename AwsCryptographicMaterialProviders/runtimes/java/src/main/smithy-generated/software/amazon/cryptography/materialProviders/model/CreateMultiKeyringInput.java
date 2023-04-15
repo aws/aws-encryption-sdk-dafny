@@ -11,7 +11,7 @@ import software.amazon.cryptography.materialProviders.Keyring;
 public class CreateMultiKeyringInput {
   private final Keyring generator;
 
-  private final List<Keyring> childKeyrings;
+  private final List<IKeyring> childKeyrings;
 
   protected CreateMultiKeyringInput(BuilderImpl builder) {
     this.generator = builder.generator();
@@ -22,7 +22,7 @@ public class CreateMultiKeyringInput {
     return this.generator;
   }
 
-  public List<Keyring> childKeyrings() {
+  public List<IKeyring> childKeyrings() {
     return this.childKeyrings;
   }
 
@@ -39,9 +39,9 @@ public class CreateMultiKeyringInput {
 
     Keyring generator();
 
-    Builder childKeyrings(List<Keyring> childKeyrings);
+    Builder childKeyrings(List<IKeyring> childKeyrings);
 
-    List<Keyring> childKeyrings();
+    List<IKeyring> childKeyrings();
 
     CreateMultiKeyringInput build();
   }
@@ -49,7 +49,7 @@ public class CreateMultiKeyringInput {
   static class BuilderImpl implements Builder {
     protected Keyring generator;
 
-    protected List<Keyring> childKeyrings;
+    protected List<IKeyring> childKeyrings;
 
     protected BuilderImpl() {
     }
@@ -68,12 +68,12 @@ public class CreateMultiKeyringInput {
       return this.generator;
     }
 
-    public Builder childKeyrings(List<Keyring> childKeyrings) {
+    public Builder childKeyrings(List<IKeyring> childKeyrings) {
       this.childKeyrings = childKeyrings;
       return this;
     }
 
-    public List<Keyring> childKeyrings() {
+    public List<IKeyring> childKeyrings() {
       return this.childKeyrings;
     }
 

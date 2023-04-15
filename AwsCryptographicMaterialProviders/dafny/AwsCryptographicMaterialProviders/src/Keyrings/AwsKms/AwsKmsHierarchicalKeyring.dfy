@@ -493,7 +493,7 @@ module AwsKmsHierarchicalKeyring {
       branchKeyId: string,
       branchKeyIdUtf8: seq<uint8>
     )
-      returns (material: Result<Types.HierarchicalMaterials, Types.Error>)
+      returns (material: Result<Types.BranchKeyMaterials, Types.Error>)
       requires ValidState()
       modifies ddbClient.Modifies, kmsClient.Modifies, cryptoPrimitives.Modifies
       ensures ValidState()
@@ -572,7 +572,7 @@ module AwsKmsHierarchicalKeyring {
         
         var branchKey : seq<uint8> := branchKeyResponse.Plaintext.value;
         
-        var hierarchicalMaterials := Types.HierarchicalMaterials(
+        var hierarchicalMaterials := Types.BranchKeyMaterials(
           branchKey := branchKey,
           branchKeyVersion := branchKeyUuidUtf8
         );        
@@ -581,7 +581,7 @@ module AwsKmsHierarchicalKeyring {
 
         var putCacheEntryInput:= Types.PutCacheEntryInput(
           identifier := cacheId,
-          materials := Types.Materials.Hierarchical(hierarchicalMaterials),
+          materials := Types.Materials.BranchKey(hierarchicalMaterials),
           creationTime := now,
           expiryTime := ttlSeconds,
           messagesUsed := None,
@@ -594,11 +594,11 @@ module AwsKmsHierarchicalKeyring {
         return Success(hierarchicalMaterials);
       } else {
         :- Need(
-          && getCacheOutput.value.materials.Hierarchical?
-          && getCacheOutput.value.materials == Types.Materials.Hierarchical(getCacheOutput.value.materials.Hierarchical),
+          && getCacheOutput.value.materials.BranchKey?
+          && getCacheOutput.value.materials == Types.Materials.BranchKey(getCacheOutput.value.materials.BranchKey),
           E("Invalid Material Type.")
         );
-        return Success(getCacheOutput.value.materials.Hierarchical);
+        return Success(getCacheOutput.value.materials.BranchKey);
       }
     }
   }
@@ -1015,7 +1015,7 @@ module AwsKmsHierarchicalKeyring {
       branchKeyIdUtf8: seq<uint8>,
       branchKeyVersion: seq<uint8>
     )
-      returns (material: Result<Types.HierarchicalMaterials, Types.Error>)
+      returns (material: Result<Types.BranchKeyMaterials, Types.Error>)
       // TODO Define valid HierarchicalMaterials such that we can ensure they are correct
       requires |branchKeyVersion| == 16
       requires Invariant()
@@ -1075,7 +1075,7 @@ module AwsKmsHierarchicalKeyring {
         
         var branchKey : seq<uint8> := branchKeyResponse.Plaintext.value;
         
-        var hierarchicalMaterials := Types.HierarchicalMaterials(
+        var hierarchicalMaterials := Types.BranchKeyMaterials(
           branchKey := branchKey, 
           branchKeyVersion := branchKeyUuid
         );
@@ -1084,7 +1084,7 @@ module AwsKmsHierarchicalKeyring {
 
         var putCacheEntryInput:= Types.PutCacheEntryInput(
           identifier := cacheId,
-          materials := Types.Materials.Hierarchical(hierarchicalMaterials),
+          materials := Types.Materials.BranchKey(hierarchicalMaterials),
           creationTime := now,
           expiryTime := ttlSeconds, 
           messagesUsed := None,
@@ -1097,11 +1097,11 @@ module AwsKmsHierarchicalKeyring {
         return Success(hierarchicalMaterials);
       } else {
         :- Need(
-          && getCacheOutput.value.materials.Hierarchical?
-          && getCacheOutput.value.materials == Types.Materials.Hierarchical(getCacheOutput.value.materials.Hierarchical),
+          && getCacheOutput.value.materials.BranchKey?
+          && getCacheOutput.value.materials == Types.Materials.BranchKey(getCacheOutput.value.materials.BranchKey),
           E("Invalid Material Type.")
         );
-        return Success(getCacheOutput.value.materials.Hierarchical);
+        return Success(getCacheOutput.value.materials.BranchKey);
       }
     }
   }
