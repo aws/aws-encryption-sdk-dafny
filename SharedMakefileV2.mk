@@ -197,7 +197,6 @@ _polymorph:
 	cd $(CODEGEN_CLI_ROOT); \
 	./../gradlew run --args="\
 	$(OUTPUT_DAFNY) \
-	$(OUTPUT_DOTNET) \
 	$(OUTPUT_JAVA) \
 	--model $(if $(DIR_STRUCTURE_V2), $(LIBRARY_ROOT)/dafny/$(SERVICE)/Model, $(SMITHY_MODEL_ROOT)) \
 	--dependent-model $(PROJECT_ROOT)/$(SMITHY_DEPS) \

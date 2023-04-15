@@ -9,9 +9,23 @@ namespace aws.cryptography.keyStore
 use aws.polymorph#localService
 use aws.polymorph#reference
 use aws.polymorph#extendable
+use aws.polymorph#dafnyUtf8Bytes
 
 use com.amazonaws.dynamodb#TableName
 use com.amazonaws.dynamodb#TableArn
+use com.amazonaws.dynamodb#DynamoDB_20120810
+
+use com.amazonaws.kms#TrentService
+
+
+@dafnyUtf8Bytes
+string Utf8Bytes
+
+@reference(service: TrentService)
+structure KmsClientReference {}
+
+@reference(service: DynamoDB_20120810)
+structure DdbClientReference {}
 
 @localService(
   sdkId: "KeyStore",
@@ -31,9 +45,10 @@ service KeyStore {
 }
 
 structure KeyStoreConfig {
+  id: String,
   ddbTableName: TableName,
-  ddbClient: aws.cryptography.materialProviders#DdbClientReference,
-  kmsClient: aws.cryptography.materialProviders#KmsClientReference,
+  ddbClient: DdbClientReference,
+  kmsClient: KmsClientReference,
 }
 
 operation CreateKeyStore {
@@ -60,9 +75,9 @@ operation CreateKey {
 
 structure CreateKeyInput {
   @required
-  awsKmsKeyArn: aws.cryptography.materialProviders#KmsKeyId,
+  awsKmsKeyArn: KmsKeyId,
 
-  grantTokens: aws.cryptography.materialProviders#GrantTokenList
+  grantTokens: GrantTokenList
 }
 
 structure CreateKeyOutput {
@@ -82,9 +97,9 @@ structure VersionKeyInput {
   @required
   branchKeyIdentifier: String,
   
-  awsKmsKeyArn: aws.cryptography.materialProviders#KmsKeyId,
+  awsKmsKeyArn: KmsKeyId,
   
-  grantTokens: aws.cryptography.materialProviders#GrantTokenList
+  grantTokens: GrantTokenList
 }
 
 operation GetActiveBranchKey {
@@ -96,14 +111,17 @@ structure GetActiveBranchKeyInput {
   @required
   branchKeyIdentifier: String,
 
-  awsKmsKeyArn: aws.cryptography.materialProviders#KmsKeyId,
+  awsKmsKeyArn: KmsKeyId,
   
-  grantTokens: aws.cryptography.materialProviders#GrantTokenList
+  grantTokens: GrantTokenList
 }
 
 structure GetActiveBranchKeyOutput {
   @required
-  branchKeyMaterials: aws.cryptography.materialProviders#BranchKeyMaterials
+  branchKeyVersion: Utf8Bytes,
+
+  @required
+  branchKey: Secret
 }
 
 operation GetBranchKeyVersion {
@@ -118,14 +136,17 @@ structure GetBranchKeyVersionInput {
   @required
   branchKeyVersion: String,
   
-  awsKmsKeyArn: aws.cryptography.materialProviders#KmsKeyId,
+  awsKmsKeyArn: KmsKeyId,
   
-  grantTokens: aws.cryptography.materialProviders#GrantTokenList
+  grantTokens: GrantTokenList
 }
 
 structure GetBranchKeyVersionOutput {
   @required
-  branchKeyMaterials: aws.cryptography.materialProviders#BranchKeyMaterials
+  branchKeyVersion: Utf8Bytes,
+
+  @required
+  branchKey: Secret
 }
 
 operation GetBeaconKey {
@@ -137,15 +158,27 @@ structure GetBeaconKeyInput {
   @required
   branchKeyIdentifier: String,
   
-  awsKmsKeyArn: aws.cryptography.materialProviders#KmsKeyId,
+  awsKmsKeyArn: KmsKeyId,
 
-  grantTokens: aws.cryptography.materialProviders#GrantTokenList
+  grantTokens: GrantTokenList
 }
 
 structure GetBeaconKeyOutput {
   @required
-  beaconKeyMaterials: aws.cryptography.materialProviders#BeaconKeyMaterials
+  beaconKeyIdentifier: String,
+
+  @required
+  beaconKey: Secret,
 }
+
+string KmsKeyId
+
+list GrantTokenList {
+  member: String
+}
+
+@sensitive
+blob Secret
 
 ///////////////////
 // Errors

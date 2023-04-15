@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 include "../../../../StandardLibrary/src/Index.dfy"
- include "../../AwsCryptographicMaterialProviders/src/Index.dfy"
  include "../../../../ComAmazonawsDynamodb/src/Index.dfy"
  include "../../../../ComAmazonawsKms/src/Index.dfy"
  module {:extern "Dafny.Aws.Cryptography.KeyStore.Types" } AwsCryptographyKeyStoreTypes
@@ -10,7 +9,6 @@ include "../../../../StandardLibrary/src/Index.dfy"
  import opened Wrappers
  import opened StandardLibrary.UInt
  import opened UTF8
- import AwsCryptographyMaterialProvidersTypes
  import ComAmazonawsDynamodbTypes
  import ComAmazonawsKmsTypes
  // Generic helpers for verification of mock/unit tests.
@@ -19,8 +17,8 @@ include "../../../../StandardLibrary/src/Index.dfy"
  // Begin Generated Types
  
  datatype CreateKeyInput = | CreateKeyInput (
- nameonly awsKmsKeyArn: AwsCryptographyMaterialProvidersTypes.KmsKeyId ,
- nameonly grantTokens: Option<AwsCryptographyMaterialProvidersTypes.GrantTokenList>
+ nameonly awsKmsKeyArn: KmsKeyId ,
+ nameonly grantTokens: Option<GrantTokenList>
  )
  datatype CreateKeyOutput = | CreateKeyOutput (
  nameonly branchKeyIdentifier: string
@@ -33,29 +31,33 @@ include "../../../../StandardLibrary/src/Index.dfy"
  )
  datatype GetActiveBranchKeyInput = | GetActiveBranchKeyInput (
  nameonly branchKeyIdentifier: string ,
- nameonly awsKmsKeyArn: Option<AwsCryptographyMaterialProvidersTypes.KmsKeyId> ,
- nameonly grantTokens: Option<AwsCryptographyMaterialProvidersTypes.GrantTokenList>
+ nameonly awsKmsKeyArn: Option<KmsKeyId> ,
+ nameonly grantTokens: Option<GrantTokenList>
  )
  datatype GetActiveBranchKeyOutput = | GetActiveBranchKeyOutput (
- nameonly branchKeyMaterials: AwsCryptographyMaterialProvidersTypes.BranchKeyMaterials
+ nameonly branchKeyVersion: Utf8Bytes ,
+ nameonly branchKey: Secret
  )
  datatype GetBeaconKeyInput = | GetBeaconKeyInput (
  nameonly branchKeyIdentifier: string ,
- nameonly awsKmsKeyArn: Option<AwsCryptographyMaterialProvidersTypes.KmsKeyId> ,
- nameonly grantTokens: Option<AwsCryptographyMaterialProvidersTypes.GrantTokenList>
+ nameonly awsKmsKeyArn: Option<KmsKeyId> ,
+ nameonly grantTokens: Option<GrantTokenList>
  )
  datatype GetBeaconKeyOutput = | GetBeaconKeyOutput (
- nameonly beaconKeyMaterials: AwsCryptographyMaterialProvidersTypes.BeaconKeyMaterials
+ nameonly beaconKeyIdentifier: string ,
+ nameonly beaconKey: Secret
  )
  datatype GetBranchKeyVersionInput = | GetBranchKeyVersionInput (
  nameonly branchKeyIdentifier: string ,
  nameonly branchKeyVersion: string ,
- nameonly awsKmsKeyArn: Option<AwsCryptographyMaterialProvidersTypes.KmsKeyId> ,
- nameonly grantTokens: Option<AwsCryptographyMaterialProvidersTypes.GrantTokenList>
+ nameonly awsKmsKeyArn: Option<KmsKeyId> ,
+ nameonly grantTokens: Option<GrantTokenList>
  )
  datatype GetBranchKeyVersionOutput = | GetBranchKeyVersionOutput (
- nameonly branchKeyMaterials: AwsCryptographyMaterialProvidersTypes.BranchKeyMaterials
+ nameonly branchKeyVersion: Utf8Bytes ,
+ nameonly branchKey: Secret
  )
+ type GrantTokenList = seq<string>
  class IKeyStoreClientCallHistory {
  ghost constructor() {
  CreateKeyStore := [];
@@ -191,14 +193,18 @@ include "../../../../StandardLibrary/src/Index.dfy"
  
 }
  datatype KeyStoreConfig = | KeyStoreConfig (
+ nameonly id: Option<string> ,
  nameonly ddbTableName: Option<ComAmazonawsDynamodbTypes.TableName> ,
  nameonly ddbClient: Option<ComAmazonawsDynamodbTypes.IDynamoDBClient> ,
  nameonly kmsClient: Option<ComAmazonawsKmsTypes.IKMSClient>
  )
+ type KmsKeyId = string
+ type Secret = seq<uint8>
+ type Utf8Bytes = ValidUTF8Bytes
  datatype VersionKeyInput = | VersionKeyInput (
  nameonly branchKeyIdentifier: string ,
- nameonly awsKmsKeyArn: Option<AwsCryptographyMaterialProvidersTypes.KmsKeyId> ,
- nameonly grantTokens: Option<AwsCryptographyMaterialProvidersTypes.GrantTokenList>
+ nameonly awsKmsKeyArn: Option<KmsKeyId> ,
+ nameonly grantTokens: Option<GrantTokenList>
  )
  datatype Error =
  // Local Error structures are listed here
@@ -206,7 +212,6 @@ include "../../../../StandardLibrary/src/Index.dfy"
  nameonly message: string
  )
  // Any dependent models are listed here
- | AwsCryptographyMaterialProviders(AwsCryptographyMaterialProviders: AwsCryptographyMaterialProvidersTypes.Error)
  | ComAmazonawsDynamodb(ComAmazonawsDynamodb: ComAmazonawsDynamodbTypes.Error)
  | ComAmazonawsKms(ComAmazonawsKms: ComAmazonawsKmsTypes.Error)
  // The Collection error is used to collect several errors together

@@ -8,6 +8,8 @@ import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.kms.KmsClient;
 
 public class KeyStoreConfig {
+  private final String id;
+
   private final String ddbTableName;
 
   private final DynamoDbClient ddbClient;
@@ -15,9 +17,14 @@ public class KeyStoreConfig {
   private final KmsClient kmsClient;
 
   protected KeyStoreConfig(BuilderImpl builder) {
+    this.id = builder.id();
     this.ddbTableName = builder.ddbTableName();
     this.ddbClient = builder.ddbClient();
     this.kmsClient = builder.kmsClient();
+  }
+
+  public String id() {
+    return this.id;
   }
 
   public String ddbTableName() {
@@ -41,6 +48,10 @@ public class KeyStoreConfig {
   }
 
   public interface Builder {
+    Builder id(String id);
+
+    String id();
+
     Builder ddbTableName(String ddbTableName);
 
     String ddbTableName();
@@ -57,6 +68,8 @@ public class KeyStoreConfig {
   }
 
   static class BuilderImpl implements Builder {
+    protected String id;
+
     protected String ddbTableName;
 
     protected DynamoDbClient ddbClient;
@@ -67,9 +80,19 @@ public class KeyStoreConfig {
     }
 
     protected BuilderImpl(KeyStoreConfig model) {
+      this.id = model.id();
       this.ddbTableName = model.ddbTableName();
       this.ddbClient = model.ddbClient();
       this.kmsClient = model.kmsClient();
+    }
+
+    public Builder id(String id) {
+      this.id = id;
+      return this;
+    }
+
+    public String id() {
+      return this.id;
     }
 
     public Builder ddbTableName(String ddbTableName) {
