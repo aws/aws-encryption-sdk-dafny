@@ -5,15 +5,13 @@ package software.amazon.cryptography.materialProviders;
 
 import Dafny.Aws.Cryptography.MaterialProviders.Types.Error;
 import Wrappers_Compile.Result;
-import java.lang.Exception;
 import java.lang.IllegalArgumentException;
+import java.lang.RuntimeException;
 import java.util.Objects;
-import software.amazon.cryptography.materialProviders.model.NativeError;
 import software.amazon.cryptography.materialProviders.model.OnDecryptInput;
 import software.amazon.cryptography.materialProviders.model.OnDecryptOutput;
 import software.amazon.cryptography.materialProviders.model.OnEncryptInput;
 import software.amazon.cryptography.materialProviders.model.OnEncryptOutput;
-import software.amazon.cryptography.materialProviders.model.OpaqueError;
 
 public final class Keyring implements IKeyring {
   private final Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring _impl;
@@ -74,17 +72,14 @@ public final class Keyring implements IKeyring {
         OnEncryptOutput nativeOutput = this._impl.OnEncrypt(nativeInput);
         Dafny.Aws.Cryptography.MaterialProviders.Types.OnEncryptOutput dafnyOutput = ToDafny.OnEncryptOutput(nativeOutput);
         return Result.create_Success(dafnyOutput);
-      } catch (NativeError ex) {
+      } catch (RuntimeException ex) {
         return Result.create_Failure(ToDafny.Error(ex));
-      } catch (Exception ex) {
-        OpaqueError error = OpaqueError.builder().obj(ex).cause(ex).build();
-        return Result.create_Failure(ToDafny.Error(error));
       }
     }
 
     public Result<Dafny.Aws.Cryptography.MaterialProviders.Types.OnEncryptOutput, Error> OnEncrypt_k(
         Dafny.Aws.Cryptography.MaterialProviders.Types.OnEncryptInput dafnyInput) {
-      throw NativeError.builder().message("Not supported at this time.").build();
+      throw new RuntimeException("Not supported at this time.");
     }
 
     public Result<Dafny.Aws.Cryptography.MaterialProviders.Types.OnDecryptOutput, Error> OnDecrypt(
@@ -94,17 +89,14 @@ public final class Keyring implements IKeyring {
         OnDecryptOutput nativeOutput = this._impl.OnDecrypt(nativeInput);
         Dafny.Aws.Cryptography.MaterialProviders.Types.OnDecryptOutput dafnyOutput = ToDafny.OnDecryptOutput(nativeOutput);
         return Result.create_Success(dafnyOutput);
-      } catch (NativeError ex) {
+      } catch (RuntimeException ex) {
         return Result.create_Failure(ToDafny.Error(ex));
-      } catch (Exception ex) {
-        OpaqueError error = OpaqueError.builder().obj(ex).cause(ex).build();
-        return Result.create_Failure(ToDafny.Error(error));
       }
     }
 
     public Result<Dafny.Aws.Cryptography.MaterialProviders.Types.OnDecryptOutput, Error> OnDecrypt_k(
         Dafny.Aws.Cryptography.MaterialProviders.Types.OnDecryptInput dafnyInput) {
-      throw NativeError.builder().message("Not supported at this time.").build();
+      throw new RuntimeException("Not supported at this time.");
     }
   }
 }

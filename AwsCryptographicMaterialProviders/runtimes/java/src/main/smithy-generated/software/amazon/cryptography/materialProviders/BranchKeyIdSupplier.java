@@ -5,13 +5,11 @@ package software.amazon.cryptography.materialProviders;
 
 import Dafny.Aws.Cryptography.MaterialProviders.Types.Error;
 import Wrappers_Compile.Result;
-import java.lang.Exception;
 import java.lang.IllegalArgumentException;
+import java.lang.RuntimeException;
 import java.util.Objects;
 import software.amazon.cryptography.materialProviders.model.GetBranchKeyIdInput;
 import software.amazon.cryptography.materialProviders.model.GetBranchKeyIdOutput;
-import software.amazon.cryptography.materialProviders.model.NativeError;
-import software.amazon.cryptography.materialProviders.model.OpaqueError;
 
 public final class BranchKeyIdSupplier implements IBranchKeyIdSupplier {
   private final Dafny.Aws.Cryptography.MaterialProviders.Types.IBranchKeyIdSupplier _impl;
@@ -65,17 +63,14 @@ public final class BranchKeyIdSupplier implements IBranchKeyIdSupplier {
         GetBranchKeyIdOutput nativeOutput = this._impl.GetBranchKeyId(nativeInput);
         Dafny.Aws.Cryptography.MaterialProviders.Types.GetBranchKeyIdOutput dafnyOutput = ToDafny.GetBranchKeyIdOutput(nativeOutput);
         return Result.create_Success(dafnyOutput);
-      } catch (NativeError ex) {
+      } catch (RuntimeException ex) {
         return Result.create_Failure(ToDafny.Error(ex));
-      } catch (Exception ex) {
-        OpaqueError error = OpaqueError.builder().obj(ex).cause(ex).build();
-        return Result.create_Failure(ToDafny.Error(error));
       }
     }
 
     public Result<Dafny.Aws.Cryptography.MaterialProviders.Types.GetBranchKeyIdOutput, Error> GetBranchKeyId_k(
         Dafny.Aws.Cryptography.MaterialProviders.Types.GetBranchKeyIdInput dafnyInput) {
-      throw NativeError.builder().message("Not supported at this time.").build();
+      throw new RuntimeException("Not supported at this time.");
     }
   }
 }

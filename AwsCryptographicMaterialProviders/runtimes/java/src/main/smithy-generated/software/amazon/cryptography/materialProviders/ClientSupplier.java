@@ -7,13 +7,11 @@ import Dafny.Aws.Cryptography.MaterialProviders.Types.Error;
 import Dafny.Com.Amazonaws.Kms.Shim;
 import Dafny.Com.Amazonaws.Kms.Types.IKMSClient;
 import Wrappers_Compile.Result;
-import java.lang.Exception;
 import java.lang.IllegalArgumentException;
+import java.lang.RuntimeException;
 import java.util.Objects;
 import software.amazon.awssdk.services.kms.KmsClient;
 import software.amazon.cryptography.materialProviders.model.GetClientInput;
-import software.amazon.cryptography.materialProviders.model.NativeError;
-import software.amazon.cryptography.materialProviders.model.OpaqueError;
 
 public final class ClientSupplier implements IClientSupplier {
   private final Dafny.Aws.Cryptography.MaterialProviders.Types.IClientSupplier _impl;
@@ -67,17 +65,14 @@ public final class ClientSupplier implements IClientSupplier {
         KmsClient nativeOutput = this._impl.GetClient(nativeInput);
         IKMSClient dafnyOutput = new Shim(nativeOutput, null);
         return Result.create_Success(dafnyOutput);
-      } catch (NativeError ex) {
+      } catch (RuntimeException ex) {
         return Result.create_Failure(ToDafny.Error(ex));
-      } catch (Exception ex) {
-        OpaqueError error = OpaqueError.builder().obj(ex).cause(ex).build();
-        return Result.create_Failure(ToDafny.Error(error));
       }
     }
 
     public Result<IKMSClient, Error> GetClient_k(
         Dafny.Aws.Cryptography.MaterialProviders.Types.GetClientInput dafnyInput) {
-      throw NativeError.builder().message("Not supported at this time.").build();
+      throw new RuntimeException("Not supported at this time.");
     }
   }
 }

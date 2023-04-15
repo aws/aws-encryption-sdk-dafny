@@ -6,14 +6,12 @@ package software.amazon.cryptography.materialProviders;
 import Dafny.Aws.Cryptography.MaterialProviders.Types.Error;
 import Wrappers_Compile.Result;
 import dafny.Tuple0;
-import java.lang.Exception;
 import java.lang.IllegalArgumentException;
+import java.lang.RuntimeException;
 import java.util.Objects;
 import software.amazon.cryptography.materialProviders.model.DeleteCacheEntryInput;
 import software.amazon.cryptography.materialProviders.model.GetCacheEntryInput;
 import software.amazon.cryptography.materialProviders.model.GetCacheEntryOutput;
-import software.amazon.cryptography.materialProviders.model.NativeError;
-import software.amazon.cryptography.materialProviders.model.OpaqueError;
 import software.amazon.cryptography.materialProviders.model.PutCacheEntryInput;
 import software.amazon.cryptography.materialProviders.model.UpdaterUsageMetadataInput;
 
@@ -93,17 +91,14 @@ public final class CryptographicMaterialsCache implements ICryptographicMaterial
       try {
         this._impl.PutCacheEntry(nativeInput);
         return Result.create_Success(Tuple0.create());
-      } catch (NativeError ex) {
+      } catch (RuntimeException ex) {
         return Result.create_Failure(ToDafny.Error(ex));
-      } catch (Exception ex) {
-        OpaqueError error = OpaqueError.builder().obj(ex).cause(ex).build();
-        return Result.create_Failure(ToDafny.Error(error));
       }
     }
 
     public Result<Tuple0, Error> PutCacheEntry_k(
         Dafny.Aws.Cryptography.MaterialProviders.Types.PutCacheEntryInput dafnyInput) {
-      throw NativeError.builder().message("Not supported at this time.").build();
+      throw new RuntimeException("Not supported at this time.");
     }
 
     public Result<Dafny.Aws.Cryptography.MaterialProviders.Types.GetCacheEntryOutput, Error> GetCacheEntry(
@@ -113,17 +108,14 @@ public final class CryptographicMaterialsCache implements ICryptographicMaterial
         GetCacheEntryOutput nativeOutput = this._impl.GetCacheEntry(nativeInput);
         Dafny.Aws.Cryptography.MaterialProviders.Types.GetCacheEntryOutput dafnyOutput = ToDafny.GetCacheEntryOutput(nativeOutput);
         return Result.create_Success(dafnyOutput);
-      } catch (NativeError ex) {
+      } catch (RuntimeException ex) {
         return Result.create_Failure(ToDafny.Error(ex));
-      } catch (Exception ex) {
-        OpaqueError error = OpaqueError.builder().obj(ex).cause(ex).build();
-        return Result.create_Failure(ToDafny.Error(error));
       }
     }
 
     public Result<Dafny.Aws.Cryptography.MaterialProviders.Types.GetCacheEntryOutput, Error> GetCacheEntry_k(
         Dafny.Aws.Cryptography.MaterialProviders.Types.GetCacheEntryInput dafnyInput) {
-      throw NativeError.builder().message("Not supported at this time.").build();
+      throw new RuntimeException("Not supported at this time.");
     }
 
     public Result<Tuple0, Error> UpdaterUsageMetadata(
@@ -132,17 +124,14 @@ public final class CryptographicMaterialsCache implements ICryptographicMaterial
       try {
         this._impl.UpdaterUsageMetadata(nativeInput);
         return Result.create_Success(Tuple0.create());
-      } catch (NativeError ex) {
+      } catch (RuntimeException ex) {
         return Result.create_Failure(ToDafny.Error(ex));
-      } catch (Exception ex) {
-        OpaqueError error = OpaqueError.builder().obj(ex).cause(ex).build();
-        return Result.create_Failure(ToDafny.Error(error));
       }
     }
 
     public Result<Tuple0, Error> UpdaterUsageMetadata_k(
         Dafny.Aws.Cryptography.MaterialProviders.Types.UpdaterUsageMetadataInput dafnyInput) {
-      throw NativeError.builder().message("Not supported at this time.").build();
+      throw new RuntimeException("Not supported at this time.");
     }
 
     public Result<Tuple0, Error> DeleteCacheEntry(
@@ -151,17 +140,14 @@ public final class CryptographicMaterialsCache implements ICryptographicMaterial
       try {
         this._impl.DeleteCacheEntry(nativeInput);
         return Result.create_Success(Tuple0.create());
-      } catch (NativeError ex) {
+      } catch (RuntimeException ex) {
         return Result.create_Failure(ToDafny.Error(ex));
-      } catch (Exception ex) {
-        OpaqueError error = OpaqueError.builder().obj(ex).cause(ex).build();
-        return Result.create_Failure(ToDafny.Error(error));
       }
     }
 
     public Result<Tuple0, Error> DeleteCacheEntry_k(
         Dafny.Aws.Cryptography.MaterialProviders.Types.DeleteCacheEntryInput dafnyInput) {
-      throw NativeError.builder().message("Not supported at this time.").build();
+      throw new RuntimeException("Not supported at this time.");
     }
   }
 }
