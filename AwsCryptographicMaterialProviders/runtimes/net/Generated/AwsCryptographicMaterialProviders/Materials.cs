@@ -6,7 +6,8 @@ using System;
  public class Materials {
  private AWS.Cryptography.MaterialProviders.EncryptionMaterials _encryption ;
  private AWS.Cryptography.MaterialProviders.DecryptionMaterials _decryption ;
- private AWS.Cryptography.MaterialProviders.HierarchicalMaterials _hierarchical ;
+ private AWS.Cryptography.MaterialProviders.BranchKeyMaterials _branchKey ;
+ private AWS.Cryptography.MaterialProviders.BeaconKeyMaterials _beaconKey ;
  public AWS.Cryptography.MaterialProviders.EncryptionMaterials Encryption {
  get { return this._encryption; }
  set { this._encryption = value; }
@@ -21,17 +22,25 @@ using System;
  public bool IsSetDecryption () {
  return this._decryption != null;
 }
- public AWS.Cryptography.MaterialProviders.HierarchicalMaterials Hierarchical {
- get { return this._hierarchical; }
- set { this._hierarchical = value; }
+ public AWS.Cryptography.MaterialProviders.BranchKeyMaterials BranchKey {
+ get { return this._branchKey; }
+ set { this._branchKey = value; }
 }
- public bool IsSetHierarchical () {
- return this._hierarchical != null;
+ public bool IsSetBranchKey () {
+ return this._branchKey != null;
+}
+ public AWS.Cryptography.MaterialProviders.BeaconKeyMaterials BeaconKey {
+ get { return this._beaconKey; }
+ set { this._beaconKey = value; }
+}
+ public bool IsSetBeaconKey () {
+ return this._beaconKey != null;
 }
  public void Validate() {
  var numberOfPropertiesSet = Convert.ToUInt16(IsSetEncryption()) +
  Convert.ToUInt16(IsSetDecryption()) +
- Convert.ToUInt16(IsSetHierarchical()) ;
+ Convert.ToUInt16(IsSetBranchKey()) +
+ Convert.ToUInt16(IsSetBeaconKey()) ;
  if (numberOfPropertiesSet == 0) throw new System.ArgumentException("No union value set");
 
  if (numberOfPropertiesSet > 1) throw new System.ArgumentException("Multiple union values set");

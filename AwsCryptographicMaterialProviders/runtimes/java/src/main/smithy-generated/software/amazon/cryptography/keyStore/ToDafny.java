@@ -17,12 +17,12 @@ import Dafny.Aws.Cryptography.KeyStore.Types.GetBranchKeyVersionInput;
 import Dafny.Aws.Cryptography.KeyStore.Types.GetBranchKeyVersionOutput;
 import Dafny.Aws.Cryptography.KeyStore.Types.KeyStoreConfig;
 import Dafny.Aws.Cryptography.KeyStore.Types.VersionKeyInput;
-import Dafny.Aws.Cryptography.MaterialProviders.Types.HierarchicalMaterials;
+import Dafny.Aws.Cryptography.MaterialProviders.Types.BeaconKeyMaterials;
+import Dafny.Aws.Cryptography.MaterialProviders.Types.BranchKeyMaterials;
 import Dafny.Com.Amazonaws.Dynamodb.Types.IDynamoDBClient;
 import Dafny.Com.Amazonaws.Kms.Types.IKMSClient;
 import Wrappers_Compile.Option;
 import dafny.DafnySequence;
-import java.lang.Byte;
 import java.lang.Character;
 import java.util.Objects;
 import software.amazon.cryptography.keyStore.model.CollectionOfErrors;
@@ -71,9 +71,9 @@ public class ToDafny {
 
   public static GetBeaconKeyOutput GetBeaconKeyOutput(
       software.amazon.cryptography.keyStore.model.GetBeaconKeyOutput nativeValue) {
-    DafnySequence<? extends Byte> beaconKey;
-    beaconKey = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.beaconKey());
-    return new GetBeaconKeyOutput(beaconKey);
+    BeaconKeyMaterials beaconKeyMaterials;
+    beaconKeyMaterials = software.amazon.cryptography.materialProviders.ToDafny.BeaconKeyMaterials(nativeValue.beaconKeyMaterials());
+    return new GetBeaconKeyOutput(beaconKeyMaterials);
   }
 
   public static CreateKeyStoreInput CreateKeyStoreInput(
@@ -83,9 +83,9 @@ public class ToDafny {
 
   public static GetBranchKeyVersionOutput GetBranchKeyVersionOutput(
       software.amazon.cryptography.keyStore.model.GetBranchKeyVersionOutput nativeValue) {
-    HierarchicalMaterials hierarchicalMaterials;
-    hierarchicalMaterials = software.amazon.cryptography.materialProviders.ToDafny.HierarchicalMaterials(nativeValue.hierarchicalMaterials());
-    return new GetBranchKeyVersionOutput(hierarchicalMaterials);
+    BranchKeyMaterials branchKeyMaterials;
+    branchKeyMaterials = software.amazon.cryptography.materialProviders.ToDafny.BranchKeyMaterials(nativeValue.branchKeyMaterials());
+    return new GetBranchKeyVersionOutput(branchKeyMaterials);
   }
 
   public static GetBranchKeyVersionInput GetBranchKeyVersionInput(
@@ -131,11 +131,15 @@ public class ToDafny {
       software.amazon.cryptography.keyStore.model.VersionKeyInput nativeValue) {
     DafnySequence<? extends Character> branchKeyIdentifier;
     branchKeyIdentifier = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.branchKeyIdentifier());
+    Option<DafnySequence<? extends Character>> awsKmsKeyArn;
+    awsKmsKeyArn = Objects.nonNull(nativeValue.awsKmsKeyArn()) ?
+        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.awsKmsKeyArn()))
+        : Option.create_None();
     Option<DafnySequence<? extends DafnySequence<? extends Character>>> grantTokens;
     grantTokens = (Objects.nonNull(nativeValue.grantTokens()) && nativeValue.grantTokens().size() > 0) ?
         Option.create_Some(software.amazon.cryptography.materialProviders.ToDafny.GrantTokenList(nativeValue.grantTokens()))
         : Option.create_None();
-    return new VersionKeyInput(branchKeyIdentifier, grantTokens);
+    return new VersionKeyInput(branchKeyIdentifier, awsKmsKeyArn, grantTokens);
   }
 
   public static CreateKeyOutput CreateKeyOutput(
@@ -147,9 +151,9 @@ public class ToDafny {
 
   public static GetActiveBranchKeyOutput GetActiveBranchKeyOutput(
       software.amazon.cryptography.keyStore.model.GetActiveBranchKeyOutput nativeValue) {
-    HierarchicalMaterials hierarchicalMaterials;
-    hierarchicalMaterials = software.amazon.cryptography.materialProviders.ToDafny.HierarchicalMaterials(nativeValue.hierarchicalMaterials());
-    return new GetActiveBranchKeyOutput(hierarchicalMaterials);
+    BranchKeyMaterials branchKeyMaterials;
+    branchKeyMaterials = software.amazon.cryptography.materialProviders.ToDafny.BranchKeyMaterials(nativeValue.branchKeyMaterials());
+    return new GetActiveBranchKeyOutput(branchKeyMaterials);
   }
 
   public static KeyStoreConfig KeyStoreConfig(

@@ -6,6 +6,8 @@ package software.amazon.cryptography.materialProviders;
 import Dafny.Aws.Cryptography.MaterialProviders.Types.AesWrappingAlg;
 import Dafny.Aws.Cryptography.MaterialProviders.Types.AlgorithmSuiteId;
 import Dafny.Aws.Cryptography.MaterialProviders.Types.AlgorithmSuiteInfo;
+import Dafny.Aws.Cryptography.MaterialProviders.Types.BeaconKeyMaterials;
+import Dafny.Aws.Cryptography.MaterialProviders.Types.BranchKeyMaterials;
 import Dafny.Aws.Cryptography.MaterialProviders.Types.CommitmentPolicy;
 import Dafny.Aws.Cryptography.MaterialProviders.Types.CreateAwsKmsDiscoveryKeyringInput;
 import Dafny.Aws.Cryptography.MaterialProviders.Types.CreateAwsKmsDiscoveryMultiKeyringInput;
@@ -59,7 +61,6 @@ import Dafny.Aws.Cryptography.MaterialProviders.Types.GetClientInput;
 import Dafny.Aws.Cryptography.MaterialProviders.Types.GetEncryptionMaterialsInput;
 import Dafny.Aws.Cryptography.MaterialProviders.Types.GetEncryptionMaterialsOutput;
 import Dafny.Aws.Cryptography.MaterialProviders.Types.HKDF;
-import Dafny.Aws.Cryptography.MaterialProviders.Types.HierarchicalMaterials;
 import Dafny.Aws.Cryptography.MaterialProviders.Types.IDENTITY;
 import Dafny.Aws.Cryptography.MaterialProviders.Types.InitializeDecryptionMaterialsInput;
 import Dafny.Aws.Cryptography.MaterialProviders.Types.InitializeEncryptionMaterialsInput;
@@ -211,6 +212,15 @@ public class ToDafny {
     DecryptionMaterials materials;
     materials = ToDafny.DecryptionMaterials(nativeValue.materials());
     return new OnDecryptOutput(materials);
+  }
+
+  public static BranchKeyMaterials BranchKeyMaterials(
+      software.amazon.cryptography.materialProviders.model.BranchKeyMaterials nativeValue) {
+    DafnySequence<? extends Byte> branchKeyVersion;
+    branchKeyVersion = software.amazon.dafny.conversion.ToDafny.Simple.DafnyUtf8Bytes(nativeValue.branchKeyVersion());
+    DafnySequence<? extends Byte> branchKey;
+    branchKey = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.branchKey());
+    return new BranchKeyMaterials(branchKeyVersion, branchKey);
   }
 
   public static GetEncryptionMaterialsInput GetEncryptionMaterialsInput(
@@ -394,15 +404,6 @@ public class ToDafny {
     DafnySequence<? extends Byte> binaryId;
     binaryId = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue);
     return binaryId;
-  }
-
-  public static HierarchicalMaterials HierarchicalMaterials(
-      software.amazon.cryptography.materialProviders.model.HierarchicalMaterials nativeValue) {
-    DafnySequence<? extends Byte> branchKeyVersion;
-    branchKeyVersion = software.amazon.dafny.conversion.ToDafny.Simple.DafnyUtf8Bytes(nativeValue.branchKeyVersion());
-    DafnySequence<? extends Byte> branchKey;
-    branchKey = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.branchKey());
-    return new HierarchicalMaterials(branchKeyVersion, branchKey);
   }
 
   public static DecryptionMaterials DecryptionMaterials(
@@ -800,6 +801,21 @@ public class ToDafny {
     return new DIRECT__KEY__WRAPPING();
   }
 
+  public static BeaconKeyMaterials BeaconKeyMaterials(
+      software.amazon.cryptography.materialProviders.model.BeaconKeyMaterials nativeValue) {
+    DafnySequence<? extends Character> beaconKeyIdentifier;
+    beaconKeyIdentifier = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.beaconKeyIdentifier());
+    Option<DafnySequence<? extends Byte>> beaconKey;
+    beaconKey = Objects.nonNull(nativeValue.beaconKey()) ?
+        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.beaconKey()))
+        : Option.create_None();
+    Option<DafnySequence<? extends DafnySequence<? extends Byte>>> hmacKeys;
+    hmacKeys = (Objects.nonNull(nativeValue.hmacKeys()) && nativeValue.hmacKeys().size() > 0) ?
+        Option.create_Some(ToDafny.HmacKeyList(nativeValue.hmacKeys()))
+        : Option.create_None();
+    return new BeaconKeyMaterials(beaconKeyIdentifier, beaconKey, hmacKeys);
+  }
+
   public static EncryptionMaterials EncryptionMaterials(
       software.amazon.cryptography.materialProviders.model.EncryptionMaterials nativeValue) {
     AlgorithmSuiteInfo algorithmSuite;
@@ -1055,8 +1071,11 @@ public class ToDafny {
     if (Objects.nonNull(nativeValue.Decryption())) {
       return Materials.create_Decryption(ToDafny.DecryptionMaterials(nativeValue.Decryption()));
     }
-    if (Objects.nonNull(nativeValue.Hierarchical())) {
-      return Materials.create_Hierarchical(ToDafny.HierarchicalMaterials(nativeValue.Hierarchical()));
+    if (Objects.nonNull(nativeValue.BranchKey())) {
+      return Materials.create_BranchKey(ToDafny.BranchKeyMaterials(nativeValue.BranchKey()));
+    }
+    if (Objects.nonNull(nativeValue.BeaconKey())) {
+      return Materials.create_BeaconKey(ToDafny.BeaconKeyMaterials(nativeValue.BeaconKey()));
     }
     throw new IllegalArgumentException("Cannot convert " + nativeValue + " to Dafny.Aws.Cryptography.MaterialProviders.Types.Materials.");
   }
@@ -1121,6 +1140,14 @@ public class ToDafny {
         DafnySequence._typeDescriptor(TypeDescriptor.BYTE));
   }
 
+  public static DafnySequence<? extends DafnySequence<? extends Byte>> HmacKeyList(
+      List<ByteBuffer> nativeValue) {
+    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+        nativeValue, 
+        software.amazon.dafny.conversion.ToDafny.Simple::ByteSequence, 
+        DafnySequence._typeDescriptor(TypeDescriptor.BYTE));
+  }
+
   public static DafnySequence<? extends DafnySequence<? extends Character>> RegionList(
       List<String> nativeValue) {
     return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
@@ -1146,7 +1173,7 @@ public class ToDafny {
   }
 
   public static DafnySequence<? extends Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring> KeyringList(
-      List<Keyring> nativeValue) {
+      List<IKeyring> nativeValue) {
     return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
         software.amazon.cryptography.materialProviders.ToDafny::Keyring, 

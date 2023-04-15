@@ -82,6 +82,8 @@ structure VersionKeyInput {
   @required
   branchKeyIdentifier: String,
   
+  awsKmsKeyArn: aws.cryptography.materialProviders#KmsKeyId,
+  
   grantTokens: aws.cryptography.materialProviders#GrantTokenList
 }
 
@@ -101,7 +103,7 @@ structure GetActiveBranchKeyInput {
 
 structure GetActiveBranchKeyOutput {
   @required
-  hierarchicalMaterials: aws.cryptography.materialProviders#HierarchicalMaterials
+  branchKeyMaterials: aws.cryptography.materialProviders#BranchKeyMaterials
 }
 
 operation GetBranchKeyVersion {
@@ -123,7 +125,7 @@ structure GetBranchKeyVersionInput {
 
 structure GetBranchKeyVersionOutput {
   @required
-  hierarchicalMaterials: aws.cryptography.materialProviders#HierarchicalMaterials
+  branchKeyMaterials: aws.cryptography.materialProviders#BranchKeyMaterials
 }
 
 operation GetBeaconKey {
@@ -142,7 +144,7 @@ structure GetBeaconKeyInput {
 
 structure GetBeaconKeyOutput {
   @required
-  beaconKey: aws.cryptography.materialProviders#Secret
+  beaconKeyMaterials: aws.cryptography.materialProviders#BeaconKeyMaterials
 }
 
 ///////////////////

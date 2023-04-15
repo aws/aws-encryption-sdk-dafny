@@ -1,9 +1,9 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
-include "../../StandardLibrary/src/Index.dfy"
-// BEGIN MANUAL EDIT
- include "../../AwsCryptographicMaterialProviders/dafny/AwsCryptographicMaterialProviders/src/Index.dfy"
+include "../../../../StandardLibrary/src/Index.dfy"
+ // BEGIN MANUAL EDIT
+ include "../../../../AwsCryptographicMaterialProviders/dafny/AwsCryptographicMaterialProviders/src/Index.dfy"
 // END MANUAL EDIT
  abstract module WrappedAbstractAwsCryptographyMaterialProvidersService {
  import opened Wrappers
