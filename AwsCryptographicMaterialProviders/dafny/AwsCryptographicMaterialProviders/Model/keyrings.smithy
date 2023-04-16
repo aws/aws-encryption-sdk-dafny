@@ -274,14 +274,8 @@ structure CreateAwsKmsHierarchicalKeyringInput {
     kmsKeyId: KmsKeyId,
 
     @required
-    kmsClient: KmsClientReference,
-
-    @required
-    ddbClient: DdbClientReference,
-
-    @required
-    branchKeyStoreArn: DdbTableArn,
-
+    keyStore: KeyStoreReference,
+    
     @required
     ttlSeconds: PositiveLong,
 

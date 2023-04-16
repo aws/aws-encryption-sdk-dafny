@@ -3,6 +3,7 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.materialProviders;
 
+import Dafny.Aws.Cryptography.KeyStore.Types.IKeyStoreClient;
 import Dafny.Aws.Cryptography.MaterialProviders.Types.AesWrappingAlg;
 import Dafny.Aws.Cryptography.MaterialProviders.Types.AlgorithmSuiteId;
 import Dafny.Aws.Cryptography.MaterialProviders.Types.AlgorithmSuiteInfo;
@@ -83,7 +84,6 @@ import Dafny.Aws.Cryptography.MaterialProviders.Types.ValidateCommitmentPolicyOn
 import Dafny.Aws.Cryptography.MaterialProviders.Types.ValidateCommitmentPolicyOnEncryptInput;
 import Dafny.Aws.Cryptography.Primitives.Types.DigestAlgorithm;
 import Dafny.Aws.Cryptography.Primitives.Types.ECDSASignatureAlgorithm;
-import Dafny.Com.Amazonaws.Dynamodb.Types.IDynamoDBClient;
 import Dafny.Com.Amazonaws.Kms.Types.EncryptionAlgorithmSpec;
 import Dafny.Com.Amazonaws.Kms.Types.IKMSClient;
 import Wrappers_Compile.Option;
@@ -255,12 +255,8 @@ public class ToDafny {
         : Option.create_None();
     DafnySequence<? extends Character> kmsKeyId;
     kmsKeyId = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.kmsKeyId());
-    IKMSClient kmsClient;
-    kmsClient = Dafny.Com.Amazonaws.Kms.ToDafny.TrentService(nativeValue.kmsClient());
-    IDynamoDBClient ddbClient;
-    ddbClient = Dafny.Com.Amazonaws.Dynamodb.ToDafny.DynamoDB_20120810(nativeValue.ddbClient());
-    DafnySequence<? extends Character> branchKeyStoreArn;
-    branchKeyStoreArn = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.branchKeyStoreArn());
+    IKeyStoreClient keyStore;
+    keyStore = software.amazon.cryptography.keyStore.ToDafny.KeyStore(nativeValue.keyStore());
     Long ttlSeconds;
     ttlSeconds = (nativeValue.ttlSeconds());
     Option<Integer> maxCacheSize;
@@ -271,7 +267,7 @@ public class ToDafny {
     grantTokens = (Objects.nonNull(nativeValue.grantTokens()) && nativeValue.grantTokens().size() > 0) ?
         Option.create_Some(ToDafny.GrantTokenList(nativeValue.grantTokens()))
         : Option.create_None();
-    return new CreateAwsKmsHierarchicalKeyringInput(branchKeyId, branchKeyIdSupplier, kmsKeyId, kmsClient, ddbClient, branchKeyStoreArn, ttlSeconds, maxCacheSize, grantTokens);
+    return new CreateAwsKmsHierarchicalKeyringInput(branchKeyId, branchKeyIdSupplier, kmsKeyId, keyStore, ttlSeconds, maxCacheSize, grantTokens);
   }
 
   public static DeleteCacheEntryInput DeleteCacheEntryInput(
