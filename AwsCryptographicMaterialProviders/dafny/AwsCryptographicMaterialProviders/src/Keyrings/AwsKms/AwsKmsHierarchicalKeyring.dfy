@@ -487,12 +487,16 @@ module AwsKmsHierarchicalKeyring {
         );
         
         var now := Time.GetCurrent();
+        :- Need(
+          (now as int + ttlSeconds as int) < UInt.INT64_MAX_LIMIT,
+          Types.AwsCryptographicMaterialProvidersException(message := "INT64 Overflow when putting cache entry.")
+        );
 
         var putCacheEntryInput:= Types.PutCacheEntryInput(
           identifier := cacheId,
           materials := Types.Materials.BranchKey(branchKeyMaterials),
           creationTime := now,
-          expiryTime := ttlSeconds,
+          expiryTime := ttlSeconds + now,
           messagesUsed := None,
           bytesUsed := None
         );
@@ -832,12 +836,16 @@ module AwsKmsHierarchicalKeyring {
         );
         
         var now := Time.GetCurrent();
+        :- Need(
+          (now as int + ttlSeconds as int) < UInt.INT64_MAX_LIMIT,
+          Types.AwsCryptographicMaterialProvidersException(message := "INT64 Overflow when putting cache entry.")
+        );
 
         var putCacheEntryInput:= Types.PutCacheEntryInput(
           identifier := cacheId,
           materials := Types.Materials.BranchKey(branchKeyMaterials),
           creationTime := now,
-          expiryTime := ttlSeconds,
+          expiryTime := ttlSeconds + now,
           messagesUsed := None,
           bytesUsed := None
         );
