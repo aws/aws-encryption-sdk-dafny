@@ -59,6 +59,14 @@ public class ToNative {
     if (dafnyValue.is_KeyStoreException()) {
       return ToNative.Error((Error_KeyStoreException) dafnyValue);
     }
+    // BEGIN MANUAL EDIT
+    if (dafnyValue.is_ComAmazonawsDynamodb()) {
+      return Dafny.Com.Amazonaws.Dynamodb.ToNative.Error(dafnyValue.dtor_ComAmazonawsDynamodb());
+    }
+    if (dafnyValue.is_ComAmazonawsKms()) {
+      return Dafny.Com.Amazonaws.Kms.ToNative.Error(dafnyValue.dtor_ComAmazonawsKms());
+    }
+    // END MANUAL EDIT
     if (dafnyValue.is_Opaque()) {
       return ToNative.Error((Error_Opaque) dafnyValue);
     }

@@ -36,6 +36,9 @@ import Dafny.Com.Amazonaws.Kms.Types.Error_MalformedPolicyDocumentException;
 import Dafny.Com.Amazonaws.Kms.Types.Error_NotFoundException;
 import Dafny.Com.Amazonaws.Kms.Types.Error_TagException;
 import Dafny.Com.Amazonaws.Kms.Types.Error_UnsupportedOperationException;
+// BEGIN MANUAL EDIT
+import Dafny.Com.Amazonaws.Kms.Types.Error_Opaque;
+// END MANUAL EDIT
 import Dafny.Com.Amazonaws.Kms.Types.IKMSClient;
 import dafny.DafnyMap;
 import dafny.DafnySequence;
@@ -45,16 +48,11 @@ import java.util.List;
 import java.util.Map;
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.services.kms.KmsClient;
+import software.amazon.awssdk.services.kms.model.*;
 import software.amazon.awssdk.services.kms.model.AlgorithmSpec;
 import software.amazon.awssdk.services.kms.model.AliasListEntry;
-import software.amazon.awssdk.services.kms.model.AlreadyExistsException;
 import software.amazon.awssdk.services.kms.model.CancelKeyDeletionRequest;
 import software.amazon.awssdk.services.kms.model.CancelKeyDeletionResponse;
-import software.amazon.awssdk.services.kms.model.CloudHsmClusterInUseException;
-import software.amazon.awssdk.services.kms.model.CloudHsmClusterInvalidConfigurationException;
-import software.amazon.awssdk.services.kms.model.CloudHsmClusterNotActiveException;
-import software.amazon.awssdk.services.kms.model.CloudHsmClusterNotFoundException;
-import software.amazon.awssdk.services.kms.model.CloudHsmClusterNotRelatedException;
 import software.amazon.awssdk.services.kms.model.ConnectCustomKeyStoreRequest;
 import software.amazon.awssdk.services.kms.model.ConnectCustomKeyStoreResponse;
 import software.amazon.awssdk.services.kms.model.ConnectionErrorCodeType;
@@ -66,10 +64,6 @@ import software.amazon.awssdk.services.kms.model.CreateGrantRequest;
 import software.amazon.awssdk.services.kms.model.CreateGrantResponse;
 import software.amazon.awssdk.services.kms.model.CreateKeyRequest;
 import software.amazon.awssdk.services.kms.model.CreateKeyResponse;
-import software.amazon.awssdk.services.kms.model.CustomKeyStoreHasCmKsException;
-import software.amazon.awssdk.services.kms.model.CustomKeyStoreInvalidStateException;
-import software.amazon.awssdk.services.kms.model.CustomKeyStoreNameInUseException;
-import software.amazon.awssdk.services.kms.model.CustomKeyStoreNotFoundException;
 import software.amazon.awssdk.services.kms.model.CustomKeyStoresListEntry;
 import software.amazon.awssdk.services.kms.model.CustomerMasterKeySpec;
 import software.amazon.awssdk.services.kms.model.DataKeyPairSpec;
@@ -80,14 +74,12 @@ import software.amazon.awssdk.services.kms.model.DeleteAliasRequest;
 import software.amazon.awssdk.services.kms.model.DeleteCustomKeyStoreRequest;
 import software.amazon.awssdk.services.kms.model.DeleteCustomKeyStoreResponse;
 import software.amazon.awssdk.services.kms.model.DeleteImportedKeyMaterialRequest;
-import software.amazon.awssdk.services.kms.model.DependencyTimeoutException;
 import software.amazon.awssdk.services.kms.model.DescribeCustomKeyStoresRequest;
 import software.amazon.awssdk.services.kms.model.DescribeCustomKeyStoresResponse;
 import software.amazon.awssdk.services.kms.model.DescribeKeyRequest;
 import software.amazon.awssdk.services.kms.model.DescribeKeyResponse;
 import software.amazon.awssdk.services.kms.model.DisableKeyRequest;
 import software.amazon.awssdk.services.kms.model.DisableKeyRotationRequest;
-import software.amazon.awssdk.services.kms.model.DisabledException;
 import software.amazon.awssdk.services.kms.model.DisconnectCustomKeyStoreRequest;
 import software.amazon.awssdk.services.kms.model.DisconnectCustomKeyStoreResponse;
 import software.amazon.awssdk.services.kms.model.EnableKeyRequest;
@@ -96,7 +88,6 @@ import software.amazon.awssdk.services.kms.model.EncryptRequest;
 import software.amazon.awssdk.services.kms.model.EncryptResponse;
 import software.amazon.awssdk.services.kms.model.EncryptionAlgorithmSpec;
 import software.amazon.awssdk.services.kms.model.ExpirationModelType;
-import software.amazon.awssdk.services.kms.model.ExpiredImportTokenException;
 import software.amazon.awssdk.services.kms.model.GenerateDataKeyPairRequest;
 import software.amazon.awssdk.services.kms.model.GenerateDataKeyPairResponse;
 import software.amazon.awssdk.services.kms.model.GenerateDataKeyPairWithoutPlaintextRequest;
@@ -120,27 +111,11 @@ import software.amazon.awssdk.services.kms.model.GrantListEntry;
 import software.amazon.awssdk.services.kms.model.GrantOperation;
 import software.amazon.awssdk.services.kms.model.ImportKeyMaterialRequest;
 import software.amazon.awssdk.services.kms.model.ImportKeyMaterialResponse;
-import software.amazon.awssdk.services.kms.model.IncorrectKeyException;
-import software.amazon.awssdk.services.kms.model.IncorrectKeyMaterialException;
-import software.amazon.awssdk.services.kms.model.IncorrectTrustAnchorException;
-import software.amazon.awssdk.services.kms.model.InvalidAliasNameException;
-import software.amazon.awssdk.services.kms.model.InvalidArnException;
-import software.amazon.awssdk.services.kms.model.InvalidCiphertextException;
-import software.amazon.awssdk.services.kms.model.InvalidGrantIdException;
-import software.amazon.awssdk.services.kms.model.InvalidGrantTokenException;
-import software.amazon.awssdk.services.kms.model.InvalidImportTokenException;
-import software.amazon.awssdk.services.kms.model.InvalidKeyUsageException;
-import software.amazon.awssdk.services.kms.model.InvalidMarkerException;
 import software.amazon.awssdk.services.kms.model.KeyManagerType;
 import software.amazon.awssdk.services.kms.model.KeyMetadata;
 import software.amazon.awssdk.services.kms.model.KeySpec;
 import software.amazon.awssdk.services.kms.model.KeyState;
-import software.amazon.awssdk.services.kms.model.KeyUnavailableException;
 import software.amazon.awssdk.services.kms.model.KeyUsageType;
-import software.amazon.awssdk.services.kms.model.KmsInternalException;
-import software.amazon.awssdk.services.kms.model.KmsInvalidSignatureException;
-import software.amazon.awssdk.services.kms.model.KmsInvalidStateException;
-import software.amazon.awssdk.services.kms.model.LimitExceededException;
 import software.amazon.awssdk.services.kms.model.ListAliasesRequest;
 import software.amazon.awssdk.services.kms.model.ListAliasesResponse;
 import software.amazon.awssdk.services.kms.model.ListGrantsRequest;
@@ -149,12 +124,10 @@ import software.amazon.awssdk.services.kms.model.ListKeyPoliciesRequest;
 import software.amazon.awssdk.services.kms.model.ListKeyPoliciesResponse;
 import software.amazon.awssdk.services.kms.model.ListResourceTagsRequest;
 import software.amazon.awssdk.services.kms.model.ListResourceTagsResponse;
-import software.amazon.awssdk.services.kms.model.MalformedPolicyDocumentException;
 import software.amazon.awssdk.services.kms.model.MessageType;
 import software.amazon.awssdk.services.kms.model.MultiRegionConfiguration;
 import software.amazon.awssdk.services.kms.model.MultiRegionKey;
 import software.amazon.awssdk.services.kms.model.MultiRegionKeyType;
-import software.amazon.awssdk.services.kms.model.NotFoundException;
 import software.amazon.awssdk.services.kms.model.OriginType;
 import software.amazon.awssdk.services.kms.model.PutKeyPolicyRequest;
 import software.amazon.awssdk.services.kms.model.ReEncryptRequest;
@@ -169,7 +142,6 @@ import software.amazon.awssdk.services.kms.model.SignRequest;
 import software.amazon.awssdk.services.kms.model.SignResponse;
 import software.amazon.awssdk.services.kms.model.SigningAlgorithmSpec;
 import software.amazon.awssdk.services.kms.model.Tag;
-import software.amazon.awssdk.services.kms.model.TagException;
 import software.amazon.awssdk.services.kms.model.TagResourceRequest;
 import software.amazon.awssdk.services.kms.model.UnsupportedOperationException;
 import software.amazon.awssdk.services.kms.model.UntagResourceRequest;
@@ -183,6 +155,18 @@ import software.amazon.awssdk.services.kms.model.VerifyResponse;
 import software.amazon.awssdk.services.kms.model.WrappingKeySpec;
 
 public class ToNative {
+  // BEGIN MANUAL EDIT
+  public static RuntimeException Error(Error_Opaque dafnyValue) {
+    if (dafnyValue.dtor_obj() instanceof KmsException) {
+      return (KmsException) dafnyValue.dtor_obj();
+    }
+    // Because we only ever put `KmsException` into `Error_Opaque`,
+    // recieving any other type here indicates a bug with the codegen.
+    // Bubble up some error to indicate this failure state.
+    return new IllegalStateException("Unknown error recieved from KMS.");
+  }
+  // END MANUAL EDIT
+
   public static CancelKeyDeletionRequest CancelKeyDeletionRequest(
       Dafny.Com.Amazonaws.Kms.Types.CancelKeyDeletionRequest dafnyValue) {
     CancelKeyDeletionRequest.Builder builder = CancelKeyDeletionRequest.builder();
@@ -2066,6 +2050,115 @@ public class ToNative {
     }
     return builder.build();
   }
+
+// BEGIN MANUAL EDIT
+  public static RuntimeException Error(Dafny.Com.Amazonaws.Kms.Types.Error dafnyValue) {
+    if (dafnyValue.is_AlreadyExistsException()) {
+      return ToNative.Error((Error_AlreadyExistsException) dafnyValue);
+    }
+    if (dafnyValue.is_CloudHsmClusterInUseException()) {
+      return ToNative.Error((Error_CloudHsmClusterInUseException) dafnyValue);
+    }
+    if (dafnyValue.is_CloudHsmClusterInvalidConfigurationException()) {
+      return ToNative.Error((Error_CloudHsmClusterInvalidConfigurationException) dafnyValue);
+    }
+    if (dafnyValue.is_CloudHsmClusterNotActiveException()) {
+      return ToNative.Error((Error_CloudHsmClusterNotActiveException) dafnyValue);
+    }
+    if (dafnyValue.is_CloudHsmClusterNotFoundException()) {
+      return ToNative.Error((Error_CloudHsmClusterNotFoundException) dafnyValue);
+    }
+    if (dafnyValue.is_CloudHsmClusterNotRelatedException()) {
+      return ToNative.Error((Error_CloudHsmClusterNotRelatedException) dafnyValue);
+    }
+    if (dafnyValue.is_CustomKeyStoreHasCMKsException()) {
+      return ToNative.Error((Error_CustomKeyStoreHasCMKsException) dafnyValue);
+    }
+    if (dafnyValue.is_CustomKeyStoreInvalidStateException()) {
+      return ToNative.Error((Error_CustomKeyStoreInvalidStateException) dafnyValue);
+    }
+    if (dafnyValue.is_CustomKeyStoreNameInUseException()) {
+      return ToNative.Error((Error_CustomKeyStoreNameInUseException) dafnyValue);
+    }
+    if (dafnyValue.is_CustomKeyStoreNotFoundException()) {
+      return ToNative.Error((Error_CustomKeyStoreNotFoundException) dafnyValue);
+    }
+    if (dafnyValue.is_DependencyTimeoutException()) {
+      return ToNative.Error((Error_DependencyTimeoutException) dafnyValue);
+    }
+    if (dafnyValue.is_DisabledException()) {
+      return ToNative.Error((Error_DisabledException) dafnyValue);
+    }
+    if (dafnyValue.is_ExpiredImportTokenException()) {
+      return ToNative.Error((Error_ExpiredImportTokenException) dafnyValue);
+    }
+    if (dafnyValue.is_IncorrectKeyException()) {
+      return ToNative.Error((Error_IncorrectKeyException) dafnyValue);
+    }
+    if (dafnyValue.is_IncorrectKeyMaterialException()) {
+      return ToNative.Error((Error_IncorrectKeyMaterialException) dafnyValue);
+    }
+    if (dafnyValue.is_IncorrectTrustAnchorException()) {
+      return ToNative.Error((Error_IncorrectTrustAnchorException) dafnyValue);
+    }
+    if (dafnyValue.is_InvalidAliasNameException()) {
+      return ToNative.Error((Error_InvalidAliasNameException) dafnyValue);
+    }
+    if (dafnyValue.is_InvalidArnException()) {
+      return ToNative.Error((Error_InvalidArnException) dafnyValue);
+    }
+    if (dafnyValue.is_InvalidCiphertextException()) {
+      return ToNative.Error((Error_InvalidCiphertextException) dafnyValue);
+    }
+    if (dafnyValue.is_InvalidGrantIdException()) {
+      return ToNative.Error((Error_InvalidGrantIdException) dafnyValue);
+    }
+    if (dafnyValue.is_InvalidGrantTokenException()) {
+      return ToNative.Error((Error_InvalidGrantTokenException) dafnyValue);
+    }
+    if (dafnyValue.is_InvalidImportTokenException()) {
+      return ToNative.Error((Error_InvalidImportTokenException) dafnyValue);
+    }
+    if (dafnyValue.is_InvalidKeyUsageException()) {
+      return ToNative.Error((Error_InvalidKeyUsageException) dafnyValue);
+    }
+    if (dafnyValue.is_InvalidMarkerException()) {
+      return ToNative.Error((Error_InvalidMarkerException) dafnyValue);
+    }
+    if (dafnyValue.is_KeyUnavailableException()) {
+      return ToNative.Error((Error_KeyUnavailableException) dafnyValue);
+    }
+    if (dafnyValue.is_KMSInternalException()) {
+      return ToNative.Error((Error_KMSInternalException) dafnyValue);
+    }
+    if (dafnyValue.is_KMSInvalidSignatureException()) {
+      return ToNative.Error((Error_KMSInvalidSignatureException) dafnyValue);
+    }
+    if (dafnyValue.is_KMSInvalidStateException()) {
+      return ToNative.Error((Error_KMSInvalidStateException) dafnyValue);
+    }
+    if (dafnyValue.is_LimitExceededException()) {
+      return ToNative.Error((Error_LimitExceededException) dafnyValue);
+    }
+    if (dafnyValue.is_MalformedPolicyDocumentException()) {
+      return ToNative.Error((Error_MalformedPolicyDocumentException) dafnyValue);
+    }
+    if (dafnyValue.is_NotFoundException()) {
+      return ToNative.Error((Error_NotFoundException) dafnyValue);
+    }
+    if (dafnyValue.is_TagException()) {
+      return ToNative.Error((Error_TagException) dafnyValue);
+    }
+    if (dafnyValue.is_UnsupportedOperationException()) {
+      return ToNative.Error((Error_UnsupportedOperationException) dafnyValue);
+    }
+    if (dafnyValue.is_Opaque()) {
+      return ToNative.Error((Error_Opaque) dafnyValue);
+    }
+    // TODO This should indicate a codegen bug
+    return new IllegalStateException("Unknown error recieved from KMS.");
+  }
+// END MANUAL EDIT
 
   public static KmsClient TrentService(IKMSClient dafnyValue) {
     return ((Shim) dafnyValue).impl();

@@ -80,6 +80,9 @@ import Dafny.Com.Amazonaws.Dynamodb.Types.Error_TableNotFoundException;
 import Dafny.Com.Amazonaws.Dynamodb.Types.Error_TransactionCanceledException;
 import Dafny.Com.Amazonaws.Dynamodb.Types.Error_TransactionConflictException;
 import Dafny.Com.Amazonaws.Dynamodb.Types.Error_TransactionInProgressException;
+// BEGIN MANUAL EDIT
+import Dafny.Com.Amazonaws.Dynamodb.Types.Error_Opaque;
+// END MANUAL EDIT
 import Dafny.Com.Amazonaws.Dynamodb.Types.ExecuteStatementInput;
 import Dafny.Com.Amazonaws.Dynamodb.Types.ExecuteStatementOutput;
 import Dafny.Com.Amazonaws.Dynamodb.Types.ExecuteTransactionInput;
@@ -147,280 +150,21 @@ import java.util.List;
 import java.util.Map;
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
-import software.amazon.awssdk.services.dynamodb.model.ArchivalSummary;
-import software.amazon.awssdk.services.dynamodb.model.AttributeAction;
-import software.amazon.awssdk.services.dynamodb.model.AttributeDefinition;
-import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
-import software.amazon.awssdk.services.dynamodb.model.AttributeValueUpdate;
-import software.amazon.awssdk.services.dynamodb.model.AutoScalingPolicyDescription;
-import software.amazon.awssdk.services.dynamodb.model.AutoScalingPolicyUpdate;
-import software.amazon.awssdk.services.dynamodb.model.AutoScalingSettingsDescription;
-import software.amazon.awssdk.services.dynamodb.model.AutoScalingSettingsUpdate;
-import software.amazon.awssdk.services.dynamodb.model.AutoScalingTargetTrackingScalingPolicyConfigurationDescription;
-import software.amazon.awssdk.services.dynamodb.model.AutoScalingTargetTrackingScalingPolicyConfigurationUpdate;
-import software.amazon.awssdk.services.dynamodb.model.BackupDescription;
-import software.amazon.awssdk.services.dynamodb.model.BackupDetails;
-import software.amazon.awssdk.services.dynamodb.model.BackupInUseException;
-import software.amazon.awssdk.services.dynamodb.model.BackupNotFoundException;
-import software.amazon.awssdk.services.dynamodb.model.BackupStatus;
-import software.amazon.awssdk.services.dynamodb.model.BackupSummary;
-import software.amazon.awssdk.services.dynamodb.model.BackupType;
-import software.amazon.awssdk.services.dynamodb.model.BackupTypeFilter;
-import software.amazon.awssdk.services.dynamodb.model.BatchExecuteStatementRequest;
-import software.amazon.awssdk.services.dynamodb.model.BatchExecuteStatementResponse;
-import software.amazon.awssdk.services.dynamodb.model.BatchGetItemRequest;
-import software.amazon.awssdk.services.dynamodb.model.BatchGetItemResponse;
-import software.amazon.awssdk.services.dynamodb.model.BatchStatementError;
-import software.amazon.awssdk.services.dynamodb.model.BatchStatementErrorCodeEnum;
-import software.amazon.awssdk.services.dynamodb.model.BatchStatementRequest;
-import software.amazon.awssdk.services.dynamodb.model.BatchStatementResponse;
-import software.amazon.awssdk.services.dynamodb.model.BatchWriteItemRequest;
-import software.amazon.awssdk.services.dynamodb.model.BatchWriteItemResponse;
-import software.amazon.awssdk.services.dynamodb.model.BillingMode;
-import software.amazon.awssdk.services.dynamodb.model.BillingModeSummary;
-import software.amazon.awssdk.services.dynamodb.model.CancellationReason;
-import software.amazon.awssdk.services.dynamodb.model.Capacity;
-import software.amazon.awssdk.services.dynamodb.model.ComparisonOperator;
-import software.amazon.awssdk.services.dynamodb.model.Condition;
-import software.amazon.awssdk.services.dynamodb.model.ConditionCheck;
-import software.amazon.awssdk.services.dynamodb.model.ConditionalCheckFailedException;
-import software.amazon.awssdk.services.dynamodb.model.ConditionalOperator;
-import software.amazon.awssdk.services.dynamodb.model.ConsumedCapacity;
-import software.amazon.awssdk.services.dynamodb.model.ContinuousBackupsDescription;
-import software.amazon.awssdk.services.dynamodb.model.ContinuousBackupsStatus;
-import software.amazon.awssdk.services.dynamodb.model.ContinuousBackupsUnavailableException;
-import software.amazon.awssdk.services.dynamodb.model.ContributorInsightsAction;
-import software.amazon.awssdk.services.dynamodb.model.ContributorInsightsStatus;
-import software.amazon.awssdk.services.dynamodb.model.ContributorInsightsSummary;
-import software.amazon.awssdk.services.dynamodb.model.CreateBackupRequest;
-import software.amazon.awssdk.services.dynamodb.model.CreateBackupResponse;
-import software.amazon.awssdk.services.dynamodb.model.CreateGlobalSecondaryIndexAction;
-import software.amazon.awssdk.services.dynamodb.model.CreateGlobalTableRequest;
-import software.amazon.awssdk.services.dynamodb.model.CreateGlobalTableResponse;
-import software.amazon.awssdk.services.dynamodb.model.CreateReplicaAction;
-import software.amazon.awssdk.services.dynamodb.model.CreateReplicationGroupMemberAction;
-import software.amazon.awssdk.services.dynamodb.model.CreateTableRequest;
-import software.amazon.awssdk.services.dynamodb.model.CreateTableResponse;
-import software.amazon.awssdk.services.dynamodb.model.CsvOptions;
-import software.amazon.awssdk.services.dynamodb.model.Delete;
-import software.amazon.awssdk.services.dynamodb.model.DeleteBackupRequest;
-import software.amazon.awssdk.services.dynamodb.model.DeleteBackupResponse;
-import software.amazon.awssdk.services.dynamodb.model.DeleteGlobalSecondaryIndexAction;
-import software.amazon.awssdk.services.dynamodb.model.DeleteItemRequest;
-import software.amazon.awssdk.services.dynamodb.model.DeleteItemResponse;
-import software.amazon.awssdk.services.dynamodb.model.DeleteReplicaAction;
-import software.amazon.awssdk.services.dynamodb.model.DeleteReplicationGroupMemberAction;
-import software.amazon.awssdk.services.dynamodb.model.DeleteRequest;
-import software.amazon.awssdk.services.dynamodb.model.DeleteTableRequest;
-import software.amazon.awssdk.services.dynamodb.model.DeleteTableResponse;
-import software.amazon.awssdk.services.dynamodb.model.DescribeBackupRequest;
-import software.amazon.awssdk.services.dynamodb.model.DescribeBackupResponse;
-import software.amazon.awssdk.services.dynamodb.model.DescribeContinuousBackupsRequest;
-import software.amazon.awssdk.services.dynamodb.model.DescribeContinuousBackupsResponse;
-import software.amazon.awssdk.services.dynamodb.model.DescribeContributorInsightsRequest;
-import software.amazon.awssdk.services.dynamodb.model.DescribeContributorInsightsResponse;
-import software.amazon.awssdk.services.dynamodb.model.DescribeEndpointsRequest;
-import software.amazon.awssdk.services.dynamodb.model.DescribeEndpointsResponse;
-import software.amazon.awssdk.services.dynamodb.model.DescribeExportRequest;
-import software.amazon.awssdk.services.dynamodb.model.DescribeExportResponse;
-import software.amazon.awssdk.services.dynamodb.model.DescribeGlobalTableRequest;
-import software.amazon.awssdk.services.dynamodb.model.DescribeGlobalTableResponse;
-import software.amazon.awssdk.services.dynamodb.model.DescribeGlobalTableSettingsRequest;
-import software.amazon.awssdk.services.dynamodb.model.DescribeGlobalTableSettingsResponse;
-import software.amazon.awssdk.services.dynamodb.model.DescribeImportRequest;
-import software.amazon.awssdk.services.dynamodb.model.DescribeImportResponse;
-import software.amazon.awssdk.services.dynamodb.model.DescribeKinesisStreamingDestinationRequest;
-import software.amazon.awssdk.services.dynamodb.model.DescribeKinesisStreamingDestinationResponse;
-import software.amazon.awssdk.services.dynamodb.model.DescribeLimitsRequest;
-import software.amazon.awssdk.services.dynamodb.model.DescribeLimitsResponse;
-import software.amazon.awssdk.services.dynamodb.model.DescribeTableReplicaAutoScalingRequest;
-import software.amazon.awssdk.services.dynamodb.model.DescribeTableReplicaAutoScalingResponse;
-import software.amazon.awssdk.services.dynamodb.model.DescribeTableRequest;
-import software.amazon.awssdk.services.dynamodb.model.DescribeTableResponse;
-import software.amazon.awssdk.services.dynamodb.model.DescribeTimeToLiveRequest;
-import software.amazon.awssdk.services.dynamodb.model.DescribeTimeToLiveResponse;
-import software.amazon.awssdk.services.dynamodb.model.DestinationStatus;
-import software.amazon.awssdk.services.dynamodb.model.DisableKinesisStreamingDestinationRequest;
-import software.amazon.awssdk.services.dynamodb.model.DisableKinesisStreamingDestinationResponse;
-import software.amazon.awssdk.services.dynamodb.model.DuplicateItemException;
-import software.amazon.awssdk.services.dynamodb.model.EnableKinesisStreamingDestinationRequest;
-import software.amazon.awssdk.services.dynamodb.model.EnableKinesisStreamingDestinationResponse;
-import software.amazon.awssdk.services.dynamodb.model.Endpoint;
-import software.amazon.awssdk.services.dynamodb.model.ExecuteStatementRequest;
-import software.amazon.awssdk.services.dynamodb.model.ExecuteStatementResponse;
-import software.amazon.awssdk.services.dynamodb.model.ExecuteTransactionRequest;
-import software.amazon.awssdk.services.dynamodb.model.ExecuteTransactionResponse;
-import software.amazon.awssdk.services.dynamodb.model.ExpectedAttributeValue;
-import software.amazon.awssdk.services.dynamodb.model.ExportConflictException;
-import software.amazon.awssdk.services.dynamodb.model.ExportDescription;
-import software.amazon.awssdk.services.dynamodb.model.ExportFormat;
-import software.amazon.awssdk.services.dynamodb.model.ExportNotFoundException;
-import software.amazon.awssdk.services.dynamodb.model.ExportStatus;
-import software.amazon.awssdk.services.dynamodb.model.ExportSummary;
-import software.amazon.awssdk.services.dynamodb.model.ExportTableToPointInTimeRequest;
-import software.amazon.awssdk.services.dynamodb.model.ExportTableToPointInTimeResponse;
-import software.amazon.awssdk.services.dynamodb.model.FailureException;
-import software.amazon.awssdk.services.dynamodb.model.Get;
-import software.amazon.awssdk.services.dynamodb.model.GetItemRequest;
-import software.amazon.awssdk.services.dynamodb.model.GetItemResponse;
-import software.amazon.awssdk.services.dynamodb.model.GlobalSecondaryIndex;
-import software.amazon.awssdk.services.dynamodb.model.GlobalSecondaryIndexAutoScalingUpdate;
-import software.amazon.awssdk.services.dynamodb.model.GlobalSecondaryIndexDescription;
-import software.amazon.awssdk.services.dynamodb.model.GlobalSecondaryIndexInfo;
-import software.amazon.awssdk.services.dynamodb.model.GlobalSecondaryIndexUpdate;
-import software.amazon.awssdk.services.dynamodb.model.GlobalTable;
-import software.amazon.awssdk.services.dynamodb.model.GlobalTableAlreadyExistsException;
-import software.amazon.awssdk.services.dynamodb.model.GlobalTableDescription;
-import software.amazon.awssdk.services.dynamodb.model.GlobalTableGlobalSecondaryIndexSettingsUpdate;
-import software.amazon.awssdk.services.dynamodb.model.GlobalTableNotFoundException;
-import software.amazon.awssdk.services.dynamodb.model.GlobalTableStatus;
-import software.amazon.awssdk.services.dynamodb.model.IdempotentParameterMismatchException;
-import software.amazon.awssdk.services.dynamodb.model.ImportConflictException;
-import software.amazon.awssdk.services.dynamodb.model.ImportNotFoundException;
-import software.amazon.awssdk.services.dynamodb.model.ImportStatus;
-import software.amazon.awssdk.services.dynamodb.model.ImportSummary;
-import software.amazon.awssdk.services.dynamodb.model.ImportTableDescription;
-import software.amazon.awssdk.services.dynamodb.model.ImportTableRequest;
-import software.amazon.awssdk.services.dynamodb.model.ImportTableResponse;
-import software.amazon.awssdk.services.dynamodb.model.IndexNotFoundException;
-import software.amazon.awssdk.services.dynamodb.model.IndexStatus;
-import software.amazon.awssdk.services.dynamodb.model.InputCompressionType;
-import software.amazon.awssdk.services.dynamodb.model.InputFormat;
-import software.amazon.awssdk.services.dynamodb.model.InputFormatOptions;
-import software.amazon.awssdk.services.dynamodb.model.InternalServerErrorException;
-import software.amazon.awssdk.services.dynamodb.model.InvalidExportTimeException;
-import software.amazon.awssdk.services.dynamodb.model.InvalidRestoreTimeException;
-import software.amazon.awssdk.services.dynamodb.model.ItemCollectionMetrics;
-import software.amazon.awssdk.services.dynamodb.model.ItemCollectionSizeLimitExceededException;
-import software.amazon.awssdk.services.dynamodb.model.ItemResponse;
-import software.amazon.awssdk.services.dynamodb.model.KeySchemaElement;
-import software.amazon.awssdk.services.dynamodb.model.KeyType;
-import software.amazon.awssdk.services.dynamodb.model.KeysAndAttributes;
-import software.amazon.awssdk.services.dynamodb.model.KinesisDataStreamDestination;
-import software.amazon.awssdk.services.dynamodb.model.LimitExceededException;
-import software.amazon.awssdk.services.dynamodb.model.ListBackupsRequest;
-import software.amazon.awssdk.services.dynamodb.model.ListBackupsResponse;
-import software.amazon.awssdk.services.dynamodb.model.ListContributorInsightsRequest;
-import software.amazon.awssdk.services.dynamodb.model.ListContributorInsightsResponse;
-import software.amazon.awssdk.services.dynamodb.model.ListExportsRequest;
-import software.amazon.awssdk.services.dynamodb.model.ListExportsResponse;
-import software.amazon.awssdk.services.dynamodb.model.ListGlobalTablesRequest;
-import software.amazon.awssdk.services.dynamodb.model.ListGlobalTablesResponse;
-import software.amazon.awssdk.services.dynamodb.model.ListImportsRequest;
-import software.amazon.awssdk.services.dynamodb.model.ListImportsResponse;
-import software.amazon.awssdk.services.dynamodb.model.ListTablesRequest;
-import software.amazon.awssdk.services.dynamodb.model.ListTablesResponse;
-import software.amazon.awssdk.services.dynamodb.model.ListTagsOfResourceRequest;
-import software.amazon.awssdk.services.dynamodb.model.ListTagsOfResourceResponse;
-import software.amazon.awssdk.services.dynamodb.model.LocalSecondaryIndex;
-import software.amazon.awssdk.services.dynamodb.model.LocalSecondaryIndexDescription;
-import software.amazon.awssdk.services.dynamodb.model.LocalSecondaryIndexInfo;
-import software.amazon.awssdk.services.dynamodb.model.ParameterizedStatement;
-import software.amazon.awssdk.services.dynamodb.model.PointInTimeRecoveryDescription;
-import software.amazon.awssdk.services.dynamodb.model.PointInTimeRecoverySpecification;
-import software.amazon.awssdk.services.dynamodb.model.PointInTimeRecoveryStatus;
-import software.amazon.awssdk.services.dynamodb.model.PointInTimeRecoveryUnavailableException;
-import software.amazon.awssdk.services.dynamodb.model.Projection;
-import software.amazon.awssdk.services.dynamodb.model.ProjectionType;
-import software.amazon.awssdk.services.dynamodb.model.ProvisionedThroughput;
-import software.amazon.awssdk.services.dynamodb.model.ProvisionedThroughputDescription;
-import software.amazon.awssdk.services.dynamodb.model.ProvisionedThroughputExceededException;
-import software.amazon.awssdk.services.dynamodb.model.ProvisionedThroughputOverride;
-import software.amazon.awssdk.services.dynamodb.model.Put;
-import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
-import software.amazon.awssdk.services.dynamodb.model.PutItemResponse;
-import software.amazon.awssdk.services.dynamodb.model.PutRequest;
-import software.amazon.awssdk.services.dynamodb.model.QueryRequest;
-import software.amazon.awssdk.services.dynamodb.model.QueryResponse;
-import software.amazon.awssdk.services.dynamodb.model.Replica;
-import software.amazon.awssdk.services.dynamodb.model.ReplicaAlreadyExistsException;
-import software.amazon.awssdk.services.dynamodb.model.ReplicaAutoScalingDescription;
-import software.amazon.awssdk.services.dynamodb.model.ReplicaAutoScalingUpdate;
-import software.amazon.awssdk.services.dynamodb.model.ReplicaDescription;
-import software.amazon.awssdk.services.dynamodb.model.ReplicaGlobalSecondaryIndex;
-import software.amazon.awssdk.services.dynamodb.model.ReplicaGlobalSecondaryIndexAutoScalingDescription;
-import software.amazon.awssdk.services.dynamodb.model.ReplicaGlobalSecondaryIndexAutoScalingUpdate;
-import software.amazon.awssdk.services.dynamodb.model.ReplicaGlobalSecondaryIndexDescription;
-import software.amazon.awssdk.services.dynamodb.model.ReplicaGlobalSecondaryIndexSettingsDescription;
-import software.amazon.awssdk.services.dynamodb.model.ReplicaGlobalSecondaryIndexSettingsUpdate;
-import software.amazon.awssdk.services.dynamodb.model.ReplicaNotFoundException;
-import software.amazon.awssdk.services.dynamodb.model.ReplicaSettingsDescription;
-import software.amazon.awssdk.services.dynamodb.model.ReplicaSettingsUpdate;
-import software.amazon.awssdk.services.dynamodb.model.ReplicaStatus;
-import software.amazon.awssdk.services.dynamodb.model.ReplicaUpdate;
-import software.amazon.awssdk.services.dynamodb.model.ReplicationGroupUpdate;
-import software.amazon.awssdk.services.dynamodb.model.RequestLimitExceededException;
-import software.amazon.awssdk.services.dynamodb.model.ResourceInUseException;
-import software.amazon.awssdk.services.dynamodb.model.ResourceNotFoundException;
-import software.amazon.awssdk.services.dynamodb.model.RestoreSummary;
-import software.amazon.awssdk.services.dynamodb.model.RestoreTableFromBackupRequest;
-import software.amazon.awssdk.services.dynamodb.model.RestoreTableFromBackupResponse;
-import software.amazon.awssdk.services.dynamodb.model.RestoreTableToPointInTimeRequest;
-import software.amazon.awssdk.services.dynamodb.model.RestoreTableToPointInTimeResponse;
-import software.amazon.awssdk.services.dynamodb.model.ReturnConsumedCapacity;
-import software.amazon.awssdk.services.dynamodb.model.ReturnItemCollectionMetrics;
-import software.amazon.awssdk.services.dynamodb.model.ReturnValue;
-import software.amazon.awssdk.services.dynamodb.model.ReturnValuesOnConditionCheckFailure;
-import software.amazon.awssdk.services.dynamodb.model.S3BucketSource;
-import software.amazon.awssdk.services.dynamodb.model.S3SseAlgorithm;
-import software.amazon.awssdk.services.dynamodb.model.SSEDescription;
-import software.amazon.awssdk.services.dynamodb.model.SSESpecification;
-import software.amazon.awssdk.services.dynamodb.model.SSEStatus;
-import software.amazon.awssdk.services.dynamodb.model.SSEType;
-import software.amazon.awssdk.services.dynamodb.model.ScalarAttributeType;
-import software.amazon.awssdk.services.dynamodb.model.ScanRequest;
-import software.amazon.awssdk.services.dynamodb.model.ScanResponse;
-import software.amazon.awssdk.services.dynamodb.model.Select;
-import software.amazon.awssdk.services.dynamodb.model.SourceTableDetails;
-import software.amazon.awssdk.services.dynamodb.model.SourceTableFeatureDetails;
-import software.amazon.awssdk.services.dynamodb.model.StreamSpecification;
-import software.amazon.awssdk.services.dynamodb.model.StreamViewType;
-import software.amazon.awssdk.services.dynamodb.model.TableAlreadyExistsException;
-import software.amazon.awssdk.services.dynamodb.model.TableAutoScalingDescription;
-import software.amazon.awssdk.services.dynamodb.model.TableClass;
-import software.amazon.awssdk.services.dynamodb.model.TableClassSummary;
-import software.amazon.awssdk.services.dynamodb.model.TableCreationParameters;
-import software.amazon.awssdk.services.dynamodb.model.TableDescription;
-import software.amazon.awssdk.services.dynamodb.model.TableInUseException;
-import software.amazon.awssdk.services.dynamodb.model.TableNotFoundException;
-import software.amazon.awssdk.services.dynamodb.model.TableStatus;
-import software.amazon.awssdk.services.dynamodb.model.Tag;
-import software.amazon.awssdk.services.dynamodb.model.TagResourceRequest;
-import software.amazon.awssdk.services.dynamodb.model.TimeToLiveDescription;
-import software.amazon.awssdk.services.dynamodb.model.TimeToLiveSpecification;
-import software.amazon.awssdk.services.dynamodb.model.TimeToLiveStatus;
-import software.amazon.awssdk.services.dynamodb.model.TransactGetItem;
-import software.amazon.awssdk.services.dynamodb.model.TransactGetItemsRequest;
-import software.amazon.awssdk.services.dynamodb.model.TransactGetItemsResponse;
-import software.amazon.awssdk.services.dynamodb.model.TransactWriteItem;
-import software.amazon.awssdk.services.dynamodb.model.TransactWriteItemsRequest;
-import software.amazon.awssdk.services.dynamodb.model.TransactWriteItemsResponse;
-import software.amazon.awssdk.services.dynamodb.model.TransactionCanceledException;
-import software.amazon.awssdk.services.dynamodb.model.TransactionConflictException;
-import software.amazon.awssdk.services.dynamodb.model.TransactionInProgressException;
-import software.amazon.awssdk.services.dynamodb.model.UntagResourceRequest;
-import software.amazon.awssdk.services.dynamodb.model.Update;
-import software.amazon.awssdk.services.dynamodb.model.UpdateContinuousBackupsRequest;
-import software.amazon.awssdk.services.dynamodb.model.UpdateContinuousBackupsResponse;
-import software.amazon.awssdk.services.dynamodb.model.UpdateContributorInsightsRequest;
-import software.amazon.awssdk.services.dynamodb.model.UpdateContributorInsightsResponse;
-import software.amazon.awssdk.services.dynamodb.model.UpdateGlobalSecondaryIndexAction;
-import software.amazon.awssdk.services.dynamodb.model.UpdateGlobalTableRequest;
-import software.amazon.awssdk.services.dynamodb.model.UpdateGlobalTableResponse;
-import software.amazon.awssdk.services.dynamodb.model.UpdateGlobalTableSettingsRequest;
-import software.amazon.awssdk.services.dynamodb.model.UpdateGlobalTableSettingsResponse;
-import software.amazon.awssdk.services.dynamodb.model.UpdateItemRequest;
-import software.amazon.awssdk.services.dynamodb.model.UpdateItemResponse;
-import software.amazon.awssdk.services.dynamodb.model.UpdateReplicationGroupMemberAction;
-import software.amazon.awssdk.services.dynamodb.model.UpdateTableReplicaAutoScalingRequest;
-import software.amazon.awssdk.services.dynamodb.model.UpdateTableReplicaAutoScalingResponse;
-import software.amazon.awssdk.services.dynamodb.model.UpdateTableRequest;
-import software.amazon.awssdk.services.dynamodb.model.UpdateTableResponse;
-import software.amazon.awssdk.services.dynamodb.model.UpdateTimeToLiveRequest;
-import software.amazon.awssdk.services.dynamodb.model.UpdateTimeToLiveResponse;
-import software.amazon.awssdk.services.dynamodb.model.WriteRequest;
+import software.amazon.awssdk.services.dynamodb.model.*;
 
 public class ToNative {
+  // BEGIN MANUAL EDIT
+  public static RuntimeException Error(Error_Opaque dafnyValue) {
+    if (dafnyValue.dtor_obj() instanceof DynamoDbException) {
+      return (DynamoDbException) dafnyValue.dtor_obj();
+    }
+    // Because we only ever put `DynamoDbException` into `Error_Opaque`,
+    // recieving any other type here indicates a bug with the codegen.
+    // Bubble up some error to indicate this failure state.
+    return new IllegalStateException("Unknown error recieved from DynamoDb.");
+  }
+  // END MANUAL EDIT
+
   public static BatchExecuteStatementRequest BatchExecuteStatementInput(
       BatchExecuteStatementInput dafnyValue) {
     BatchExecuteStatementRequest.Builder builder = BatchExecuteStatementRequest.builder();
@@ -4832,6 +4576,109 @@ public class ToNative {
     }
     return builder.build();
   }
+
+// BEGIN MANUAL EDIT
+  public static RuntimeException Error(Dafny.Com.Amazonaws.Dynamodb.Types.Error dafnyValue) {
+    if (dafnyValue.is_BackupInUseException()) {
+      return ToNative.Error((Error_BackupInUseException) dafnyValue);
+    }
+    if (dafnyValue.is_BackupNotFoundException()) {
+      return ToNative.Error((Error_BackupNotFoundException) dafnyValue);
+    }
+    if (dafnyValue.is_ConditionalCheckFailedException()) {
+      return ToNative.Error((Error_ConditionalCheckFailedException) dafnyValue);
+    }
+    if (dafnyValue.is_ContinuousBackupsUnavailableException()) {
+      return ToNative.Error((Error_ContinuousBackupsUnavailableException) dafnyValue);
+    }
+    if (dafnyValue.is_DuplicateItemException()) {
+      return ToNative.Error((Error_DuplicateItemException) dafnyValue);
+    }
+    if (dafnyValue.is_ExportConflictException()) {
+      return ToNative.Error((Error_ExportConflictException) dafnyValue);
+    }
+    if (dafnyValue.is_ExportNotFoundException()) {
+      return ToNative.Error((Error_ExportNotFoundException) dafnyValue);
+    }
+    if (dafnyValue.is_GlobalTableAlreadyExistsException()) {
+      return ToNative.Error((Error_GlobalTableAlreadyExistsException) dafnyValue);
+    }
+    if (dafnyValue.is_GlobalTableNotFoundException()) {
+      return ToNative.Error((Error_GlobalTableNotFoundException) dafnyValue);
+    }
+    if (dafnyValue.is_IdempotentParameterMismatchException()) {
+      return ToNative.Error((Error_IdempotentParameterMismatchException) dafnyValue);
+    }
+    if (dafnyValue.is_ImportConflictException()) {
+      return ToNative.Error((Error_ImportConflictException) dafnyValue);
+    }
+    if (dafnyValue.is_ImportNotFoundException()) {
+      return ToNative.Error((Error_ImportNotFoundException) dafnyValue);
+    }
+    if (dafnyValue.is_IndexNotFoundException()) {
+      return ToNative.Error((Error_IndexNotFoundException) dafnyValue);
+    }
+    if (dafnyValue.is_InternalServerError()) {
+      return ToNative.Error((Error_InternalServerError) dafnyValue);
+    }
+    if (dafnyValue.is_InvalidExportTimeException()) {
+      return ToNative.Error((Error_InvalidExportTimeException) dafnyValue);
+    }
+    if (dafnyValue.is_InvalidRestoreTimeException()) {
+      return ToNative.Error((Error_InvalidRestoreTimeException) dafnyValue);
+    }
+    if (dafnyValue.is_ItemCollectionSizeLimitExceededException()) {
+      return ToNative.Error((Error_ItemCollectionSizeLimitExceededException) dafnyValue);
+    }
+    if (dafnyValue.is_LimitExceededException()) {
+      return ToNative.Error((Error_LimitExceededException) dafnyValue);
+    }
+    if (dafnyValue.is_PointInTimeRecoveryUnavailableException()) {
+      return ToNative.Error((Error_PointInTimeRecoveryUnavailableException) dafnyValue);
+    }
+    if (dafnyValue.is_ProvisionedThroughputExceededException()) {
+      return ToNative.Error((Error_ProvisionedThroughputExceededException) dafnyValue);
+    }
+    if (dafnyValue.is_ReplicaAlreadyExistsException()) {
+      return ToNative.Error((Error_ReplicaAlreadyExistsException) dafnyValue);
+    }
+    if (dafnyValue.is_ReplicaNotFoundException()) {
+      return ToNative.Error((Error_ReplicaNotFoundException) dafnyValue);
+    }
+    if (dafnyValue.is_RequestLimitExceeded()) {
+      return ToNative.Error((Error_RequestLimitExceeded) dafnyValue);
+    }
+    if (dafnyValue.is_ResourceInUseException()) {
+      return ToNative.Error((Error_ResourceInUseException) dafnyValue);
+    }
+    if (dafnyValue.is_ResourceNotFoundException()) {
+      return ToNative.Error((Error_ResourceNotFoundException) dafnyValue);
+    }
+    if (dafnyValue.is_TableAlreadyExistsException()) {
+      return ToNative.Error((Error_TableAlreadyExistsException) dafnyValue);
+    }
+    if (dafnyValue.is_TableInUseException()) {
+      return ToNative.Error((Error_TableInUseException) dafnyValue);
+    }
+    if (dafnyValue.is_TableNotFoundException()) {
+      return ToNative.Error((Error_TableNotFoundException) dafnyValue);
+    }
+    if (dafnyValue.is_TransactionCanceledException()) {
+      return ToNative.Error((Error_TransactionCanceledException) dafnyValue);
+    }
+    if (dafnyValue.is_TransactionConflictException()) {
+      return ToNative.Error((Error_TransactionConflictException) dafnyValue);
+    }
+    if (dafnyValue.is_TransactionInProgressException()) {
+      return ToNative.Error((Error_TransactionInProgressException) dafnyValue);
+    }
+    if (dafnyValue.is_Opaque()) {
+      return ToNative.Error((Error_Opaque) dafnyValue);
+    }
+    // TODO This should indicate a codegen bug
+    return new IllegalStateException("Unknown error recieved from DynamoDb.");
+  }
+// END MANUAL EDIT
 
   public static DynamoDbClient DynamoDB_20120810(IDynamoDBClient dafnyValue) {
     return ((Shim) dafnyValue).impl();
