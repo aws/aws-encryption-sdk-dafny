@@ -249,14 +249,7 @@ module AwsCryptographyMaterialProvidersOperations refines AbstractAwsCryptograph
     returns (output: Result<IKeyring, Error>)
   {
     var _ :- ValidateKmsKeyId(input.kmsKeyId);
-    var _ :- ValidateDdbTableArn(input.branchKeyStoreArn);
 
-    :- Need(
-      Ddb.IsValid_TableName(input.branchKeyStoreArn),
-      Types.AwsCryptographicMaterialProvidersException(
-        message := "Invalid DynamoDB Table Name"
-      )
-    );
     var grantTokens :- GetValidGrantTokens(input.grantTokens);
     var maxCacheSize : int32;
     
@@ -286,11 +279,9 @@ module AwsCryptographyMaterialProvidersOperations refines AbstractAwsCryptograph
           message := "Must initialize keyring with either branchKeyId or BranchKeyIdSupplier."));
 
     var keyring := new AwsKmsHierarchicalKeyring.AwsKmsHierarchicalKeyring(
-      input.kmsClient,
       input.kmsKeyId,
+      input.keyStore,
       grantTokens,
-      input.ddbClient,
-      input.branchKeyStoreArn,
       input.branchKeyId,
       input.branchKeyIdSupplier,
       input.ttlSeconds,

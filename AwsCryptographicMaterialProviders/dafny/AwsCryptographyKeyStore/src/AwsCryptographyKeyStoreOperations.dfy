@@ -104,10 +104,6 @@ module AwsCryptographyKeyStoreOperations refines AbstractAwsCryptographyKeyStore
   method GetBranchKeyVersion(config: InternalConfig, input: GetBranchKeyVersionInput)
     returns (output: Result<GetBranchKeyVersionOutput, Error>)
   {
-    :- Need(
-      |input.branchKeyVersion| == 16,
-      Types.KeyStoreException(message := "Invalid branch key version length.")
-    );
     output := GetKeys.GetBranchKeyVersion(input, config.ddbTableName, config.kmsClient, config.ddbClient);
   }
 

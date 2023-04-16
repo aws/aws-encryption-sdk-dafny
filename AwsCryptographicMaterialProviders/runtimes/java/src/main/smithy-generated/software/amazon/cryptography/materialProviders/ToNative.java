@@ -306,9 +306,7 @@ public class ToNative {
       nativeBuilder.branchKeyIdSupplier(ToNative.BranchKeyIdSupplier(dafnyValue.dtor_branchKeyIdSupplier().dtor_value()));
     }
     nativeBuilder.kmsKeyId(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_kmsKeyId()));
-    nativeBuilder.kmsClient(Dafny.Com.Amazonaws.Kms.ToNative.TrentService(dafnyValue.dtor_kmsClient()));
-    nativeBuilder.ddbClient(Dafny.Com.Amazonaws.Dynamodb.ToNative.DynamoDB_20120810(dafnyValue.dtor_ddbClient()));
-    nativeBuilder.branchKeyStoreArn(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_branchKeyStoreArn()));
+    nativeBuilder.keyStore(software.amazon.cryptography.keyStore.ToNative.KeyStore(dafnyValue.dtor_keyStore()));
     nativeBuilder.ttlSeconds((dafnyValue.dtor_ttlSeconds()));
     if (dafnyValue.dtor_maxCacheSize().is_Some()) {
       nativeBuilder.maxCacheSize((dafnyValue.dtor_maxCacheSize().dtor_value()));

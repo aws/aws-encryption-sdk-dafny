@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 include "../../../../StandardLibrary/src/Index.dfy"
+ include "../../AwsCryptographyKeyStore/src/Index.dfy"
  include "../../../../AwsCryptographyPrimitives/src/Index.dfy"
  include "../../../../ComAmazonawsDynamodb/src/Index.dfy"
  include "../../../../ComAmazonawsKms/src/Index.dfy"
@@ -10,6 +11,7 @@ include "../../../../StandardLibrary/src/Index.dfy"
  import opened Wrappers
  import opened StandardLibrary.UInt
  import opened UTF8
+ import AwsCryptographyKeyStoreTypes
  import AwsCryptographyPrimitivesTypes
  import ComAmazonawsDynamodbTypes
  import ComAmazonawsKmsTypes
@@ -328,27 +330,23 @@ include "../../../../StandardLibrary/src/Index.dfy"
  && input.branchKeyIdSupplier.value.ValidState()
  && input.branchKeyIdSupplier.value.Modifies !! {History}
  )
- && input.kmsClient.ValidState()
- && input.kmsClient.Modifies !! {History}
- && input.ddbClient.ValidState()
- && input.ddbClient.Modifies !! {History}
+ && input.keyStore.ValidState()
+ && input.keyStore.Modifies !! {History}
  modifies Modifies - {History} ,
  (if input.branchKeyIdSupplier.Some? then input.branchKeyIdSupplier.value.Modifies else {}) ,
- input.kmsClient.Modifies ,
- input.ddbClient.Modifies ,
+ input.keyStore.Modifies ,
  History`CreateAwsKmsHierarchicalKeyring
  // Dafny will skip type parameters when generating a default decreases clause.
  decreases Modifies - {History} ,
  (if input.branchKeyIdSupplier.Some? then input.branchKeyIdSupplier.value.Modifies else {}) ,
- input.kmsClient.Modifies ,
- input.ddbClient.Modifies
+ input.keyStore.Modifies
  ensures
  && ValidState()
  && ( output.Success? ==> 
  && output.value.ValidState()
  && output.value.Modifies !! {History}
  && fresh(output.value)
- && fresh ( output.value.Modifies - Modifies - {History} - (if input.branchKeyIdSupplier.Some? then input.branchKeyIdSupplier.value.Modifies else {}) - input.kmsClient.Modifies - input.ddbClient.Modifies ) )
+ && fresh ( output.value.Modifies - Modifies - {History} - (if input.branchKeyIdSupplier.Some? then input.branchKeyIdSupplier.value.Modifies else {}) - input.keyStore.Modifies ) )
  ensures CreateAwsKmsHierarchicalKeyringEnsuresPublicly(input, output)
  ensures History.CreateAwsKmsHierarchicalKeyring == old(History.CreateAwsKmsHierarchicalKeyring) + [DafnyCallEvent(input, output)]
  
@@ -769,9 +767,7 @@ include "../../../../StandardLibrary/src/Index.dfy"
  nameonly branchKeyId: Option<string> ,
  nameonly branchKeyIdSupplier: Option<IBranchKeyIdSupplier> ,
  nameonly kmsKeyId: KmsKeyId ,
- nameonly kmsClient: ComAmazonawsKmsTypes.IKMSClient ,
- nameonly ddbClient: ComAmazonawsDynamodbTypes.IDynamoDBClient ,
- nameonly branchKeyStoreArn: DdbTableArn ,
+ nameonly keyStore: AwsCryptographyKeyStoreTypes.IKeyStoreClient ,
  nameonly ttlSeconds: PositiveLong ,
  nameonly maxCacheSize: Option<PositiveInteger> ,
  nameonly grantTokens: Option<GrantTokenList>
@@ -1472,6 +1468,7 @@ include "../../../../StandardLibrary/src/Index.dfy"
  nameonly message: string
  )
  // Any dependent models are listed here
+ | AwsCryptographyKeyStore(AwsCryptographyKeyStore: AwsCryptographyKeyStoreTypes.Error)
  | AwsCryptographyPrimitives(AwsCryptographyPrimitives: AwsCryptographyPrimitivesTypes.Error)
  | ComAmazonawsDynamodb(ComAmazonawsDynamodb: ComAmazonawsDynamodbTypes.Error)
  | ComAmazonawsKms(ComAmazonawsKms: ComAmazonawsKmsTypes.Error)
@@ -1779,27 +1776,23 @@ include "../../../../StandardLibrary/src/Index.dfy"
  && input.branchKeyIdSupplier.value.ValidState()
  && input.branchKeyIdSupplier.value.Modifies !! {History}
  )
- && input.kmsClient.ValidState()
- && input.kmsClient.Modifies !! {History}
- && input.ddbClient.ValidState()
- && input.ddbClient.Modifies !! {History}
+ && input.keyStore.ValidState()
+ && input.keyStore.Modifies !! {History}
  modifies Modifies - {History} ,
  (if input.branchKeyIdSupplier.Some? then input.branchKeyIdSupplier.value.Modifies else {}) ,
- input.kmsClient.Modifies ,
- input.ddbClient.Modifies ,
+ input.keyStore.Modifies ,
  History`CreateAwsKmsHierarchicalKeyring
  // Dafny will skip type parameters when generating a default decreases clause.
  decreases Modifies - {History} ,
  (if input.branchKeyIdSupplier.Some? then input.branchKeyIdSupplier.value.Modifies else {}) ,
- input.kmsClient.Modifies ,
- input.ddbClient.Modifies
+ input.keyStore.Modifies
  ensures
  && ValidState()
  && ( output.Success? ==> 
  && output.value.ValidState()
  && output.value.Modifies !! {History}
  && fresh(output.value)
- && fresh ( output.value.Modifies - Modifies - {History} - (if input.branchKeyIdSupplier.Some? then input.branchKeyIdSupplier.value.Modifies else {}) - input.kmsClient.Modifies - input.ddbClient.Modifies ) )
+ && fresh ( output.value.Modifies - Modifies - {History} - (if input.branchKeyIdSupplier.Some? then input.branchKeyIdSupplier.value.Modifies else {}) - input.keyStore.Modifies ) )
  ensures CreateAwsKmsHierarchicalKeyringEnsuresPublicly(input, output)
  ensures History.CreateAwsKmsHierarchicalKeyring == old(History.CreateAwsKmsHierarchicalKeyring) + [DafnyCallEvent(input, output)]
  {
@@ -2334,23 +2327,20 @@ include "../../../../StandardLibrary/src/Index.dfy"
  && ValidInternalConfig?(config) && ( input.branchKeyIdSupplier.Some? ==>
  && input.branchKeyIdSupplier.value.ValidState()
  )
- && input.kmsClient.ValidState()
- && input.ddbClient.ValidState()
+ && input.keyStore.ValidState()
  modifies ModifiesInternalConfig(config) ,
  (if input.branchKeyIdSupplier.Some? then input.branchKeyIdSupplier.value.Modifies else {}) ,
- input.kmsClient.Modifies ,
- input.ddbClient.Modifies
+ input.keyStore.Modifies
  // Dafny will skip type parameters when generating a default decreases clause.
  decreases ModifiesInternalConfig(config) ,
  (if input.branchKeyIdSupplier.Some? then input.branchKeyIdSupplier.value.Modifies else {}) ,
- input.kmsClient.Modifies ,
- input.ddbClient.Modifies
+ input.keyStore.Modifies
  ensures
  && ValidInternalConfig?(config)
  && ( output.Success? ==> 
  && output.value.ValidState()
  && fresh(output.value)
- && fresh ( output.value.Modifies - ModifiesInternalConfig(config) - (if input.branchKeyIdSupplier.Some? then input.branchKeyIdSupplier.value.Modifies else {}) - input.kmsClient.Modifies - input.ddbClient.Modifies ) )
+ && fresh ( output.value.Modifies - ModifiesInternalConfig(config) - (if input.branchKeyIdSupplier.Some? then input.branchKeyIdSupplier.value.Modifies else {}) - input.keyStore.Modifies ) )
  ensures CreateAwsKmsHierarchicalKeyringEnsuresPublicly(input, output)
 
 

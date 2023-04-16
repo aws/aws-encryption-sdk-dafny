@@ -12,6 +12,9 @@ module TestAwsKmsHierarchicalKeyring {
   import ComAmazonawsKmsTypes
   import KMS = Com.Amazonaws.Kms
   import DDB = Com.Amazonaws.Dynamodb
+  import DDBTypes = ComAmazonawsDynamodbTypes
+  import KeyStore = KeyStore 
+  import KeyStoreTypes = AwsCryptographyKeyStoreTypes
   import Crypto = AwsCryptographyPrimitivesTypes
   import Aws.Cryptography.Primitives
   import MaterialProviders
@@ -25,11 +28,11 @@ module TestAwsKmsHierarchicalKeyring {
   const TEST_DBE_ALG_SUITE_ID := Types.AlgorithmSuiteId.DBE(Types.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_SYMSIG_HMAC_SHA384);
   // THIS IS A TESTING RESOURCE DO NOT USE IN A PRODUCTION ENVIRONMENT
   const keyArn := "arn:aws:kms:us-west-2:370957321024:key/9d989aa2-2f9c-438c-a745-cc57d3ad0126";
-  const branchKeyStoreArn := "arn:aws:dynamodb:us-west-2:370957321024:table/HierarchicalKeyringTestTable";
+  const branchKeyStoreName: DDBTypes.TableName := "KeyStoreTestTable";
 
   // These tests require a keystore populated with these keys
-  const BRANCH_KEY_ID := "hierarchy-test-v1";
-  const ACTIVE_ACTIVE_BRANCH_KEY_ID := "hierarchy-test-active-active";
+  const BRANCH_KEY_ID := "ef31c535-7436-406e-be37-371aea99b298";
+  const ACTIVE_ACTIVE_BRANCH_KEY_ID := "7039dc82-03ff-4914-988e-681c09180a2d";
 
   // Constants for TestBranchKeySupplier
   const BRANCH_KEY := UTF8.EncodeAscii("branchKey");
@@ -65,14 +68,22 @@ module TestAwsKmsHierarchicalKeyring {
     var kmsClient :- expect KMS.KMSClient();
     var mpl :- expect MaterialProviders.MaterialProviders();
     var dynamodbClient :- expect DDB.DynamoDBClient();
+
+    var keyStoreConfig := KeyStoreTypes.KeyStoreConfig(
+      id := None,
+      ddbTableName := Some(branchKeyStoreName),
+      kmsClient := Some(kmsClient),
+      ddbClient := Some(dynamodbClient)
+    );
+
+    var keyStore :- expect KeyStore.KeyStore(keyStoreConfig);
+
     var hierarchyKeyring :- expect mpl.CreateAwsKmsHierarchicalKeyring(
       Types.CreateAwsKmsHierarchicalKeyringInput(
         branchKeyId := Some(branchKeyId),
         branchKeyIdSupplier := None,
         kmsKeyId := keyArn,
-        kmsClient := kmsClient,
-        ddbClient := dynamodbClient,
-        branchKeyStoreArn := branchKeyStoreArn,
+        keyStore := keyStore,
         ttlSeconds := ttl,
         maxCacheSize := Option.Some(10),
         grantTokens := Option.None
@@ -100,14 +111,21 @@ module TestAwsKmsHierarchicalKeyring {
     var kmsClient :- expect KMS.KMSClient();
     var mpl :- expect MaterialProviders.MaterialProviders();
     var dynamodbClient :- expect DDB.DynamoDBClient();
+    var keyStoreConfig := KeyStoreTypes.KeyStoreConfig(
+      id := None,
+      ddbTableName := Some(branchKeyStoreName),
+      kmsClient := Some(kmsClient),
+      ddbClient := Some(dynamodbClient)
+    );
+
+    var keyStore :- expect KeyStore.KeyStore(keyStoreConfig);
+
     var hierarchyKeyring :- expect mpl.CreateAwsKmsHierarchicalKeyring(
       Types.CreateAwsKmsHierarchicalKeyringInput(
         branchKeyId := Some(branchKeyId),
         branchKeyIdSupplier := None,
         kmsKeyId := keyArn,
-        kmsClient := kmsClient,
-        ddbClient := dynamodbClient,
-        branchKeyStoreArn := branchKeyStoreArn,
+        keyStore := keyStore,
         ttlSeconds := ttl,
         maxCacheSize := Option.Some(10),
         grantTokens := Option.None
@@ -130,14 +148,21 @@ module TestAwsKmsHierarchicalKeyring {
     var kmsClient :- expect KMS.KMSClient();
     var mpl :- expect MaterialProviders.MaterialProviders();
     var dynamodbClient :- expect DDB.DynamoDBClient();
+    var keyStoreConfig := KeyStoreTypes.KeyStoreConfig(
+      id := None,
+      ddbTableName := Some(branchKeyStoreName),
+      kmsClient := Some(kmsClient),
+      ddbClient := Some(dynamodbClient)
+    );
+
+    var keyStore :- expect KeyStore.KeyStore(keyStoreConfig);
+
     var hierarchyKeyring :- expect mpl.CreateAwsKmsHierarchicalKeyring(
       Types.CreateAwsKmsHierarchicalKeyringInput(
         branchKeyId := Some(branchKeyId),
         branchKeyIdSupplier := None,
         kmsKeyId := keyArn,
-        kmsClient := kmsClient,
-        ddbClient := dynamodbClient,
-        branchKeyStoreArn := branchKeyStoreArn,
+        keyStore := keyStore,
         ttlSeconds := ttl,
         maxCacheSize := Option.Some(10),
         grantTokens := Option.None
@@ -165,14 +190,21 @@ module TestAwsKmsHierarchicalKeyring {
     var kmsClient :- expect KMS.KMSClient();
     var mpl :- expect MaterialProviders.MaterialProviders();
     var dynamodbClient :- expect DDB.DynamoDBClient();
+    var keyStoreConfig := KeyStoreTypes.KeyStoreConfig(
+      id := None,
+      ddbTableName := Some(branchKeyStoreName),
+      kmsClient := Some(kmsClient),
+      ddbClient := Some(dynamodbClient)
+    );
+
+    var keyStore :- expect KeyStore.KeyStore(keyStoreConfig);
+
     var hierarchyKeyring :- expect mpl.CreateAwsKmsHierarchicalKeyring(
       Types.CreateAwsKmsHierarchicalKeyringInput(
         branchKeyId := Some(branchKeyId),
         branchKeyIdSupplier := None,
         kmsKeyId := keyArn,
-        kmsClient := kmsClient,
-        ddbClient := dynamodbClient,
-        branchKeyStoreArn := branchKeyStoreArn,
+        keyStore := keyStore,
         ttlSeconds := ttl,
         maxCacheSize := Option.Some(10),
         grantTokens := Option.None
@@ -197,14 +229,21 @@ module TestAwsKmsHierarchicalKeyring {
     var mpl :- expect MaterialProviders.MaterialProviders();
     var kmsClient :- expect KMS.KMSClient();
     var dynamodbClient :- expect DDB.DynamoDBClient();
+    var keyStoreConfig := KeyStoreTypes.KeyStoreConfig(
+      id := None,
+      ddbTableName := Some(branchKeyStoreName),
+      kmsClient := Some(kmsClient),
+      ddbClient := Some(dynamodbClient)
+    );
+
+    var keyStore :- expect KeyStore.KeyStore(keyStoreConfig);
+
     var hierarchyKeyring :- expect mpl.CreateAwsKmsHierarchicalKeyring(
       Types.CreateAwsKmsHierarchicalKeyringInput(
         branchKeyId := None,
         branchKeyIdSupplier := Some(branchKeyIdSupplier),
         kmsKeyId := keyArn,
-        kmsClient := kmsClient,
-        ddbClient := dynamodbClient,
-        branchKeyStoreArn := branchKeyStoreArn,
+        keyStore := keyStore,
         ttlSeconds := ttl,
         maxCacheSize := Option.Some(10),
         grantTokens := Option.None

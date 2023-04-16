@@ -5,8 +5,7 @@ package software.amazon.cryptography.materialProviders.model;
 
 import java.util.List;
 import java.util.Objects;
-import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
-import software.amazon.awssdk.services.kms.KmsClient;
+import software.amazon.cryptography.keyStore.KeyStore;
 import software.amazon.cryptography.materialProviders.BranchKeyIdSupplier;
 import software.amazon.cryptography.materialProviders.IBranchKeyIdSupplier;
 
@@ -17,11 +16,7 @@ public class CreateAwsKmsHierarchicalKeyringInput {
 
   private final String kmsKeyId;
 
-  private final KmsClient kmsClient;
-
-  private final DynamoDbClient ddbClient;
-
-  private final String branchKeyStoreArn;
+  private final KeyStore keyStore;
 
   private final long ttlSeconds;
 
@@ -33,9 +28,7 @@ public class CreateAwsKmsHierarchicalKeyringInput {
     this.branchKeyId = builder.branchKeyId();
     this.branchKeyIdSupplier = builder.branchKeyIdSupplier();
     this.kmsKeyId = builder.kmsKeyId();
-    this.kmsClient = builder.kmsClient();
-    this.ddbClient = builder.ddbClient();
-    this.branchKeyStoreArn = builder.branchKeyStoreArn();
+    this.keyStore = builder.keyStore();
     this.ttlSeconds = builder.ttlSeconds();
     this.maxCacheSize = builder.maxCacheSize();
     this.grantTokens = builder.grantTokens();
@@ -53,16 +46,8 @@ public class CreateAwsKmsHierarchicalKeyringInput {
     return this.kmsKeyId;
   }
 
-  public KmsClient kmsClient() {
-    return this.kmsClient;
-  }
-
-  public DynamoDbClient ddbClient() {
-    return this.ddbClient;
-  }
-
-  public String branchKeyStoreArn() {
-    return this.branchKeyStoreArn;
+  public KeyStore keyStore() {
+    return this.keyStore;
   }
 
   public long ttlSeconds() {
@@ -98,17 +83,9 @@ public class CreateAwsKmsHierarchicalKeyringInput {
 
     String kmsKeyId();
 
-    Builder kmsClient(KmsClient kmsClient);
+    Builder keyStore(KeyStore keyStore);
 
-    KmsClient kmsClient();
-
-    Builder ddbClient(DynamoDbClient ddbClient);
-
-    DynamoDbClient ddbClient();
-
-    Builder branchKeyStoreArn(String branchKeyStoreArn);
-
-    String branchKeyStoreArn();
+    KeyStore keyStore();
 
     Builder ttlSeconds(long ttlSeconds);
 
@@ -132,11 +109,7 @@ public class CreateAwsKmsHierarchicalKeyringInput {
 
     protected String kmsKeyId;
 
-    protected KmsClient kmsClient;
-
-    protected DynamoDbClient ddbClient;
-
-    protected String branchKeyStoreArn;
+    protected KeyStore keyStore;
 
     protected long ttlSeconds;
 
@@ -151,9 +124,7 @@ public class CreateAwsKmsHierarchicalKeyringInput {
       this.branchKeyId = model.branchKeyId();
       this.branchKeyIdSupplier = model.branchKeyIdSupplier();
       this.kmsKeyId = model.kmsKeyId();
-      this.kmsClient = model.kmsClient();
-      this.ddbClient = model.ddbClient();
-      this.branchKeyStoreArn = model.branchKeyStoreArn();
+      this.keyStore = model.keyStore();
       this.ttlSeconds = model.ttlSeconds();
       this.maxCacheSize = model.maxCacheSize();
       this.grantTokens = model.grantTokens();
@@ -186,31 +157,13 @@ public class CreateAwsKmsHierarchicalKeyringInput {
       return this.kmsKeyId;
     }
 
-    public Builder kmsClient(KmsClient kmsClient) {
-      this.kmsClient = kmsClient;
+    public Builder keyStore(KeyStore keyStore) {
+      this.keyStore = keyStore;
       return this;
     }
 
-    public KmsClient kmsClient() {
-      return this.kmsClient;
-    }
-
-    public Builder ddbClient(DynamoDbClient ddbClient) {
-      this.ddbClient = ddbClient;
-      return this;
-    }
-
-    public DynamoDbClient ddbClient() {
-      return this.ddbClient;
-    }
-
-    public Builder branchKeyStoreArn(String branchKeyStoreArn) {
-      this.branchKeyStoreArn = branchKeyStoreArn;
-      return this;
-    }
-
-    public String branchKeyStoreArn() {
-      return this.branchKeyStoreArn;
+    public KeyStore keyStore() {
+      return this.keyStore;
     }
 
     public Builder ttlSeconds(long ttlSeconds) {
@@ -244,14 +197,8 @@ public class CreateAwsKmsHierarchicalKeyringInput {
       if (Objects.isNull(this.kmsKeyId()))  {
         throw new IllegalArgumentException("Missing value for required field `kmsKeyId`");
       }
-      if (Objects.isNull(this.kmsClient()))  {
-        throw new IllegalArgumentException("Missing value for required field `kmsClient`");
-      }
-      if (Objects.isNull(this.ddbClient()))  {
-        throw new IllegalArgumentException("Missing value for required field `ddbClient`");
-      }
-      if (Objects.isNull(this.branchKeyStoreArn()))  {
-        throw new IllegalArgumentException("Missing value for required field `branchKeyStoreArn`");
+      if (Objects.isNull(this.keyStore()))  {
+        throw new IllegalArgumentException("Missing value for required field `keyStore`");
       }
       if (Objects.isNull(this.ttlSeconds()))  {
         throw new IllegalArgumentException("Missing value for required field `ttlSeconds`");

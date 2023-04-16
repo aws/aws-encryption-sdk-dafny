@@ -162,7 +162,6 @@ module GetKeys {
     returns (res: Result<Types.GetBranchKeyVersionOutput, Types.Error>)
     requires kmsClient.ValidState() && ddbClient.ValidState()
     requires DDB.IsValid_TableName(tableName)
-    requires |input.branchKeyVersion| == 16
     modifies ddbClient.Modifies, kmsClient.Modifies
     ensures ddbClient.ValidState() && kmsClient.ValidState()
   {

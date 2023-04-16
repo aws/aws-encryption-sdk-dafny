@@ -25,7 +25,6 @@ public class ToDafny {
   public static IKeyStoreClient KeyStore(KeyStore nativeValue) {
     return nativeValue.impl();
   }
-
   public static Error Error(RuntimeException nativeValue) {
     if (nativeValue instanceof KeyStoreException) {
       return ToDafny.Error((KeyStoreException) nativeValue);
