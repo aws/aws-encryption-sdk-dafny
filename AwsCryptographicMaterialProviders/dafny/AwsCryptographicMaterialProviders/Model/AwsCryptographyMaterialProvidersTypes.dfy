@@ -603,7 +603,7 @@ include "../../../../StandardLibrary/src/Index.dfy"
  datatype BeaconKeyMaterials = | BeaconKeyMaterials (
  nameonly beaconKeyIdentifier: string ,
  nameonly beaconKey: Option<Secret> ,
- nameonly hmacKeys: Option<HmacKeyList>
+ nameonly hmacKeys: Option<HmacKeyMap>
  )
  class IBranchKeyIdSupplierCallHistory {
  ghost constructor() {
@@ -1236,7 +1236,7 @@ include "../../../../StandardLibrary/src/Index.dfy"
  nameonly inputKeyLength: AwsCryptographyPrimitivesTypes.SymmetricKeyLength ,
  nameonly outputKeyLength: AwsCryptographyPrimitivesTypes.SymmetricKeyLength
  )
- type HmacKeyList = seq<Secret>
+ type HmacKeyMap = map<string, Secret>
  datatype IDENTITY = | IDENTITY (
  
  )

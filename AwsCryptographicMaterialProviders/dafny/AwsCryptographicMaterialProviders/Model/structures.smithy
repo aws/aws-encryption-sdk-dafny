@@ -123,7 +123,7 @@ structure BeaconKeyMaterials {
 
   beaconKey: Secret,
 
-  hmacKeys: HmacKeyList  
+  hmacKeys: HmacKeyMap  
 }
 
 
@@ -174,8 +174,11 @@ list SymmetricSigningKeyList {
   member: Secret
 }
 
-list HmacKeyList {
-  member: Secret
+map HmacKeyMap {
+  // This key refers to the beacon name for which this value was derived.
+  key: String,
+  // HKDF derived from the beacon key and the UTF Encoding of the beacon name.
+  value: Secret
 }
 
 //= aws-encryption-sdk-specification/framework/structures.md#structure-1

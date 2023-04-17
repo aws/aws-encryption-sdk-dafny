@@ -4,7 +4,7 @@
 package software.amazon.cryptography.materialProviders.model;
 
 import java.nio.ByteBuffer;
-import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 public class BeaconKeyMaterials {
@@ -12,7 +12,7 @@ public class BeaconKeyMaterials {
 
   private final ByteBuffer beaconKey;
 
-  private final List<ByteBuffer> hmacKeys;
+  private final Map<String, ByteBuffer> hmacKeys;
 
   protected BeaconKeyMaterials(BuilderImpl builder) {
     this.beaconKeyIdentifier = builder.beaconKeyIdentifier();
@@ -28,7 +28,7 @@ public class BeaconKeyMaterials {
     return this.beaconKey;
   }
 
-  public List<ByteBuffer> hmacKeys() {
+  public Map<String, ByteBuffer> hmacKeys() {
     return this.hmacKeys;
   }
 
@@ -49,9 +49,9 @@ public class BeaconKeyMaterials {
 
     ByteBuffer beaconKey();
 
-    Builder hmacKeys(List<ByteBuffer> hmacKeys);
+    Builder hmacKeys(Map<String, ByteBuffer> hmacKeys);
 
-    List<ByteBuffer> hmacKeys();
+    Map<String, ByteBuffer> hmacKeys();
 
     BeaconKeyMaterials build();
   }
@@ -61,7 +61,7 @@ public class BeaconKeyMaterials {
 
     protected ByteBuffer beaconKey;
 
-    protected List<ByteBuffer> hmacKeys;
+    protected Map<String, ByteBuffer> hmacKeys;
 
     protected BuilderImpl() {
     }
@@ -90,12 +90,12 @@ public class BeaconKeyMaterials {
       return this.beaconKey;
     }
 
-    public Builder hmacKeys(List<ByteBuffer> hmacKeys) {
+    public Builder hmacKeys(Map<String, ByteBuffer> hmacKeys) {
       this.hmacKeys = hmacKeys;
       return this;
     }
 
-    public List<ByteBuffer> hmacKeys() {
+    public Map<String, ByteBuffer> hmacKeys() {
       return this.hmacKeys;
     }
 
