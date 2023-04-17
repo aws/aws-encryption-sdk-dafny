@@ -36,11 +36,16 @@ module {:extern "Dafny.Aws.Cryptography.KeyStore"}
         message := "MUST supply Amazon DynamoDB Table Name, AWS KMS Client, and Amazon DynamoDB Client")
     );
 
-    
-    var keyStoreId :- if config.id.Some? then
-      Success(config.id.value)
-    else
-      UUID.GenerateUUID().MapFailure(e => Types.KeyStoreException(message := e));
+    var keyStoreId;
+
+    if config.id.Some? {
+      keyStoreId := config.id.value;
+    } else {
+      var maybeUuid := UUID.GenerateUUID();
+      var uuid :- maybeUuid
+        .MapFailure(e => Types.KeyStoreException(message := e));
+      keyStoreId := uuid;
+    }
 
     var client := new KeyStoreClient(
       Operations.Config(

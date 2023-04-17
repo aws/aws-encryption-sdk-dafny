@@ -79,8 +79,9 @@ module CreateKeys {
     modifies ddbClient.Modifies, kmsClient.Modifies
     ensures ddbClient.ValidState() && kmsClient.ValidState()
   {
-    var branchKeyId :- UUID.GenerateUUID()
-      .MapFailure(e => E(e));
+    var maybeBranchKeyId := UUID.GenerateUUID();
+    var branchKeyId :- maybeBranchKeyId
+      .MapFailure(e => Types.KeyStoreException(message := e));
     var timestamp :- Time.GetCurrentTimeStamp()
       .MapFailure(e => E(e));
 
@@ -96,8 +97,15 @@ module CreateKeys {
     );
     
     // Branch Key Creation
-    var branchKeyVersion :- UUID.GenerateUUID()
-      .MapFailure(e => E(e));
+    var maybeBranchKeyVersion := UUID.GenerateUUID();
+    var branchKeyVersion :- maybeBranchKeyVersion
+      .MapFailure(e => Types.KeyStoreException(message := e));
+
+    :- Need(
+      && maybeBranchKeyId.Success?
+      && maybeBranchKeyVersion.Success?,
+      Types.KeyStoreException(message := "Failed to generate UUID for Key ID or Key Version.")
+    );
     
     var activeBranchKeyEncryptionContext: branchKeyItem := activeBranchKeyEncryptionContext(branchKeyId, branchKeyVersion, timestamp, ddbTableName);
 
