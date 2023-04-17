@@ -45,7 +45,7 @@ jobs:
       run: |
         cd $GITHUB_WORKSPACE/aws-encryption-sdk-net
         export BASE_VERSION=`grep '<Version>' Source/AWSEncryptionSDK.csproj | sed 's/.*<Version>\(.*\)<\/Version>/\1/'`
-        export UNIQUE_VERSION=$BASE_VERSION-`git rev-parse --short HEAD`
+        export UNIQUE_VERSION=$BASE_VERSION-`git rev-parse --short HEAD`-`date +%Y-%m-%d`
         echo "::set-output name=UNIQUE_VERSION::$UNIQUE_VERSION"
         echo "UNIQUE_VERSION=$UNIQUE_VERSION" >> $GITHUB_ENV
     - name: Build and pack
@@ -151,4 +151,4 @@ jobs:
         export UNIQUE_VERSION=${{ needs.push_to_code_artifact.outputs.UNIQUE_VERSION }}
         echo "UNIQUE_VERSION=$UNIQUE_VERSION" >> $GITHUB_ENV
     - name: CodeArtifact Purger
-      run: aws codeartifact delete-package-versions --domain github --repository dotnet-esdk --format nuget --package awsencryptionsdk --versions $UNIQUE_VERSION
+      run: aws codeartifact delete-package-versions --domain github --repository dotnet-esdk --format nuget --package awsencryptionsdk --versions "${{ needs.push_to_code_artifact.outputs.UNIQUE_VERSION }}"
