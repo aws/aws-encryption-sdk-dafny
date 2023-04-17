@@ -57,7 +57,7 @@ jobs:
       run: |
         cd $GITHUB_WORKSPACE/aws-encryption-sdk-net
         aws codeartifact login --tool dotnet --domain github --domain-owner 587316601012 --repository dotnet-esdk --duration-seconds 900
-        dotnet nuget push build/AWS.EncryptionSDK.$UNIQUE_VERSION.nupkg --source github/dotnet-esdk
+        dotnet nuget push build/AWS.EncryptionSDK.$UNIQUE_VERSION.nupkg --source github/dotnet-esdk --skip-duplicate
 
   test_installation:
     name: test_installation_${{ matrix.os }}
