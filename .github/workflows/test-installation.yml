@@ -70,6 +70,10 @@ jobs:
       id-token: write
       contents: read
     steps:
+    - name: Setup .NET Core SDK 3.1.x
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '3.1.x'
     - name: Configure AWS credentials for pulling from CA
       uses: aws-actions/configure-aws-credentials@v1
       with:
