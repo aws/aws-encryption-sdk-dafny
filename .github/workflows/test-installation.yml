@@ -32,7 +32,7 @@ jobs:
       with:
         dafny-version: "3.5.0"
     - name: Configure AWS credentials for pulling from CA
-      uses: aws-actions/configure-aws-credentials@v1
+      uses: aws-actions/configure-aws-credentials@v2
       with:
         role-to-assume: arn:aws:iam::587316601012:role/GitHub-DotNet-CA-Writer
         role-session-name: push_to_code_artifact
@@ -75,7 +75,7 @@ jobs:
       with:
         dotnet-version: '3.1.x'
     - name: Configure AWS credentials for pulling from CA
-      uses: aws-actions/configure-aws-credentials@v1
+      uses: aws-actions/configure-aws-credentials@v2
       with:
         role-to-assume: arn:aws:iam::587316601012:role/GitHub-DotNet-CA-Reader
         aws-region: us-west-2
@@ -112,7 +112,7 @@ jobs:
       contents: read
     steps:
     - name: Configure AWS credentials for pulling from CA
-      uses: aws-actions/configure-aws-credentials@v1
+      uses: aws-actions/configure-aws-credentials@v2
       with:
         role-to-assume: arn:aws:iam::587316601012:role/GitHub-DotNet-CA-Reader
         aws-region: us-west-2
@@ -146,7 +146,7 @@ jobs:
       contents: read
     steps:
     - name: Configure AWS credentials for pulling from CA
-      uses: aws-actions/configure-aws-credentials@v1
+      uses: aws-actions/configure-aws-credentials@v2
       with:
         role-to-assume: arn:aws:iam::587316601012:role/GitHub-DotNet-CA-Purger
         aws-region: us-west-2
