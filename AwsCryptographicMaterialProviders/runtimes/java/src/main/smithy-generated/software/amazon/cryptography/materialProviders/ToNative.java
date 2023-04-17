@@ -788,7 +788,7 @@ public class ToNative {
       nativeBuilder.beaconKey(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_beaconKey().dtor_value()));
     }
     if (dafnyValue.dtor_hmacKeys().is_Some()) {
-      nativeBuilder.hmacKeys(ToNative.HmacKeyList(dafnyValue.dtor_hmacKeys().dtor_value()));
+      nativeBuilder.hmacKeys(ToNative.HmacKeyMap(dafnyValue.dtor_hmacKeys().dtor_value()));
     }
     return nativeBuilder.build();
   }
@@ -810,25 +810,6 @@ public class ToNative {
       nativeBuilder.symmetricSigningKeys(ToNative.SymmetricSigningKeyList(dafnyValue.dtor_symmetricSigningKeys().dtor_value()));
     }
     return nativeBuilder.build();
-  }
-
-  public static DBEAlgorithmSuiteId DBEAlgorithmSuiteId(
-      Dafny.Aws.Cryptography.MaterialProviders.Types.DBEAlgorithmSuiteId dafnyValue) {
-    if (dafnyValue.is_ALG__AES__256__GCM__HKDF__SHA512__COMMIT__KEY__SYMSIG__HMAC__SHA384()) {
-      return DBEAlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_SYMSIG_HMAC_SHA384;
-    }
-    if (dafnyValue.is_ALG__AES__256__GCM__HKDF__SHA512__COMMIT__KEY__ECDSA__P384__SYMSIG__HMAC__SHA384()) {
-      return DBEAlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384;
-    }
-    throw new IllegalArgumentException("No entry of software.amazon.cryptography.materialProviders.model.DBEAlgorithmSuiteId matches the input : " + dafnyValue);
-  }
-
-  public static DBECommitmentPolicy DBECommitmentPolicy(
-      Dafny.Aws.Cryptography.MaterialProviders.Types.DBECommitmentPolicy dafnyValue) {
-    if (dafnyValue.is_REQUIRE__ENCRYPT__REQUIRE__DECRYPT()) {
-      return DBECommitmentPolicy.REQUIRE_ENCRYPT_REQUIRE_DECRYPT;
-    }
-    throw new IllegalArgumentException("No entry of software.amazon.cryptography.materialProviders.model.DBECommitmentPolicy matches the input : " + dafnyValue);
   }
 
   public static ESDKAlgorithmSuiteId ESDKAlgorithmSuiteId(
@@ -917,11 +898,54 @@ public class ToNative {
     throw new IllegalArgumentException("No entry of software.amazon.cryptography.materialProviders.model.ESDKCommitmentPolicy matches the input : " + dafnyValue);
   }
 
-  public static SignatureAlgorithm SignatureAlgorithm(
-      Dafny.Aws.Cryptography.MaterialProviders.Types.SignatureAlgorithm dafnyValue) {
-    SignatureAlgorithm.Builder nativeBuilder = SignatureAlgorithm.builder();
-    if (dafnyValue.is_ECDSA()) {
-      nativeBuilder.ECDSA(ToNative.ECDSA(dafnyValue.dtor_ECDSA()));
+  public static DBEAlgorithmSuiteId DBEAlgorithmSuiteId(
+      Dafny.Aws.Cryptography.MaterialProviders.Types.DBEAlgorithmSuiteId dafnyValue) {
+    if (dafnyValue.is_ALG__AES__256__GCM__HKDF__SHA512__COMMIT__KEY__SYMSIG__HMAC__SHA384()) {
+      return DBEAlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_SYMSIG_HMAC_SHA384;
+    }
+    if (dafnyValue.is_ALG__AES__256__GCM__HKDF__SHA512__COMMIT__KEY__ECDSA__P384__SYMSIG__HMAC__SHA384()) {
+      return DBEAlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384;
+    }
+    throw new IllegalArgumentException("No entry of software.amazon.cryptography.materialProviders.model.DBEAlgorithmSuiteId matches the input : " + dafnyValue);
+  }
+
+  public static DBECommitmentPolicy DBECommitmentPolicy(
+      Dafny.Aws.Cryptography.MaterialProviders.Types.DBECommitmentPolicy dafnyValue) {
+    if (dafnyValue.is_REQUIRE__ENCRYPT__REQUIRE__DECRYPT()) {
+      return DBECommitmentPolicy.REQUIRE_ENCRYPT_REQUIRE_DECRYPT;
+    }
+    throw new IllegalArgumentException("No entry of software.amazon.cryptography.materialProviders.model.DBECommitmentPolicy matches the input : " + dafnyValue);
+  }
+
+  public static AlgorithmSuiteId AlgorithmSuiteId(
+      Dafny.Aws.Cryptography.MaterialProviders.Types.AlgorithmSuiteId dafnyValue) {
+    AlgorithmSuiteId.Builder nativeBuilder = AlgorithmSuiteId.builder();
+    if (dafnyValue.is_ESDK()) {
+      nativeBuilder.ESDK(ToNative.ESDKAlgorithmSuiteId(dafnyValue.dtor_ESDK()));
+    }
+    if (dafnyValue.is_DBE()) {
+      nativeBuilder.DBE(ToNative.DBEAlgorithmSuiteId(dafnyValue.dtor_DBE()));
+    }
+    return nativeBuilder.build();
+  }
+
+  public static EdkWrappingAlgorithm EdkWrappingAlgorithm(
+      Dafny.Aws.Cryptography.MaterialProviders.Types.EdkWrappingAlgorithm dafnyValue) {
+    EdkWrappingAlgorithm.Builder nativeBuilder = EdkWrappingAlgorithm.builder();
+    if (dafnyValue.is_DIRECT__KEY__WRAPPING()) {
+      nativeBuilder.DIRECT_KEY_WRAPPING(ToNative.DIRECT_KEY_WRAPPING(dafnyValue.dtor_DIRECT__KEY__WRAPPING()));
+    }
+    if (dafnyValue.is_IntermediateKeyWrapping()) {
+      nativeBuilder.IntermediateKeyWrapping(ToNative.IntermediateKeyWrapping(dafnyValue.dtor_IntermediateKeyWrapping()));
+    }
+    return nativeBuilder.build();
+  }
+
+  public static SymmetricSignatureAlgorithm SymmetricSignatureAlgorithm(
+      Dafny.Aws.Cryptography.MaterialProviders.Types.SymmetricSignatureAlgorithm dafnyValue) {
+    SymmetricSignatureAlgorithm.Builder nativeBuilder = SymmetricSignatureAlgorithm.builder();
+    if (dafnyValue.is_HMAC()) {
+      nativeBuilder.HMAC(software.amazon.cryptography.primitives.ToNative.DigestAlgorithm(dafnyValue.dtor_HMAC()));
     }
     if (dafnyValue.is_None()) {
       nativeBuilder.None(ToNative.None(dafnyValue.dtor_None()));
@@ -947,10 +971,34 @@ public class ToNative {
     return nativeBuilder.build();
   }
 
+  public static CommitmentPolicy CommitmentPolicy(
+      Dafny.Aws.Cryptography.MaterialProviders.Types.CommitmentPolicy dafnyValue) {
+    CommitmentPolicy.Builder nativeBuilder = CommitmentPolicy.builder();
+    if (dafnyValue.is_ESDK()) {
+      nativeBuilder.ESDK(ToNative.ESDKCommitmentPolicy(dafnyValue.dtor_ESDK()));
+    }
+    if (dafnyValue.is_DBE()) {
+      nativeBuilder.DBE(ToNative.DBECommitmentPolicy(dafnyValue.dtor_DBE()));
+    }
+    return nativeBuilder.build();
+  }
+
   public static Encrypt Encrypt(Dafny.Aws.Cryptography.MaterialProviders.Types.Encrypt dafnyValue) {
     Encrypt.Builder nativeBuilder = Encrypt.builder();
     if (dafnyValue.is_AES__GCM()) {
       nativeBuilder.AES_GCM(software.amazon.cryptography.primitives.ToNative.AES_GCM(dafnyValue.dtor_AES__GCM()));
+    }
+    return nativeBuilder.build();
+  }
+
+  public static SignatureAlgorithm SignatureAlgorithm(
+      Dafny.Aws.Cryptography.MaterialProviders.Types.SignatureAlgorithm dafnyValue) {
+    SignatureAlgorithm.Builder nativeBuilder = SignatureAlgorithm.builder();
+    if (dafnyValue.is_ECDSA()) {
+      nativeBuilder.ECDSA(ToNative.ECDSA(dafnyValue.dtor_ECDSA()));
+    }
+    if (dafnyValue.is_None()) {
+      nativeBuilder.None(ToNative.None(dafnyValue.dtor_None()));
     }
     return nativeBuilder.build();
   }
@@ -970,59 +1018,11 @@ public class ToNative {
     return nativeBuilder.build();
   }
 
-  public static CommitmentPolicy CommitmentPolicy(
-      Dafny.Aws.Cryptography.MaterialProviders.Types.CommitmentPolicy dafnyValue) {
-    CommitmentPolicy.Builder nativeBuilder = CommitmentPolicy.builder();
-    if (dafnyValue.is_ESDK()) {
-      nativeBuilder.ESDK(ToNative.ESDKCommitmentPolicy(dafnyValue.dtor_ESDK()));
-    }
-    if (dafnyValue.is_DBE()) {
-      nativeBuilder.DBE(ToNative.DBECommitmentPolicy(dafnyValue.dtor_DBE()));
-    }
-    return nativeBuilder.build();
-  }
-
-  public static SymmetricSignatureAlgorithm SymmetricSignatureAlgorithm(
-      Dafny.Aws.Cryptography.MaterialProviders.Types.SymmetricSignatureAlgorithm dafnyValue) {
-    SymmetricSignatureAlgorithm.Builder nativeBuilder = SymmetricSignatureAlgorithm.builder();
-    if (dafnyValue.is_HMAC()) {
-      nativeBuilder.HMAC(software.amazon.cryptography.primitives.ToNative.DigestAlgorithm(dafnyValue.dtor_HMAC()));
-    }
-    if (dafnyValue.is_None()) {
-      nativeBuilder.None(ToNative.None(dafnyValue.dtor_None()));
-    }
-    return nativeBuilder.build();
-  }
-
-  public static EdkWrappingAlgorithm EdkWrappingAlgorithm(
-      Dafny.Aws.Cryptography.MaterialProviders.Types.EdkWrappingAlgorithm dafnyValue) {
-    EdkWrappingAlgorithm.Builder nativeBuilder = EdkWrappingAlgorithm.builder();
-    if (dafnyValue.is_DIRECT__KEY__WRAPPING()) {
-      nativeBuilder.DIRECT_KEY_WRAPPING(ToNative.DIRECT_KEY_WRAPPING(dafnyValue.dtor_DIRECT__KEY__WRAPPING()));
-    }
-    if (dafnyValue.is_IntermediateKeyWrapping()) {
-      nativeBuilder.IntermediateKeyWrapping(ToNative.IntermediateKeyWrapping(dafnyValue.dtor_IntermediateKeyWrapping()));
-    }
-    return nativeBuilder.build();
-  }
-
-  public static AlgorithmSuiteId AlgorithmSuiteId(
-      Dafny.Aws.Cryptography.MaterialProviders.Types.AlgorithmSuiteId dafnyValue) {
-    AlgorithmSuiteId.Builder nativeBuilder = AlgorithmSuiteId.builder();
-    if (dafnyValue.is_ESDK()) {
-      nativeBuilder.ESDK(ToNative.ESDKAlgorithmSuiteId(dafnyValue.dtor_ESDK()));
-    }
-    if (dafnyValue.is_DBE()) {
-      nativeBuilder.DBE(ToNative.DBEAlgorithmSuiteId(dafnyValue.dtor_DBE()));
-    }
-    return nativeBuilder.build();
-  }
-
-  public static List<IKeyring> KeyringList(
-      DafnySequence<? extends Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring> dafnyValue) {
+  public static List<EncryptedDataKey> EncryptedDataKeyList(
+      DafnySequence<? extends Dafny.Aws.Cryptography.MaterialProviders.Types.EncryptedDataKey> dafnyValue) {
     return software.amazon.dafny.conversion.ToNative.Aggregate.GenericToList(
         dafnyValue, 
-        software.amazon.cryptography.materialProviders.ToNative::Keyring);
+        software.amazon.cryptography.materialProviders.ToNative::EncryptedDataKey);
   }
 
   public static List<String> EncryptionContextKeys(
@@ -1032,35 +1032,7 @@ public class ToNative {
         software.amazon.dafny.conversion.ToNative.Simple::DafnyUtf8Bytes);
   }
 
-  public static List<EncryptedDataKey> EncryptedDataKeyList(
-      DafnySequence<? extends Dafny.Aws.Cryptography.MaterialProviders.Types.EncryptedDataKey> dafnyValue) {
-    return software.amazon.dafny.conversion.ToNative.Aggregate.GenericToList(
-        dafnyValue, 
-        software.amazon.cryptography.materialProviders.ToNative::EncryptedDataKey);
-  }
-
-  public static List<ByteBuffer> HmacKeyList(
-      DafnySequence<? extends DafnySequence<? extends Byte>> dafnyValue) {
-    return software.amazon.dafny.conversion.ToNative.Aggregate.GenericToList(
-        dafnyValue, 
-        software.amazon.dafny.conversion.ToNative.Simple::ByteBuffer);
-  }
-
-  public static List<String> GrantTokenList(
-      DafnySequence<? extends DafnySequence<? extends Character>> dafnyValue) {
-    return software.amazon.dafny.conversion.ToNative.Aggregate.GenericToList(
-        dafnyValue, 
-        software.amazon.dafny.conversion.ToNative.Simple::String);
-  }
-
-  public static List<ByteBuffer> SymmetricSigningKeyList(
-      DafnySequence<? extends DafnySequence<? extends Byte>> dafnyValue) {
-    return software.amazon.dafny.conversion.ToNative.Aggregate.GenericToList(
-        dafnyValue, 
-        software.amazon.dafny.conversion.ToNative.Simple::ByteBuffer);
-  }
-
-  public static List<String> AccountIdList(
+  public static List<String> RegionList(
       DafnySequence<? extends DafnySequence<? extends Character>> dafnyValue) {
     return software.amazon.dafny.conversion.ToNative.Aggregate.GenericToList(
         dafnyValue, 
@@ -1074,7 +1046,28 @@ public class ToNative {
         software.amazon.dafny.conversion.ToNative.Simple::String);
   }
 
-  public static List<String> RegionList(
+  public static List<ByteBuffer> SymmetricSigningKeyList(
+      DafnySequence<? extends DafnySequence<? extends Byte>> dafnyValue) {
+    return software.amazon.dafny.conversion.ToNative.Aggregate.GenericToList(
+        dafnyValue, 
+        software.amazon.dafny.conversion.ToNative.Simple::ByteBuffer);
+  }
+
+  public static List<IKeyring> KeyringList(
+      DafnySequence<? extends Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring> dafnyValue) {
+    return software.amazon.dafny.conversion.ToNative.Aggregate.GenericToList(
+        dafnyValue, 
+        software.amazon.cryptography.materialProviders.ToNative::Keyring);
+  }
+
+  public static List<String> AccountIdList(
+      DafnySequence<? extends DafnySequence<? extends Character>> dafnyValue) {
+    return software.amazon.dafny.conversion.ToNative.Aggregate.GenericToList(
+        dafnyValue, 
+        software.amazon.dafny.conversion.ToNative.Simple::String);
+  }
+
+  public static List<String> GrantTokenList(
       DafnySequence<? extends DafnySequence<? extends Character>> dafnyValue) {
     return software.amazon.dafny.conversion.ToNative.Aggregate.GenericToList(
         dafnyValue, 
@@ -1089,28 +1082,12 @@ public class ToNative {
         software.amazon.dafny.conversion.ToNative.Simple::DafnyUtf8Bytes);
   }
 
-  public static ICryptographicMaterialsCache CryptographicMaterialsCache(
-      Dafny.Aws.Cryptography.MaterialProviders.Types.ICryptographicMaterialsCache dafnyValue) {
-    if (dafnyValue instanceof CryptographicMaterialsCache.NativeWrapper) {
-      return ((CryptographicMaterialsCache.NativeWrapper) dafnyValue)._impl;
-    }
-    return CryptographicMaterialsCache.wrap(dafnyValue);
-  }
-
-  public static IKeyring Keyring(
-      Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring dafnyValue) {
-    if (dafnyValue instanceof Keyring.NativeWrapper) {
-      return (Keyring) ((Keyring.NativeWrapper) dafnyValue)._impl;
-    }
-    return Keyring.wrap(dafnyValue);
-  }
-
-  public static IBranchKeyIdSupplier BranchKeyIdSupplier(
-      Dafny.Aws.Cryptography.MaterialProviders.Types.IBranchKeyIdSupplier dafnyValue) {
-    if (dafnyValue instanceof BranchKeyIdSupplier.NativeWrapper) {
-      return ((BranchKeyIdSupplier.NativeWrapper) dafnyValue)._impl;
-    }
-    return BranchKeyIdSupplier.wrap(dafnyValue);
+  public static Map<String, ByteBuffer> HmacKeyMap(
+      DafnyMap<? extends DafnySequence<? extends Character>, ? extends DafnySequence<? extends Byte>> dafnyValue) {
+    return software.amazon.dafny.conversion.ToNative.Aggregate.GenericToMap(
+        dafnyValue, 
+        software.amazon.dafny.conversion.ToNative.Simple::String, 
+        software.amazon.dafny.conversion.ToNative.Simple::ByteBuffer);
   }
 
   public static IClientSupplier ClientSupplier(
@@ -1127,5 +1104,29 @@ public class ToNative {
       return ((CryptographicMaterialsManager.NativeWrapper) dafnyValue)._impl;
     }
     return CryptographicMaterialsManager.wrap(dafnyValue);
+  }
+
+  public static IBranchKeyIdSupplier BranchKeyIdSupplier(
+      Dafny.Aws.Cryptography.MaterialProviders.Types.IBranchKeyIdSupplier dafnyValue) {
+    if (dafnyValue instanceof BranchKeyIdSupplier.NativeWrapper) {
+      return ((BranchKeyIdSupplier.NativeWrapper) dafnyValue)._impl;
+    }
+    return BranchKeyIdSupplier.wrap(dafnyValue);
+  }
+
+  public static IKeyring Keyring(
+      Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring dafnyValue) {
+    if (dafnyValue instanceof Keyring.NativeWrapper) {
+      return ((Keyring.NativeWrapper) dafnyValue)._impl;
+    }
+    return Keyring.wrap(dafnyValue);
+  }
+
+  public static ICryptographicMaterialsCache CryptographicMaterialsCache(
+      Dafny.Aws.Cryptography.MaterialProviders.Types.ICryptographicMaterialsCache dafnyValue) {
+    if (dafnyValue instanceof CryptographicMaterialsCache.NativeWrapper) {
+      return ((CryptographicMaterialsCache.NativeWrapper) dafnyValue)._impl;
+    }
+    return CryptographicMaterialsCache.wrap(dafnyValue);
   }
 }
