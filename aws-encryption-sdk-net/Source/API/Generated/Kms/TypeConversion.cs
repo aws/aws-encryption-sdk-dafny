@@ -1,5 +1,6 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
+// Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 
 using System.Linq;
 using AWS.EncryptionSDK.Core;
@@ -32,7 +33,7 @@ namespace Com.Amazonaws.Kms
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S15_PrincipalIdType(value.Extract());
         }
 
@@ -42,15 +43,13 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S15_PrincipalIdType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S15_PrincipalIdType((string)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S15_DecryptResponse__M5_KeyId(
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
-            return value.is_None
-                ? (string) null
-                : FromDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType(value.Extract());
+            return value.is_None ? (string)null : FromDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType(value.Extract());
         }
 
         public static Wrappers_Compile._IOption<Dafny.ISequence<char>>
@@ -59,7 +58,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType((string)value));
         }
 
         public static Amazon.KeyManagementService.Model.GrantListEntry
@@ -80,7 +79,7 @@ namespace Com.Amazonaws.Kms
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S10_MarkerType(value.Extract());
         }
 
@@ -90,7 +89,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S10_MarkerType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S10_MarkerType((string)value));
         }
 
         public static System.Collections.Generic.List<string>
@@ -116,7 +115,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S22_CustomKeyStoreNameType(value.Extract());
         }
 
@@ -127,7 +126,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S22_CustomKeyStoreNameType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S22_CustomKeyStoreNameType((string)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S19_GetPublicKeyRequest__M5_KeyId(
@@ -239,7 +238,7 @@ namespace Com.Amazonaws.Kms
                 Dafny.Com.Amazonaws.Kms._ICreateCustomKeyStoreResponse value)
         {
             Dafny.Com.Amazonaws.Kms.CreateCustomKeyStoreResponse concrete =
-                (Dafny.Com.Amazonaws.Kms.CreateCustomKeyStoreResponse) value;
+                (Dafny.Com.Amazonaws.Kms.CreateCustomKeyStoreResponse)value;
             Amazon.KeyManagementService.Model.CreateCustomKeyStoreResponse converted =
                 new Amazon.KeyManagementService.Model.CreateCustomKeyStoreResponse();
             if (concrete.CustomKeyStoreId.is_Some)
@@ -254,17 +253,16 @@ namespace Com.Amazonaws.Kms
             ToDafny_N3_com__N9_amazonaws__N3_kms__S28_CreateCustomKeyStoreResponse(
                 Amazon.KeyManagementService.Model.CreateCustomKeyStoreResponse value)
         {
+            string var_customKeyStoreId = value.CustomKeyStoreId;
             return new Dafny.Com.Amazonaws.Kms.CreateCustomKeyStoreResponse(
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S28_CreateCustomKeyStoreResponse__M16_CustomKeyStoreId(
-                    value.CustomKeyStoreId));
+                    var_customKeyStoreId));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S27_GenerateDataKeyPairResponse__M5_KeyId(
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
-            return value.is_None
-                ? (string) null
-                : FromDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType(value.Extract());
+            return value.is_None ? (string)null : FromDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType(value.Extract());
         }
 
         public static Wrappers_Compile._IOption<Dafny.ISequence<char>>
@@ -273,7 +271,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType((string)value));
         }
 
         public static Amazon.KeyManagementService.Model.ScheduleKeyDeletionRequest
@@ -281,11 +279,11 @@ namespace Com.Amazonaws.Kms
                 Dafny.Com.Amazonaws.Kms._IScheduleKeyDeletionRequest value)
         {
             Dafny.Com.Amazonaws.Kms.ScheduleKeyDeletionRequest concrete =
-                (Dafny.Com.Amazonaws.Kms.ScheduleKeyDeletionRequest) value;
+                (Dafny.Com.Amazonaws.Kms.ScheduleKeyDeletionRequest)value;
             Amazon.KeyManagementService.Model.ScheduleKeyDeletionRequest converted =
                 new Amazon.KeyManagementService.Model.ScheduleKeyDeletionRequest();
             converted.KeyId =
-                (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S26_ScheduleKeyDeletionRequest__M5_KeyId(
+                (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S26_ScheduleKeyDeletionRequest__M5_KeyId(
                     concrete.KeyId);
             if (concrete.PendingWindowInDays.is_Some)
                 converted.PendingWindowInDays =
@@ -299,10 +297,11 @@ namespace Com.Amazonaws.Kms
             ToDafny_N3_com__N9_amazonaws__N3_kms__S26_ScheduleKeyDeletionRequest(
                 Amazon.KeyManagementService.Model.ScheduleKeyDeletionRequest value)
         {
+            int? var_pendingWindowInDays = value.PendingWindowInDays;
             return new Dafny.Com.Amazonaws.Kms.ScheduleKeyDeletionRequest(
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S26_ScheduleKeyDeletionRequest__M5_KeyId(value.KeyId),
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S26_ScheduleKeyDeletionRequest__M19_PendingWindowInDays(
-                    value.PendingWindowInDays));
+                    var_pendingWindowInDays));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S16_AWSAccountIdType(Dafny.ISequence<char> value)
@@ -319,7 +318,7 @@ namespace Com.Amazonaws.Kms
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Extract());
         }
 
@@ -329,14 +328,14 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType((string)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S31_CustomKeyStoreNotFoundException__M7_message(
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Extract());
         }
 
@@ -346,14 +345,14 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType((string)value));
         }
 
         public static System.DateTime? FromDafny_N3_com__N9_amazonaws__N3_kms__S14_AliasListEntry__M12_CreationDate(
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (System.DateTime?) null
+                ? (System.DateTime?)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S8_DateType(value.Extract());
         }
 
@@ -363,7 +362,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S8_DateType((System.DateTime) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S8_DateType((System.DateTime)value));
         }
 
         public static System.IO.MemoryStream
@@ -385,7 +384,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.ISequence<Dafny.ISequence<char>>> value)
         {
             return value.is_None
-                ? (System.Collections.Generic.List<string>) null
+                ? (System.Collections.Generic.List<string>)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S14_GrantTokenList(value.Extract());
         }
 
@@ -397,15 +396,13 @@ namespace Com.Amazonaws.Kms
                 ? Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_Some(
                     ToDafny_N3_com__N9_amazonaws__N3_kms__S14_GrantTokenList(
-                        (System.Collections.Generic.List<string>) value));
+                        (System.Collections.Generic.List<string>)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S14_GrantListEntry__M5_KeyId(
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
-            return value.is_None
-                ? (string) null
-                : FromDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType(value.Extract());
+            return value.is_None ? (string)null : FromDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType(value.Extract());
         }
 
         public static Wrappers_Compile._IOption<Dafny.ISequence<char>>
@@ -414,14 +411,14 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType((string)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S14_GrantListEntry__M7_GrantId(
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S11_GrantIdType(value.Extract());
         }
 
@@ -431,7 +428,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S11_GrantIdType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S11_GrantIdType((string)value));
         }
 
         public static Amazon.KeyManagementService.DataKeyPairSpec
@@ -453,7 +450,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.Com.Amazonaws.Kms._ICustomerMasterKeySpec> value)
         {
             return value.is_None
-                ? (Amazon.KeyManagementService.CustomerMasterKeySpec) null
+                ? (Amazon.KeyManagementService.CustomerMasterKeySpec)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S21_CustomerMasterKeySpec(value.Extract());
         }
 
@@ -465,19 +462,19 @@ namespace Com.Amazonaws.Kms
                 ? Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._ICustomerMasterKeySpec>.create_None()
                 : Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._ICustomerMasterKeySpec>.create_Some(
                     ToDafny_N3_com__N9_amazonaws__N3_kms__S21_CustomerMasterKeySpec(
-                        (Amazon.KeyManagementService.CustomerMasterKeySpec) value));
+                        (Amazon.KeyManagementService.CustomerMasterKeySpec)value));
         }
 
         public static Amazon.KeyManagementService.Model.EncryptRequest
             FromDafny_N3_com__N9_amazonaws__N3_kms__S14_EncryptRequest(Dafny.Com.Amazonaws.Kms._IEncryptRequest value)
         {
-            Dafny.Com.Amazonaws.Kms.EncryptRequest concrete = (Dafny.Com.Amazonaws.Kms.EncryptRequest) value;
+            Dafny.Com.Amazonaws.Kms.EncryptRequest concrete = (Dafny.Com.Amazonaws.Kms.EncryptRequest)value;
             Amazon.KeyManagementService.Model.EncryptRequest converted =
                 new Amazon.KeyManagementService.Model.EncryptRequest();
             converted.KeyId =
-                (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S14_EncryptRequest__M5_KeyId(concrete.KeyId);
+                (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S14_EncryptRequest__M5_KeyId(concrete.KeyId);
             converted.Plaintext =
-                (System.IO.MemoryStream) FromDafny_N3_com__N9_amazonaws__N3_kms__S14_EncryptRequest__M9_Plaintext(
+                (System.IO.MemoryStream)FromDafny_N3_com__N9_amazonaws__N3_kms__S14_EncryptRequest__M9_Plaintext(
                     concrete.Plaintext);
             if (concrete.EncryptionContext.is_Some)
                 converted.EncryptionContext =
@@ -499,14 +496,16 @@ namespace Com.Amazonaws.Kms
         public static Dafny.Com.Amazonaws.Kms._IEncryptRequest ToDafny_N3_com__N9_amazonaws__N3_kms__S14_EncryptRequest(
             Amazon.KeyManagementService.Model.EncryptRequest value)
         {
+            System.Collections.Generic.Dictionary<string, string> var_encryptionContext = value.EncryptionContext;
+            System.Collections.Generic.List<string> var_grantTokens = value.GrantTokens;
+            Amazon.KeyManagementService.EncryptionAlgorithmSpec var_encryptionAlgorithm = value.EncryptionAlgorithm;
             return new Dafny.Com.Amazonaws.Kms.EncryptRequest(
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S14_EncryptRequest__M5_KeyId(value.KeyId),
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S14_EncryptRequest__M9_Plaintext(value.Plaintext),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S14_EncryptRequest__M17_EncryptionContext(
-                    value.EncryptionContext),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S14_EncryptRequest__M11_GrantTokens(value.GrantTokens),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S14_EncryptRequest__M17_EncryptionContext(var_encryptionContext),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S14_EncryptRequest__M11_GrantTokens(var_grantTokens),
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S14_EncryptRequest__M19_EncryptionAlgorithm(
-                    value.EncryptionAlgorithm));
+                    var_encryptionAlgorithm));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S18_DeleteAliasRequest__M9_AliasName(
@@ -523,25 +522,22 @@ namespace Com.Amazonaws.Kms
 
         public static Amazon.KeyManagementService.Model.InvalidAliasNameException
             FromDafny_N3_com__N9_amazonaws__N3_kms__S25_InvalidAliasNameException(
-                Dafny.Com.Amazonaws.Kms._IInvalidAliasNameException value)
+                Dafny.Com.Amazonaws.Kms.InvalidAliasNameException value)
         {
-            Dafny.Com.Amazonaws.Kms.InvalidAliasNameException concrete =
-                (Dafny.Com.Amazonaws.Kms.InvalidAliasNameException) value;
-            string message = concrete.message.is_Some
+            string message = value.message.Count == 0
                 ? null
-                : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(concrete.message.Extract());
+                : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.message);
             return new Amazon.KeyManagementService.Model.InvalidAliasNameException(message);
         }
 
-        public static Dafny.Com.Amazonaws.Kms._IInvalidAliasNameException
+        public static Dafny.Com.Amazonaws.Kms.InvalidAliasNameException
             ToDafny_N3_com__N9_amazonaws__N3_kms__S25_InvalidAliasNameException(
                 Amazon.KeyManagementService.Model.InvalidAliasNameException value)
         {
-            Wrappers_Compile._IOption<Dafny.ISequence<char>> message = System.String.IsNullOrEmpty(value.Message)
-                ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
-                : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Message));
-            return new Dafny.Com.Amazonaws.Kms.InvalidAliasNameException(message);
+            Dafny.ISequence<char> message = System.String.IsNullOrEmpty(value.Message)
+                ? Dafny.Sequence<char>.Empty
+                : ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Message);
+            return new Dafny.Com.Amazonaws.Kms.InvalidAliasNameException { message = message };
         }
 
         public static Amazon.KeyManagementService.Model.GenerateDataKeyPairWithoutPlaintextRequest
@@ -549,7 +545,7 @@ namespace Com.Amazonaws.Kms
                 Dafny.Com.Amazonaws.Kms._IGenerateDataKeyPairWithoutPlaintextRequest value)
         {
             Dafny.Com.Amazonaws.Kms.GenerateDataKeyPairWithoutPlaintextRequest concrete =
-                (Dafny.Com.Amazonaws.Kms.GenerateDataKeyPairWithoutPlaintextRequest) value;
+                (Dafny.Com.Amazonaws.Kms.GenerateDataKeyPairWithoutPlaintextRequest)value;
             Amazon.KeyManagementService.Model.GenerateDataKeyPairWithoutPlaintextRequest converted =
                 new Amazon.KeyManagementService.Model.GenerateDataKeyPairWithoutPlaintextRequest();
             if (concrete.EncryptionContext.is_Some)
@@ -577,15 +573,17 @@ namespace Com.Amazonaws.Kms
             ToDafny_N3_com__N9_amazonaws__N3_kms__S42_GenerateDataKeyPairWithoutPlaintextRequest(
                 Amazon.KeyManagementService.Model.GenerateDataKeyPairWithoutPlaintextRequest value)
         {
+            System.Collections.Generic.Dictionary<string, string> var_encryptionContext = value.EncryptionContext;
+            System.Collections.Generic.List<string> var_grantTokens = value.GrantTokens;
             return new Dafny.Com.Amazonaws.Kms.GenerateDataKeyPairWithoutPlaintextRequest(
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S42_GenerateDataKeyPairWithoutPlaintextRequest__M17_EncryptionContext(
-                    value.EncryptionContext),
+                    var_encryptionContext),
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S42_GenerateDataKeyPairWithoutPlaintextRequest__M5_KeyId(
                     value.KeyId),
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S42_GenerateDataKeyPairWithoutPlaintextRequest__M11_KeyPairSpec(
                     value.KeyPairSpec),
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S42_GenerateDataKeyPairWithoutPlaintextRequest__M11_GrantTokens(
-                    value.GrantTokens));
+                    var_grantTokens));
         }
 
         public static Amazon.KeyManagementService.EncryptionAlgorithmSpec
@@ -593,7 +591,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.Com.Amazonaws.Kms._IEncryptionAlgorithmSpec> value)
         {
             return value.is_None
-                ? (Amazon.KeyManagementService.EncryptionAlgorithmSpec) null
+                ? (Amazon.KeyManagementService.EncryptionAlgorithmSpec)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S23_EncryptionAlgorithmSpec(value.Extract());
         }
 
@@ -605,7 +603,7 @@ namespace Com.Amazonaws.Kms
                 ? Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._IEncryptionAlgorithmSpec>.create_None()
                 : Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._IEncryptionAlgorithmSpec>.create_Some(
                     ToDafny_N3_com__N9_amazonaws__N3_kms__S23_EncryptionAlgorithmSpec(
-                        (Amazon.KeyManagementService.EncryptionAlgorithmSpec) value));
+                        (Amazon.KeyManagementService.EncryptionAlgorithmSpec)value));
         }
 
         public static int FromDafny_N3_com__N9_amazonaws__N3_kms__S17_NumberOfBytesType(int value)
@@ -621,9 +619,7 @@ namespace Com.Amazonaws.Kms
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S14_VerifyResponse__M5_KeyId(
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
-            return value.is_None
-                ? (string) null
-                : FromDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType(value.Extract());
+            return value.is_None ? (string)null : FromDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType(value.Extract());
         }
 
         public static Wrappers_Compile._IOption<Dafny.ISequence<char>>
@@ -632,7 +628,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType((string)value));
         }
 
         public static Amazon.KeyManagementService.Model.DisableKeyRotationRequest
@@ -640,12 +636,11 @@ namespace Com.Amazonaws.Kms
                 Dafny.Com.Amazonaws.Kms._IDisableKeyRotationRequest value)
         {
             Dafny.Com.Amazonaws.Kms.DisableKeyRotationRequest concrete =
-                (Dafny.Com.Amazonaws.Kms.DisableKeyRotationRequest) value;
+                (Dafny.Com.Amazonaws.Kms.DisableKeyRotationRequest)value;
             Amazon.KeyManagementService.Model.DisableKeyRotationRequest converted =
                 new Amazon.KeyManagementService.Model.DisableKeyRotationRequest();
             converted.KeyId =
-                (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S25_DisableKeyRotationRequest__M5_KeyId(
-                    concrete.KeyId);
+                (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S25_DisableKeyRotationRequest__M5_KeyId(concrete.KeyId);
             return converted;
         }
 
@@ -659,25 +654,22 @@ namespace Com.Amazonaws.Kms
 
         public static Amazon.KeyManagementService.Model.CloudHsmClusterInvalidConfigurationException
             FromDafny_N3_com__N9_amazonaws__N3_kms__S44_CloudHsmClusterInvalidConfigurationException(
-                Dafny.Com.Amazonaws.Kms._ICloudHsmClusterInvalidConfigurationException value)
+                Dafny.Com.Amazonaws.Kms.CloudHsmClusterInvalidConfigurationException value)
         {
-            Dafny.Com.Amazonaws.Kms.CloudHsmClusterInvalidConfigurationException concrete =
-                (Dafny.Com.Amazonaws.Kms.CloudHsmClusterInvalidConfigurationException) value;
-            string message = concrete.message.is_Some
+            string message = value.message.Count == 0
                 ? null
-                : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(concrete.message.Extract());
+                : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.message);
             return new Amazon.KeyManagementService.Model.CloudHsmClusterInvalidConfigurationException(message);
         }
 
-        public static Dafny.Com.Amazonaws.Kms._ICloudHsmClusterInvalidConfigurationException
+        public static Dafny.Com.Amazonaws.Kms.CloudHsmClusterInvalidConfigurationException
             ToDafny_N3_com__N9_amazonaws__N3_kms__S44_CloudHsmClusterInvalidConfigurationException(
                 Amazon.KeyManagementService.Model.CloudHsmClusterInvalidConfigurationException value)
         {
-            Wrappers_Compile._IOption<Dafny.ISequence<char>> message = System.String.IsNullOrEmpty(value.Message)
-                ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
-                : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Message));
-            return new Dafny.Com.Amazonaws.Kms.CloudHsmClusterInvalidConfigurationException(message);
+            Dafny.ISequence<char> message = System.String.IsNullOrEmpty(value.Message)
+                ? Dafny.Sequence<char>.Empty
+                : ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Message);
+            return new Dafny.Com.Amazonaws.Kms.CloudHsmClusterInvalidConfigurationException { message = message };
         }
 
         public static System.Collections.Generic.Dictionary<string, string>
@@ -685,7 +677,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>> value)
         {
             return value.is_None
-                ? (System.Collections.Generic.Dictionary<string, string>) null
+                ? (System.Collections.Generic.Dictionary<string, string>)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S21_EncryptionContextType(value.Extract());
         }
 
@@ -697,7 +689,7 @@ namespace Com.Amazonaws.Kms
                 ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>>.create_None()
                 : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>>.create_Some(
                     ToDafny_N3_com__N9_amazonaws__N3_kms__S21_EncryptionContextType(
-                        (System.Collections.Generic.Dictionary<string, string>) value));
+                        (System.Collections.Generic.Dictionary<string, string>)value));
         }
 
         public static string FromDafny_N6_smithy__N3_api__S6_String(Dafny.ISequence<char> value)
@@ -713,9 +705,7 @@ namespace Com.Amazonaws.Kms
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S14_AliasListEntry__M11_TargetKeyId(
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
-            return value.is_None
-                ? (string) null
-                : FromDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType(value.Extract());
+            return value.is_None ? (string)null : FromDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType(value.Extract());
         }
 
         public static Wrappers_Compile._IOption<Dafny.ISequence<char>>
@@ -724,7 +714,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType((string)value));
         }
 
         public static string
@@ -732,7 +722,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S20_CustomKeyStoreIdType(value.Extract());
         }
 
@@ -742,7 +732,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S20_CustomKeyStoreIdType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S20_CustomKeyStoreIdType((string)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S13_GrantNameType(Dafny.ISequence<char> value)
@@ -772,7 +762,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.ISequence<Dafny.ISequence<char>>> value)
         {
             return value.is_None
-                ? (System.Collections.Generic.List<string>) null
+                ? (System.Collections.Generic.List<string>)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S14_GrantTokenList(value.Extract());
         }
 
@@ -784,7 +774,7 @@ namespace Com.Amazonaws.Kms
                 ? Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_Some(
                     ToDafny_N3_com__N9_amazonaws__N3_kms__S14_GrantTokenList(
-                        (System.Collections.Generic.List<string>) value));
+                        (System.Collections.Generic.List<string>)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S13_AliasNameType(Dafny.ISequence<char> value)
@@ -816,7 +806,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.Com.Amazonaws.Kms._IMultiRegionKeyType> value)
         {
             return value.is_None
-                ? (Amazon.KeyManagementService.MultiRegionKeyType) null
+                ? (Amazon.KeyManagementService.MultiRegionKeyType)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S18_MultiRegionKeyType(value.Extract());
         }
 
@@ -828,7 +818,7 @@ namespace Com.Amazonaws.Kms
                 ? Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._IMultiRegionKeyType>.create_None()
                 : Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._IMultiRegionKeyType>.create_Some(
                     ToDafny_N3_com__N9_amazonaws__N3_kms__S18_MultiRegionKeyType(
-                        (Amazon.KeyManagementService.MultiRegionKeyType) value));
+                        (Amazon.KeyManagementService.MultiRegionKeyType)value));
         }
 
         public static Amazon.KeyManagementService.Model.CustomKeyStoresListEntry
@@ -849,7 +839,7 @@ namespace Com.Amazonaws.Kms
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Extract());
         }
 
@@ -859,7 +849,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType((string)value));
         }
 
         public static Amazon.KeyManagementService.EncryptionAlgorithmSpec
@@ -892,7 +882,7 @@ namespace Com.Amazonaws.Kms
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Extract());
         }
 
@@ -902,7 +892,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType((string)value));
         }
 
         public static Amazon.KeyManagementService.KeySpec FromDafny_N3_com__N9_amazonaws__N3_kms__S7_KeySpec(
@@ -946,7 +936,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.Com.Amazonaws.Kms._IOriginType> value)
         {
             return value.is_None
-                ? (Amazon.KeyManagementService.OriginType) null
+                ? (Amazon.KeyManagementService.OriginType)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S10_OriginType(value.Extract());
         }
 
@@ -958,7 +948,7 @@ namespace Com.Amazonaws.Kms
                 ? Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._IOriginType>.create_None()
                 : Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._IOriginType>.create_Some(
                     ToDafny_N3_com__N9_amazonaws__N3_kms__S10_OriginType(
-                        (Amazon.KeyManagementService.OriginType) value));
+                        (Amazon.KeyManagementService.OriginType)value));
         }
 
         public static System.IO.MemoryStream FromDafny_N3_com__N9_amazonaws__N3_kms__S11_SignRequest__M7_Message(
@@ -973,6 +963,23 @@ namespace Com.Amazonaws.Kms
             return ToDafny_N3_com__N9_amazonaws__N3_kms__S13_PlaintextType(value);
         }
 
+        public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S18_ListGrantsResponse__M10_NextMarker(
+            Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
+        {
+            return value.is_None
+                ? (string)null
+                : FromDafny_N3_com__N9_amazonaws__N3_kms__S10_MarkerType(value.Extract());
+        }
+
+        public static Wrappers_Compile._IOption<Dafny.ISequence<char>>
+            ToDafny_N3_com__N9_amazonaws__N3_kms__S18_ListGrantsResponse__M10_NextMarker(string value)
+        {
+            return value == null
+                ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
+                : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S10_MarkerType((string)value));
+        }
+
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S11_SignRequest__M5_KeyId(
             Dafny.ISequence<char> value)
         {
@@ -983,23 +990,6 @@ namespace Com.Amazonaws.Kms
             string value)
         {
             return ToDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType(value);
-        }
-
-        public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S18_ListGrantsResponse__M10_NextMarker(
-            Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
-        {
-            return value.is_None
-                ? (string) null
-                : FromDafny_N3_com__N9_amazonaws__N3_kms__S10_MarkerType(value.Extract());
-        }
-
-        public static Wrappers_Compile._IOption<Dafny.ISequence<char>>
-            ToDafny_N3_com__N9_amazonaws__N3_kms__S18_ListGrantsResponse__M10_NextMarker(string value)
-        {
-            return value == null
-                ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
-                : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S10_MarkerType((string) value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S25_DisableKeyRotationRequest__M5_KeyId(
@@ -1019,7 +1009,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.ISequence<Dafny.ISequence<char>>> value)
         {
             return value.is_None
-                ? (System.Collections.Generic.List<string>) null
+                ? (System.Collections.Generic.List<string>)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S14_PolicyNameList(value.Extract());
         }
 
@@ -1031,30 +1021,32 @@ namespace Com.Amazonaws.Kms
                 ? Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_Some(
                     ToDafny_N3_com__N9_amazonaws__N3_kms__S14_PolicyNameList(
-                        (System.Collections.Generic.List<string>) value));
+                        (System.Collections.Generic.List<string>)value));
         }
 
         public static Amazon.KeyManagementService.Model.MultiRegionKey
             FromDafny_N3_com__N9_amazonaws__N3_kms__S14_MultiRegionKey(Dafny.Com.Amazonaws.Kms._IMultiRegionKey value)
         {
-            Dafny.Com.Amazonaws.Kms.MultiRegionKey concrete = (Dafny.Com.Amazonaws.Kms.MultiRegionKey) value;
+            Dafny.Com.Amazonaws.Kms.MultiRegionKey concrete = (Dafny.Com.Amazonaws.Kms.MultiRegionKey)value;
             Amazon.KeyManagementService.Model.MultiRegionKey converted =
                 new Amazon.KeyManagementService.Model.MultiRegionKey();
             if (concrete.Arn.is_Some)
                 converted.Arn =
-                    (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S14_MultiRegionKey__M3_Arn(concrete.Arn);
+                    (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S14_MultiRegionKey__M3_Arn(concrete.Arn);
             if (concrete.Region.is_Some)
                 converted.Region =
-                    (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S14_MultiRegionKey__M6_Region(concrete.Region);
+                    (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S14_MultiRegionKey__M6_Region(concrete.Region);
             return converted;
         }
 
         public static Dafny.Com.Amazonaws.Kms._IMultiRegionKey ToDafny_N3_com__N9_amazonaws__N3_kms__S14_MultiRegionKey(
             Amazon.KeyManagementService.Model.MultiRegionKey value)
         {
+            string var_arn = value.Arn;
+            string var_region = value.Region;
             return new Dafny.Com.Amazonaws.Kms.MultiRegionKey(
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S14_MultiRegionKey__M3_Arn(value.Arn),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S14_MultiRegionKey__M6_Region(value.Region));
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S14_MultiRegionKey__M3_Arn(var_arn),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S14_MultiRegionKey__M6_Region(var_region));
         }
 
         public static string
@@ -1062,7 +1054,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S10_MarkerType(value.Extract());
         }
 
@@ -1072,14 +1064,14 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S10_MarkerType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S10_MarkerType((string)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S26_InvalidCiphertextException__M7_message(
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Extract());
         }
 
@@ -1089,7 +1081,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType((string)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S18_RevokeGrantRequest__M7_GrantId(
@@ -1108,7 +1100,7 @@ namespace Com.Amazonaws.Kms
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S15_PrincipalIdType(value.Extract());
         }
 
@@ -1118,14 +1110,14 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S15_PrincipalIdType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S15_PrincipalIdType((string)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S34_CloudHsmClusterNotRelatedException__M7_message(
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Extract());
         }
 
@@ -1135,7 +1127,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType((string)value));
         }
 
         public static Amazon.KeyManagementService.WrappingKeySpec
@@ -1156,7 +1148,7 @@ namespace Com.Amazonaws.Kms
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (System.DateTime?) null
+                ? (System.DateTime?)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S8_DateType(value.Extract());
         }
 
@@ -1166,7 +1158,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S8_DateType((System.DateTime) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S8_DateType((System.DateTime)value));
         }
 
         public static Amazon.KeyManagementService.EncryptionAlgorithmSpec
@@ -1174,7 +1166,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.Com.Amazonaws.Kms._IEncryptionAlgorithmSpec> value)
         {
             return value.is_None
-                ? (Amazon.KeyManagementService.EncryptionAlgorithmSpec) null
+                ? (Amazon.KeyManagementService.EncryptionAlgorithmSpec)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S23_EncryptionAlgorithmSpec(value.Extract());
         }
 
@@ -1186,7 +1178,7 @@ namespace Com.Amazonaws.Kms
                 ? Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._IEncryptionAlgorithmSpec>.create_None()
                 : Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._IEncryptionAlgorithmSpec>.create_Some(
                     ToDafny_N3_com__N9_amazonaws__N3_kms__S23_EncryptionAlgorithmSpec(
-                        (Amazon.KeyManagementService.EncryptionAlgorithmSpec) value));
+                        (Amazon.KeyManagementService.EncryptionAlgorithmSpec)value));
         }
 
         public static Amazon.KeyManagementService.MessageType
@@ -1194,7 +1186,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.Com.Amazonaws.Kms._IMessageType> value)
         {
             return value.is_None
-                ? (Amazon.KeyManagementService.MessageType) null
+                ? (Amazon.KeyManagementService.MessageType)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S11_MessageType(value.Extract());
         }
 
@@ -1206,21 +1198,21 @@ namespace Com.Amazonaws.Kms
                 ? Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._IMessageType>.create_None()
                 : Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._IMessageType>.create_Some(
                     ToDafny_N3_com__N9_amazonaws__N3_kms__S11_MessageType(
-                        (Amazon.KeyManagementService.MessageType) value));
+                        (Amazon.KeyManagementService.MessageType)value));
         }
 
         public static Amazon.KeyManagementService.Model.SignResponse
             FromDafny_N3_com__N9_amazonaws__N3_kms__S12_SignResponse(Dafny.Com.Amazonaws.Kms._ISignResponse value)
         {
-            Dafny.Com.Amazonaws.Kms.SignResponse concrete = (Dafny.Com.Amazonaws.Kms.SignResponse) value;
+            Dafny.Com.Amazonaws.Kms.SignResponse concrete = (Dafny.Com.Amazonaws.Kms.SignResponse)value;
             Amazon.KeyManagementService.Model.SignResponse converted =
                 new Amazon.KeyManagementService.Model.SignResponse();
             if (concrete.KeyId.is_Some)
                 converted.KeyId =
-                    (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S12_SignResponse__M5_KeyId(concrete.KeyId);
+                    (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S12_SignResponse__M5_KeyId(concrete.KeyId);
             if (concrete.Signature.is_Some)
                 converted.Signature =
-                    (System.IO.MemoryStream) FromDafny_N3_com__N9_amazonaws__N3_kms__S12_SignResponse__M9_Signature(
+                    (System.IO.MemoryStream)FromDafny_N3_com__N9_amazonaws__N3_kms__S12_SignResponse__M9_Signature(
                         concrete.Signature);
             if (concrete.SigningAlgorithm.is_Some)
                 converted.SigningAlgorithm =
@@ -1233,10 +1225,13 @@ namespace Com.Amazonaws.Kms
         public static Dafny.Com.Amazonaws.Kms._ISignResponse ToDafny_N3_com__N9_amazonaws__N3_kms__S12_SignResponse(
             Amazon.KeyManagementService.Model.SignResponse value)
         {
+            string var_keyId = value.KeyId;
+            System.IO.MemoryStream var_signature = value.Signature;
+            Amazon.KeyManagementService.SigningAlgorithmSpec var_signingAlgorithm = value.SigningAlgorithm;
             return new Dafny.Com.Amazonaws.Kms.SignResponse(
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S12_SignResponse__M5_KeyId(value.KeyId),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S12_SignResponse__M9_Signature(value.Signature),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S12_SignResponse__M16_SigningAlgorithm(value.SigningAlgorithm));
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S12_SignResponse__M5_KeyId(var_keyId),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S12_SignResponse__M9_Signature(var_signature),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S12_SignResponse__M16_SigningAlgorithm(var_signingAlgorithm));
         }
 
         public static System.Collections.Generic.List<string>
@@ -1244,7 +1239,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.ISequence<Dafny.ISequence<char>>> value)
         {
             return value.is_None
-                ? (System.Collections.Generic.List<string>) null
+                ? (System.Collections.Generic.List<string>)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S14_GrantTokenList(value.Extract());
         }
 
@@ -1256,7 +1251,7 @@ namespace Com.Amazonaws.Kms
                 ? Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_Some(
                     ToDafny_N3_com__N9_amazonaws__N3_kms__S14_GrantTokenList(
-                        (System.Collections.Generic.List<string>) value));
+                        (System.Collections.Generic.List<string>)value));
         }
 
         public static int FromDafny_N3_com__N9_amazonaws__N3_kms__S23_PendingWindowInDaysType(int value)
@@ -1283,7 +1278,7 @@ namespace Com.Amazonaws.Kms
             Wrappers_Compile._IOption<bool> value)
         {
             return value.is_None
-                ? (bool?) null
+                ? (bool?)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S19_NullableBooleanType(value.Extract());
         }
 
@@ -1293,18 +1288,18 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<bool>.create_None()
                 : Wrappers_Compile.Option<bool>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S19_NullableBooleanType((bool) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S19_NullableBooleanType((bool)value));
         }
 
         public static Amazon.KeyManagementService.Model.GetPublicKeyRequest
             FromDafny_N3_com__N9_amazonaws__N3_kms__S19_GetPublicKeyRequest(
                 Dafny.Com.Amazonaws.Kms._IGetPublicKeyRequest value)
         {
-            Dafny.Com.Amazonaws.Kms.GetPublicKeyRequest concrete = (Dafny.Com.Amazonaws.Kms.GetPublicKeyRequest) value;
+            Dafny.Com.Amazonaws.Kms.GetPublicKeyRequest concrete = (Dafny.Com.Amazonaws.Kms.GetPublicKeyRequest)value;
             Amazon.KeyManagementService.Model.GetPublicKeyRequest converted =
                 new Amazon.KeyManagementService.Model.GetPublicKeyRequest();
             converted.KeyId =
-                (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S19_GetPublicKeyRequest__M5_KeyId(concrete.KeyId);
+                (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S19_GetPublicKeyRequest__M5_KeyId(concrete.KeyId);
             if (concrete.GrantTokens.is_Some)
                 converted.GrantTokens =
                     (System.Collections.Generic.List<string>)
@@ -1317,9 +1312,10 @@ namespace Com.Amazonaws.Kms
             ToDafny_N3_com__N9_amazonaws__N3_kms__S19_GetPublicKeyRequest(
                 Amazon.KeyManagementService.Model.GetPublicKeyRequest value)
         {
+            System.Collections.Generic.List<string> var_grantTokens = value.GrantTokens;
             return new Dafny.Com.Amazonaws.Kms.GetPublicKeyRequest(
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S19_GetPublicKeyRequest__M5_KeyId(value.KeyId),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S19_GetPublicKeyRequest__M11_GrantTokens(value.GrantTokens));
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S19_GetPublicKeyRequest__M11_GrantTokens(var_grantTokens));
         }
 
         public static Amazon.KeyManagementService.Model.KeyMetadata
@@ -1327,7 +1323,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.Com.Amazonaws.Kms._IKeyMetadata> value)
         {
             return value.is_None
-                ? (Amazon.KeyManagementService.Model.KeyMetadata) null
+                ? (Amazon.KeyManagementService.Model.KeyMetadata)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata(value.Extract());
         }
 
@@ -1339,14 +1335,14 @@ namespace Com.Amazonaws.Kms
                 ? Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._IKeyMetadata>.create_None()
                 : Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._IKeyMetadata>.create_Some(
                     ToDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata(
-                        (Amazon.KeyManagementService.Model.KeyMetadata) value));
+                        (Amazon.KeyManagementService.Model.KeyMetadata)value));
         }
 
         public static bool? FromDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata__M7_Enabled(
             Wrappers_Compile._IOption<bool> value)
         {
             return value.is_None
-                ? (bool?) null
+                ? (bool?)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S11_BooleanType(value.Extract());
         }
 
@@ -1356,7 +1352,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<bool>.create_None()
                 : Wrappers_Compile.Option<bool>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S11_BooleanType((bool) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S11_BooleanType((bool)value));
         }
 
         public static System.IO.MemoryStream
@@ -1364,7 +1360,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.ISequence<byte>> value)
         {
             return value.is_None
-                ? (System.IO.MemoryStream) null
+                ? (System.IO.MemoryStream)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S14_CiphertextType(value.Extract());
         }
 
@@ -1374,14 +1370,14 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<byte>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<byte>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S14_CiphertextType((System.IO.MemoryStream) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S14_CiphertextType((System.IO.MemoryStream)value));
         }
 
         public static Amazon.KeyManagementService.Model.ReEncryptResponse
             FromDafny_N3_com__N9_amazonaws__N3_kms__S17_ReEncryptResponse(
                 Dafny.Com.Amazonaws.Kms._IReEncryptResponse value)
         {
-            Dafny.Com.Amazonaws.Kms.ReEncryptResponse concrete = (Dafny.Com.Amazonaws.Kms.ReEncryptResponse) value;
+            Dafny.Com.Amazonaws.Kms.ReEncryptResponse concrete = (Dafny.Com.Amazonaws.Kms.ReEncryptResponse)value;
             Amazon.KeyManagementService.Model.ReEncryptResponse converted =
                 new Amazon.KeyManagementService.Model.ReEncryptResponse();
             if (concrete.CiphertextBlob.is_Some)
@@ -1391,11 +1387,11 @@ namespace Com.Amazonaws.Kms
                         concrete.CiphertextBlob);
             if (concrete.SourceKeyId.is_Some)
                 converted.SourceKeyId =
-                    (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S17_ReEncryptResponse__M11_SourceKeyId(
+                    (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S17_ReEncryptResponse__M11_SourceKeyId(
                         concrete.SourceKeyId);
             if (concrete.KeyId.is_Some)
                 converted.KeyId =
-                    (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S17_ReEncryptResponse__M5_KeyId(concrete.KeyId);
+                    (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S17_ReEncryptResponse__M5_KeyId(concrete.KeyId);
             if (concrete.SourceEncryptionAlgorithm.is_Some)
                 converted.SourceEncryptionAlgorithm =
                     (Amazon.KeyManagementService.EncryptionAlgorithmSpec)
@@ -1413,14 +1409,21 @@ namespace Com.Amazonaws.Kms
             ToDafny_N3_com__N9_amazonaws__N3_kms__S17_ReEncryptResponse(
                 Amazon.KeyManagementService.Model.ReEncryptResponse value)
         {
+            System.IO.MemoryStream var_ciphertextBlob = value.CiphertextBlob;
+            string var_sourceKeyId = value.SourceKeyId;
+            string var_keyId = value.KeyId;
+            Amazon.KeyManagementService.EncryptionAlgorithmSpec var_sourceEncryptionAlgorithm =
+                value.SourceEncryptionAlgorithm;
+            Amazon.KeyManagementService.EncryptionAlgorithmSpec var_destinationEncryptionAlgorithm =
+                value.DestinationEncryptionAlgorithm;
             return new Dafny.Com.Amazonaws.Kms.ReEncryptResponse(
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S17_ReEncryptResponse__M14_CiphertextBlob(value.CiphertextBlob),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S17_ReEncryptResponse__M11_SourceKeyId(value.SourceKeyId),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S17_ReEncryptResponse__M5_KeyId(value.KeyId),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S17_ReEncryptResponse__M14_CiphertextBlob(var_ciphertextBlob),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S17_ReEncryptResponse__M11_SourceKeyId(var_sourceKeyId),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S17_ReEncryptResponse__M5_KeyId(var_keyId),
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S17_ReEncryptResponse__M25_SourceEncryptionAlgorithm(
-                    value.SourceEncryptionAlgorithm),
+                    var_sourceEncryptionAlgorithm),
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S17_ReEncryptResponse__M30_DestinationEncryptionAlgorithm(
-                    value.DestinationEncryptionAlgorithm));
+                    var_destinationEncryptionAlgorithm));
         }
 
         public static string
@@ -1438,25 +1441,22 @@ namespace Com.Amazonaws.Kms
 
         public static Amazon.KeyManagementService.Model.InvalidGrantTokenException
             FromDafny_N3_com__N9_amazonaws__N3_kms__S26_InvalidGrantTokenException(
-                Dafny.Com.Amazonaws.Kms._IInvalidGrantTokenException value)
+                Dafny.Com.Amazonaws.Kms.InvalidGrantTokenException value)
         {
-            Dafny.Com.Amazonaws.Kms.InvalidGrantTokenException concrete =
-                (Dafny.Com.Amazonaws.Kms.InvalidGrantTokenException) value;
-            string message = concrete.message.is_Some
+            string message = value.message.Count == 0
                 ? null
-                : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(concrete.message.Extract());
+                : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.message);
             return new Amazon.KeyManagementService.Model.InvalidGrantTokenException(message);
         }
 
-        public static Dafny.Com.Amazonaws.Kms._IInvalidGrantTokenException
+        public static Dafny.Com.Amazonaws.Kms.InvalidGrantTokenException
             ToDafny_N3_com__N9_amazonaws__N3_kms__S26_InvalidGrantTokenException(
                 Amazon.KeyManagementService.Model.InvalidGrantTokenException value)
         {
-            Wrappers_Compile._IOption<Dafny.ISequence<char>> message = System.String.IsNullOrEmpty(value.Message)
-                ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
-                : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Message));
-            return new Dafny.Com.Amazonaws.Kms.InvalidGrantTokenException(message);
+            Dafny.ISequence<char> message = System.String.IsNullOrEmpty(value.Message)
+                ? Dafny.Sequence<char>.Empty
+                : ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Message);
+            return new Dafny.Com.Amazonaws.Kms.InvalidGrantTokenException { message = message };
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S14_GrantTokenType(Dafny.ISequence<char> value)
@@ -1474,7 +1474,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S20_CustomKeyStoreIdType(value.Extract());
         }
 
@@ -1484,7 +1484,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S20_CustomKeyStoreIdType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S20_CustomKeyStoreIdType((string)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S18_DescribeKeyRequest__M5_KeyId(
@@ -1502,15 +1502,15 @@ namespace Com.Amazonaws.Kms
         public static Amazon.KeyManagementService.Model.DecryptResponse
             FromDafny_N3_com__N9_amazonaws__N3_kms__S15_DecryptResponse(Dafny.Com.Amazonaws.Kms._IDecryptResponse value)
         {
-            Dafny.Com.Amazonaws.Kms.DecryptResponse concrete = (Dafny.Com.Amazonaws.Kms.DecryptResponse) value;
+            Dafny.Com.Amazonaws.Kms.DecryptResponse concrete = (Dafny.Com.Amazonaws.Kms.DecryptResponse)value;
             Amazon.KeyManagementService.Model.DecryptResponse converted =
                 new Amazon.KeyManagementService.Model.DecryptResponse();
             if (concrete.KeyId.is_Some)
                 converted.KeyId =
-                    (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S15_DecryptResponse__M5_KeyId(concrete.KeyId);
+                    (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S15_DecryptResponse__M5_KeyId(concrete.KeyId);
             if (concrete.Plaintext.is_Some)
                 converted.Plaintext =
-                    (System.IO.MemoryStream) FromDafny_N3_com__N9_amazonaws__N3_kms__S15_DecryptResponse__M9_Plaintext(
+                    (System.IO.MemoryStream)FromDafny_N3_com__N9_amazonaws__N3_kms__S15_DecryptResponse__M9_Plaintext(
                         concrete.Plaintext);
             if (concrete.EncryptionAlgorithm.is_Some)
                 converted.EncryptionAlgorithm =
@@ -1524,11 +1524,14 @@ namespace Com.Amazonaws.Kms
             ToDafny_N3_com__N9_amazonaws__N3_kms__S15_DecryptResponse(
                 Amazon.KeyManagementService.Model.DecryptResponse value)
         {
+            string var_keyId = value.KeyId;
+            System.IO.MemoryStream var_plaintext = value.Plaintext;
+            Amazon.KeyManagementService.EncryptionAlgorithmSpec var_encryptionAlgorithm = value.EncryptionAlgorithm;
             return new Dafny.Com.Amazonaws.Kms.DecryptResponse(
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S15_DecryptResponse__M5_KeyId(value.KeyId),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S15_DecryptResponse__M9_Plaintext(value.Plaintext),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S15_DecryptResponse__M5_KeyId(var_keyId),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S15_DecryptResponse__M9_Plaintext(var_plaintext),
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S15_DecryptResponse__M19_EncryptionAlgorithm(
-                    value.EncryptionAlgorithm));
+                    var_encryptionAlgorithm));
         }
 
         public static string
@@ -1550,7 +1553,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.ISequence<Dafny.ISequence<char>>> value)
         {
             return value.is_None
-                ? (System.Collections.Generic.List<string>) null
+                ? (System.Collections.Generic.List<string>)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S14_GrantTokenList(value.Extract());
         }
 
@@ -1562,49 +1565,46 @@ namespace Com.Amazonaws.Kms
                 ? Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_Some(
                     ToDafny_N3_com__N9_amazonaws__N3_kms__S14_GrantTokenList(
-                        (System.Collections.Generic.List<string>) value));
+                        (System.Collections.Generic.List<string>)value));
         }
 
         public static Amazon.KeyManagementService.Model.LimitExceededException
             FromDafny_N3_com__N9_amazonaws__N3_kms__S22_LimitExceededException(
-                Dafny.Com.Amazonaws.Kms._ILimitExceededException value)
+                Dafny.Com.Amazonaws.Kms.LimitExceededException value)
         {
-            Dafny.Com.Amazonaws.Kms.LimitExceededException concrete =
-                (Dafny.Com.Amazonaws.Kms.LimitExceededException) value;
-            string message = concrete.message.is_Some
+            string message = value.message.Count == 0
                 ? null
-                : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(concrete.message.Extract());
+                : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.message);
             return new Amazon.KeyManagementService.Model.LimitExceededException(message);
         }
 
-        public static Dafny.Com.Amazonaws.Kms._ILimitExceededException
+        public static Dafny.Com.Amazonaws.Kms.LimitExceededException
             ToDafny_N3_com__N9_amazonaws__N3_kms__S22_LimitExceededException(
                 Amazon.KeyManagementService.Model.LimitExceededException value)
         {
-            Wrappers_Compile._IOption<Dafny.ISequence<char>> message = System.String.IsNullOrEmpty(value.Message)
-                ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
-                : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Message));
-            return new Dafny.Com.Amazonaws.Kms.LimitExceededException(message);
+            Dafny.ISequence<char> message = System.String.IsNullOrEmpty(value.Message)
+                ? Dafny.Sequence<char>.Empty
+                : ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Message);
+            return new Dafny.Com.Amazonaws.Kms.LimitExceededException { message = message };
         }
 
         public static Amazon.KeyManagementService.Model.RetireGrantRequest
             FromDafny_N3_com__N9_amazonaws__N3_kms__S18_RetireGrantRequest(
                 Dafny.Com.Amazonaws.Kms._IRetireGrantRequest value)
         {
-            Dafny.Com.Amazonaws.Kms.RetireGrantRequest concrete = (Dafny.Com.Amazonaws.Kms.RetireGrantRequest) value;
+            Dafny.Com.Amazonaws.Kms.RetireGrantRequest concrete = (Dafny.Com.Amazonaws.Kms.RetireGrantRequest)value;
             Amazon.KeyManagementService.Model.RetireGrantRequest converted =
                 new Amazon.KeyManagementService.Model.RetireGrantRequest();
             if (concrete.GrantToken.is_Some)
                 converted.GrantToken =
-                    (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S18_RetireGrantRequest__M10_GrantToken(
+                    (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S18_RetireGrantRequest__M10_GrantToken(
                         concrete.GrantToken);
             if (concrete.KeyId.is_Some)
                 converted.KeyId =
-                    (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S18_RetireGrantRequest__M5_KeyId(concrete.KeyId);
+                    (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S18_RetireGrantRequest__M5_KeyId(concrete.KeyId);
             if (concrete.GrantId.is_Some)
                 converted.GrantId =
-                    (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S18_RetireGrantRequest__M7_GrantId(
+                    (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S18_RetireGrantRequest__M7_GrantId(
                         concrete.GrantId);
             return converted;
         }
@@ -1613,17 +1613,20 @@ namespace Com.Amazonaws.Kms
             ToDafny_N3_com__N9_amazonaws__N3_kms__S18_RetireGrantRequest(
                 Amazon.KeyManagementService.Model.RetireGrantRequest value)
         {
+            string var_grantToken = value.GrantToken;
+            string var_keyId = value.KeyId;
+            string var_grantId = value.GrantId;
             return new Dafny.Com.Amazonaws.Kms.RetireGrantRequest(
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S18_RetireGrantRequest__M10_GrantToken(value.GrantToken),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S18_RetireGrantRequest__M5_KeyId(value.KeyId),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S18_RetireGrantRequest__M7_GrantId(value.GrantId));
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S18_RetireGrantRequest__M10_GrantToken(var_grantToken),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S18_RetireGrantRequest__M5_KeyId(var_keyId),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S18_RetireGrantRequest__M7_GrantId(var_grantId));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S17_ListGrantsRequest__M16_GranteePrincipal(
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S15_PrincipalIdType(value.Extract());
         }
 
@@ -1633,7 +1636,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S15_PrincipalIdType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S15_PrincipalIdType((string)value));
         }
 
         public static bool?
@@ -1641,7 +1644,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<bool> value)
         {
             return value.is_None
-                ? (bool?) null
+                ? (bool?)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S11_BooleanType(value.Extract());
         }
 
@@ -1651,7 +1654,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<bool>.create_None()
                 : Wrappers_Compile.Option<bool>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S11_BooleanType((bool) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S11_BooleanType((bool)value));
         }
 
         public static System.Collections.Generic.List<Amazon.KeyManagementService.Model.CustomKeyStoresListEntry>
@@ -1670,34 +1673,12 @@ namespace Com.Amazonaws.Kms
                 .Select(ToDafny_N3_com__N9_amazonaws__N3_kms__S19_CustomKeyStoresList__M6_member).ToArray());
         }
 
-        public static Amazon.KeyManagementService.Model.InvalidArnException
-            FromDafny_N3_com__N9_amazonaws__N3_kms__S19_InvalidArnException(
-                Dafny.Com.Amazonaws.Kms._IInvalidArnException value)
-        {
-            Dafny.Com.Amazonaws.Kms.InvalidArnException concrete = (Dafny.Com.Amazonaws.Kms.InvalidArnException) value;
-            string message = concrete.message.is_Some
-                ? null
-                : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(concrete.message.Extract());
-            return new Amazon.KeyManagementService.Model.InvalidArnException(message);
-        }
-
-        public static Dafny.Com.Amazonaws.Kms._IInvalidArnException
-            ToDafny_N3_com__N9_amazonaws__N3_kms__S19_InvalidArnException(
-                Amazon.KeyManagementService.Model.InvalidArnException value)
-        {
-            Wrappers_Compile._IOption<Dafny.ISequence<char>> message = System.String.IsNullOrEmpty(value.Message)
-                ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
-                : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Message));
-            return new Dafny.Com.Amazonaws.Kms.InvalidArnException(message);
-        }
-
         public static Amazon.KeyManagementService.Model.GenerateRandomResponse
             FromDafny_N3_com__N9_amazonaws__N3_kms__S22_GenerateRandomResponse(
                 Dafny.Com.Amazonaws.Kms._IGenerateRandomResponse value)
         {
             Dafny.Com.Amazonaws.Kms.GenerateRandomResponse concrete =
-                (Dafny.Com.Amazonaws.Kms.GenerateRandomResponse) value;
+                (Dafny.Com.Amazonaws.Kms.GenerateRandomResponse)value;
             Amazon.KeyManagementService.Model.GenerateRandomResponse converted =
                 new Amazon.KeyManagementService.Model.GenerateRandomResponse();
             if (concrete.Plaintext.is_Some)
@@ -1712,15 +1693,36 @@ namespace Com.Amazonaws.Kms
             ToDafny_N3_com__N9_amazonaws__N3_kms__S22_GenerateRandomResponse(
                 Amazon.KeyManagementService.Model.GenerateRandomResponse value)
         {
+            System.IO.MemoryStream var_plaintext = value.Plaintext;
             return new Dafny.Com.Amazonaws.Kms.GenerateRandomResponse(
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S22_GenerateRandomResponse__M9_Plaintext(value.Plaintext));
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S22_GenerateRandomResponse__M9_Plaintext(var_plaintext));
+        }
+
+        public static Amazon.KeyManagementService.Model.InvalidArnException
+            FromDafny_N3_com__N9_amazonaws__N3_kms__S19_InvalidArnException(
+                Dafny.Com.Amazonaws.Kms.InvalidArnException value)
+        {
+            string message = value.message.Count == 0
+                ? null
+                : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.message);
+            return new Amazon.KeyManagementService.Model.InvalidArnException(message);
+        }
+
+        public static Dafny.Com.Amazonaws.Kms.InvalidArnException
+            ToDafny_N3_com__N9_amazonaws__N3_kms__S19_InvalidArnException(
+                Amazon.KeyManagementService.Model.InvalidArnException value)
+        {
+            Dafny.ISequence<char> message = System.String.IsNullOrEmpty(value.Message)
+                ? Dafny.Sequence<char>.Empty
+                : ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Message);
+            return new Dafny.Com.Amazonaws.Kms.InvalidArnException { message = message };
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata__M11_Description(
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S15_DescriptionType(value.Extract());
         }
 
@@ -1730,7 +1732,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S15_DescriptionType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S15_DescriptionType((string)value));
         }
 
         public static string
@@ -1749,7 +1751,7 @@ namespace Com.Amazonaws.Kms
         public static int? FromDafny_N3_com__N9_amazonaws__N3_kms__S18_ListAliasesRequest__M5_Limit(
             Wrappers_Compile._IOption<int> value)
         {
-            return value.is_None ? (int?) null : FromDafny_N3_com__N9_amazonaws__N3_kms__S9_LimitType(value.Extract());
+            return value.is_None ? (int?)null : FromDafny_N3_com__N9_amazonaws__N3_kms__S9_LimitType(value.Extract());
         }
 
         public static Wrappers_Compile._IOption<int>
@@ -1758,14 +1760,14 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<int>.create_None()
                 : Wrappers_Compile.Option<int>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S9_LimitType((int) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S9_LimitType((int)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S21_GenerateRandomRequest__M16_CustomKeyStoreId(
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S20_CustomKeyStoreIdType(value.Extract());
         }
 
@@ -1775,15 +1777,13 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S20_CustomKeyStoreIdType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S20_CustomKeyStoreIdType((string)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S18_RetireGrantRequest__M5_KeyId(
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
-            return value.is_None
-                ? (string) null
-                : FromDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType(value.Extract());
+            return value.is_None ? (string)null : FromDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType(value.Extract());
         }
 
         public static Wrappers_Compile._IOption<Dafny.ISequence<char>>
@@ -1792,7 +1792,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType((string)value));
         }
 
         public static Amazon.KeyManagementService.SigningAlgorithmSpec
@@ -1811,48 +1811,42 @@ namespace Com.Amazonaws.Kms
 
         public static Amazon.KeyManagementService.Model.InvalidMarkerException
             FromDafny_N3_com__N9_amazonaws__N3_kms__S22_InvalidMarkerException(
-                Dafny.Com.Amazonaws.Kms._IInvalidMarkerException value)
+                Dafny.Com.Amazonaws.Kms.InvalidMarkerException value)
         {
-            Dafny.Com.Amazonaws.Kms.InvalidMarkerException concrete =
-                (Dafny.Com.Amazonaws.Kms.InvalidMarkerException) value;
-            string message = concrete.message.is_Some
+            string message = value.message.Count == 0
                 ? null
-                : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(concrete.message.Extract());
+                : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.message);
             return new Amazon.KeyManagementService.Model.InvalidMarkerException(message);
         }
 
-        public static Dafny.Com.Amazonaws.Kms._IInvalidMarkerException
+        public static Dafny.Com.Amazonaws.Kms.InvalidMarkerException
             ToDafny_N3_com__N9_amazonaws__N3_kms__S22_InvalidMarkerException(
                 Amazon.KeyManagementService.Model.InvalidMarkerException value)
         {
-            Wrappers_Compile._IOption<Dafny.ISequence<char>> message = System.String.IsNullOrEmpty(value.Message)
-                ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
-                : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Message));
-            return new Dafny.Com.Amazonaws.Kms.InvalidMarkerException(message);
+            Dafny.ISequence<char> message = System.String.IsNullOrEmpty(value.Message)
+                ? Dafny.Sequence<char>.Empty
+                : ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Message);
+            return new Dafny.Com.Amazonaws.Kms.InvalidMarkerException { message = message };
         }
 
         public static Amazon.KeyManagementService.Model.KMSInternalException
             FromDafny_N3_com__N9_amazonaws__N3_kms__S20_KMSInternalException(
-                Dafny.Com.Amazonaws.Kms._IKMSInternalException value)
+                Dafny.Com.Amazonaws.Kms.KMSInternalException value)
         {
-            Dafny.Com.Amazonaws.Kms.KMSInternalException
-                concrete = (Dafny.Com.Amazonaws.Kms.KMSInternalException) value;
-            string message = concrete.message.is_Some
+            string message = value.message.Count == 0
                 ? null
-                : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(concrete.message.Extract());
+                : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.message);
             return new Amazon.KeyManagementService.Model.KMSInternalException(message);
         }
 
-        public static Dafny.Com.Amazonaws.Kms._IKMSInternalException
+        public static Dafny.Com.Amazonaws.Kms.KMSInternalException
             ToDafny_N3_com__N9_amazonaws__N3_kms__S20_KMSInternalException(
                 Amazon.KeyManagementService.Model.KMSInternalException value)
         {
-            Wrappers_Compile._IOption<Dafny.ISequence<char>> message = System.String.IsNullOrEmpty(value.Message)
-                ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
-                : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Message));
-            return new Dafny.Com.Amazonaws.Kms.KMSInternalException(message);
+            Dafny.ISequence<char> message = System.String.IsNullOrEmpty(value.Message)
+                ? Dafny.Sequence<char>.Empty
+                : ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Message);
+            return new Dafny.Com.Amazonaws.Kms.KMSInternalException { message = message };
         }
 
         public static Amazon.KeyManagementService.CustomerMasterKeySpec
@@ -1897,7 +1891,7 @@ namespace Com.Amazonaws.Kms
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Extract());
         }
 
@@ -1907,14 +1901,14 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType((string)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S29_IncorrectKeyMaterialException__M7_message(
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Extract());
         }
 
@@ -1924,19 +1918,18 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType((string)value));
         }
 
         public static Amazon.KeyManagementService.Model.UntagResourceRequest
             FromDafny_N3_com__N9_amazonaws__N3_kms__S20_UntagResourceRequest(
                 Dafny.Com.Amazonaws.Kms._IUntagResourceRequest value)
         {
-            Dafny.Com.Amazonaws.Kms.UntagResourceRequest
-                concrete = (Dafny.Com.Amazonaws.Kms.UntagResourceRequest) value;
+            Dafny.Com.Amazonaws.Kms.UntagResourceRequest concrete = (Dafny.Com.Amazonaws.Kms.UntagResourceRequest)value;
             Amazon.KeyManagementService.Model.UntagResourceRequest converted =
                 new Amazon.KeyManagementService.Model.UntagResourceRequest();
             converted.KeyId =
-                (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S20_UntagResourceRequest__M5_KeyId(concrete.KeyId);
+                (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S20_UntagResourceRequest__M5_KeyId(concrete.KeyId);
             converted.TagKeys =
                 (System.Collections.Generic.List<string>)
                 FromDafny_N3_com__N9_amazonaws__N3_kms__S20_UntagResourceRequest__M7_TagKeys(concrete.TagKeys);
@@ -1956,7 +1949,7 @@ namespace Com.Amazonaws.Kms
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S15_PrincipalIdType(value.Extract());
         }
 
@@ -1966,17 +1959,16 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S15_PrincipalIdType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S15_PrincipalIdType((string)value));
         }
 
         public static Amazon.KeyManagementService.Model.Tag FromDafny_N3_com__N9_amazonaws__N3_kms__S3_Tag(
             Dafny.Com.Amazonaws.Kms._ITag value)
         {
-            Dafny.Com.Amazonaws.Kms.Tag concrete = (Dafny.Com.Amazonaws.Kms.Tag) value;
+            Dafny.Com.Amazonaws.Kms.Tag concrete = (Dafny.Com.Amazonaws.Kms.Tag)value;
             Amazon.KeyManagementService.Model.Tag converted = new Amazon.KeyManagementService.Model.Tag();
-            converted.TagKey = (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S3_Tag__M6_TagKey(concrete.TagKey);
-            converted.TagValue =
-                (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S3_Tag__M8_TagValue(concrete.TagValue);
+            converted.TagKey = (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S3_Tag__M6_TagKey(concrete.TagKey);
+            converted.TagValue = (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S3_Tag__M8_TagValue(concrete.TagValue);
             return converted;
         }
 
@@ -1993,7 +1985,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.Com.Amazonaws.Kms._IDataKeySpec> value)
         {
             return value.is_None
-                ? (Amazon.KeyManagementService.DataKeySpec) null
+                ? (Amazon.KeyManagementService.DataKeySpec)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S11_DataKeySpec(value.Extract());
         }
 
@@ -2005,7 +1997,7 @@ namespace Com.Amazonaws.Kms
                 ? Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._IDataKeySpec>.create_None()
                 : Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._IDataKeySpec>.create_Some(
                     ToDafny_N3_com__N9_amazonaws__N3_kms__S11_DataKeySpec(
-                        (Amazon.KeyManagementService.DataKeySpec) value));
+                        (Amazon.KeyManagementService.DataKeySpec)value));
         }
 
         public static System.Collections.Generic.List<string>
@@ -2013,7 +2005,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.ISequence<Dafny.Com.Amazonaws.Kms._ISigningAlgorithmSpec>> value)
         {
             return value.is_None
-                ? (System.Collections.Generic.List<string>) null
+                ? (System.Collections.Generic.List<string>)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S24_SigningAlgorithmSpecList(value.Extract());
         }
 
@@ -2025,7 +2017,7 @@ namespace Com.Amazonaws.Kms
                 ? Wrappers_Compile.Option<Dafny.ISequence<Dafny.Com.Amazonaws.Kms._ISigningAlgorithmSpec>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<Dafny.Com.Amazonaws.Kms._ISigningAlgorithmSpec>>.create_Some(
                     ToDafny_N3_com__N9_amazonaws__N3_kms__S24_SigningAlgorithmSpecList(
-                        (System.Collections.Generic.List<string>) value));
+                        (System.Collections.Generic.List<string>)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S10_PolicyType(Dafny.ISequence<char> value)
@@ -2043,11 +2035,11 @@ namespace Com.Amazonaws.Kms
                 Dafny.Com.Amazonaws.Kms._IConnectCustomKeyStoreRequest value)
         {
             Dafny.Com.Amazonaws.Kms.ConnectCustomKeyStoreRequest concrete =
-                (Dafny.Com.Amazonaws.Kms.ConnectCustomKeyStoreRequest) value;
+                (Dafny.Com.Amazonaws.Kms.ConnectCustomKeyStoreRequest)value;
             Amazon.KeyManagementService.Model.ConnectCustomKeyStoreRequest converted =
                 new Amazon.KeyManagementService.Model.ConnectCustomKeyStoreRequest();
             converted.CustomKeyStoreId =
-                (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S28_ConnectCustomKeyStoreRequest__M16_CustomKeyStoreId(
+                (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S28_ConnectCustomKeyStoreRequest__M16_CustomKeyStoreId(
                     concrete.CustomKeyStoreId);
             return converted;
         }
@@ -2066,7 +2058,7 @@ namespace Com.Amazonaws.Kms
                 Dafny.Com.Amazonaws.Kms._IGetKeyRotationStatusResponse value)
         {
             Dafny.Com.Amazonaws.Kms.GetKeyRotationStatusResponse concrete =
-                (Dafny.Com.Amazonaws.Kms.GetKeyRotationStatusResponse) value;
+                (Dafny.Com.Amazonaws.Kms.GetKeyRotationStatusResponse)value;
             Amazon.KeyManagementService.Model.GetKeyRotationStatusResponse converted =
                 new Amazon.KeyManagementService.Model.GetKeyRotationStatusResponse();
             if (concrete.KeyRotationEnabled.is_Some)
@@ -2081,9 +2073,10 @@ namespace Com.Amazonaws.Kms
             ToDafny_N3_com__N9_amazonaws__N3_kms__S28_GetKeyRotationStatusResponse(
                 Amazon.KeyManagementService.Model.GetKeyRotationStatusResponse value)
         {
+            bool? var_keyRotationEnabled = value.KeyRotationEnabled;
             return new Dafny.Com.Amazonaws.Kms.GetKeyRotationStatusResponse(
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S28_GetKeyRotationStatusResponse__M18_KeyRotationEnabled(
-                    value.KeyRotationEnabled));
+                    var_keyRotationEnabled));
         }
 
         public static string
@@ -2091,7 +2084,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Extract());
         }
 
@@ -2101,7 +2094,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType((string)value));
         }
 
         public static System.Collections.Generic.Dictionary<string, string>
@@ -2109,7 +2102,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>> value)
         {
             return value.is_None
-                ? (System.Collections.Generic.Dictionary<string, string>) null
+                ? (System.Collections.Generic.Dictionary<string, string>)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S21_EncryptionContextType(value.Extract());
         }
 
@@ -2121,14 +2114,14 @@ namespace Com.Amazonaws.Kms
                 ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>>.create_None()
                 : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>>.create_Some(
                     ToDafny_N3_com__N9_amazonaws__N3_kms__S21_EncryptionContextType(
-                        (System.Collections.Generic.Dictionary<string, string>) value));
+                        (System.Collections.Generic.Dictionary<string, string>)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S18_CreateGrantRequest__M4_Name(
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S13_GrantNameType(value.Extract());
         }
 
@@ -2138,14 +2131,14 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S13_GrantNameType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S13_GrantNameType((string)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S14_GrantListEntry__M4_Name(
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S13_GrantNameType(value.Extract());
         }
 
@@ -2155,15 +2148,13 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S13_GrantNameType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S13_GrantNameType((string)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ReEncryptRequest__M11_SourceKeyId(
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
-            return value.is_None
-                ? (string) null
-                : FromDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType(value.Extract());
+            return value.is_None ? (string)null : FromDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType(value.Extract());
         }
 
         public static Wrappers_Compile._IOption<Dafny.ISequence<char>>
@@ -2172,7 +2163,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType((string)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S3_Tag__M8_TagValue(Dafny.ISequence<char> value)
@@ -2189,7 +2180,7 @@ namespace Com.Amazonaws.Kms
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S14_GrantTokenType(value.Extract());
         }
 
@@ -2199,7 +2190,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S14_GrantTokenType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S14_GrantTokenType((string)value));
         }
 
         public static System.IO.MemoryStream
@@ -2207,7 +2198,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.ISequence<byte>> value)
         {
             return value.is_None
-                ? (System.IO.MemoryStream) null
+                ? (System.IO.MemoryStream)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S13_PlaintextType(value.Extract());
         }
 
@@ -2218,7 +2209,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<byte>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<byte>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S13_PlaintextType((System.IO.MemoryStream) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S13_PlaintextType((System.IO.MemoryStream)value));
         }
 
         public static System.Collections.Generic.List<string>
@@ -2226,7 +2217,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.ISequence<Dafny.Com.Amazonaws.Kms._ISigningAlgorithmSpec>> value)
         {
             return value.is_None
-                ? (System.Collections.Generic.List<string>) null
+                ? (System.Collections.Generic.List<string>)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S24_SigningAlgorithmSpecList(value.Extract());
         }
 
@@ -2238,14 +2229,14 @@ namespace Com.Amazonaws.Kms
                 ? Wrappers_Compile.Option<Dafny.ISequence<Dafny.Com.Amazonaws.Kms._ISigningAlgorithmSpec>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<Dafny.Com.Amazonaws.Kms._ISigningAlgorithmSpec>>.create_Some(
                     ToDafny_N3_com__N9_amazonaws__N3_kms__S24_SigningAlgorithmSpecList(
-                        (System.Collections.Generic.List<string>) value));
+                        (System.Collections.Generic.List<string>)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S32_MalformedPolicyDocumentException__M7_message(
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Extract());
         }
 
@@ -2255,15 +2246,13 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType((string)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S18_ListAliasesRequest__M5_KeyId(
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
-            return value.is_None
-                ? (string) null
-                : FromDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType(value.Extract());
+            return value.is_None ? (string)null : FromDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType(value.Extract());
         }
 
         public static Wrappers_Compile._IOption<Dafny.ISequence<char>>
@@ -2272,7 +2261,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType((string)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S19_PutKeyPolicyRequest__M6_Policy(
@@ -2290,9 +2279,7 @@ namespace Com.Amazonaws.Kms
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S17_ReEncryptResponse__M5_KeyId(
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
-            return value.is_None
-                ? (string) null
-                : FromDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType(value.Extract());
+            return value.is_None ? (string)null : FromDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType(value.Extract());
         }
 
         public static Wrappers_Compile._IOption<Dafny.ISequence<char>>
@@ -2301,48 +2288,25 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType((string) value));
-        }
-
-        public static Amazon.KeyManagementService.Model.KeyUnavailableException
-            FromDafny_N3_com__N9_amazonaws__N3_kms__S23_KeyUnavailableException(
-                Dafny.Com.Amazonaws.Kms._IKeyUnavailableException value)
-        {
-            Dafny.Com.Amazonaws.Kms.KeyUnavailableException concrete =
-                (Dafny.Com.Amazonaws.Kms.KeyUnavailableException) value;
-            string message = concrete.message.is_Some
-                ? null
-                : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(concrete.message.Extract());
-            return new Amazon.KeyManagementService.Model.KeyUnavailableException(message);
-        }
-
-        public static Dafny.Com.Amazonaws.Kms._IKeyUnavailableException
-            ToDafny_N3_com__N9_amazonaws__N3_kms__S23_KeyUnavailableException(
-                Amazon.KeyManagementService.Model.KeyUnavailableException value)
-        {
-            Wrappers_Compile._IOption<Dafny.ISequence<char>> message = System.String.IsNullOrEmpty(value.Message)
-                ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
-                : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Message));
-            return new Dafny.Com.Amazonaws.Kms.KeyUnavailableException(message);
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType((string)value));
         }
 
         public static Amazon.KeyManagementService.Model.ListAliasesRequest
             FromDafny_N3_com__N9_amazonaws__N3_kms__S18_ListAliasesRequest(
                 Dafny.Com.Amazonaws.Kms._IListAliasesRequest value)
         {
-            Dafny.Com.Amazonaws.Kms.ListAliasesRequest concrete = (Dafny.Com.Amazonaws.Kms.ListAliasesRequest) value;
+            Dafny.Com.Amazonaws.Kms.ListAliasesRequest concrete = (Dafny.Com.Amazonaws.Kms.ListAliasesRequest)value;
             Amazon.KeyManagementService.Model.ListAliasesRequest converted =
                 new Amazon.KeyManagementService.Model.ListAliasesRequest();
             if (concrete.KeyId.is_Some)
                 converted.KeyId =
-                    (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S18_ListAliasesRequest__M5_KeyId(concrete.KeyId);
+                    (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S18_ListAliasesRequest__M5_KeyId(concrete.KeyId);
             if (concrete.Limit.is_Some)
                 converted.Limit =
-                    (int) FromDafny_N3_com__N9_amazonaws__N3_kms__S18_ListAliasesRequest__M5_Limit(concrete.Limit);
+                    (int)FromDafny_N3_com__N9_amazonaws__N3_kms__S18_ListAliasesRequest__M5_Limit(concrete.Limit);
             if (concrete.Marker.is_Some)
                 converted.Marker =
-                    (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S18_ListAliasesRequest__M6_Marker(concrete.Marker);
+                    (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S18_ListAliasesRequest__M6_Marker(concrete.Marker);
             return converted;
         }
 
@@ -2350,10 +2314,33 @@ namespace Com.Amazonaws.Kms
             ToDafny_N3_com__N9_amazonaws__N3_kms__S18_ListAliasesRequest(
                 Amazon.KeyManagementService.Model.ListAliasesRequest value)
         {
+            string var_keyId = value.KeyId;
+            int? var_limit = value.Limit;
+            string var_marker = value.Marker;
             return new Dafny.Com.Amazonaws.Kms.ListAliasesRequest(
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S18_ListAliasesRequest__M5_KeyId(value.KeyId),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S18_ListAliasesRequest__M5_Limit(value.Limit),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S18_ListAliasesRequest__M6_Marker(value.Marker));
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S18_ListAliasesRequest__M5_KeyId(var_keyId),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S18_ListAliasesRequest__M5_Limit(var_limit),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S18_ListAliasesRequest__M6_Marker(var_marker));
+        }
+
+        public static Amazon.KeyManagementService.Model.KeyUnavailableException
+            FromDafny_N3_com__N9_amazonaws__N3_kms__S23_KeyUnavailableException(
+                Dafny.Com.Amazonaws.Kms.KeyUnavailableException value)
+        {
+            string message = value.message.Count == 0
+                ? null
+                : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.message);
+            return new Amazon.KeyManagementService.Model.KeyUnavailableException(message);
+        }
+
+        public static Dafny.Com.Amazonaws.Kms.KeyUnavailableException
+            ToDafny_N3_com__N9_amazonaws__N3_kms__S23_KeyUnavailableException(
+                Amazon.KeyManagementService.Model.KeyUnavailableException value)
+        {
+            Dafny.ISequence<char> message = System.String.IsNullOrEmpty(value.Message)
+                ? Dafny.Sequence<char>.Empty
+                : ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Message);
+            return new Dafny.Com.Amazonaws.Kms.KeyUnavailableException { message = message };
         }
 
         public static string
@@ -2430,7 +2417,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.Com.Amazonaws.Kms._IMessageType> value)
         {
             return value.is_None
-                ? (Amazon.KeyManagementService.MessageType) null
+                ? (Amazon.KeyManagementService.MessageType)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S11_MessageType(value.Extract());
         }
 
@@ -2442,20 +2429,20 @@ namespace Com.Amazonaws.Kms
                 ? Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._IMessageType>.create_None()
                 : Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._IMessageType>.create_Some(
                     ToDafny_N3_com__N9_amazonaws__N3_kms__S11_MessageType(
-                        (Amazon.KeyManagementService.MessageType) value));
+                        (Amazon.KeyManagementService.MessageType)value));
         }
 
         public static Amazon.KeyManagementService.Model.GetKeyPolicyRequest
             FromDafny_N3_com__N9_amazonaws__N3_kms__S19_GetKeyPolicyRequest(
                 Dafny.Com.Amazonaws.Kms._IGetKeyPolicyRequest value)
         {
-            Dafny.Com.Amazonaws.Kms.GetKeyPolicyRequest concrete = (Dafny.Com.Amazonaws.Kms.GetKeyPolicyRequest) value;
+            Dafny.Com.Amazonaws.Kms.GetKeyPolicyRequest concrete = (Dafny.Com.Amazonaws.Kms.GetKeyPolicyRequest)value;
             Amazon.KeyManagementService.Model.GetKeyPolicyRequest converted =
                 new Amazon.KeyManagementService.Model.GetKeyPolicyRequest();
             converted.KeyId =
-                (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S19_GetKeyPolicyRequest__M5_KeyId(concrete.KeyId);
+                (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S19_GetKeyPolicyRequest__M5_KeyId(concrete.KeyId);
             converted.PolicyName =
-                (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S19_GetKeyPolicyRequest__M10_PolicyName(
+                (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S19_GetKeyPolicyRequest__M10_PolicyName(
                     concrete.PolicyName);
             return converted;
         }
@@ -2483,7 +2470,7 @@ namespace Com.Amazonaws.Kms
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Extract());
         }
 
@@ -2493,7 +2480,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType((string)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S20_KeyStorePasswordType(
@@ -2511,7 +2498,7 @@ namespace Com.Amazonaws.Kms
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Extract());
         }
 
@@ -2521,7 +2508,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType((string)value));
         }
 
         public static Amazon.KeyManagementService.Model.ImportKeyMaterialRequest
@@ -2529,11 +2516,11 @@ namespace Com.Amazonaws.Kms
                 Dafny.Com.Amazonaws.Kms._IImportKeyMaterialRequest value)
         {
             Dafny.Com.Amazonaws.Kms.ImportKeyMaterialRequest concrete =
-                (Dafny.Com.Amazonaws.Kms.ImportKeyMaterialRequest) value;
+                (Dafny.Com.Amazonaws.Kms.ImportKeyMaterialRequest)value;
             Amazon.KeyManagementService.Model.ImportKeyMaterialRequest converted =
                 new Amazon.KeyManagementService.Model.ImportKeyMaterialRequest();
             converted.KeyId =
-                (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S24_ImportKeyMaterialRequest__M5_KeyId(concrete.KeyId);
+                (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S24_ImportKeyMaterialRequest__M5_KeyId(concrete.KeyId);
             converted.ImportToken =
                 (System.IO.MemoryStream)
                 FromDafny_N3_com__N9_amazonaws__N3_kms__S24_ImportKeyMaterialRequest__M11_ImportToken(
@@ -2544,7 +2531,7 @@ namespace Com.Amazonaws.Kms
                     concrete.EncryptedKeyMaterial);
             if (concrete.ValidTo.is_Some)
                 converted.ValidTo =
-                    (System.DateTime) FromDafny_N3_com__N9_amazonaws__N3_kms__S24_ImportKeyMaterialRequest__M7_ValidTo(
+                    (System.DateTime)FromDafny_N3_com__N9_amazonaws__N3_kms__S24_ImportKeyMaterialRequest__M7_ValidTo(
                         concrete.ValidTo);
             if (concrete.ExpirationModel.is_Some)
                 converted.ExpirationModel =
@@ -2558,22 +2545,23 @@ namespace Com.Amazonaws.Kms
             ToDafny_N3_com__N9_amazonaws__N3_kms__S24_ImportKeyMaterialRequest(
                 Amazon.KeyManagementService.Model.ImportKeyMaterialRequest value)
         {
+            System.DateTime? var_validTo = value.ValidTo;
+            Amazon.KeyManagementService.ExpirationModelType var_expirationModel = value.ExpirationModel;
             return new Dafny.Com.Amazonaws.Kms.ImportKeyMaterialRequest(
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S24_ImportKeyMaterialRequest__M5_KeyId(value.KeyId),
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S24_ImportKeyMaterialRequest__M11_ImportToken(value.ImportToken),
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S24_ImportKeyMaterialRequest__M20_EncryptedKeyMaterial(
                     value.EncryptedKeyMaterial),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S24_ImportKeyMaterialRequest__M7_ValidTo(value.ValidTo),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S24_ImportKeyMaterialRequest__M7_ValidTo(var_validTo),
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S24_ImportKeyMaterialRequest__M15_ExpirationModel(
-                    value.ExpirationModel));
+                    var_expirationModel));
         }
 
         public static Amazon.KeyManagementService.Model.ReplicateKeyResponse
             FromDafny_N3_com__N9_amazonaws__N3_kms__S20_ReplicateKeyResponse(
                 Dafny.Com.Amazonaws.Kms._IReplicateKeyResponse value)
         {
-            Dafny.Com.Amazonaws.Kms.ReplicateKeyResponse
-                concrete = (Dafny.Com.Amazonaws.Kms.ReplicateKeyResponse) value;
+            Dafny.Com.Amazonaws.Kms.ReplicateKeyResponse concrete = (Dafny.Com.Amazonaws.Kms.ReplicateKeyResponse)value;
             Amazon.KeyManagementService.Model.ReplicateKeyResponse converted =
                 new Amazon.KeyManagementService.Model.ReplicateKeyResponse();
             if (concrete.ReplicaKeyMetadata.is_Some)
@@ -2583,7 +2571,7 @@ namespace Com.Amazonaws.Kms
                         concrete.ReplicaKeyMetadata);
             if (concrete.ReplicaPolicy.is_Some)
                 converted.ReplicaPolicy =
-                    (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S20_ReplicateKeyResponse__M13_ReplicaPolicy(
+                    (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S20_ReplicateKeyResponse__M13_ReplicaPolicy(
                         concrete.ReplicaPolicy);
             if (concrete.ReplicaTags.is_Some)
                 converted.ReplicaTags =
@@ -2597,18 +2585,21 @@ namespace Com.Amazonaws.Kms
             ToDafny_N3_com__N9_amazonaws__N3_kms__S20_ReplicateKeyResponse(
                 Amazon.KeyManagementService.Model.ReplicateKeyResponse value)
         {
+            Amazon.KeyManagementService.Model.KeyMetadata var_replicaKeyMetadata = value.ReplicaKeyMetadata;
+            string var_replicaPolicy = value.ReplicaPolicy;
+            System.Collections.Generic.List<Amazon.KeyManagementService.Model.Tag> var_replicaTags = value.ReplicaTags;
             return new Dafny.Com.Amazonaws.Kms.ReplicateKeyResponse(
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S20_ReplicateKeyResponse__M18_ReplicaKeyMetadata(
-                    value.ReplicaKeyMetadata),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S20_ReplicateKeyResponse__M13_ReplicaPolicy(value.ReplicaPolicy),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S20_ReplicateKeyResponse__M11_ReplicaTags(value.ReplicaTags));
+                    var_replicaKeyMetadata),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S20_ReplicateKeyResponse__M13_ReplicaPolicy(var_replicaPolicy),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S20_ReplicateKeyResponse__M11_ReplicaTags(var_replicaTags));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S14_AliasListEntry__M9_AliasName(
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S13_AliasNameType(value.Extract());
         }
 
@@ -2618,7 +2609,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S13_AliasNameType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S13_AliasNameType((string)value));
         }
 
         public static Amazon.KeyManagementService.Model.DisconnectCustomKeyStoreRequest
@@ -2626,7 +2617,7 @@ namespace Com.Amazonaws.Kms
                 Dafny.Com.Amazonaws.Kms._IDisconnectCustomKeyStoreRequest value)
         {
             Dafny.Com.Amazonaws.Kms.DisconnectCustomKeyStoreRequest concrete =
-                (Dafny.Com.Amazonaws.Kms.DisconnectCustomKeyStoreRequest) value;
+                (Dafny.Com.Amazonaws.Kms.DisconnectCustomKeyStoreRequest)value;
             Amazon.KeyManagementService.Model.DisconnectCustomKeyStoreRequest converted =
                 new Amazon.KeyManagementService.Model.DisconnectCustomKeyStoreRequest();
             converted.CustomKeyStoreId =
@@ -2648,7 +2639,7 @@ namespace Com.Amazonaws.Kms
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S14_AliasListEntry__M8_AliasArn(
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
-            return value.is_None ? (string) null : FromDafny_N3_com__N9_amazonaws__N3_kms__S7_ArnType(value.Extract());
+            return value.is_None ? (string)null : FromDafny_N3_com__N9_amazonaws__N3_kms__S7_ArnType(value.Extract());
         }
 
         public static Wrappers_Compile._IOption<Dafny.ISequence<char>>
@@ -2657,14 +2648,14 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S7_ArnType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S7_ArnType((string)value));
         }
 
         public static bool? FromDafny_N3_com__N9_amazonaws__N3_kms__S23_ListKeyPoliciesResponse__M9_Truncated(
             Wrappers_Compile._IOption<bool> value)
         {
             return value.is_None
-                ? (bool?) null
+                ? (bool?)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S11_BooleanType(value.Extract());
         }
 
@@ -2674,7 +2665,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<bool>.create_None()
                 : Wrappers_Compile.Option<bool>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S11_BooleanType((bool) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S11_BooleanType((bool)value));
         }
 
         public static System.IO.MemoryStream
@@ -2682,7 +2673,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.ISequence<byte>> value)
         {
             return value.is_None
-                ? (System.IO.MemoryStream) null
+                ? (System.IO.MemoryStream)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S14_CiphertextType(value.Extract());
         }
 
@@ -2693,7 +2684,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<byte>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<byte>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S14_CiphertextType((System.IO.MemoryStream) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S14_CiphertextType((System.IO.MemoryStream)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(Dafny.ISequence<char> value)
@@ -2710,11 +2701,11 @@ namespace Com.Amazonaws.Kms
             FromDafny_N3_com__N9_amazonaws__N3_kms__S18_DescribeKeyRequest(
                 Dafny.Com.Amazonaws.Kms._IDescribeKeyRequest value)
         {
-            Dafny.Com.Amazonaws.Kms.DescribeKeyRequest concrete = (Dafny.Com.Amazonaws.Kms.DescribeKeyRequest) value;
+            Dafny.Com.Amazonaws.Kms.DescribeKeyRequest concrete = (Dafny.Com.Amazonaws.Kms.DescribeKeyRequest)value;
             Amazon.KeyManagementService.Model.DescribeKeyRequest converted =
                 new Amazon.KeyManagementService.Model.DescribeKeyRequest();
             converted.KeyId =
-                (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S18_DescribeKeyRequest__M5_KeyId(concrete.KeyId);
+                (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S18_DescribeKeyRequest__M5_KeyId(concrete.KeyId);
             if (concrete.GrantTokens.is_Some)
                 converted.GrantTokens =
                     (System.Collections.Generic.List<string>)
@@ -2727,9 +2718,10 @@ namespace Com.Amazonaws.Kms
             ToDafny_N3_com__N9_amazonaws__N3_kms__S18_DescribeKeyRequest(
                 Amazon.KeyManagementService.Model.DescribeKeyRequest value)
         {
+            System.Collections.Generic.List<string> var_grantTokens = value.GrantTokens;
             return new Dafny.Com.Amazonaws.Kms.DescribeKeyRequest(
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S18_DescribeKeyRequest__M5_KeyId(value.KeyId),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S18_DescribeKeyRequest__M11_GrantTokens(value.GrantTokens));
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S18_DescribeKeyRequest__M11_GrantTokens(var_grantTokens));
         }
 
         public static Amazon.KeyManagementService.KeyUsageType
@@ -2737,7 +2729,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.Com.Amazonaws.Kms._IKeyUsageType> value)
         {
             return value.is_None
-                ? (Amazon.KeyManagementService.KeyUsageType) null
+                ? (Amazon.KeyManagementService.KeyUsageType)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S12_KeyUsageType(value.Extract());
         }
 
@@ -2749,55 +2741,53 @@ namespace Com.Amazonaws.Kms
                 ? Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._IKeyUsageType>.create_None()
                 : Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._IKeyUsageType>.create_Some(
                     ToDafny_N3_com__N9_amazonaws__N3_kms__S12_KeyUsageType(
-                        (Amazon.KeyManagementService.KeyUsageType) value));
+                        (Amazon.KeyManagementService.KeyUsageType)value));
         }
 
         public static Amazon.KeyManagementService.Model.DisabledException
             FromDafny_N3_com__N9_amazonaws__N3_kms__S17_DisabledException(
-                Dafny.Com.Amazonaws.Kms._IDisabledException value)
+                Dafny.Com.Amazonaws.Kms.DisabledException value)
         {
-            Dafny.Com.Amazonaws.Kms.DisabledException concrete = (Dafny.Com.Amazonaws.Kms.DisabledException) value;
-            string message = concrete.message.is_Some
+            string message = value.message.Count == 0
                 ? null
-                : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(concrete.message.Extract());
+                : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.message);
             return new Amazon.KeyManagementService.Model.DisabledException(message);
         }
 
-        public static Dafny.Com.Amazonaws.Kms._IDisabledException
+        public static Dafny.Com.Amazonaws.Kms.DisabledException
             ToDafny_N3_com__N9_amazonaws__N3_kms__S17_DisabledException(
                 Amazon.KeyManagementService.Model.DisabledException value)
         {
-            Wrappers_Compile._IOption<Dafny.ISequence<char>> message = System.String.IsNullOrEmpty(value.Message)
-                ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
-                : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Message));
-            return new Dafny.Com.Amazonaws.Kms.DisabledException(message);
+            Dafny.ISequence<char> message = System.String.IsNullOrEmpty(value.Message)
+                ? Dafny.Sequence<char>.Empty
+                : ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Message);
+            return new Dafny.Com.Amazonaws.Kms.DisabledException { message = message };
         }
 
         public static Amazon.KeyManagementService.Model.AliasListEntry
             FromDafny_N3_com__N9_amazonaws__N3_kms__S14_AliasListEntry(Dafny.Com.Amazonaws.Kms._IAliasListEntry value)
         {
-            Dafny.Com.Amazonaws.Kms.AliasListEntry concrete = (Dafny.Com.Amazonaws.Kms.AliasListEntry) value;
+            Dafny.Com.Amazonaws.Kms.AliasListEntry concrete = (Dafny.Com.Amazonaws.Kms.AliasListEntry)value;
             Amazon.KeyManagementService.Model.AliasListEntry converted =
                 new Amazon.KeyManagementService.Model.AliasListEntry();
             if (concrete.AliasName.is_Some)
                 converted.AliasName =
-                    (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S14_AliasListEntry__M9_AliasName(
+                    (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S14_AliasListEntry__M9_AliasName(
                         concrete.AliasName);
             if (concrete.AliasArn.is_Some)
                 converted.AliasArn =
-                    (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S14_AliasListEntry__M8_AliasArn(concrete.AliasArn);
+                    (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S14_AliasListEntry__M8_AliasArn(concrete.AliasArn);
             if (concrete.TargetKeyId.is_Some)
                 converted.TargetKeyId =
-                    (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S14_AliasListEntry__M11_TargetKeyId(
+                    (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S14_AliasListEntry__M11_TargetKeyId(
                         concrete.TargetKeyId);
             if (concrete.CreationDate.is_Some)
                 converted.CreationDate =
-                    (System.DateTime) FromDafny_N3_com__N9_amazonaws__N3_kms__S14_AliasListEntry__M12_CreationDate(
+                    (System.DateTime)FromDafny_N3_com__N9_amazonaws__N3_kms__S14_AliasListEntry__M12_CreationDate(
                         concrete.CreationDate);
             if (concrete.LastUpdatedDate.is_Some)
                 converted.LastUpdatedDate =
-                    (System.DateTime) FromDafny_N3_com__N9_amazonaws__N3_kms__S14_AliasListEntry__M15_LastUpdatedDate(
+                    (System.DateTime)FromDafny_N3_com__N9_amazonaws__N3_kms__S14_AliasListEntry__M15_LastUpdatedDate(
                         concrete.LastUpdatedDate);
             return converted;
         }
@@ -2805,12 +2795,17 @@ namespace Com.Amazonaws.Kms
         public static Dafny.Com.Amazonaws.Kms._IAliasListEntry ToDafny_N3_com__N9_amazonaws__N3_kms__S14_AliasListEntry(
             Amazon.KeyManagementService.Model.AliasListEntry value)
         {
+            string var_aliasName = value.AliasName;
+            string var_aliasArn = value.AliasArn;
+            string var_targetKeyId = value.TargetKeyId;
+            System.DateTime? var_creationDate = value.CreationDate;
+            System.DateTime? var_lastUpdatedDate = value.LastUpdatedDate;
             return new Dafny.Com.Amazonaws.Kms.AliasListEntry(
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S14_AliasListEntry__M9_AliasName(value.AliasName),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S14_AliasListEntry__M8_AliasArn(value.AliasArn),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S14_AliasListEntry__M11_TargetKeyId(value.TargetKeyId),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S14_AliasListEntry__M12_CreationDate(value.CreationDate),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S14_AliasListEntry__M15_LastUpdatedDate(value.LastUpdatedDate));
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S14_AliasListEntry__M9_AliasName(var_aliasName),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S14_AliasListEntry__M8_AliasArn(var_aliasArn),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S14_AliasListEntry__M11_TargetKeyId(var_targetKeyId),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S14_AliasListEntry__M12_CreationDate(var_creationDate),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S14_AliasListEntry__M15_LastUpdatedDate(var_lastUpdatedDate));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S18_UpdateAliasRequest__M9_AliasName(
@@ -2851,7 +2846,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S20_KeyStorePasswordType(value.Extract());
         }
 
@@ -2861,7 +2856,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S20_KeyStorePasswordType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S20_KeyStorePasswordType((string)value));
         }
 
         public static Amazon.KeyManagementService.DataKeyPairSpec
@@ -2902,7 +2897,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.Com.Amazonaws.Kms._IMultiRegionConfiguration> value)
         {
             return value.is_None
-                ? (Amazon.KeyManagementService.Model.MultiRegionConfiguration) null
+                ? (Amazon.KeyManagementService.Model.MultiRegionConfiguration)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S24_MultiRegionConfiguration(value.Extract());
         }
 
@@ -2914,44 +2909,21 @@ namespace Com.Amazonaws.Kms
                 ? Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._IMultiRegionConfiguration>.create_None()
                 : Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._IMultiRegionConfiguration>.create_Some(
                     ToDafny_N3_com__N9_amazonaws__N3_kms__S24_MultiRegionConfiguration(
-                        (Amazon.KeyManagementService.Model.MultiRegionConfiguration) value));
-        }
-
-        public static Amazon.KeyManagementService.Model.CloudHsmClusterInUseException
-            FromDafny_N3_com__N9_amazonaws__N3_kms__S29_CloudHsmClusterInUseException(
-                Dafny.Com.Amazonaws.Kms._ICloudHsmClusterInUseException value)
-        {
-            Dafny.Com.Amazonaws.Kms.CloudHsmClusterInUseException concrete =
-                (Dafny.Com.Amazonaws.Kms.CloudHsmClusterInUseException) value;
-            string message = concrete.message.is_Some
-                ? null
-                : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(concrete.message.Extract());
-            return new Amazon.KeyManagementService.Model.CloudHsmClusterInUseException(message);
-        }
-
-        public static Dafny.Com.Amazonaws.Kms._ICloudHsmClusterInUseException
-            ToDafny_N3_com__N9_amazonaws__N3_kms__S29_CloudHsmClusterInUseException(
-                Amazon.KeyManagementService.Model.CloudHsmClusterInUseException value)
-        {
-            Wrappers_Compile._IOption<Dafny.ISequence<char>> message = System.String.IsNullOrEmpty(value.Message)
-                ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
-                : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Message));
-            return new Dafny.Com.Amazonaws.Kms.CloudHsmClusterInUseException(message);
+                        (Amazon.KeyManagementService.Model.MultiRegionConfiguration)value));
         }
 
         public static Amazon.KeyManagementService.Model.UpdateAliasRequest
             FromDafny_N3_com__N9_amazonaws__N3_kms__S18_UpdateAliasRequest(
                 Dafny.Com.Amazonaws.Kms._IUpdateAliasRequest value)
         {
-            Dafny.Com.Amazonaws.Kms.UpdateAliasRequest concrete = (Dafny.Com.Amazonaws.Kms.UpdateAliasRequest) value;
+            Dafny.Com.Amazonaws.Kms.UpdateAliasRequest concrete = (Dafny.Com.Amazonaws.Kms.UpdateAliasRequest)value;
             Amazon.KeyManagementService.Model.UpdateAliasRequest converted =
                 new Amazon.KeyManagementService.Model.UpdateAliasRequest();
             converted.AliasName =
-                (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S18_UpdateAliasRequest__M9_AliasName(
+                (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S18_UpdateAliasRequest__M9_AliasName(
                     concrete.AliasName);
             converted.TargetKeyId =
-                (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S18_UpdateAliasRequest__M11_TargetKeyId(
+                (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S18_UpdateAliasRequest__M11_TargetKeyId(
                     concrete.TargetKeyId);
             return converted;
         }
@@ -2965,11 +2937,31 @@ namespace Com.Amazonaws.Kms
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S18_UpdateAliasRequest__M11_TargetKeyId(value.TargetKeyId));
         }
 
+        public static Amazon.KeyManagementService.Model.CloudHsmClusterInUseException
+            FromDafny_N3_com__N9_amazonaws__N3_kms__S29_CloudHsmClusterInUseException(
+                Dafny.Com.Amazonaws.Kms.CloudHsmClusterInUseException value)
+        {
+            string message = value.message.Count == 0
+                ? null
+                : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.message);
+            return new Amazon.KeyManagementService.Model.CloudHsmClusterInUseException(message);
+        }
+
+        public static Dafny.Com.Amazonaws.Kms.CloudHsmClusterInUseException
+            ToDafny_N3_com__N9_amazonaws__N3_kms__S29_CloudHsmClusterInUseException(
+                Amazon.KeyManagementService.Model.CloudHsmClusterInUseException value)
+        {
+            Dafny.ISequence<char> message = System.String.IsNullOrEmpty(value.Message)
+                ? Dafny.Sequence<char>.Empty
+                : ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Message);
+            return new Dafny.Com.Amazonaws.Kms.CloudHsmClusterInUseException { message = message };
+        }
+
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S17_ListGrantsRequest__M7_GrantId(
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S11_GrantIdType(value.Extract());
         }
 
@@ -2979,7 +2971,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S11_GrantIdType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S11_GrantIdType((string)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S3_Tag__M6_TagKey(Dafny.ISequence<char> value)
@@ -3019,7 +3011,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.ISequence<byte>> value)
         {
             return value.is_None
-                ? (System.IO.MemoryStream) null
+                ? (System.IO.MemoryStream)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S13_PlaintextType(value.Extract());
         }
 
@@ -3030,7 +3022,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<byte>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<byte>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S13_PlaintextType((System.IO.MemoryStream) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S13_PlaintextType((System.IO.MemoryStream)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S22_ListKeyPoliciesRequest__M5_KeyId(
@@ -3048,7 +3040,7 @@ namespace Com.Amazonaws.Kms
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata__M3_Arn(
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
-            return value.is_None ? (string) null : FromDafny_N3_com__N9_amazonaws__N3_kms__S7_ArnType(value.Extract());
+            return value.is_None ? (string)null : FromDafny_N3_com__N9_amazonaws__N3_kms__S7_ArnType(value.Extract());
         }
 
         public static Wrappers_Compile._IOption<Dafny.ISequence<char>>
@@ -3057,7 +3049,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S7_ArnType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S7_ArnType((string)value));
         }
 
         public static string
@@ -3065,7 +3057,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Extract());
         }
 
@@ -3076,7 +3068,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType((string)value));
         }
 
         public static Amazon.KeyManagementService.Model.MultiRegionKey
@@ -3084,7 +3076,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.Com.Amazonaws.Kms._IMultiRegionKey> value)
         {
             return value.is_None
-                ? (Amazon.KeyManagementService.Model.MultiRegionKey) null
+                ? (Amazon.KeyManagementService.Model.MultiRegionKey)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S14_MultiRegionKey(value.Extract());
         }
 
@@ -3096,14 +3088,14 @@ namespace Com.Amazonaws.Kms
                 ? Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._IMultiRegionKey>.create_None()
                 : Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._IMultiRegionKey>.create_Some(
                     ToDafny_N3_com__N9_amazonaws__N3_kms__S14_MultiRegionKey(
-                        (Amazon.KeyManagementService.Model.MultiRegionKey) value));
+                        (Amazon.KeyManagementService.Model.MultiRegionKey)value));
         }
 
         public static Amazon.KeyManagementService.Model.CreateKeyResponse
             FromDafny_N3_com__N9_amazonaws__N3_kms__S17_CreateKeyResponse(
                 Dafny.Com.Amazonaws.Kms._ICreateKeyResponse value)
         {
-            Dafny.Com.Amazonaws.Kms.CreateKeyResponse concrete = (Dafny.Com.Amazonaws.Kms.CreateKeyResponse) value;
+            Dafny.Com.Amazonaws.Kms.CreateKeyResponse concrete = (Dafny.Com.Amazonaws.Kms.CreateKeyResponse)value;
             Amazon.KeyManagementService.Model.CreateKeyResponse converted =
                 new Amazon.KeyManagementService.Model.CreateKeyResponse();
             if (concrete.KeyMetadata.is_Some)
@@ -3118,15 +3110,16 @@ namespace Com.Amazonaws.Kms
             ToDafny_N3_com__N9_amazonaws__N3_kms__S17_CreateKeyResponse(
                 Amazon.KeyManagementService.Model.CreateKeyResponse value)
         {
+            Amazon.KeyManagementService.Model.KeyMetadata var_keyMetadata = value.KeyMetadata;
             return new Dafny.Com.Amazonaws.Kms.CreateKeyResponse(
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S17_CreateKeyResponse__M11_KeyMetadata(value.KeyMetadata));
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S17_CreateKeyResponse__M11_KeyMetadata(var_keyMetadata));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S24_CustomKeyStoresListEntry__M16_CustomKeyStoreId(
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S20_CustomKeyStoreIdType(value.Extract());
         }
 
@@ -3136,7 +3129,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S20_CustomKeyStoreIdType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S20_CustomKeyStoreIdType((string)value));
         }
 
         public static Amazon.KeyManagementService.WrappingKeySpec
@@ -3159,17 +3152,17 @@ namespace Com.Amazonaws.Kms
                 Dafny.Com.Amazonaws.Kms._IListKeyPoliciesRequest value)
         {
             Dafny.Com.Amazonaws.Kms.ListKeyPoliciesRequest concrete =
-                (Dafny.Com.Amazonaws.Kms.ListKeyPoliciesRequest) value;
+                (Dafny.Com.Amazonaws.Kms.ListKeyPoliciesRequest)value;
             Amazon.KeyManagementService.Model.ListKeyPoliciesRequest converted =
                 new Amazon.KeyManagementService.Model.ListKeyPoliciesRequest();
             converted.KeyId =
-                (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S22_ListKeyPoliciesRequest__M5_KeyId(concrete.KeyId);
+                (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S22_ListKeyPoliciesRequest__M5_KeyId(concrete.KeyId);
             if (concrete.Limit.is_Some)
                 converted.Limit =
-                    (int) FromDafny_N3_com__N9_amazonaws__N3_kms__S22_ListKeyPoliciesRequest__M5_Limit(concrete.Limit);
+                    (int)FromDafny_N3_com__N9_amazonaws__N3_kms__S22_ListKeyPoliciesRequest__M5_Limit(concrete.Limit);
             if (concrete.Marker.is_Some)
                 converted.Marker =
-                    (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S22_ListKeyPoliciesRequest__M6_Marker(
+                    (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S22_ListKeyPoliciesRequest__M6_Marker(
                         concrete.Marker);
             return converted;
         }
@@ -3178,10 +3171,12 @@ namespace Com.Amazonaws.Kms
             ToDafny_N3_com__N9_amazonaws__N3_kms__S22_ListKeyPoliciesRequest(
                 Amazon.KeyManagementService.Model.ListKeyPoliciesRequest value)
         {
+            int? var_limit = value.Limit;
+            string var_marker = value.Marker;
             return new Dafny.Com.Amazonaws.Kms.ListKeyPoliciesRequest(
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S22_ListKeyPoliciesRequest__M5_KeyId(value.KeyId),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S22_ListKeyPoliciesRequest__M5_Limit(value.Limit),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S22_ListKeyPoliciesRequest__M6_Marker(value.Marker));
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S22_ListKeyPoliciesRequest__M5_Limit(var_limit),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S22_ListKeyPoliciesRequest__M6_Marker(var_marker));
         }
 
         public static Amazon.KeyManagementService.KeyState FromDafny_N3_com__N9_amazonaws__N3_kms__S8_KeyState(
@@ -3252,7 +3247,7 @@ namespace Com.Amazonaws.Kms
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Extract());
         }
 
@@ -3262,15 +3257,13 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType((string)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S14_DecryptRequest__M5_KeyId(
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
-            return value.is_None
-                ? (string) null
-                : FromDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType(value.Extract());
+            return value.is_None ? (string)null : FromDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType(value.Extract());
         }
 
         public static Wrappers_Compile._IOption<Dafny.ISequence<char>>
@@ -3279,7 +3272,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType((string)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S17_ListGrantsRequest__M5_KeyId(
@@ -3297,9 +3290,7 @@ namespace Com.Amazonaws.Kms
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S20_GetPublicKeyResponse__M5_KeyId(
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
-            return value.is_None
-                ? (string) null
-                : FromDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType(value.Extract());
+            return value.is_None ? (string)null : FromDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType(value.Extract());
         }
 
         public static Wrappers_Compile._IOption<Dafny.ISequence<char>>
@@ -3308,27 +3299,25 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType((string)value));
         }
 
         public static Amazon.KeyManagementService.Model.TagException
-            FromDafny_N3_com__N9_amazonaws__N3_kms__S12_TagException(Dafny.Com.Amazonaws.Kms._ITagException value)
+            FromDafny_N3_com__N9_amazonaws__N3_kms__S12_TagException(Dafny.Com.Amazonaws.Kms.TagException value)
         {
-            Dafny.Com.Amazonaws.Kms.TagException concrete = (Dafny.Com.Amazonaws.Kms.TagException) value;
-            string message = concrete.message.is_Some
+            string message = value.message.Count == 0
                 ? null
-                : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(concrete.message.Extract());
+                : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.message);
             return new Amazon.KeyManagementService.Model.TagException(message);
         }
 
-        public static Dafny.Com.Amazonaws.Kms._ITagException ToDafny_N3_com__N9_amazonaws__N3_kms__S12_TagException(
+        public static Dafny.Com.Amazonaws.Kms.TagException ToDafny_N3_com__N9_amazonaws__N3_kms__S12_TagException(
             Amazon.KeyManagementService.Model.TagException value)
         {
-            Wrappers_Compile._IOption<Dafny.ISequence<char>> message = System.String.IsNullOrEmpty(value.Message)
-                ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
-                : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Message));
-            return new Dafny.Com.Amazonaws.Kms.TagException(message);
+            Dafny.ISequence<char> message = System.String.IsNullOrEmpty(value.Message)
+                ? Dafny.Sequence<char>.Empty
+                : ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Message);
+            return new Dafny.Com.Amazonaws.Kms.TagException { message = message };
         }
 
         public static System.Collections.Generic.List<string>
@@ -3349,7 +3338,7 @@ namespace Com.Amazonaws.Kms
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Extract());
         }
 
@@ -3359,7 +3348,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType((string)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S19_ReplicateKeyRequest__M13_ReplicaRegion(
@@ -3377,7 +3366,7 @@ namespace Com.Amazonaws.Kms
         public static int? FromDafny_N3_com__N9_amazonaws__N3_kms__S17_ListGrantsRequest__M5_Limit(
             Wrappers_Compile._IOption<int> value)
         {
-            return value.is_None ? (int?) null : FromDafny_N3_com__N9_amazonaws__N3_kms__S9_LimitType(value.Extract());
+            return value.is_None ? (int?)null : FromDafny_N3_com__N9_amazonaws__N3_kms__S9_LimitType(value.Extract());
         }
 
         public static Wrappers_Compile._IOption<int>
@@ -3386,7 +3375,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<int>.create_None()
                 : Wrappers_Compile.Option<int>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S9_LimitType((int) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S9_LimitType((int)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S27_GetKeyRotationStatusRequest__M5_KeyId(
@@ -3406,7 +3395,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.Com.Amazonaws.Kms._IKeyState> value)
         {
             return value.is_None
-                ? (Amazon.KeyManagementService.KeyState) null
+                ? (Amazon.KeyManagementService.KeyState)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S8_KeyState(value.Extract());
         }
 
@@ -3417,7 +3406,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._IKeyState>.create_None()
                 : Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._IKeyState>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S8_KeyState((Amazon.KeyManagementService.KeyState) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S8_KeyState((Amazon.KeyManagementService.KeyState)value));
         }
 
         public static Amazon.KeyManagementService.Model.GenerateDataKeyPairResponse
@@ -3425,7 +3414,7 @@ namespace Com.Amazonaws.Kms
                 Dafny.Com.Amazonaws.Kms._IGenerateDataKeyPairResponse value)
         {
             Dafny.Com.Amazonaws.Kms.GenerateDataKeyPairResponse concrete =
-                (Dafny.Com.Amazonaws.Kms.GenerateDataKeyPairResponse) value;
+                (Dafny.Com.Amazonaws.Kms.GenerateDataKeyPairResponse)value;
             Amazon.KeyManagementService.Model.GenerateDataKeyPairResponse converted =
                 new Amazon.KeyManagementService.Model.GenerateDataKeyPairResponse();
             if (concrete.PrivateKeyCiphertextBlob.is_Some)
@@ -3445,7 +3434,7 @@ namespace Com.Amazonaws.Kms
                         concrete.PublicKey);
             if (concrete.KeyId.is_Some)
                 converted.KeyId =
-                    (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S27_GenerateDataKeyPairResponse__M5_KeyId(
+                    (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S27_GenerateDataKeyPairResponse__M5_KeyId(
                         concrete.KeyId);
             if (concrete.KeyPairSpec.is_Some)
                 converted.KeyPairSpec =
@@ -3459,15 +3448,20 @@ namespace Com.Amazonaws.Kms
             ToDafny_N3_com__N9_amazonaws__N3_kms__S27_GenerateDataKeyPairResponse(
                 Amazon.KeyManagementService.Model.GenerateDataKeyPairResponse value)
         {
+            System.IO.MemoryStream var_privateKeyCiphertextBlob = value.PrivateKeyCiphertextBlob;
+            System.IO.MemoryStream var_privateKeyPlaintext = value.PrivateKeyPlaintext;
+            System.IO.MemoryStream var_publicKey = value.PublicKey;
+            string var_keyId = value.KeyId;
+            Amazon.KeyManagementService.DataKeyPairSpec var_keyPairSpec = value.KeyPairSpec;
             return new Dafny.Com.Amazonaws.Kms.GenerateDataKeyPairResponse(
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S27_GenerateDataKeyPairResponse__M24_PrivateKeyCiphertextBlob(
-                    value.PrivateKeyCiphertextBlob),
+                    var_privateKeyCiphertextBlob),
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S27_GenerateDataKeyPairResponse__M19_PrivateKeyPlaintext(
-                    value.PrivateKeyPlaintext),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S27_GenerateDataKeyPairResponse__M9_PublicKey(value.PublicKey),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S27_GenerateDataKeyPairResponse__M5_KeyId(value.KeyId),
+                    var_privateKeyPlaintext),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S27_GenerateDataKeyPairResponse__M9_PublicKey(var_publicKey),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S27_GenerateDataKeyPairResponse__M5_KeyId(var_keyId),
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S27_GenerateDataKeyPairResponse__M11_KeyPairSpec(
-                    value.KeyPairSpec));
+                    var_keyPairSpec));
         }
 
         public static Amazon.KeyManagementService.Model.GenerateDataKeyResponse
@@ -3475,7 +3469,7 @@ namespace Com.Amazonaws.Kms
                 Dafny.Com.Amazonaws.Kms._IGenerateDataKeyResponse value)
         {
             Dafny.Com.Amazonaws.Kms.GenerateDataKeyResponse concrete =
-                (Dafny.Com.Amazonaws.Kms.GenerateDataKeyResponse) value;
+                (Dafny.Com.Amazonaws.Kms.GenerateDataKeyResponse)value;
             Amazon.KeyManagementService.Model.GenerateDataKeyResponse converted =
                 new Amazon.KeyManagementService.Model.GenerateDataKeyResponse();
             if (concrete.CiphertextBlob.is_Some)
@@ -3490,7 +3484,7 @@ namespace Com.Amazonaws.Kms
                         concrete.Plaintext);
             if (concrete.KeyId.is_Some)
                 converted.KeyId =
-                    (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S23_GenerateDataKeyResponse__M5_KeyId(
+                    (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S23_GenerateDataKeyResponse__M5_KeyId(
                         concrete.KeyId);
             return converted;
         }
@@ -3499,11 +3493,14 @@ namespace Com.Amazonaws.Kms
             ToDafny_N3_com__N9_amazonaws__N3_kms__S23_GenerateDataKeyResponse(
                 Amazon.KeyManagementService.Model.GenerateDataKeyResponse value)
         {
+            System.IO.MemoryStream var_ciphertextBlob = value.CiphertextBlob;
+            System.IO.MemoryStream var_plaintext = value.Plaintext;
+            string var_keyId = value.KeyId;
             return new Dafny.Com.Amazonaws.Kms.GenerateDataKeyResponse(
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S23_GenerateDataKeyResponse__M14_CiphertextBlob(
-                    value.CiphertextBlob),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S23_GenerateDataKeyResponse__M9_Plaintext(value.Plaintext),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S23_GenerateDataKeyResponse__M5_KeyId(value.KeyId));
+                    var_ciphertextBlob),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S23_GenerateDataKeyResponse__M9_Plaintext(var_plaintext),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S23_GenerateDataKeyResponse__M5_KeyId(var_keyId));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S22_EncryptionContextValue(
@@ -3523,11 +3520,11 @@ namespace Com.Amazonaws.Kms
                 Dafny.Com.Amazonaws.Kms._IGetKeyRotationStatusRequest value)
         {
             Dafny.Com.Amazonaws.Kms.GetKeyRotationStatusRequest concrete =
-                (Dafny.Com.Amazonaws.Kms.GetKeyRotationStatusRequest) value;
+                (Dafny.Com.Amazonaws.Kms.GetKeyRotationStatusRequest)value;
             Amazon.KeyManagementService.Model.GetKeyRotationStatusRequest converted =
                 new Amazon.KeyManagementService.Model.GetKeyRotationStatusRequest();
             converted.KeyId =
-                (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S27_GetKeyRotationStatusRequest__M5_KeyId(
+                (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S27_GetKeyRotationStatusRequest__M5_KeyId(
                     concrete.KeyId);
             return converted;
         }
@@ -3545,7 +3542,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.Com.Amazonaws.Kms._IKeySpec> value)
         {
             return value.is_None
-                ? (Amazon.KeyManagementService.KeySpec) null
+                ? (Amazon.KeyManagementService.KeySpec)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S7_KeySpec(value.Extract());
         }
 
@@ -3555,7 +3552,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._IKeySpec>.create_None()
                 : Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._IKeySpec>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S7_KeySpec((Amazon.KeyManagementService.KeySpec) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S7_KeySpec((Amazon.KeyManagementService.KeySpec)value));
         }
 
         public static bool FromDafny_N3_com__N9_amazonaws__N3_kms__S19_NullableBooleanType(bool value)
@@ -3573,7 +3570,7 @@ namespace Com.Amazonaws.Kms
                 Dafny.Com.Amazonaws.Kms._IMultiRegionConfiguration value)
         {
             Dafny.Com.Amazonaws.Kms.MultiRegionConfiguration concrete =
-                (Dafny.Com.Amazonaws.Kms.MultiRegionConfiguration) value;
+                (Dafny.Com.Amazonaws.Kms.MultiRegionConfiguration)value;
             Amazon.KeyManagementService.Model.MultiRegionConfiguration converted =
                 new Amazon.KeyManagementService.Model.MultiRegionConfiguration();
             if (concrete.MultiRegionKeyType.is_Some)
@@ -3598,43 +3595,47 @@ namespace Com.Amazonaws.Kms
             ToDafny_N3_com__N9_amazonaws__N3_kms__S24_MultiRegionConfiguration(
                 Amazon.KeyManagementService.Model.MultiRegionConfiguration value)
         {
+            Amazon.KeyManagementService.MultiRegionKeyType var_multiRegionKeyType = value.MultiRegionKeyType;
+            Amazon.KeyManagementService.Model.MultiRegionKey var_primaryKey = value.PrimaryKey;
+            System.Collections.Generic.List<Amazon.KeyManagementService.Model.MultiRegionKey> var_replicaKeys =
+                value.ReplicaKeys;
             return new Dafny.Com.Amazonaws.Kms.MultiRegionConfiguration(
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S24_MultiRegionConfiguration__M18_MultiRegionKeyType(
-                    value.MultiRegionKeyType),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S24_MultiRegionConfiguration__M10_PrimaryKey(value.PrimaryKey),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S24_MultiRegionConfiguration__M11_ReplicaKeys(value.ReplicaKeys));
+                    var_multiRegionKeyType),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S24_MultiRegionConfiguration__M10_PrimaryKey(var_primaryKey),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S24_MultiRegionConfiguration__M11_ReplicaKeys(var_replicaKeys));
         }
 
         public static Amazon.KeyManagementService.Model.GrantListEntry
             FromDafny_N3_com__N9_amazonaws__N3_kms__S14_GrantListEntry(Dafny.Com.Amazonaws.Kms._IGrantListEntry value)
         {
-            Dafny.Com.Amazonaws.Kms.GrantListEntry concrete = (Dafny.Com.Amazonaws.Kms.GrantListEntry) value;
+            Dafny.Com.Amazonaws.Kms.GrantListEntry concrete = (Dafny.Com.Amazonaws.Kms.GrantListEntry)value;
             Amazon.KeyManagementService.Model.GrantListEntry converted =
                 new Amazon.KeyManagementService.Model.GrantListEntry();
             if (concrete.KeyId.is_Some)
                 converted.KeyId =
-                    (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S14_GrantListEntry__M5_KeyId(concrete.KeyId);
+                    (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S14_GrantListEntry__M5_KeyId(concrete.KeyId);
             if (concrete.GrantId.is_Some)
                 converted.GrantId =
-                    (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S14_GrantListEntry__M7_GrantId(concrete.GrantId);
+                    (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S14_GrantListEntry__M7_GrantId(concrete.GrantId);
             if (concrete.Name.is_Some)
                 converted.Name =
-                    (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S14_GrantListEntry__M4_Name(concrete.Name);
+                    (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S14_GrantListEntry__M4_Name(concrete.Name);
             if (concrete.CreationDate.is_Some)
                 converted.CreationDate =
-                    (System.DateTime) FromDafny_N3_com__N9_amazonaws__N3_kms__S14_GrantListEntry__M12_CreationDate(
+                    (System.DateTime)FromDafny_N3_com__N9_amazonaws__N3_kms__S14_GrantListEntry__M12_CreationDate(
                         concrete.CreationDate);
             if (concrete.GranteePrincipal.is_Some)
                 converted.GranteePrincipal =
-                    (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S14_GrantListEntry__M16_GranteePrincipal(
+                    (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S14_GrantListEntry__M16_GranteePrincipal(
                         concrete.GranteePrincipal);
             if (concrete.RetiringPrincipal.is_Some)
                 converted.RetiringPrincipal =
-                    (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S14_GrantListEntry__M17_RetiringPrincipal(
+                    (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S14_GrantListEntry__M17_RetiringPrincipal(
                         concrete.RetiringPrincipal);
             if (concrete.IssuingAccount.is_Some)
                 converted.IssuingAccount =
-                    (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S14_GrantListEntry__M14_IssuingAccount(
+                    (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S14_GrantListEntry__M14_IssuingAccount(
                         concrete.IssuingAccount);
             if (concrete.Operations.is_Some)
                 converted.Operations =
@@ -3650,27 +3651,35 @@ namespace Com.Amazonaws.Kms
         public static Dafny.Com.Amazonaws.Kms._IGrantListEntry ToDafny_N3_com__N9_amazonaws__N3_kms__S14_GrantListEntry(
             Amazon.KeyManagementService.Model.GrantListEntry value)
         {
+            string var_keyId = value.KeyId;
+            string var_grantId = value.GrantId;
+            string var_name = value.Name;
+            System.DateTime? var_creationDate = value.CreationDate;
+            string var_granteePrincipal = value.GranteePrincipal;
+            string var_retiringPrincipal = value.RetiringPrincipal;
+            string var_issuingAccount = value.IssuingAccount;
+            System.Collections.Generic.List<string> var_operations = value.Operations;
+            Amazon.KeyManagementService.Model.GrantConstraints var_constraints = value.Constraints;
             return new Dafny.Com.Amazonaws.Kms.GrantListEntry(
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S14_GrantListEntry__M5_KeyId(value.KeyId),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S14_GrantListEntry__M7_GrantId(value.GrantId),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S14_GrantListEntry__M4_Name(value.Name),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S14_GrantListEntry__M12_CreationDate(value.CreationDate),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S14_GrantListEntry__M16_GranteePrincipal(value.GranteePrincipal),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S14_GrantListEntry__M17_RetiringPrincipal(
-                    value.RetiringPrincipal),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S14_GrantListEntry__M14_IssuingAccount(value.IssuingAccount),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S14_GrantListEntry__M10_Operations(value.Operations),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S14_GrantListEntry__M11_Constraints(value.Constraints));
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S14_GrantListEntry__M5_KeyId(var_keyId),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S14_GrantListEntry__M7_GrantId(var_grantId),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S14_GrantListEntry__M4_Name(var_name),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S14_GrantListEntry__M12_CreationDate(var_creationDate),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S14_GrantListEntry__M16_GranteePrincipal(var_granteePrincipal),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S14_GrantListEntry__M17_RetiringPrincipal(var_retiringPrincipal),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S14_GrantListEntry__M14_IssuingAccount(var_issuingAccount),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S14_GrantListEntry__M10_Operations(var_operations),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S14_GrantListEntry__M11_Constraints(var_constraints));
         }
 
         public static Amazon.KeyManagementService.Model.DecryptRequest
             FromDafny_N3_com__N9_amazonaws__N3_kms__S14_DecryptRequest(Dafny.Com.Amazonaws.Kms._IDecryptRequest value)
         {
-            Dafny.Com.Amazonaws.Kms.DecryptRequest concrete = (Dafny.Com.Amazonaws.Kms.DecryptRequest) value;
+            Dafny.Com.Amazonaws.Kms.DecryptRequest concrete = (Dafny.Com.Amazonaws.Kms.DecryptRequest)value;
             Amazon.KeyManagementService.Model.DecryptRequest converted =
                 new Amazon.KeyManagementService.Model.DecryptRequest();
             converted.CiphertextBlob =
-                (System.IO.MemoryStream) FromDafny_N3_com__N9_amazonaws__N3_kms__S14_DecryptRequest__M14_CiphertextBlob(
+                (System.IO.MemoryStream)FromDafny_N3_com__N9_amazonaws__N3_kms__S14_DecryptRequest__M14_CiphertextBlob(
                     concrete.CiphertextBlob);
             if (concrete.EncryptionContext.is_Some)
                 converted.EncryptionContext =
@@ -3683,7 +3692,7 @@ namespace Com.Amazonaws.Kms
                     FromDafny_N3_com__N9_amazonaws__N3_kms__S14_DecryptRequest__M11_GrantTokens(concrete.GrantTokens);
             if (concrete.KeyId.is_Some)
                 converted.KeyId =
-                    (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S14_DecryptRequest__M5_KeyId(concrete.KeyId);
+                    (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S14_DecryptRequest__M5_KeyId(concrete.KeyId);
             if (concrete.EncryptionAlgorithm.is_Some)
                 converted.EncryptionAlgorithm =
                     (Amazon.KeyManagementService.EncryptionAlgorithmSpec)
@@ -3695,21 +3704,24 @@ namespace Com.Amazonaws.Kms
         public static Dafny.Com.Amazonaws.Kms._IDecryptRequest ToDafny_N3_com__N9_amazonaws__N3_kms__S14_DecryptRequest(
             Amazon.KeyManagementService.Model.DecryptRequest value)
         {
+            System.Collections.Generic.Dictionary<string, string> var_encryptionContext = value.EncryptionContext;
+            System.Collections.Generic.List<string> var_grantTokens = value.GrantTokens;
+            string var_keyId = value.KeyId;
+            Amazon.KeyManagementService.EncryptionAlgorithmSpec var_encryptionAlgorithm = value.EncryptionAlgorithm;
             return new Dafny.Com.Amazonaws.Kms.DecryptRequest(
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S14_DecryptRequest__M14_CiphertextBlob(value.CiphertextBlob),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S14_DecryptRequest__M17_EncryptionContext(
-                    value.EncryptionContext),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S14_DecryptRequest__M11_GrantTokens(value.GrantTokens),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S14_DecryptRequest__M5_KeyId(value.KeyId),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S14_DecryptRequest__M17_EncryptionContext(var_encryptionContext),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S14_DecryptRequest__M11_GrantTokens(var_grantTokens),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S14_DecryptRequest__M5_KeyId(var_keyId),
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S14_DecryptRequest__M19_EncryptionAlgorithm(
-                    value.EncryptionAlgorithm));
+                    var_encryptionAlgorithm));
         }
 
         public static int? FromDafny_N3_com__N9_amazonaws__N3_kms__S22_GenerateDataKeyRequest__M13_NumberOfBytes(
             Wrappers_Compile._IOption<int> value)
         {
             return value.is_None
-                ? (int?) null
+                ? (int?)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S17_NumberOfBytesType(value.Extract());
         }
 
@@ -3719,7 +3731,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<int>.create_None()
                 : Wrappers_Compile.Option<int>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S17_NumberOfBytesType((int) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S17_NumberOfBytesType((int)value));
         }
 
         public static System.Collections.Generic.List<string>
@@ -3740,7 +3752,7 @@ namespace Com.Amazonaws.Kms
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S20_CustomKeyStoreIdType(value.Extract());
         }
 
@@ -3750,14 +3762,14 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S20_CustomKeyStoreIdType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S20_CustomKeyStoreIdType((string)value));
         }
 
         public static Amazon.KeyManagementService.Model.DescribeKeyResponse
             FromDafny_N3_com__N9_amazonaws__N3_kms__S19_DescribeKeyResponse(
                 Dafny.Com.Amazonaws.Kms._IDescribeKeyResponse value)
         {
-            Dafny.Com.Amazonaws.Kms.DescribeKeyResponse concrete = (Dafny.Com.Amazonaws.Kms.DescribeKeyResponse) value;
+            Dafny.Com.Amazonaws.Kms.DescribeKeyResponse concrete = (Dafny.Com.Amazonaws.Kms.DescribeKeyResponse)value;
             Amazon.KeyManagementService.Model.DescribeKeyResponse converted =
                 new Amazon.KeyManagementService.Model.DescribeKeyResponse();
             if (concrete.KeyMetadata.is_Some)
@@ -3772,31 +3784,29 @@ namespace Com.Amazonaws.Kms
             ToDafny_N3_com__N9_amazonaws__N3_kms__S19_DescribeKeyResponse(
                 Amazon.KeyManagementService.Model.DescribeKeyResponse value)
         {
+            Amazon.KeyManagementService.Model.KeyMetadata var_keyMetadata = value.KeyMetadata;
             return new Dafny.Com.Amazonaws.Kms.DescribeKeyResponse(
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S19_DescribeKeyResponse__M11_KeyMetadata(value.KeyMetadata));
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S19_DescribeKeyResponse__M11_KeyMetadata(var_keyMetadata));
         }
 
         public static Amazon.KeyManagementService.Model.InvalidCiphertextException
             FromDafny_N3_com__N9_amazonaws__N3_kms__S26_InvalidCiphertextException(
-                Dafny.Com.Amazonaws.Kms._IInvalidCiphertextException value)
+                Dafny.Com.Amazonaws.Kms.InvalidCiphertextException value)
         {
-            Dafny.Com.Amazonaws.Kms.InvalidCiphertextException concrete =
-                (Dafny.Com.Amazonaws.Kms.InvalidCiphertextException) value;
-            string message = concrete.message.is_Some
+            string message = value.message.Count == 0
                 ? null
-                : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(concrete.message.Extract());
+                : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.message);
             return new Amazon.KeyManagementService.Model.InvalidCiphertextException(message);
         }
 
-        public static Dafny.Com.Amazonaws.Kms._IInvalidCiphertextException
+        public static Dafny.Com.Amazonaws.Kms.InvalidCiphertextException
             ToDafny_N3_com__N9_amazonaws__N3_kms__S26_InvalidCiphertextException(
                 Amazon.KeyManagementService.Model.InvalidCiphertextException value)
         {
-            Wrappers_Compile._IOption<Dafny.ISequence<char>> message = System.String.IsNullOrEmpty(value.Message)
-                ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
-                : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Message));
-            return new Dafny.Com.Amazonaws.Kms.InvalidCiphertextException(message);
+            Dafny.ISequence<char> message = System.String.IsNullOrEmpty(value.Message)
+                ? Dafny.Sequence<char>.Empty
+                : ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Message);
+            return new Dafny.Com.Amazonaws.Kms.InvalidCiphertextException { message = message };
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S19_GetKeyPolicyRequest__M5_KeyId(
@@ -3836,7 +3846,7 @@ namespace Com.Amazonaws.Kms
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S14_MultiRegionKey__M3_Arn(
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
-            return value.is_None ? (string) null : FromDafny_N3_com__N9_amazonaws__N3_kms__S7_ArnType(value.Extract());
+            return value.is_None ? (string)null : FromDafny_N3_com__N9_amazonaws__N3_kms__S7_ArnType(value.Extract());
         }
 
         public static Wrappers_Compile._IOption<Dafny.ISequence<char>>
@@ -3845,7 +3855,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S7_ArnType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S7_ArnType((string)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S21_CloudHsmClusterIdType(
@@ -3864,7 +3874,7 @@ namespace Com.Amazonaws.Kms
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Extract());
         }
 
@@ -3874,7 +3884,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType((string)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S24_ImportKeyMaterialRequest__M5_KeyId(
@@ -3893,7 +3903,7 @@ namespace Com.Amazonaws.Kms
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S10_MarkerType(value.Extract());
         }
 
@@ -3903,7 +3913,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S10_MarkerType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S10_MarkerType((string)value));
         }
 
         public static Amazon.KeyManagementService.Model.UpdateCustomKeyStoreResponse
@@ -3911,7 +3921,7 @@ namespace Com.Amazonaws.Kms
                 Dafny.Com.Amazonaws.Kms._IUpdateCustomKeyStoreResponse value)
         {
             Dafny.Com.Amazonaws.Kms.UpdateCustomKeyStoreResponse concrete =
-                (Dafny.Com.Amazonaws.Kms.UpdateCustomKeyStoreResponse) value;
+                (Dafny.Com.Amazonaws.Kms.UpdateCustomKeyStoreResponse)value;
             Amazon.KeyManagementService.Model.UpdateCustomKeyStoreResponse converted =
                 new Amazon.KeyManagementService.Model.UpdateCustomKeyStoreResponse();
             return converted;
@@ -3927,9 +3937,7 @@ namespace Com.Amazonaws.Kms
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S30_GetParametersForImportResponse__M5_KeyId(
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
-            return value.is_None
-                ? (string) null
-                : FromDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType(value.Extract());
+            return value.is_None ? (string)null : FromDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType(value.Extract());
         }
 
         public static Wrappers_Compile._IOption<Dafny.ISequence<char>>
@@ -3938,7 +3946,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType((string)value));
         }
 
         public static Amazon.KeyManagementService.Model.KeyMetadata
@@ -3946,7 +3954,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.Com.Amazonaws.Kms._IKeyMetadata> value)
         {
             return value.is_None
-                ? (Amazon.KeyManagementService.Model.KeyMetadata) null
+                ? (Amazon.KeyManagementService.Model.KeyMetadata)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata(value.Extract());
         }
 
@@ -3958,7 +3966,7 @@ namespace Com.Amazonaws.Kms
                 ? Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._IKeyMetadata>.create_None()
                 : Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._IKeyMetadata>.create_Some(
                     ToDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata(
-                        (Amazon.KeyManagementService.Model.KeyMetadata) value));
+                        (Amazon.KeyManagementService.Model.KeyMetadata)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S19_PutKeyPolicyRequest__M10_PolicyName(
@@ -3989,7 +3997,7 @@ namespace Com.Amazonaws.Kms
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (System.DateTime?) null
+                ? (System.DateTime?)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S8_DateType(value.Extract());
         }
 
@@ -3999,7 +4007,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S8_DateType((System.DateTime) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S8_DateType((System.DateTime)value));
         }
 
         public static Amazon.KeyManagementService.Model.GetParametersForImportResponse
@@ -4007,12 +4015,12 @@ namespace Com.Amazonaws.Kms
                 Dafny.Com.Amazonaws.Kms._IGetParametersForImportResponse value)
         {
             Dafny.Com.Amazonaws.Kms.GetParametersForImportResponse concrete =
-                (Dafny.Com.Amazonaws.Kms.GetParametersForImportResponse) value;
+                (Dafny.Com.Amazonaws.Kms.GetParametersForImportResponse)value;
             Amazon.KeyManagementService.Model.GetParametersForImportResponse converted =
                 new Amazon.KeyManagementService.Model.GetParametersForImportResponse();
             if (concrete.KeyId.is_Some)
                 converted.KeyId =
-                    (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S30_GetParametersForImportResponse__M5_KeyId(
+                    (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S30_GetParametersForImportResponse__M5_KeyId(
                         concrete.KeyId);
             if (concrete.ImportToken.is_Some)
                 converted.ImportToken =
@@ -4036,13 +4044,17 @@ namespace Com.Amazonaws.Kms
             ToDafny_N3_com__N9_amazonaws__N3_kms__S30_GetParametersForImportResponse(
                 Amazon.KeyManagementService.Model.GetParametersForImportResponse value)
         {
+            string var_keyId = value.KeyId;
+            System.IO.MemoryStream var_importToken = value.ImportToken;
+            System.IO.MemoryStream var_publicKey = value.PublicKey;
+            System.DateTime? var_parametersValidTo = value.ParametersValidTo;
             return new Dafny.Com.Amazonaws.Kms.GetParametersForImportResponse(
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S30_GetParametersForImportResponse__M5_KeyId(value.KeyId),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S30_GetParametersForImportResponse__M5_KeyId(var_keyId),
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S30_GetParametersForImportResponse__M11_ImportToken(
-                    value.ImportToken),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S30_GetParametersForImportResponse__M9_PublicKey(value.PublicKey),
+                    var_importToken),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S30_GetParametersForImportResponse__M9_PublicKey(var_publicKey),
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S30_GetParametersForImportResponse__M17_ParametersValidTo(
-                    value.ParametersValidTo));
+                    var_parametersValidTo));
         }
 
         public static System.Collections.Generic.List<string>
@@ -4067,7 +4079,7 @@ namespace Com.Amazonaws.Kms
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S10_PolicyType(value.Extract());
         }
 
@@ -4077,14 +4089,14 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S10_PolicyType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S10_PolicyType((string)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S18_RetireGrantRequest__M10_GrantToken(
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S14_GrantTokenType(value.Extract());
         }
 
@@ -4094,14 +4106,14 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S14_GrantTokenType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S14_GrantTokenType((string)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata__M16_CustomKeyStoreId(
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S20_CustomKeyStoreIdType(value.Extract());
         }
 
@@ -4111,7 +4123,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S20_CustomKeyStoreIdType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S20_CustomKeyStoreIdType((string)value));
         }
 
         public static string
@@ -4132,7 +4144,7 @@ namespace Com.Amazonaws.Kms
                 Dafny.Com.Amazonaws.Kms._IListResourceTagsResponse value)
         {
             Dafny.Com.Amazonaws.Kms.ListResourceTagsResponse concrete =
-                (Dafny.Com.Amazonaws.Kms.ListResourceTagsResponse) value;
+                (Dafny.Com.Amazonaws.Kms.ListResourceTagsResponse)value;
             Amazon.KeyManagementService.Model.ListResourceTagsResponse converted =
                 new Amazon.KeyManagementService.Model.ListResourceTagsResponse();
             if (concrete.Tags.is_Some)
@@ -4141,11 +4153,11 @@ namespace Com.Amazonaws.Kms
                     FromDafny_N3_com__N9_amazonaws__N3_kms__S24_ListResourceTagsResponse__M4_Tags(concrete.Tags);
             if (concrete.NextMarker.is_Some)
                 converted.NextMarker =
-                    (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S24_ListResourceTagsResponse__M10_NextMarker(
+                    (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S24_ListResourceTagsResponse__M10_NextMarker(
                         concrete.NextMarker);
             if (concrete.Truncated.is_Some)
                 converted.Truncated =
-                    (bool) FromDafny_N3_com__N9_amazonaws__N3_kms__S24_ListResourceTagsResponse__M9_Truncated(
+                    (bool)FromDafny_N3_com__N9_amazonaws__N3_kms__S24_ListResourceTagsResponse__M9_Truncated(
                         concrete.Truncated);
             return converted;
         }
@@ -4154,10 +4166,13 @@ namespace Com.Amazonaws.Kms
             ToDafny_N3_com__N9_amazonaws__N3_kms__S24_ListResourceTagsResponse(
                 Amazon.KeyManagementService.Model.ListResourceTagsResponse value)
         {
+            System.Collections.Generic.List<Amazon.KeyManagementService.Model.Tag> var_tags = value.Tags;
+            string var_nextMarker = value.NextMarker;
+            bool? var_truncated = value.Truncated;
             return new Dafny.Com.Amazonaws.Kms.ListResourceTagsResponse(
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S24_ListResourceTagsResponse__M4_Tags(value.Tags),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S24_ListResourceTagsResponse__M10_NextMarker(value.NextMarker),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S24_ListResourceTagsResponse__M9_Truncated(value.Truncated));
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S24_ListResourceTagsResponse__M4_Tags(var_tags),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S24_ListResourceTagsResponse__M10_NextMarker(var_nextMarker),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S24_ListResourceTagsResponse__M9_Truncated(var_truncated));
         }
 
         public static Amazon.KeyManagementService.Model.GrantConstraints
@@ -4165,7 +4180,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.Com.Amazonaws.Kms._IGrantConstraints> value)
         {
             return value.is_None
-                ? (Amazon.KeyManagementService.Model.GrantConstraints) null
+                ? (Amazon.KeyManagementService.Model.GrantConstraints)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_GrantConstraints(value.Extract());
         }
 
@@ -4177,7 +4192,7 @@ namespace Com.Amazonaws.Kms
                 ? Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._IGrantConstraints>.create_None()
                 : Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._IGrantConstraints>.create_Some(
                     ToDafny_N3_com__N9_amazonaws__N3_kms__S16_GrantConstraints(
-                        (Amazon.KeyManagementService.Model.GrantConstraints) value));
+                        (Amazon.KeyManagementService.Model.GrantConstraints)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S18_TagResourceRequest__M5_KeyId(
@@ -4197,7 +4212,7 @@ namespace Com.Amazonaws.Kms
                 Dafny.Com.Amazonaws.Kms._IGenerateDataKeyPairWithoutPlaintextResponse value)
         {
             Dafny.Com.Amazonaws.Kms.GenerateDataKeyPairWithoutPlaintextResponse concrete =
-                (Dafny.Com.Amazonaws.Kms.GenerateDataKeyPairWithoutPlaintextResponse) value;
+                (Dafny.Com.Amazonaws.Kms.GenerateDataKeyPairWithoutPlaintextResponse)value;
             Amazon.KeyManagementService.Model.GenerateDataKeyPairWithoutPlaintextResponse converted =
                 new Amazon.KeyManagementService.Model.GenerateDataKeyPairWithoutPlaintextResponse();
             if (concrete.PrivateKeyCiphertextBlob.is_Some)
@@ -4227,24 +4242,26 @@ namespace Com.Amazonaws.Kms
             ToDafny_N3_com__N9_amazonaws__N3_kms__S43_GenerateDataKeyPairWithoutPlaintextResponse(
                 Amazon.KeyManagementService.Model.GenerateDataKeyPairWithoutPlaintextResponse value)
         {
+            System.IO.MemoryStream var_privateKeyCiphertextBlob = value.PrivateKeyCiphertextBlob;
+            System.IO.MemoryStream var_publicKey = value.PublicKey;
+            string var_keyId = value.KeyId;
+            Amazon.KeyManagementService.DataKeyPairSpec var_keyPairSpec = value.KeyPairSpec;
             return new Dafny.Com.Amazonaws.Kms.GenerateDataKeyPairWithoutPlaintextResponse(
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S43_GenerateDataKeyPairWithoutPlaintextResponse__M24_PrivateKeyCiphertextBlob(
-                    value.PrivateKeyCiphertextBlob),
+                    var_privateKeyCiphertextBlob),
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S43_GenerateDataKeyPairWithoutPlaintextResponse__M9_PublicKey(
-                    value.PublicKey),
+                    var_publicKey),
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S43_GenerateDataKeyPairWithoutPlaintextResponse__M5_KeyId(
-                    value.KeyId),
+                    var_keyId),
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S43_GenerateDataKeyPairWithoutPlaintextResponse__M11_KeyPairSpec(
-                    value.KeyPairSpec));
+                    var_keyPairSpec));
         }
 
         public static string
             FromDafny_N3_com__N9_amazonaws__N3_kms__S43_GenerateDataKeyPairWithoutPlaintextResponse__M5_KeyId(
                 Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
-            return value.is_None
-                ? (string) null
-                : FromDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType(value.Extract());
+            return value.is_None ? (string)null : FromDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType(value.Extract());
         }
 
         public static Wrappers_Compile._IOption<Dafny.ISequence<char>>
@@ -4254,7 +4271,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType((string)value));
         }
 
         public static Amazon.KeyManagementService.Model.DeleteCustomKeyStoreResponse
@@ -4262,7 +4279,7 @@ namespace Com.Amazonaws.Kms
                 Dafny.Com.Amazonaws.Kms._IDeleteCustomKeyStoreResponse value)
         {
             Dafny.Com.Amazonaws.Kms.DeleteCustomKeyStoreResponse concrete =
-                (Dafny.Com.Amazonaws.Kms.DeleteCustomKeyStoreResponse) value;
+                (Dafny.Com.Amazonaws.Kms.DeleteCustomKeyStoreResponse)value;
             Amazon.KeyManagementService.Model.DeleteCustomKeyStoreResponse converted =
                 new Amazon.KeyManagementService.Model.DeleteCustomKeyStoreResponse();
             return converted;
@@ -4279,11 +4296,11 @@ namespace Com.Amazonaws.Kms
             FromDafny_N3_com__N9_amazonaws__N3_kms__S18_TagResourceRequest(
                 Dafny.Com.Amazonaws.Kms._ITagResourceRequest value)
         {
-            Dafny.Com.Amazonaws.Kms.TagResourceRequest concrete = (Dafny.Com.Amazonaws.Kms.TagResourceRequest) value;
+            Dafny.Com.Amazonaws.Kms.TagResourceRequest concrete = (Dafny.Com.Amazonaws.Kms.TagResourceRequest)value;
             Amazon.KeyManagementService.Model.TagResourceRequest converted =
                 new Amazon.KeyManagementService.Model.TagResourceRequest();
             converted.KeyId =
-                (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S18_TagResourceRequest__M5_KeyId(concrete.KeyId);
+                (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S18_TagResourceRequest__M5_KeyId(concrete.KeyId);
             converted.Tags =
                 (System.Collections.Generic.List<Amazon.KeyManagementService.Model.Tag>)
                 FromDafny_N3_com__N9_amazonaws__N3_kms__S18_TagResourceRequest__M4_Tags(concrete.Tags);
@@ -4304,11 +4321,11 @@ namespace Com.Amazonaws.Kms
                 Dafny.Com.Amazonaws.Kms._IGenerateDataKeyWithoutPlaintextRequest value)
         {
             Dafny.Com.Amazonaws.Kms.GenerateDataKeyWithoutPlaintextRequest concrete =
-                (Dafny.Com.Amazonaws.Kms.GenerateDataKeyWithoutPlaintextRequest) value;
+                (Dafny.Com.Amazonaws.Kms.GenerateDataKeyWithoutPlaintextRequest)value;
             Amazon.KeyManagementService.Model.GenerateDataKeyWithoutPlaintextRequest converted =
                 new Amazon.KeyManagementService.Model.GenerateDataKeyWithoutPlaintextRequest();
             converted.KeyId =
-                (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S38_GenerateDataKeyWithoutPlaintextRequest__M5_KeyId(
+                (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S38_GenerateDataKeyWithoutPlaintextRequest__M5_KeyId(
                     concrete.KeyId);
             if (concrete.EncryptionContext.is_Some)
                 converted.EncryptionContext =
@@ -4337,23 +4354,27 @@ namespace Com.Amazonaws.Kms
             ToDafny_N3_com__N9_amazonaws__N3_kms__S38_GenerateDataKeyWithoutPlaintextRequest(
                 Amazon.KeyManagementService.Model.GenerateDataKeyWithoutPlaintextRequest value)
         {
+            System.Collections.Generic.Dictionary<string, string> var_encryptionContext = value.EncryptionContext;
+            Amazon.KeyManagementService.DataKeySpec var_keySpec = value.KeySpec;
+            int? var_numberOfBytes = value.NumberOfBytes;
+            System.Collections.Generic.List<string> var_grantTokens = value.GrantTokens;
             return new Dafny.Com.Amazonaws.Kms.GenerateDataKeyWithoutPlaintextRequest(
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S38_GenerateDataKeyWithoutPlaintextRequest__M5_KeyId(value.KeyId),
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S38_GenerateDataKeyWithoutPlaintextRequest__M17_EncryptionContext(
-                    value.EncryptionContext),
+                    var_encryptionContext),
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S38_GenerateDataKeyWithoutPlaintextRequest__M7_KeySpec(
-                    value.KeySpec),
+                    var_keySpec),
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S38_GenerateDataKeyWithoutPlaintextRequest__M13_NumberOfBytes(
-                    value.NumberOfBytes),
+                    var_numberOfBytes),
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S38_GenerateDataKeyWithoutPlaintextRequest__M11_GrantTokens(
-                    value.GrantTokens));
+                    var_grantTokens));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S32_CustomKeyStoreNameInUseException__M7_message(
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Extract());
         }
 
@@ -4363,7 +4384,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType((string)value));
         }
 
         public static System.Collections.Generic.List<string>
@@ -4371,7 +4392,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.ISequence<Dafny.Com.Amazonaws.Kms._IEncryptionAlgorithmSpec>> value)
         {
             return value.is_None
-                ? (System.Collections.Generic.List<string>) null
+                ? (System.Collections.Generic.List<string>)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S27_EncryptionAlgorithmSpecList(value.Extract());
         }
 
@@ -4385,7 +4406,7 @@ namespace Com.Amazonaws.Kms
                 : Wrappers_Compile.Option<Dafny.ISequence<Dafny.Com.Amazonaws.Kms._IEncryptionAlgorithmSpec>>
                     .create_Some(
                         ToDafny_N3_com__N9_amazonaws__N3_kms__S27_EncryptionAlgorithmSpecList(
-                            (System.Collections.Generic.List<string>) value));
+                            (System.Collections.Generic.List<string>)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S18_CreateAliasRequest__M11_TargetKeyId(
@@ -4404,7 +4425,7 @@ namespace Com.Amazonaws.Kms
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Extract());
         }
 
@@ -4414,14 +4435,14 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType((string)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S21_IncorrectKeyException__M7_message(
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Extract());
         }
 
@@ -4431,7 +4452,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType((string)value));
         }
 
         public static System.Collections.Generic.List<string>
@@ -4439,7 +4460,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.ISequence<Dafny.ISequence<char>>> value)
         {
             return value.is_None
-                ? (System.Collections.Generic.List<string>) null
+                ? (System.Collections.Generic.List<string>)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S14_GrantTokenList(value.Extract());
         }
 
@@ -4451,60 +4472,54 @@ namespace Com.Amazonaws.Kms
                 ? Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_Some(
                     ToDafny_N3_com__N9_amazonaws__N3_kms__S14_GrantTokenList(
-                        (System.Collections.Generic.List<string>) value));
+                        (System.Collections.Generic.List<string>)value));
         }
 
         public static Amazon.KeyManagementService.Model.IncorrectKeyMaterialException
             FromDafny_N3_com__N9_amazonaws__N3_kms__S29_IncorrectKeyMaterialException(
-                Dafny.Com.Amazonaws.Kms._IIncorrectKeyMaterialException value)
+                Dafny.Com.Amazonaws.Kms.IncorrectKeyMaterialException value)
         {
-            Dafny.Com.Amazonaws.Kms.IncorrectKeyMaterialException concrete =
-                (Dafny.Com.Amazonaws.Kms.IncorrectKeyMaterialException) value;
-            string message = concrete.message.is_Some
+            string message = value.message.Count == 0
                 ? null
-                : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(concrete.message.Extract());
+                : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.message);
             return new Amazon.KeyManagementService.Model.IncorrectKeyMaterialException(message);
         }
 
-        public static Dafny.Com.Amazonaws.Kms._IIncorrectKeyMaterialException
+        public static Dafny.Com.Amazonaws.Kms.IncorrectKeyMaterialException
             ToDafny_N3_com__N9_amazonaws__N3_kms__S29_IncorrectKeyMaterialException(
                 Amazon.KeyManagementService.Model.IncorrectKeyMaterialException value)
         {
-            Wrappers_Compile._IOption<Dafny.ISequence<char>> message = System.String.IsNullOrEmpty(value.Message)
-                ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
-                : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Message));
-            return new Dafny.Com.Amazonaws.Kms.IncorrectKeyMaterialException(message);
+            Dafny.ISequence<char> message = System.String.IsNullOrEmpty(value.Message)
+                ? Dafny.Sequence<char>.Empty
+                : ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Message);
+            return new Dafny.Com.Amazonaws.Kms.IncorrectKeyMaterialException { message = message };
         }
 
         public static Amazon.KeyManagementService.Model.MalformedPolicyDocumentException
             FromDafny_N3_com__N9_amazonaws__N3_kms__S32_MalformedPolicyDocumentException(
-                Dafny.Com.Amazonaws.Kms._IMalformedPolicyDocumentException value)
+                Dafny.Com.Amazonaws.Kms.MalformedPolicyDocumentException value)
         {
-            Dafny.Com.Amazonaws.Kms.MalformedPolicyDocumentException concrete =
-                (Dafny.Com.Amazonaws.Kms.MalformedPolicyDocumentException) value;
-            string message = concrete.message.is_Some
+            string message = value.message.Count == 0
                 ? null
-                : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(concrete.message.Extract());
+                : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.message);
             return new Amazon.KeyManagementService.Model.MalformedPolicyDocumentException(message);
         }
 
-        public static Dafny.Com.Amazonaws.Kms._IMalformedPolicyDocumentException
+        public static Dafny.Com.Amazonaws.Kms.MalformedPolicyDocumentException
             ToDafny_N3_com__N9_amazonaws__N3_kms__S32_MalformedPolicyDocumentException(
                 Amazon.KeyManagementService.Model.MalformedPolicyDocumentException value)
         {
-            Wrappers_Compile._IOption<Dafny.ISequence<char>> message = System.String.IsNullOrEmpty(value.Message)
-                ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
-                : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Message));
-            return new Dafny.Com.Amazonaws.Kms.MalformedPolicyDocumentException(message);
+            Dafny.ISequence<char> message = System.String.IsNullOrEmpty(value.Message)
+                ? Dafny.Sequence<char>.Empty
+                : ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Message);
+            return new Dafny.Com.Amazonaws.Kms.MalformedPolicyDocumentException { message = message };
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S20_GetKeyPolicyResponse__M6_Policy(
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S10_PolicyType(value.Extract());
         }
 
@@ -4514,7 +4529,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S10_PolicyType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S10_PolicyType((string)value));
         }
 
         public static Amazon.KeyManagementService.GrantOperation
@@ -4547,7 +4562,7 @@ namespace Com.Amazonaws.Kms
             FromDafny_N3_com__N9_amazonaws__N3_kms__S16_GrantConstraints(
                 Dafny.Com.Amazonaws.Kms._IGrantConstraints value)
         {
-            Dafny.Com.Amazonaws.Kms.GrantConstraints concrete = (Dafny.Com.Amazonaws.Kms.GrantConstraints) value;
+            Dafny.Com.Amazonaws.Kms.GrantConstraints concrete = (Dafny.Com.Amazonaws.Kms.GrantConstraints)value;
             Amazon.KeyManagementService.Model.GrantConstraints converted =
                 new Amazon.KeyManagementService.Model.GrantConstraints();
             if (concrete.EncryptionContextSubset.is_Some)
@@ -4567,11 +4582,15 @@ namespace Com.Amazonaws.Kms
             ToDafny_N3_com__N9_amazonaws__N3_kms__S16_GrantConstraints(
                 Amazon.KeyManagementService.Model.GrantConstraints value)
         {
+            System.Collections.Generic.Dictionary<string, string> var_encryptionContextSubset =
+                value.EncryptionContextSubset;
+            System.Collections.Generic.Dictionary<string, string> var_encryptionContextEquals =
+                value.EncryptionContextEquals;
             return new Dafny.Com.Amazonaws.Kms.GrantConstraints(
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S16_GrantConstraints__M23_EncryptionContextSubset(
-                    value.EncryptionContextSubset),
+                    var_encryptionContextSubset),
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S16_GrantConstraints__M23_EncryptionContextEquals(
-                    value.EncryptionContextEquals));
+                    var_encryptionContextEquals));
         }
 
         public static Amazon.KeyManagementService.CustomerMasterKeySpec
@@ -4579,7 +4598,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.Com.Amazonaws.Kms._ICustomerMasterKeySpec> value)
         {
             return value.is_None
-                ? (Amazon.KeyManagementService.CustomerMasterKeySpec) null
+                ? (Amazon.KeyManagementService.CustomerMasterKeySpec)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S21_CustomerMasterKeySpec(value.Extract());
         }
 
@@ -4591,7 +4610,7 @@ namespace Com.Amazonaws.Kms
                 ? Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._ICustomerMasterKeySpec>.create_None()
                 : Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._ICustomerMasterKeySpec>.create_Some(
                     ToDafny_N3_com__N9_amazonaws__N3_kms__S21_CustomerMasterKeySpec(
-                        (Amazon.KeyManagementService.CustomerMasterKeySpec) value));
+                        (Amazon.KeyManagementService.CustomerMasterKeySpec)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S10_MarkerType(Dafny.ISequence<char> value)
@@ -4608,7 +4627,7 @@ namespace Com.Amazonaws.Kms
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Extract());
         }
 
@@ -4618,7 +4637,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType((string)value));
         }
 
         public static Amazon.KeyManagementService.Model.MultiRegionKey
@@ -4639,7 +4658,7 @@ namespace Com.Amazonaws.Kms
             Wrappers_Compile._IOption<bool> value)
         {
             return value.is_None
-                ? (bool?) null
+                ? (bool?)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S11_BooleanType(value.Extract());
         }
 
@@ -4649,30 +4668,27 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<bool>.create_None()
                 : Wrappers_Compile.Option<bool>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S11_BooleanType((bool) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S11_BooleanType((bool)value));
         }
 
         public static Amazon.KeyManagementService.Model.CustomKeyStoreInvalidStateException
             FromDafny_N3_com__N9_amazonaws__N3_kms__S35_CustomKeyStoreInvalidStateException(
-                Dafny.Com.Amazonaws.Kms._ICustomKeyStoreInvalidStateException value)
+                Dafny.Com.Amazonaws.Kms.CustomKeyStoreInvalidStateException value)
         {
-            Dafny.Com.Amazonaws.Kms.CustomKeyStoreInvalidStateException concrete =
-                (Dafny.Com.Amazonaws.Kms.CustomKeyStoreInvalidStateException) value;
-            string message = concrete.message.is_Some
+            string message = value.message.Count == 0
                 ? null
-                : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(concrete.message.Extract());
+                : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.message);
             return new Amazon.KeyManagementService.Model.CustomKeyStoreInvalidStateException(message);
         }
 
-        public static Dafny.Com.Amazonaws.Kms._ICustomKeyStoreInvalidStateException
+        public static Dafny.Com.Amazonaws.Kms.CustomKeyStoreInvalidStateException
             ToDafny_N3_com__N9_amazonaws__N3_kms__S35_CustomKeyStoreInvalidStateException(
                 Amazon.KeyManagementService.Model.CustomKeyStoreInvalidStateException value)
         {
-            Wrappers_Compile._IOption<Dafny.ISequence<char>> message = System.String.IsNullOrEmpty(value.Message)
-                ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
-                : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Message));
-            return new Dafny.Com.Amazonaws.Kms.CustomKeyStoreInvalidStateException(message);
+            Dafny.ISequence<char> message = System.String.IsNullOrEmpty(value.Message)
+                ? Dafny.Sequence<char>.Empty
+                : ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Message);
+            return new Dafny.Com.Amazonaws.Kms.CustomKeyStoreInvalidStateException { message = message };
         }
 
         public static System.IO.MemoryStream
@@ -4680,7 +4696,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.ISequence<byte>> value)
         {
             return value.is_None
-                ? (System.IO.MemoryStream) null
+                ? (System.IO.MemoryStream)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S13_PlaintextType(value.Extract());
         }
 
@@ -4690,14 +4706,14 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<byte>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<byte>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S13_PlaintextType((System.IO.MemoryStream) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S13_PlaintextType((System.IO.MemoryStream)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S18_RetireGrantRequest__M7_GrantId(
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S11_GrantIdType(value.Extract());
         }
 
@@ -4707,14 +4723,14 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S11_GrantIdType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S11_GrantIdType((string)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S33_CloudHsmClusterNotActiveException__M7_message(
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Extract());
         }
 
@@ -4724,7 +4740,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType((string)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S20_EncryptionContextKey(
@@ -4743,7 +4759,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.ISequence<byte>> value)
         {
             return value.is_None
-                ? (System.IO.MemoryStream) null
+                ? (System.IO.MemoryStream)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S14_CiphertextType(value.Extract());
         }
 
@@ -4754,7 +4770,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<byte>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<byte>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S14_CiphertextType((System.IO.MemoryStream) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S14_CiphertextType((System.IO.MemoryStream)value));
         }
 
         public static Amazon.KeyManagementService.DataKeyPairSpec
@@ -4762,7 +4778,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.Com.Amazonaws.Kms._IDataKeyPairSpec> value)
         {
             return value.is_None
-                ? (Amazon.KeyManagementService.DataKeyPairSpec) null
+                ? (Amazon.KeyManagementService.DataKeyPairSpec)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S15_DataKeyPairSpec(value.Extract());
         }
 
@@ -4774,7 +4790,7 @@ namespace Com.Amazonaws.Kms
                 ? Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._IDataKeyPairSpec>.create_None()
                 : Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._IDataKeyPairSpec>.create_Some(
                     ToDafny_N3_com__N9_amazonaws__N3_kms__S15_DataKeyPairSpec(
-                        (Amazon.KeyManagementService.DataKeyPairSpec) value));
+                        (Amazon.KeyManagementService.DataKeyPairSpec)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S10_TagKeyList__M6_member(
@@ -4791,25 +4807,22 @@ namespace Com.Amazonaws.Kms
 
         public static Amazon.KeyManagementService.Model.InvalidKeyUsageException
             FromDafny_N3_com__N9_amazonaws__N3_kms__S24_InvalidKeyUsageException(
-                Dafny.Com.Amazonaws.Kms._IInvalidKeyUsageException value)
+                Dafny.Com.Amazonaws.Kms.InvalidKeyUsageException value)
         {
-            Dafny.Com.Amazonaws.Kms.InvalidKeyUsageException concrete =
-                (Dafny.Com.Amazonaws.Kms.InvalidKeyUsageException) value;
-            string message = concrete.message.is_Some
+            string message = value.message.Count == 0
                 ? null
-                : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(concrete.message.Extract());
+                : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.message);
             return new Amazon.KeyManagementService.Model.InvalidKeyUsageException(message);
         }
 
-        public static Dafny.Com.Amazonaws.Kms._IInvalidKeyUsageException
+        public static Dafny.Com.Amazonaws.Kms.InvalidKeyUsageException
             ToDafny_N3_com__N9_amazonaws__N3_kms__S24_InvalidKeyUsageException(
                 Amazon.KeyManagementService.Model.InvalidKeyUsageException value)
         {
-            Wrappers_Compile._IOption<Dafny.ISequence<char>> message = System.String.IsNullOrEmpty(value.Message)
-                ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
-                : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Message));
-            return new Dafny.Com.Amazonaws.Kms.InvalidKeyUsageException(message);
+            Dafny.ISequence<char> message = System.String.IsNullOrEmpty(value.Message)
+                ? Dafny.Sequence<char>.Empty
+                : ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Message);
+            return new Dafny.Com.Amazonaws.Kms.InvalidKeyUsageException { message = message };
         }
 
         public static Amazon.KeyManagementService.KeyManagerType
@@ -4817,7 +4830,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.Com.Amazonaws.Kms._IKeyManagerType> value)
         {
             return value.is_None
-                ? (Amazon.KeyManagementService.KeyManagerType) null
+                ? (Amazon.KeyManagementService.KeyManagerType)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S14_KeyManagerType(value.Extract());
         }
 
@@ -4829,7 +4842,7 @@ namespace Com.Amazonaws.Kms
                 ? Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._IKeyManagerType>.create_None()
                 : Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._IKeyManagerType>.create_Some(
                     ToDafny_N3_com__N9_amazonaws__N3_kms__S14_KeyManagerType(
-                        (Amazon.KeyManagementService.KeyManagerType) value));
+                        (Amazon.KeyManagementService.KeyManagerType)value));
         }
 
         public static Amazon.KeyManagementService.Model.ScheduleKeyDeletionResponse
@@ -4837,12 +4850,12 @@ namespace Com.Amazonaws.Kms
                 Dafny.Com.Amazonaws.Kms._IScheduleKeyDeletionResponse value)
         {
             Dafny.Com.Amazonaws.Kms.ScheduleKeyDeletionResponse concrete =
-                (Dafny.Com.Amazonaws.Kms.ScheduleKeyDeletionResponse) value;
+                (Dafny.Com.Amazonaws.Kms.ScheduleKeyDeletionResponse)value;
             Amazon.KeyManagementService.Model.ScheduleKeyDeletionResponse converted =
                 new Amazon.KeyManagementService.Model.ScheduleKeyDeletionResponse();
             if (concrete.KeyId.is_Some)
                 converted.KeyId =
-                    (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S27_ScheduleKeyDeletionResponse__M5_KeyId(
+                    (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S27_ScheduleKeyDeletionResponse__M5_KeyId(
                         concrete.KeyId);
             if (concrete.DeletionDate.is_Some)
                 converted.DeletionDate =
@@ -4866,13 +4879,17 @@ namespace Com.Amazonaws.Kms
             ToDafny_N3_com__N9_amazonaws__N3_kms__S27_ScheduleKeyDeletionResponse(
                 Amazon.KeyManagementService.Model.ScheduleKeyDeletionResponse value)
         {
+            string var_keyId = value.KeyId;
+            System.DateTime? var_deletionDate = value.DeletionDate;
+            Amazon.KeyManagementService.KeyState var_keyState = value.KeyState;
+            int? var_pendingWindowInDays = value.PendingWindowInDays;
             return new Dafny.Com.Amazonaws.Kms.ScheduleKeyDeletionResponse(
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S27_ScheduleKeyDeletionResponse__M5_KeyId(value.KeyId),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S27_ScheduleKeyDeletionResponse__M5_KeyId(var_keyId),
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S27_ScheduleKeyDeletionResponse__M12_DeletionDate(
-                    value.DeletionDate),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S27_ScheduleKeyDeletionResponse__M8_KeyState(value.KeyState),
+                    var_deletionDate),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S27_ScheduleKeyDeletionResponse__M8_KeyState(var_keyState),
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S27_ScheduleKeyDeletionResponse__M19_PendingWindowInDays(
-                    value.PendingWindowInDays));
+                    var_pendingWindowInDays));
         }
 
         public static Amazon.KeyManagementService.Model.DeleteCustomKeyStoreRequest
@@ -4880,11 +4897,11 @@ namespace Com.Amazonaws.Kms
                 Dafny.Com.Amazonaws.Kms._IDeleteCustomKeyStoreRequest value)
         {
             Dafny.Com.Amazonaws.Kms.DeleteCustomKeyStoreRequest concrete =
-                (Dafny.Com.Amazonaws.Kms.DeleteCustomKeyStoreRequest) value;
+                (Dafny.Com.Amazonaws.Kms.DeleteCustomKeyStoreRequest)value;
             Amazon.KeyManagementService.Model.DeleteCustomKeyStoreRequest converted =
                 new Amazon.KeyManagementService.Model.DeleteCustomKeyStoreRequest();
             converted.CustomKeyStoreId =
-                (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S27_DeleteCustomKeyStoreRequest__M16_CustomKeyStoreId(
+                (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S27_DeleteCustomKeyStoreRequest__M16_CustomKeyStoreId(
                     concrete.CustomKeyStoreId);
             return converted;
         }
@@ -4900,38 +4917,34 @@ namespace Com.Amazonaws.Kms
 
         public static Amazon.KeyManagementService.Model.InvalidGrantIdException
             FromDafny_N3_com__N9_amazonaws__N3_kms__S23_InvalidGrantIdException(
-                Dafny.Com.Amazonaws.Kms._IInvalidGrantIdException value)
+                Dafny.Com.Amazonaws.Kms.InvalidGrantIdException value)
         {
-            Dafny.Com.Amazonaws.Kms.InvalidGrantIdException concrete =
-                (Dafny.Com.Amazonaws.Kms.InvalidGrantIdException) value;
-            string message = concrete.message.is_Some
+            string message = value.message.Count == 0
                 ? null
-                : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(concrete.message.Extract());
+                : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.message);
             return new Amazon.KeyManagementService.Model.InvalidGrantIdException(message);
         }
 
-        public static Dafny.Com.Amazonaws.Kms._IInvalidGrantIdException
+        public static Dafny.Com.Amazonaws.Kms.InvalidGrantIdException
             ToDafny_N3_com__N9_amazonaws__N3_kms__S23_InvalidGrantIdException(
                 Amazon.KeyManagementService.Model.InvalidGrantIdException value)
         {
-            Wrappers_Compile._IOption<Dafny.ISequence<char>> message = System.String.IsNullOrEmpty(value.Message)
-                ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
-                : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Message));
-            return new Dafny.Com.Amazonaws.Kms.InvalidGrantIdException(message);
+            Dafny.ISequence<char> message = System.String.IsNullOrEmpty(value.Message)
+                ? Dafny.Sequence<char>.Empty
+                : ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Message);
+            return new Dafny.Com.Amazonaws.Kms.InvalidGrantIdException { message = message };
         }
 
         public static Amazon.KeyManagementService.Model.GetKeyPolicyResponse
             FromDafny_N3_com__N9_amazonaws__N3_kms__S20_GetKeyPolicyResponse(
                 Dafny.Com.Amazonaws.Kms._IGetKeyPolicyResponse value)
         {
-            Dafny.Com.Amazonaws.Kms.GetKeyPolicyResponse
-                concrete = (Dafny.Com.Amazonaws.Kms.GetKeyPolicyResponse) value;
+            Dafny.Com.Amazonaws.Kms.GetKeyPolicyResponse concrete = (Dafny.Com.Amazonaws.Kms.GetKeyPolicyResponse)value;
             Amazon.KeyManagementService.Model.GetKeyPolicyResponse converted =
                 new Amazon.KeyManagementService.Model.GetKeyPolicyResponse();
             if (concrete.Policy.is_Some)
                 converted.Policy =
-                    (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S20_GetKeyPolicyResponse__M6_Policy(
+                    (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S20_GetKeyPolicyResponse__M6_Policy(
                         concrete.Policy);
             return converted;
         }
@@ -4940,8 +4953,9 @@ namespace Com.Amazonaws.Kms
             ToDafny_N3_com__N9_amazonaws__N3_kms__S20_GetKeyPolicyResponse(
                 Amazon.KeyManagementService.Model.GetKeyPolicyResponse value)
         {
+            string var_policy = value.Policy;
             return new Dafny.Com.Amazonaws.Kms.GetKeyPolicyResponse(
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S20_GetKeyPolicyResponse__M6_Policy(value.Policy));
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S20_GetKeyPolicyResponse__M6_Policy(var_policy));
         }
 
         public static Amazon.KeyManagementService.AlgorithmSpec
@@ -4963,7 +4977,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.ISequence<byte>> value)
         {
             return value.is_None
-                ? (System.IO.MemoryStream) null
+                ? (System.IO.MemoryStream)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S13_PublicKeyType(value.Extract());
         }
 
@@ -4974,7 +4988,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<byte>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<byte>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S13_PublicKeyType((System.IO.MemoryStream) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S13_PublicKeyType((System.IO.MemoryStream)value));
         }
 
         public static Amazon.KeyManagementService.AlgorithmSpec
@@ -5003,7 +5017,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.Com.Amazonaws.Kms._IKeyUsageType> value)
         {
             return value.is_None
-                ? (Amazon.KeyManagementService.KeyUsageType) null
+                ? (Amazon.KeyManagementService.KeyUsageType)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S12_KeyUsageType(value.Extract());
         }
 
@@ -5015,7 +5029,7 @@ namespace Com.Amazonaws.Kms
                 ? Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._IKeyUsageType>.create_None()
                 : Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._IKeyUsageType>.create_Some(
                     ToDafny_N3_com__N9_amazonaws__N3_kms__S12_KeyUsageType(
-                        (Amazon.KeyManagementService.KeyUsageType) value));
+                        (Amazon.KeyManagementService.KeyUsageType)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S32_DeleteImportedKeyMaterialRequest__M5_KeyId(
@@ -5035,7 +5049,7 @@ namespace Com.Amazonaws.Kms
                 Dafny.Com.Amazonaws.Kms._IGenerateDataKeyWithoutPlaintextResponse value)
         {
             Dafny.Com.Amazonaws.Kms.GenerateDataKeyWithoutPlaintextResponse concrete =
-                (Dafny.Com.Amazonaws.Kms.GenerateDataKeyWithoutPlaintextResponse) value;
+                (Dafny.Com.Amazonaws.Kms.GenerateDataKeyWithoutPlaintextResponse)value;
             Amazon.KeyManagementService.Model.GenerateDataKeyWithoutPlaintextResponse converted =
                 new Amazon.KeyManagementService.Model.GenerateDataKeyWithoutPlaintextResponse();
             if (concrete.CiphertextBlob.is_Some)
@@ -5055,18 +5069,19 @@ namespace Com.Amazonaws.Kms
             ToDafny_N3_com__N9_amazonaws__N3_kms__S39_GenerateDataKeyWithoutPlaintextResponse(
                 Amazon.KeyManagementService.Model.GenerateDataKeyWithoutPlaintextResponse value)
         {
+            System.IO.MemoryStream var_ciphertextBlob = value.CiphertextBlob;
+            string var_keyId = value.KeyId;
             return new Dafny.Com.Amazonaws.Kms.GenerateDataKeyWithoutPlaintextResponse(
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S39_GenerateDataKeyWithoutPlaintextResponse__M14_CiphertextBlob(
-                    value.CiphertextBlob),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S39_GenerateDataKeyWithoutPlaintextResponse__M5_KeyId(
-                    value.KeyId));
+                    var_ciphertextBlob),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S39_GenerateDataKeyWithoutPlaintextResponse__M5_KeyId(var_keyId));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S19_ReplicateKeyRequest__M11_Description(
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S15_DescriptionType(value.Extract());
         }
 
@@ -5076,7 +5091,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S15_DescriptionType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S15_DescriptionType((string)value));
         }
 
         public static string
@@ -5096,16 +5111,16 @@ namespace Com.Amazonaws.Kms
             FromDafny_N3_com__N9_amazonaws__N3_kms__S19_CreateGrantResponse(
                 Dafny.Com.Amazonaws.Kms._ICreateGrantResponse value)
         {
-            Dafny.Com.Amazonaws.Kms.CreateGrantResponse concrete = (Dafny.Com.Amazonaws.Kms.CreateGrantResponse) value;
+            Dafny.Com.Amazonaws.Kms.CreateGrantResponse concrete = (Dafny.Com.Amazonaws.Kms.CreateGrantResponse)value;
             Amazon.KeyManagementService.Model.CreateGrantResponse converted =
                 new Amazon.KeyManagementService.Model.CreateGrantResponse();
             if (concrete.GrantToken.is_Some)
                 converted.GrantToken =
-                    (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S19_CreateGrantResponse__M10_GrantToken(
+                    (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S19_CreateGrantResponse__M10_GrantToken(
                         concrete.GrantToken);
             if (concrete.GrantId.is_Some)
                 converted.GrantId =
-                    (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S19_CreateGrantResponse__M7_GrantId(
+                    (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S19_CreateGrantResponse__M7_GrantId(
                         concrete.GrantId);
             return converted;
         }
@@ -5114,9 +5129,11 @@ namespace Com.Amazonaws.Kms
             ToDafny_N3_com__N9_amazonaws__N3_kms__S19_CreateGrantResponse(
                 Amazon.KeyManagementService.Model.CreateGrantResponse value)
         {
+            string var_grantToken = value.GrantToken;
+            string var_grantId = value.GrantId;
             return new Dafny.Com.Amazonaws.Kms.CreateGrantResponse(
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S19_CreateGrantResponse__M10_GrantToken(value.GrantToken),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S19_CreateGrantResponse__M7_GrantId(value.GrantId));
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S19_CreateGrantResponse__M10_GrantToken(var_grantToken),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S19_CreateGrantResponse__M7_GrantId(var_grantId));
         }
 
         public static Amazon.KeyManagementService.DataKeySpec FromDafny_N3_com__N9_amazonaws__N3_kms__S11_DataKeySpec(
@@ -5141,7 +5158,7 @@ namespace Com.Amazonaws.Kms
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_AWSAccountIdType(value.Extract());
         }
 
@@ -5151,7 +5168,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_AWSAccountIdType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_AWSAccountIdType((string)value));
         }
 
         public static Amazon.KeyManagementService.ConnectionErrorCodeType
@@ -5204,7 +5221,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.ISequence<Dafny.Com.Amazonaws.Kms._IGrantListEntry>> value)
         {
             return value.is_None
-                ? (System.Collections.Generic.List<Amazon.KeyManagementService.Model.GrantListEntry>) null
+                ? (System.Collections.Generic.List<Amazon.KeyManagementService.Model.GrantListEntry>)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S9_GrantList(value.Extract());
         }
 
@@ -5216,30 +5233,27 @@ namespace Com.Amazonaws.Kms
                 ? Wrappers_Compile.Option<Dafny.ISequence<Dafny.Com.Amazonaws.Kms._IGrantListEntry>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<Dafny.Com.Amazonaws.Kms._IGrantListEntry>>.create_Some(
                     ToDafny_N3_com__N9_amazonaws__N3_kms__S9_GrantList(
-                        (System.Collections.Generic.List<Amazon.KeyManagementService.Model.GrantListEntry>) value));
+                        (System.Collections.Generic.List<Amazon.KeyManagementService.Model.GrantListEntry>)value));
         }
 
         public static Amazon.KeyManagementService.Model.ExpiredImportTokenException
             FromDafny_N3_com__N9_amazonaws__N3_kms__S27_ExpiredImportTokenException(
-                Dafny.Com.Amazonaws.Kms._IExpiredImportTokenException value)
+                Dafny.Com.Amazonaws.Kms.ExpiredImportTokenException value)
         {
-            Dafny.Com.Amazonaws.Kms.ExpiredImportTokenException concrete =
-                (Dafny.Com.Amazonaws.Kms.ExpiredImportTokenException) value;
-            string message = concrete.message.is_Some
+            string message = value.message.Count == 0
                 ? null
-                : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(concrete.message.Extract());
+                : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.message);
             return new Amazon.KeyManagementService.Model.ExpiredImportTokenException(message);
         }
 
-        public static Dafny.Com.Amazonaws.Kms._IExpiredImportTokenException
+        public static Dafny.Com.Amazonaws.Kms.ExpiredImportTokenException
             ToDafny_N3_com__N9_amazonaws__N3_kms__S27_ExpiredImportTokenException(
                 Amazon.KeyManagementService.Model.ExpiredImportTokenException value)
         {
-            Wrappers_Compile._IOption<Dafny.ISequence<char>> message = System.String.IsNullOrEmpty(value.Message)
-                ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
-                : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Message));
-            return new Dafny.Com.Amazonaws.Kms.ExpiredImportTokenException(message);
+            Dafny.ISequence<char> message = System.String.IsNullOrEmpty(value.Message)
+                ? Dafny.Sequence<char>.Empty
+                : ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Message);
+            return new Dafny.Com.Amazonaws.Kms.ExpiredImportTokenException { message = message };
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S19_ReplicateKeyRequest__M5_KeyId(
@@ -5269,7 +5283,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.ISequence<byte>> value)
         {
             return value.is_None
-                ? (System.IO.MemoryStream) null
+                ? (System.IO.MemoryStream)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S14_CiphertextType(value.Extract());
         }
 
@@ -5280,7 +5294,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<byte>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<byte>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S14_CiphertextType((System.IO.MemoryStream) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S14_CiphertextType((System.IO.MemoryStream)value));
         }
 
         public static Amazon.KeyManagementService.DataKeySpec
@@ -5288,7 +5302,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.Com.Amazonaws.Kms._IDataKeySpec> value)
         {
             return value.is_None
-                ? (Amazon.KeyManagementService.DataKeySpec) null
+                ? (Amazon.KeyManagementService.DataKeySpec)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S11_DataKeySpec(value.Extract());
         }
 
@@ -5300,18 +5314,18 @@ namespace Com.Amazonaws.Kms
                 ? Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._IDataKeySpec>.create_None()
                 : Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._IDataKeySpec>.create_Some(
                     ToDafny_N3_com__N9_amazonaws__N3_kms__S11_DataKeySpec(
-                        (Amazon.KeyManagementService.DataKeySpec) value));
+                        (Amazon.KeyManagementService.DataKeySpec)value));
         }
 
         public static Amazon.KeyManagementService.Model.EnableKeyRequest
             FromDafny_N3_com__N9_amazonaws__N3_kms__S16_EnableKeyRequest(
                 Dafny.Com.Amazonaws.Kms._IEnableKeyRequest value)
         {
-            Dafny.Com.Amazonaws.Kms.EnableKeyRequest concrete = (Dafny.Com.Amazonaws.Kms.EnableKeyRequest) value;
+            Dafny.Com.Amazonaws.Kms.EnableKeyRequest concrete = (Dafny.Com.Amazonaws.Kms.EnableKeyRequest)value;
             Amazon.KeyManagementService.Model.EnableKeyRequest converted =
                 new Amazon.KeyManagementService.Model.EnableKeyRequest();
             converted.KeyId =
-                (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S16_EnableKeyRequest__M5_KeyId(concrete.KeyId);
+                (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S16_EnableKeyRequest__M5_KeyId(concrete.KeyId);
             return converted;
         }
 
@@ -5327,7 +5341,7 @@ namespace Com.Amazonaws.Kms
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S15_PrincipalIdType(value.Extract());
         }
 
@@ -5337,13 +5351,13 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S15_PrincipalIdType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S15_PrincipalIdType((string)value));
         }
 
         public static Amazon.KeyManagementService.Model.EncryptResponse
             FromDafny_N3_com__N9_amazonaws__N3_kms__S15_EncryptResponse(Dafny.Com.Amazonaws.Kms._IEncryptResponse value)
         {
-            Dafny.Com.Amazonaws.Kms.EncryptResponse concrete = (Dafny.Com.Amazonaws.Kms.EncryptResponse) value;
+            Dafny.Com.Amazonaws.Kms.EncryptResponse concrete = (Dafny.Com.Amazonaws.Kms.EncryptResponse)value;
             Amazon.KeyManagementService.Model.EncryptResponse converted =
                 new Amazon.KeyManagementService.Model.EncryptResponse();
             if (concrete.CiphertextBlob.is_Some)
@@ -5353,7 +5367,7 @@ namespace Com.Amazonaws.Kms
                         concrete.CiphertextBlob);
             if (concrete.KeyId.is_Some)
                 converted.KeyId =
-                    (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S15_EncryptResponse__M5_KeyId(concrete.KeyId);
+                    (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S15_EncryptResponse__M5_KeyId(concrete.KeyId);
             if (concrete.EncryptionAlgorithm.is_Some)
                 converted.EncryptionAlgorithm =
                     (Amazon.KeyManagementService.EncryptionAlgorithmSpec)
@@ -5366,18 +5380,21 @@ namespace Com.Amazonaws.Kms
             ToDafny_N3_com__N9_amazonaws__N3_kms__S15_EncryptResponse(
                 Amazon.KeyManagementService.Model.EncryptResponse value)
         {
+            System.IO.MemoryStream var_ciphertextBlob = value.CiphertextBlob;
+            string var_keyId = value.KeyId;
+            Amazon.KeyManagementService.EncryptionAlgorithmSpec var_encryptionAlgorithm = value.EncryptionAlgorithm;
             return new Dafny.Com.Amazonaws.Kms.EncryptResponse(
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S15_EncryptResponse__M14_CiphertextBlob(value.CiphertextBlob),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S15_EncryptResponse__M5_KeyId(value.KeyId),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S15_EncryptResponse__M14_CiphertextBlob(var_ciphertextBlob),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S15_EncryptResponse__M5_KeyId(var_keyId),
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S15_EncryptResponse__M19_EncryptionAlgorithm(
-                    value.EncryptionAlgorithm));
+                    var_encryptionAlgorithm));
         }
 
         public static int? FromDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata__M27_PendingDeletionWindowInDays(
             Wrappers_Compile._IOption<int> value)
         {
             return value.is_None
-                ? (int?) null
+                ? (int?)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S23_PendingWindowInDaysType(value.Extract());
         }
 
@@ -5387,20 +5404,19 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<int>.create_None()
                 : Wrappers_Compile.Option<int>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S23_PendingWindowInDaysType((int) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S23_PendingWindowInDaysType((int)value));
         }
 
         public static Amazon.KeyManagementService.Model.GetPublicKeyResponse
             FromDafny_N3_com__N9_amazonaws__N3_kms__S20_GetPublicKeyResponse(
                 Dafny.Com.Amazonaws.Kms._IGetPublicKeyResponse value)
         {
-            Dafny.Com.Amazonaws.Kms.GetPublicKeyResponse
-                concrete = (Dafny.Com.Amazonaws.Kms.GetPublicKeyResponse) value;
+            Dafny.Com.Amazonaws.Kms.GetPublicKeyResponse concrete = (Dafny.Com.Amazonaws.Kms.GetPublicKeyResponse)value;
             Amazon.KeyManagementService.Model.GetPublicKeyResponse converted =
                 new Amazon.KeyManagementService.Model.GetPublicKeyResponse();
             if (concrete.KeyId.is_Some)
                 converted.KeyId =
-                    (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S20_GetPublicKeyResponse__M5_KeyId(concrete.KeyId);
+                    (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S20_GetPublicKeyResponse__M5_KeyId(concrete.KeyId);
             if (concrete.PublicKey.is_Some)
                 converted.PublicKey =
                     (System.IO.MemoryStream)
@@ -5435,17 +5451,24 @@ namespace Com.Amazonaws.Kms
             ToDafny_N3_com__N9_amazonaws__N3_kms__S20_GetPublicKeyResponse(
                 Amazon.KeyManagementService.Model.GetPublicKeyResponse value)
         {
+            string var_keyId = value.KeyId;
+            System.IO.MemoryStream var_publicKey = value.PublicKey;
+            Amazon.KeyManagementService.CustomerMasterKeySpec var_customerMasterKeySpec = value.CustomerMasterKeySpec;
+            Amazon.KeyManagementService.KeySpec var_keySpec = value.KeySpec;
+            Amazon.KeyManagementService.KeyUsageType var_keyUsage = value.KeyUsage;
+            System.Collections.Generic.List<string> var_encryptionAlgorithms = value.EncryptionAlgorithms;
+            System.Collections.Generic.List<string> var_signingAlgorithms = value.SigningAlgorithms;
             return new Dafny.Com.Amazonaws.Kms.GetPublicKeyResponse(
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S20_GetPublicKeyResponse__M5_KeyId(value.KeyId),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S20_GetPublicKeyResponse__M9_PublicKey(value.PublicKey),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S20_GetPublicKeyResponse__M5_KeyId(var_keyId),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S20_GetPublicKeyResponse__M9_PublicKey(var_publicKey),
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S20_GetPublicKeyResponse__M21_CustomerMasterKeySpec(
-                    value.CustomerMasterKeySpec),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S20_GetPublicKeyResponse__M7_KeySpec(value.KeySpec),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S20_GetPublicKeyResponse__M8_KeyUsage(value.KeyUsage),
+                    var_customerMasterKeySpec),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S20_GetPublicKeyResponse__M7_KeySpec(var_keySpec),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S20_GetPublicKeyResponse__M8_KeyUsage(var_keyUsage),
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S20_GetPublicKeyResponse__M20_EncryptionAlgorithms(
-                    value.EncryptionAlgorithms),
+                    var_encryptionAlgorithms),
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S20_GetPublicKeyResponse__M17_SigningAlgorithms(
-                    value.SigningAlgorithms));
+                    var_signingAlgorithms));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S26_GenerateDataKeyPairRequest__M5_KeyId(
@@ -5465,7 +5488,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.ISequence<Dafny.Com.Amazonaws.Kms._ITag>> value)
         {
             return value.is_None
-                ? (System.Collections.Generic.List<Amazon.KeyManagementService.Model.Tag>) null
+                ? (System.Collections.Generic.List<Amazon.KeyManagementService.Model.Tag>)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S7_TagList(value.Extract());
         }
 
@@ -5477,7 +5500,7 @@ namespace Com.Amazonaws.Kms
                 ? Wrappers_Compile.Option<Dafny.ISequence<Dafny.Com.Amazonaws.Kms._ITag>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<Dafny.Com.Amazonaws.Kms._ITag>>.create_Some(
                     ToDafny_N3_com__N9_amazonaws__N3_kms__S7_TagList(
-                        (System.Collections.Generic.List<Amazon.KeyManagementService.Model.Tag>) value));
+                        (System.Collections.Generic.List<Amazon.KeyManagementService.Model.Tag>)value));
         }
 
         public static Amazon.KeyManagementService.EncryptionAlgorithmSpec
@@ -5485,7 +5508,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.Com.Amazonaws.Kms._IEncryptionAlgorithmSpec> value)
         {
             return value.is_None
-                ? (Amazon.KeyManagementService.EncryptionAlgorithmSpec) null
+                ? (Amazon.KeyManagementService.EncryptionAlgorithmSpec)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S23_EncryptionAlgorithmSpec(value.Extract());
         }
 
@@ -5497,7 +5520,7 @@ namespace Com.Amazonaws.Kms
                 ? Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._IEncryptionAlgorithmSpec>.create_None()
                 : Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._IEncryptionAlgorithmSpec>.create_Some(
                     ToDafny_N3_com__N9_amazonaws__N3_kms__S23_EncryptionAlgorithmSpec(
-                        (Amazon.KeyManagementService.EncryptionAlgorithmSpec) value));
+                        (Amazon.KeyManagementService.EncryptionAlgorithmSpec)value));
         }
 
         public static System.IO.MemoryStream
@@ -5505,7 +5528,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.ISequence<byte>> value)
         {
             return value.is_None
-                ? (System.IO.MemoryStream) null
+                ? (System.IO.MemoryStream)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S14_CiphertextType(value.Extract());
         }
 
@@ -5516,7 +5539,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<byte>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<byte>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S14_CiphertextType((System.IO.MemoryStream) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S14_CiphertextType((System.IO.MemoryStream)value));
         }
 
         public static Amazon.KeyManagementService.EncryptionAlgorithmSpec
@@ -5524,7 +5547,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.Com.Amazonaws.Kms._IEncryptionAlgorithmSpec> value)
         {
             return value.is_None
-                ? (Amazon.KeyManagementService.EncryptionAlgorithmSpec) null
+                ? (Amazon.KeyManagementService.EncryptionAlgorithmSpec)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S23_EncryptionAlgorithmSpec(value.Extract());
         }
 
@@ -5536,7 +5559,7 @@ namespace Com.Amazonaws.Kms
                 ? Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._IEncryptionAlgorithmSpec>.create_None()
                 : Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._IEncryptionAlgorithmSpec>.create_Some(
                     ToDafny_N3_com__N9_amazonaws__N3_kms__S23_EncryptionAlgorithmSpec(
-                        (Amazon.KeyManagementService.EncryptionAlgorithmSpec) value));
+                        (Amazon.KeyManagementService.EncryptionAlgorithmSpec)value));
         }
 
         public static Amazon.KeyManagementService.DataKeyPairSpec
@@ -5544,7 +5567,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.Com.Amazonaws.Kms._IDataKeyPairSpec> value)
         {
             return value.is_None
-                ? (Amazon.KeyManagementService.DataKeyPairSpec) null
+                ? (Amazon.KeyManagementService.DataKeyPairSpec)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S15_DataKeyPairSpec(value.Extract());
         }
 
@@ -5556,13 +5579,13 @@ namespace Com.Amazonaws.Kms
                 ? Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._IDataKeyPairSpec>.create_None()
                 : Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._IDataKeyPairSpec>.create_Some(
                     ToDafny_N3_com__N9_amazonaws__N3_kms__S15_DataKeyPairSpec(
-                        (Amazon.KeyManagementService.DataKeyPairSpec) value));
+                        (Amazon.KeyManagementService.DataKeyPairSpec)value));
         }
 
         public static int? FromDafny_N3_com__N9_amazonaws__N3_kms__S30_DescribeCustomKeyStoresRequest__M5_Limit(
             Wrappers_Compile._IOption<int> value)
         {
-            return value.is_None ? (int?) null : FromDafny_N3_com__N9_amazonaws__N3_kms__S9_LimitType(value.Extract());
+            return value.is_None ? (int?)null : FromDafny_N3_com__N9_amazonaws__N3_kms__S9_LimitType(value.Extract());
         }
 
         public static Wrappers_Compile._IOption<int>
@@ -5571,7 +5594,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<int>.create_None()
                 : Wrappers_Compile.Option<int>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S9_LimitType((int) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S9_LimitType((int)value));
         }
 
         public static Amazon.KeyManagementService.KeySpec
@@ -5579,7 +5602,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.Com.Amazonaws.Kms._IKeySpec> value)
         {
             return value.is_None
-                ? (Amazon.KeyManagementService.KeySpec) null
+                ? (Amazon.KeyManagementService.KeySpec)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S7_KeySpec(value.Extract());
         }
 
@@ -5590,14 +5613,14 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._IKeySpec>.create_None()
                 : Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._IKeySpec>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S7_KeySpec((Amazon.KeyManagementService.KeySpec) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S7_KeySpec((Amazon.KeyManagementService.KeySpec)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S12_TagException__M7_message(
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Extract());
         }
 
@@ -5607,7 +5630,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType((string)value));
         }
 
         public static Amazon.KeyManagementService.ConnectionStateType
@@ -5643,11 +5666,11 @@ namespace Com.Amazonaws.Kms
             FromDafny_N3_com__N9_amazonaws__N3_kms__S18_DeleteAliasRequest(
                 Dafny.Com.Amazonaws.Kms._IDeleteAliasRequest value)
         {
-            Dafny.Com.Amazonaws.Kms.DeleteAliasRequest concrete = (Dafny.Com.Amazonaws.Kms.DeleteAliasRequest) value;
+            Dafny.Com.Amazonaws.Kms.DeleteAliasRequest concrete = (Dafny.Com.Amazonaws.Kms.DeleteAliasRequest)value;
             Amazon.KeyManagementService.Model.DeleteAliasRequest converted =
                 new Amazon.KeyManagementService.Model.DeleteAliasRequest();
             converted.AliasName =
-                (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S18_DeleteAliasRequest__M9_AliasName(
+                (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S18_DeleteAliasRequest__M9_AliasName(
                     concrete.AliasName);
             return converted;
         }
@@ -5665,7 +5688,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>> value)
         {
             return value.is_None
-                ? (System.Collections.Generic.Dictionary<string, string>) null
+                ? (System.Collections.Generic.Dictionary<string, string>)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S21_EncryptionContextType(value.Extract());
         }
 
@@ -5677,7 +5700,7 @@ namespace Com.Amazonaws.Kms
                 ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>>.create_None()
                 : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>>.create_Some(
                     ToDafny_N3_com__N9_amazonaws__N3_kms__S21_EncryptionContextType(
-                        (System.Collections.Generic.Dictionary<string, string>) value));
+                        (System.Collections.Generic.Dictionary<string, string>)value));
         }
 
         public static System.Collections.Generic.List<string>
@@ -5699,25 +5722,22 @@ namespace Com.Amazonaws.Kms
 
         public static Amazon.KeyManagementService.Model.UnsupportedOperationException
             FromDafny_N3_com__N9_amazonaws__N3_kms__S29_UnsupportedOperationException(
-                Dafny.Com.Amazonaws.Kms._IUnsupportedOperationException value)
+                Dafny.Com.Amazonaws.Kms.UnsupportedOperationException value)
         {
-            Dafny.Com.Amazonaws.Kms.UnsupportedOperationException concrete =
-                (Dafny.Com.Amazonaws.Kms.UnsupportedOperationException) value;
-            string message = concrete.message.is_Some
+            string message = value.message.Count == 0
                 ? null
-                : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(concrete.message.Extract());
+                : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.message);
             return new Amazon.KeyManagementService.Model.UnsupportedOperationException(message);
         }
 
-        public static Dafny.Com.Amazonaws.Kms._IUnsupportedOperationException
+        public static Dafny.Com.Amazonaws.Kms.UnsupportedOperationException
             ToDafny_N3_com__N9_amazonaws__N3_kms__S29_UnsupportedOperationException(
                 Amazon.KeyManagementService.Model.UnsupportedOperationException value)
         {
-            Wrappers_Compile._IOption<Dafny.ISequence<char>> message = System.String.IsNullOrEmpty(value.Message)
-                ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
-                : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Message));
-            return new Dafny.Com.Amazonaws.Kms.UnsupportedOperationException(message);
+            Dafny.ISequence<char> message = System.String.IsNullOrEmpty(value.Message)
+                ? Dafny.Sequence<char>.Empty
+                : ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Message);
+            return new Dafny.Com.Amazonaws.Kms.UnsupportedOperationException { message = message };
         }
 
         public static Amazon.KeyManagementService.Model.ListResourceTagsRequest
@@ -5725,17 +5745,17 @@ namespace Com.Amazonaws.Kms
                 Dafny.Com.Amazonaws.Kms._IListResourceTagsRequest value)
         {
             Dafny.Com.Amazonaws.Kms.ListResourceTagsRequest concrete =
-                (Dafny.Com.Amazonaws.Kms.ListResourceTagsRequest) value;
+                (Dafny.Com.Amazonaws.Kms.ListResourceTagsRequest)value;
             Amazon.KeyManagementService.Model.ListResourceTagsRequest converted =
                 new Amazon.KeyManagementService.Model.ListResourceTagsRequest();
             converted.KeyId =
-                (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S23_ListResourceTagsRequest__M5_KeyId(concrete.KeyId);
+                (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S23_ListResourceTagsRequest__M5_KeyId(concrete.KeyId);
             if (concrete.Limit.is_Some)
                 converted.Limit =
-                    (int) FromDafny_N3_com__N9_amazonaws__N3_kms__S23_ListResourceTagsRequest__M5_Limit(concrete.Limit);
+                    (int)FromDafny_N3_com__N9_amazonaws__N3_kms__S23_ListResourceTagsRequest__M5_Limit(concrete.Limit);
             if (concrete.Marker.is_Some)
                 converted.Marker =
-                    (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S23_ListResourceTagsRequest__M6_Marker(
+                    (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S23_ListResourceTagsRequest__M6_Marker(
                         concrete.Marker);
             return converted;
         }
@@ -5744,10 +5764,12 @@ namespace Com.Amazonaws.Kms
             ToDafny_N3_com__N9_amazonaws__N3_kms__S23_ListResourceTagsRequest(
                 Amazon.KeyManagementService.Model.ListResourceTagsRequest value)
         {
+            int? var_limit = value.Limit;
+            string var_marker = value.Marker;
             return new Dafny.Com.Amazonaws.Kms.ListResourceTagsRequest(
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S23_ListResourceTagsRequest__M5_KeyId(value.KeyId),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S23_ListResourceTagsRequest__M5_Limit(value.Limit),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S23_ListResourceTagsRequest__M6_Marker(value.Marker));
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S23_ListResourceTagsRequest__M5_Limit(var_limit),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S23_ListResourceTagsRequest__M6_Marker(var_marker));
         }
 
         public static bool?
@@ -5755,7 +5777,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<bool> value)
         {
             return value.is_None
-                ? (bool?) null
+                ? (bool?)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S11_BooleanType(value.Extract());
         }
 
@@ -5766,30 +5788,27 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<bool>.create_None()
                 : Wrappers_Compile.Option<bool>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S11_BooleanType((bool) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S11_BooleanType((bool)value));
         }
 
         public static Amazon.KeyManagementService.Model.CustomKeyStoreHasCMKsException
             FromDafny_N3_com__N9_amazonaws__N3_kms__S30_CustomKeyStoreHasCMKsException(
-                Dafny.Com.Amazonaws.Kms._ICustomKeyStoreHasCMKsException value)
+                Dafny.Com.Amazonaws.Kms.CustomKeyStoreHasCMKsException value)
         {
-            Dafny.Com.Amazonaws.Kms.CustomKeyStoreHasCMKsException concrete =
-                (Dafny.Com.Amazonaws.Kms.CustomKeyStoreHasCMKsException) value;
-            string message = concrete.message.is_Some
+            string message = value.message.Count == 0
                 ? null
-                : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(concrete.message.Extract());
+                : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.message);
             return new Amazon.KeyManagementService.Model.CustomKeyStoreHasCMKsException(message);
         }
 
-        public static Dafny.Com.Amazonaws.Kms._ICustomKeyStoreHasCMKsException
+        public static Dafny.Com.Amazonaws.Kms.CustomKeyStoreHasCMKsException
             ToDafny_N3_com__N9_amazonaws__N3_kms__S30_CustomKeyStoreHasCMKsException(
                 Amazon.KeyManagementService.Model.CustomKeyStoreHasCMKsException value)
         {
-            Wrappers_Compile._IOption<Dafny.ISequence<char>> message = System.String.IsNullOrEmpty(value.Message)
-                ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
-                : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Message));
-            return new Dafny.Com.Amazonaws.Kms.CustomKeyStoreHasCMKsException(message);
+            Dafny.ISequence<char> message = System.String.IsNullOrEmpty(value.Message)
+                ? Dafny.Sequence<char>.Empty
+                : ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Message);
+            return new Dafny.Com.Amazonaws.Kms.CustomKeyStoreHasCMKsException { message = message };
         }
 
         public static Amazon.KeyManagementService.Model.GenerateDataKeyRequest
@@ -5797,11 +5816,11 @@ namespace Com.Amazonaws.Kms
                 Dafny.Com.Amazonaws.Kms._IGenerateDataKeyRequest value)
         {
             Dafny.Com.Amazonaws.Kms.GenerateDataKeyRequest concrete =
-                (Dafny.Com.Amazonaws.Kms.GenerateDataKeyRequest) value;
+                (Dafny.Com.Amazonaws.Kms.GenerateDataKeyRequest)value;
             Amazon.KeyManagementService.Model.GenerateDataKeyRequest converted =
                 new Amazon.KeyManagementService.Model.GenerateDataKeyRequest();
             converted.KeyId =
-                (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S22_GenerateDataKeyRequest__M5_KeyId(concrete.KeyId);
+                (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S22_GenerateDataKeyRequest__M5_KeyId(concrete.KeyId);
             if (concrete.EncryptionContext.is_Some)
                 converted.EncryptionContext =
                     (System.Collections.Generic.Dictionary<string, string>)
@@ -5809,7 +5828,7 @@ namespace Com.Amazonaws.Kms
                         concrete.EncryptionContext);
             if (concrete.NumberOfBytes.is_Some)
                 converted.NumberOfBytes =
-                    (int) FromDafny_N3_com__N9_amazonaws__N3_kms__S22_GenerateDataKeyRequest__M13_NumberOfBytes(
+                    (int)FromDafny_N3_com__N9_amazonaws__N3_kms__S22_GenerateDataKeyRequest__M13_NumberOfBytes(
                         concrete.NumberOfBytes);
             if (concrete.KeySpec.is_Some)
                 converted.KeySpec =
@@ -5827,22 +5846,23 @@ namespace Com.Amazonaws.Kms
             ToDafny_N3_com__N9_amazonaws__N3_kms__S22_GenerateDataKeyRequest(
                 Amazon.KeyManagementService.Model.GenerateDataKeyRequest value)
         {
+            System.Collections.Generic.Dictionary<string, string> var_encryptionContext = value.EncryptionContext;
+            int? var_numberOfBytes = value.NumberOfBytes;
+            Amazon.KeyManagementService.DataKeySpec var_keySpec = value.KeySpec;
+            System.Collections.Generic.List<string> var_grantTokens = value.GrantTokens;
             return new Dafny.Com.Amazonaws.Kms.GenerateDataKeyRequest(
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S22_GenerateDataKeyRequest__M5_KeyId(value.KeyId),
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S22_GenerateDataKeyRequest__M17_EncryptionContext(
-                    value.EncryptionContext),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S22_GenerateDataKeyRequest__M13_NumberOfBytes(
-                    value.NumberOfBytes),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S22_GenerateDataKeyRequest__M7_KeySpec(value.KeySpec),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S22_GenerateDataKeyRequest__M11_GrantTokens(value.GrantTokens));
+                    var_encryptionContext),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S22_GenerateDataKeyRequest__M13_NumberOfBytes(var_numberOfBytes),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S22_GenerateDataKeyRequest__M7_KeySpec(var_keySpec),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S22_GenerateDataKeyRequest__M11_GrantTokens(var_grantTokens));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S23_GenerateDataKeyResponse__M5_KeyId(
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
-            return value.is_None
-                ? (string) null
-                : FromDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType(value.Extract());
+            return value.is_None ? (string)null : FromDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType(value.Extract());
         }
 
         public static Wrappers_Compile._IOption<Dafny.ISequence<char>>
@@ -5851,7 +5871,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType((string)value));
         }
 
         public static System.Collections.Generic.List<Amazon.KeyManagementService.Model.Tag>
@@ -5872,11 +5892,11 @@ namespace Com.Amazonaws.Kms
             FromDafny_N3_com__N9_amazonaws__N3_kms__S17_DisableKeyRequest(
                 Dafny.Com.Amazonaws.Kms._IDisableKeyRequest value)
         {
-            Dafny.Com.Amazonaws.Kms.DisableKeyRequest concrete = (Dafny.Com.Amazonaws.Kms.DisableKeyRequest) value;
+            Dafny.Com.Amazonaws.Kms.DisableKeyRequest concrete = (Dafny.Com.Amazonaws.Kms.DisableKeyRequest)value;
             Amazon.KeyManagementService.Model.DisableKeyRequest converted =
                 new Amazon.KeyManagementService.Model.DisableKeyRequest();
             converted.KeyId =
-                (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S17_DisableKeyRequest__M5_KeyId(concrete.KeyId);
+                (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S17_DisableKeyRequest__M5_KeyId(concrete.KeyId);
             return converted;
         }
 
@@ -5892,24 +5912,23 @@ namespace Com.Amazonaws.Kms
             FromDafny_N3_com__N9_amazonaws__N3_kms__S17_ListGrantsRequest(
                 Dafny.Com.Amazonaws.Kms._IListGrantsRequest value)
         {
-            Dafny.Com.Amazonaws.Kms.ListGrantsRequest concrete = (Dafny.Com.Amazonaws.Kms.ListGrantsRequest) value;
+            Dafny.Com.Amazonaws.Kms.ListGrantsRequest concrete = (Dafny.Com.Amazonaws.Kms.ListGrantsRequest)value;
             Amazon.KeyManagementService.Model.ListGrantsRequest converted =
                 new Amazon.KeyManagementService.Model.ListGrantsRequest();
             if (concrete.Limit.is_Some)
                 converted.Limit =
-                    (int) FromDafny_N3_com__N9_amazonaws__N3_kms__S17_ListGrantsRequest__M5_Limit(concrete.Limit);
+                    (int)FromDafny_N3_com__N9_amazonaws__N3_kms__S17_ListGrantsRequest__M5_Limit(concrete.Limit);
             if (concrete.Marker.is_Some)
                 converted.Marker =
-                    (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S17_ListGrantsRequest__M6_Marker(concrete.Marker);
+                    (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S17_ListGrantsRequest__M6_Marker(concrete.Marker);
             converted.KeyId =
-                (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S17_ListGrantsRequest__M5_KeyId(concrete.KeyId);
+                (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S17_ListGrantsRequest__M5_KeyId(concrete.KeyId);
             if (concrete.GrantId.is_Some)
                 converted.GrantId =
-                    (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S17_ListGrantsRequest__M7_GrantId(
-                        concrete.GrantId);
+                    (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S17_ListGrantsRequest__M7_GrantId(concrete.GrantId);
             if (concrete.GranteePrincipal.is_Some)
                 converted.GranteePrincipal =
-                    (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S17_ListGrantsRequest__M16_GranteePrincipal(
+                    (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S17_ListGrantsRequest__M16_GranteePrincipal(
                         concrete.GranteePrincipal);
             return converted;
         }
@@ -5918,20 +5937,24 @@ namespace Com.Amazonaws.Kms
             ToDafny_N3_com__N9_amazonaws__N3_kms__S17_ListGrantsRequest(
                 Amazon.KeyManagementService.Model.ListGrantsRequest value)
         {
+            int? var_limit = value.Limit;
+            string var_marker = value.Marker;
+            string var_grantId = value.GrantId;
+            string var_granteePrincipal = value.GranteePrincipal;
             return new Dafny.Com.Amazonaws.Kms.ListGrantsRequest(
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S17_ListGrantsRequest__M5_Limit(value.Limit),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S17_ListGrantsRequest__M6_Marker(value.Marker),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S17_ListGrantsRequest__M5_Limit(var_limit),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S17_ListGrantsRequest__M6_Marker(var_marker),
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S17_ListGrantsRequest__M5_KeyId(value.KeyId),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S17_ListGrantsRequest__M7_GrantId(value.GrantId),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S17_ListGrantsRequest__M7_GrantId(var_grantId),
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S17_ListGrantsRequest__M16_GranteePrincipal(
-                    value.GranteePrincipal));
+                    var_granteePrincipal));
         }
 
         public static System.DateTime? FromDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata__M12_DeletionDate(
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (System.DateTime?) null
+                ? (System.DateTime?)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S8_DateType(value.Extract());
         }
 
@@ -5941,7 +5964,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S8_DateType((System.DateTime) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S8_DateType((System.DateTime)value));
         }
 
         public static System.Collections.Generic.List<Amazon.KeyManagementService.Model.Tag>
@@ -5949,7 +5972,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.ISequence<Dafny.Com.Amazonaws.Kms._ITag>> value)
         {
             return value.is_None
-                ? (System.Collections.Generic.List<Amazon.KeyManagementService.Model.Tag>) null
+                ? (System.Collections.Generic.List<Amazon.KeyManagementService.Model.Tag>)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S7_TagList(value.Extract());
         }
 
@@ -5961,7 +5984,7 @@ namespace Com.Amazonaws.Kms
                 ? Wrappers_Compile.Option<Dafny.ISequence<Dafny.Com.Amazonaws.Kms._ITag>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<Dafny.Com.Amazonaws.Kms._ITag>>.create_Some(
                     ToDafny_N3_com__N9_amazonaws__N3_kms__S7_TagList(
-                        (System.Collections.Generic.List<Amazon.KeyManagementService.Model.Tag>) value));
+                        (System.Collections.Generic.List<Amazon.KeyManagementService.Model.Tag>)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S23_ListResourceTagsRequest__M5_KeyId(
@@ -5992,32 +6015,29 @@ namespace Com.Amazonaws.Kms
 
         public static Amazon.KeyManagementService.Model.KMSInvalidStateException
             FromDafny_N3_com__N9_amazonaws__N3_kms__S24_KMSInvalidStateException(
-                Dafny.Com.Amazonaws.Kms._IKMSInvalidStateException value)
+                Dafny.Com.Amazonaws.Kms.KMSInvalidStateException value)
         {
-            Dafny.Com.Amazonaws.Kms.KMSInvalidStateException concrete =
-                (Dafny.Com.Amazonaws.Kms.KMSInvalidStateException) value;
-            string message = concrete.message.is_Some
+            string message = value.message.Count == 0
                 ? null
-                : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(concrete.message.Extract());
+                : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.message);
             return new Amazon.KeyManagementService.Model.KMSInvalidStateException(message);
         }
 
-        public static Dafny.Com.Amazonaws.Kms._IKMSInvalidStateException
+        public static Dafny.Com.Amazonaws.Kms.KMSInvalidStateException
             ToDafny_N3_com__N9_amazonaws__N3_kms__S24_KMSInvalidStateException(
                 Amazon.KeyManagementService.Model.KMSInvalidStateException value)
         {
-            Wrappers_Compile._IOption<Dafny.ISequence<char>> message = System.String.IsNullOrEmpty(value.Message)
-                ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
-                : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Message));
-            return new Dafny.Com.Amazonaws.Kms.KMSInvalidStateException(message);
+            Dafny.ISequence<char> message = System.String.IsNullOrEmpty(value.Message)
+                ? Dafny.Sequence<char>.Empty
+                : ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Message);
+            return new Dafny.Com.Amazonaws.Kms.KMSInvalidStateException { message = message };
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S27_InvalidImportTokenException__M7_message(
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Extract());
         }
 
@@ -6027,7 +6047,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType((string)value));
         }
 
         public static bool?
@@ -6035,7 +6055,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<bool> value)
         {
             return value.is_None
-                ? (bool?) null
+                ? (bool?)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S11_BooleanType(value.Extract());
         }
 
@@ -6045,14 +6065,14 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<bool>.create_None()
                 : Wrappers_Compile.Option<bool>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S11_BooleanType((bool) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S11_BooleanType((bool)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S16_CreateKeyRequest__M11_Description(
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S15_DescriptionType(value.Extract());
         }
 
@@ -6062,7 +6082,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S15_DescriptionType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S15_DescriptionType((string)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S21_EncryptionContextType__M5_value(
@@ -6082,7 +6102,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.ISequence<Dafny.Com.Amazonaws.Kms._IGrantOperation>> value)
         {
             return value.is_None
-                ? (System.Collections.Generic.List<string>) null
+                ? (System.Collections.Generic.List<string>)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S18_GrantOperationList(value.Extract());
         }
 
@@ -6094,14 +6114,14 @@ namespace Com.Amazonaws.Kms
                 ? Wrappers_Compile.Option<Dafny.ISequence<Dafny.Com.Amazonaws.Kms._IGrantOperation>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<Dafny.Com.Amazonaws.Kms._IGrantOperation>>.create_Some(
                     ToDafny_N3_com__N9_amazonaws__N3_kms__S18_GrantOperationList(
-                        (System.Collections.Generic.List<string>) value));
+                        (System.Collections.Generic.List<string>)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S30_DescribeCustomKeyStoresRequest__M6_Marker(
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S10_MarkerType(value.Extract());
         }
 
@@ -6111,14 +6131,14 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S10_MarkerType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S10_MarkerType((string)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S29_UnsupportedOperationException__M7_message(
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Extract());
         }
 
@@ -6128,7 +6148,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType((string)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType(Dafny.ISequence<char> value)
@@ -6143,25 +6163,22 @@ namespace Com.Amazonaws.Kms
 
         public static Amazon.KeyManagementService.Model.CustomKeyStoreNameInUseException
             FromDafny_N3_com__N9_amazonaws__N3_kms__S32_CustomKeyStoreNameInUseException(
-                Dafny.Com.Amazonaws.Kms._ICustomKeyStoreNameInUseException value)
+                Dafny.Com.Amazonaws.Kms.CustomKeyStoreNameInUseException value)
         {
-            Dafny.Com.Amazonaws.Kms.CustomKeyStoreNameInUseException concrete =
-                (Dafny.Com.Amazonaws.Kms.CustomKeyStoreNameInUseException) value;
-            string message = concrete.message.is_Some
+            string message = value.message.Count == 0
                 ? null
-                : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(concrete.message.Extract());
+                : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.message);
             return new Amazon.KeyManagementService.Model.CustomKeyStoreNameInUseException(message);
         }
 
-        public static Dafny.Com.Amazonaws.Kms._ICustomKeyStoreNameInUseException
+        public static Dafny.Com.Amazonaws.Kms.CustomKeyStoreNameInUseException
             ToDafny_N3_com__N9_amazonaws__N3_kms__S32_CustomKeyStoreNameInUseException(
                 Amazon.KeyManagementService.Model.CustomKeyStoreNameInUseException value)
         {
-            Wrappers_Compile._IOption<Dafny.ISequence<char>> message = System.String.IsNullOrEmpty(value.Message)
-                ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
-                : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Message));
-            return new Dafny.Com.Amazonaws.Kms.CustomKeyStoreNameInUseException(message);
+            Dafny.ISequence<char> message = System.String.IsNullOrEmpty(value.Message)
+                ? Dafny.Sequence<char>.Empty
+                : ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Message);
+            return new Dafny.Com.Amazonaws.Kms.CustomKeyStoreNameInUseException { message = message };
         }
 
         public static System.Collections.Generic.Dictionary<string, string>
@@ -6169,7 +6186,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>> value)
         {
             return value.is_None
-                ? (System.Collections.Generic.Dictionary<string, string>) null
+                ? (System.Collections.Generic.Dictionary<string, string>)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S21_EncryptionContextType(value.Extract());
         }
 
@@ -6181,23 +6198,23 @@ namespace Com.Amazonaws.Kms
                 ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>>.create_None()
                 : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>>.create_Some(
                     ToDafny_N3_com__N9_amazonaws__N3_kms__S21_EncryptionContextType(
-                        (System.Collections.Generic.Dictionary<string, string>) value));
+                        (System.Collections.Generic.Dictionary<string, string>)value));
         }
 
         public static Amazon.KeyManagementService.Model.PutKeyPolicyRequest
             FromDafny_N3_com__N9_amazonaws__N3_kms__S19_PutKeyPolicyRequest(
                 Dafny.Com.Amazonaws.Kms._IPutKeyPolicyRequest value)
         {
-            Dafny.Com.Amazonaws.Kms.PutKeyPolicyRequest concrete = (Dafny.Com.Amazonaws.Kms.PutKeyPolicyRequest) value;
+            Dafny.Com.Amazonaws.Kms.PutKeyPolicyRequest concrete = (Dafny.Com.Amazonaws.Kms.PutKeyPolicyRequest)value;
             Amazon.KeyManagementService.Model.PutKeyPolicyRequest converted =
                 new Amazon.KeyManagementService.Model.PutKeyPolicyRequest();
             converted.KeyId =
-                (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S19_PutKeyPolicyRequest__M5_KeyId(concrete.KeyId);
+                (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S19_PutKeyPolicyRequest__M5_KeyId(concrete.KeyId);
             converted.PolicyName =
-                (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S19_PutKeyPolicyRequest__M10_PolicyName(
+                (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S19_PutKeyPolicyRequest__M10_PolicyName(
                     concrete.PolicyName);
             converted.Policy =
-                (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S19_PutKeyPolicyRequest__M6_Policy(concrete.Policy);
+                (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S19_PutKeyPolicyRequest__M6_Policy(concrete.Policy);
             if (concrete.BypassPolicyLockoutSafetyCheck.is_Some)
                 converted.BypassPolicyLockoutSafetyCheck =
                     (bool)
@@ -6210,19 +6227,20 @@ namespace Com.Amazonaws.Kms
             ToDafny_N3_com__N9_amazonaws__N3_kms__S19_PutKeyPolicyRequest(
                 Amazon.KeyManagementService.Model.PutKeyPolicyRequest value)
         {
+            bool? var_bypassPolicyLockoutSafetyCheck = value.BypassPolicyLockoutSafetyCheck;
             return new Dafny.Com.Amazonaws.Kms.PutKeyPolicyRequest(
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S19_PutKeyPolicyRequest__M5_KeyId(value.KeyId),
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S19_PutKeyPolicyRequest__M10_PolicyName(value.PolicyName),
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S19_PutKeyPolicyRequest__M6_Policy(value.Policy),
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S19_PutKeyPolicyRequest__M30_BypassPolicyLockoutSafetyCheck(
-                    value.BypassPolicyLockoutSafetyCheck));
+                    var_bypassPolicyLockoutSafetyCheck));
         }
 
         public static Amazon.KeyManagementService.Model.ReEncryptRequest
             FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ReEncryptRequest(
                 Dafny.Com.Amazonaws.Kms._IReEncryptRequest value)
         {
-            Dafny.Com.Amazonaws.Kms.ReEncryptRequest concrete = (Dafny.Com.Amazonaws.Kms.ReEncryptRequest) value;
+            Dafny.Com.Amazonaws.Kms.ReEncryptRequest concrete = (Dafny.Com.Amazonaws.Kms.ReEncryptRequest)value;
             Amazon.KeyManagementService.Model.ReEncryptRequest converted =
                 new Amazon.KeyManagementService.Model.ReEncryptRequest();
             converted.CiphertextBlob =
@@ -6236,10 +6254,10 @@ namespace Com.Amazonaws.Kms
                         concrete.SourceEncryptionContext);
             if (concrete.SourceKeyId.is_Some)
                 converted.SourceKeyId =
-                    (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ReEncryptRequest__M11_SourceKeyId(
+                    (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ReEncryptRequest__M11_SourceKeyId(
                         concrete.SourceKeyId);
             converted.DestinationKeyId =
-                (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ReEncryptRequest__M16_DestinationKeyId(
+                (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ReEncryptRequest__M16_DestinationKeyId(
                     concrete.DestinationKeyId);
             if (concrete.DestinationEncryptionContext.is_Some)
                 converted.DestinationEncryptionContext =
@@ -6267,20 +6285,30 @@ namespace Com.Amazonaws.Kms
             ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ReEncryptRequest(
                 Amazon.KeyManagementService.Model.ReEncryptRequest value)
         {
+            System.Collections.Generic.Dictionary<string, string> var_sourceEncryptionContext =
+                value.SourceEncryptionContext;
+            string var_sourceKeyId = value.SourceKeyId;
+            System.Collections.Generic.Dictionary<string, string> var_destinationEncryptionContext =
+                value.DestinationEncryptionContext;
+            Amazon.KeyManagementService.EncryptionAlgorithmSpec var_sourceEncryptionAlgorithm =
+                value.SourceEncryptionAlgorithm;
+            Amazon.KeyManagementService.EncryptionAlgorithmSpec var_destinationEncryptionAlgorithm =
+                value.DestinationEncryptionAlgorithm;
+            System.Collections.Generic.List<string> var_grantTokens = value.GrantTokens;
             return new Dafny.Com.Amazonaws.Kms.ReEncryptRequest(
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ReEncryptRequest__M14_CiphertextBlob(value.CiphertextBlob),
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ReEncryptRequest__M23_SourceEncryptionContext(
-                    value.SourceEncryptionContext),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ReEncryptRequest__M11_SourceKeyId(value.SourceKeyId),
+                    var_sourceEncryptionContext),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ReEncryptRequest__M11_SourceKeyId(var_sourceKeyId),
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ReEncryptRequest__M16_DestinationKeyId(
                     value.DestinationKeyId),
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ReEncryptRequest__M28_DestinationEncryptionContext(
-                    value.DestinationEncryptionContext),
+                    var_destinationEncryptionContext),
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ReEncryptRequest__M25_SourceEncryptionAlgorithm(
-                    value.SourceEncryptionAlgorithm),
+                    var_sourceEncryptionAlgorithm),
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ReEncryptRequest__M30_DestinationEncryptionAlgorithm(
-                    value.DestinationEncryptionAlgorithm),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ReEncryptRequest__M11_GrantTokens(value.GrantTokens));
+                    var_destinationEncryptionAlgorithm),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ReEncryptRequest__M11_GrantTokens(var_grantTokens));
         }
 
         public static Amazon.KeyManagementService.Model.UpdatePrimaryRegionRequest
@@ -6288,14 +6316,14 @@ namespace Com.Amazonaws.Kms
                 Dafny.Com.Amazonaws.Kms._IUpdatePrimaryRegionRequest value)
         {
             Dafny.Com.Amazonaws.Kms.UpdatePrimaryRegionRequest concrete =
-                (Dafny.Com.Amazonaws.Kms.UpdatePrimaryRegionRequest) value;
+                (Dafny.Com.Amazonaws.Kms.UpdatePrimaryRegionRequest)value;
             Amazon.KeyManagementService.Model.UpdatePrimaryRegionRequest converted =
                 new Amazon.KeyManagementService.Model.UpdatePrimaryRegionRequest();
             converted.KeyId =
-                (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S26_UpdatePrimaryRegionRequest__M5_KeyId(
+                (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S26_UpdatePrimaryRegionRequest__M5_KeyId(
                     concrete.KeyId);
             converted.PrimaryRegion =
-                (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S26_UpdatePrimaryRegionRequest__M13_PrimaryRegion(
+                (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S26_UpdatePrimaryRegionRequest__M13_PrimaryRegion(
                     concrete.PrimaryRegion);
             return converted;
         }
@@ -6314,7 +6342,7 @@ namespace Com.Amazonaws.Kms
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (System.DateTime?) null
+                ? (System.DateTime?)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S8_DateType(value.Extract());
         }
 
@@ -6324,7 +6352,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S8_DateType((System.DateTime) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S8_DateType((System.DateTime)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S20_UntagResourceRequest__M5_KeyId(
@@ -6356,7 +6384,7 @@ namespace Com.Amazonaws.Kms
                 Dafny.Com.Amazonaws.Kms._IListKeyPoliciesResponse value)
         {
             Dafny.Com.Amazonaws.Kms.ListKeyPoliciesResponse concrete =
-                (Dafny.Com.Amazonaws.Kms.ListKeyPoliciesResponse) value;
+                (Dafny.Com.Amazonaws.Kms.ListKeyPoliciesResponse)value;
             Amazon.KeyManagementService.Model.ListKeyPoliciesResponse converted =
                 new Amazon.KeyManagementService.Model.ListKeyPoliciesResponse();
             if (concrete.PolicyNames.is_Some)
@@ -6366,11 +6394,11 @@ namespace Com.Amazonaws.Kms
                         concrete.PolicyNames);
             if (concrete.NextMarker.is_Some)
                 converted.NextMarker =
-                    (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S23_ListKeyPoliciesResponse__M10_NextMarker(
+                    (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S23_ListKeyPoliciesResponse__M10_NextMarker(
                         concrete.NextMarker);
             if (concrete.Truncated.is_Some)
                 converted.Truncated =
-                    (bool) FromDafny_N3_com__N9_amazonaws__N3_kms__S23_ListKeyPoliciesResponse__M9_Truncated(
+                    (bool)FromDafny_N3_com__N9_amazonaws__N3_kms__S23_ListKeyPoliciesResponse__M9_Truncated(
                         concrete.Truncated);
             return converted;
         }
@@ -6379,10 +6407,13 @@ namespace Com.Amazonaws.Kms
             ToDafny_N3_com__N9_amazonaws__N3_kms__S23_ListKeyPoliciesResponse(
                 Amazon.KeyManagementService.Model.ListKeyPoliciesResponse value)
         {
+            System.Collections.Generic.List<string> var_policyNames = value.PolicyNames;
+            string var_nextMarker = value.NextMarker;
+            bool? var_truncated = value.Truncated;
             return new Dafny.Com.Amazonaws.Kms.ListKeyPoliciesResponse(
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S23_ListKeyPoliciesResponse__M11_PolicyNames(value.PolicyNames),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S23_ListKeyPoliciesResponse__M10_NextMarker(value.NextMarker),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S23_ListKeyPoliciesResponse__M9_Truncated(value.Truncated));
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S23_ListKeyPoliciesResponse__M11_PolicyNames(var_policyNames),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S23_ListKeyPoliciesResponse__M10_NextMarker(var_nextMarker),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S23_ListKeyPoliciesResponse__M9_Truncated(var_truncated));
         }
 
         public static Amazon.KeyManagementService.Model.DescribeCustomKeyStoresResponse
@@ -6390,7 +6421,7 @@ namespace Com.Amazonaws.Kms
                 Dafny.Com.Amazonaws.Kms._IDescribeCustomKeyStoresResponse value)
         {
             Dafny.Com.Amazonaws.Kms.DescribeCustomKeyStoresResponse concrete =
-                (Dafny.Com.Amazonaws.Kms.DescribeCustomKeyStoresResponse) value;
+                (Dafny.Com.Amazonaws.Kms.DescribeCustomKeyStoresResponse)value;
             Amazon.KeyManagementService.Model.DescribeCustomKeyStoresResponse converted =
                 new Amazon.KeyManagementService.Model.DescribeCustomKeyStoresResponse();
             if (concrete.CustomKeyStores.is_Some)
@@ -6400,12 +6431,11 @@ namespace Com.Amazonaws.Kms
                         concrete.CustomKeyStores);
             if (concrete.NextMarker.is_Some)
                 converted.NextMarker =
-                    (string)
-                    FromDafny_N3_com__N9_amazonaws__N3_kms__S31_DescribeCustomKeyStoresResponse__M10_NextMarker(
+                    (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S31_DescribeCustomKeyStoresResponse__M10_NextMarker(
                         concrete.NextMarker);
             if (concrete.Truncated.is_Some)
                 converted.Truncated =
-                    (bool) FromDafny_N3_com__N9_amazonaws__N3_kms__S31_DescribeCustomKeyStoresResponse__M9_Truncated(
+                    (bool)FromDafny_N3_com__N9_amazonaws__N3_kms__S31_DescribeCustomKeyStoresResponse__M9_Truncated(
                         concrete.Truncated);
             return converted;
         }
@@ -6414,13 +6444,16 @@ namespace Com.Amazonaws.Kms
             ToDafny_N3_com__N9_amazonaws__N3_kms__S31_DescribeCustomKeyStoresResponse(
                 Amazon.KeyManagementService.Model.DescribeCustomKeyStoresResponse value)
         {
+            System.Collections.Generic.List<Amazon.KeyManagementService.Model.CustomKeyStoresListEntry>
+                var_customKeyStores = value.CustomKeyStores;
+            string var_nextMarker = value.NextMarker;
+            bool? var_truncated = value.Truncated;
             return new Dafny.Com.Amazonaws.Kms.DescribeCustomKeyStoresResponse(
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S31_DescribeCustomKeyStoresResponse__M15_CustomKeyStores(
-                    value.CustomKeyStores),
+                    var_customKeyStores),
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S31_DescribeCustomKeyStoresResponse__M10_NextMarker(
-                    value.NextMarker),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S31_DescribeCustomKeyStoresResponse__M9_Truncated(
-                    value.Truncated));
+                    var_nextMarker),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S31_DescribeCustomKeyStoresResponse__M9_Truncated(var_truncated));
         }
 
         public static Amazon.KeyManagementService.OriginType
@@ -6428,7 +6461,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.Com.Amazonaws.Kms._IOriginType> value)
         {
             return value.is_None
-                ? (Amazon.KeyManagementService.OriginType) null
+                ? (Amazon.KeyManagementService.OriginType)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S10_OriginType(value.Extract());
         }
 
@@ -6440,36 +6473,33 @@ namespace Com.Amazonaws.Kms
                 ? Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._IOriginType>.create_None()
                 : Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._IOriginType>.create_Some(
                     ToDafny_N3_com__N9_amazonaws__N3_kms__S10_OriginType(
-                        (Amazon.KeyManagementService.OriginType) value));
+                        (Amazon.KeyManagementService.OriginType)value));
         }
 
         public static Amazon.KeyManagementService.Model.AlreadyExistsException
             FromDafny_N3_com__N9_amazonaws__N3_kms__S22_AlreadyExistsException(
-                Dafny.Com.Amazonaws.Kms._IAlreadyExistsException value)
+                Dafny.Com.Amazonaws.Kms.AlreadyExistsException value)
         {
-            Dafny.Com.Amazonaws.Kms.AlreadyExistsException concrete =
-                (Dafny.Com.Amazonaws.Kms.AlreadyExistsException) value;
-            string message = concrete.message.is_Some
+            string message = value.message.Count == 0
                 ? null
-                : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(concrete.message.Extract());
+                : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.message);
             return new Amazon.KeyManagementService.Model.AlreadyExistsException(message);
         }
 
-        public static Dafny.Com.Amazonaws.Kms._IAlreadyExistsException
+        public static Dafny.Com.Amazonaws.Kms.AlreadyExistsException
             ToDafny_N3_com__N9_amazonaws__N3_kms__S22_AlreadyExistsException(
                 Amazon.KeyManagementService.Model.AlreadyExistsException value)
         {
-            Wrappers_Compile._IOption<Dafny.ISequence<char>> message = System.String.IsNullOrEmpty(value.Message)
-                ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
-                : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Message));
-            return new Dafny.Com.Amazonaws.Kms.AlreadyExistsException(message);
+            Dafny.ISequence<char> message = System.String.IsNullOrEmpty(value.Message)
+                ? Dafny.Sequence<char>.Empty
+                : ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Message);
+            return new Dafny.Com.Amazonaws.Kms.AlreadyExistsException { message = message };
         }
 
         public static int? FromDafny_N3_com__N9_amazonaws__N3_kms__S22_ListKeyPoliciesRequest__M5_Limit(
             Wrappers_Compile._IOption<int> value)
         {
-            return value.is_None ? (int?) null : FromDafny_N3_com__N9_amazonaws__N3_kms__S9_LimitType(value.Extract());
+            return value.is_None ? (int?)null : FromDafny_N3_com__N9_amazonaws__N3_kms__S9_LimitType(value.Extract());
         }
 
         public static Wrappers_Compile._IOption<int>
@@ -6478,7 +6508,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<int>.create_None()
                 : Wrappers_Compile.Option<int>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S9_LimitType((int) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S9_LimitType((int)value));
         }
 
         public static Amazon.KeyManagementService.Model.GenerateDataKeyPairRequest
@@ -6486,7 +6516,7 @@ namespace Com.Amazonaws.Kms
                 Dafny.Com.Amazonaws.Kms._IGenerateDataKeyPairRequest value)
         {
             Dafny.Com.Amazonaws.Kms.GenerateDataKeyPairRequest concrete =
-                (Dafny.Com.Amazonaws.Kms.GenerateDataKeyPairRequest) value;
+                (Dafny.Com.Amazonaws.Kms.GenerateDataKeyPairRequest)value;
             Amazon.KeyManagementService.Model.GenerateDataKeyPairRequest converted =
                 new Amazon.KeyManagementService.Model.GenerateDataKeyPairRequest();
             if (concrete.EncryptionContext.is_Some)
@@ -6495,7 +6525,7 @@ namespace Com.Amazonaws.Kms
                     FromDafny_N3_com__N9_amazonaws__N3_kms__S26_GenerateDataKeyPairRequest__M17_EncryptionContext(
                         concrete.EncryptionContext);
             converted.KeyId =
-                (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S26_GenerateDataKeyPairRequest__M5_KeyId(
+                (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S26_GenerateDataKeyPairRequest__M5_KeyId(
                     concrete.KeyId);
             converted.KeyPairSpec =
                 (Amazon.KeyManagementService.DataKeyPairSpec)
@@ -6513,14 +6543,15 @@ namespace Com.Amazonaws.Kms
             ToDafny_N3_com__N9_amazonaws__N3_kms__S26_GenerateDataKeyPairRequest(
                 Amazon.KeyManagementService.Model.GenerateDataKeyPairRequest value)
         {
+            System.Collections.Generic.Dictionary<string, string> var_encryptionContext = value.EncryptionContext;
+            System.Collections.Generic.List<string> var_grantTokens = value.GrantTokens;
             return new Dafny.Com.Amazonaws.Kms.GenerateDataKeyPairRequest(
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S26_GenerateDataKeyPairRequest__M17_EncryptionContext(
-                    value.EncryptionContext),
+                    var_encryptionContext),
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S26_GenerateDataKeyPairRequest__M5_KeyId(value.KeyId),
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S26_GenerateDataKeyPairRequest__M11_KeyPairSpec(
                     value.KeyPairSpec),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S26_GenerateDataKeyPairRequest__M11_GrantTokens(
-                    value.GrantTokens));
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S26_GenerateDataKeyPairRequest__M11_GrantTokens(var_grantTokens));
         }
 
         public static string
@@ -6528,7 +6559,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S21_CloudHsmClusterIdType(value.Extract());
         }
 
@@ -6538,25 +6569,24 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S21_CloudHsmClusterIdType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S21_CloudHsmClusterIdType((string)value));
         }
 
         public static Amazon.KeyManagementService.Model.ReplicateKeyRequest
             FromDafny_N3_com__N9_amazonaws__N3_kms__S19_ReplicateKeyRequest(
                 Dafny.Com.Amazonaws.Kms._IReplicateKeyRequest value)
         {
-            Dafny.Com.Amazonaws.Kms.ReplicateKeyRequest concrete = (Dafny.Com.Amazonaws.Kms.ReplicateKeyRequest) value;
+            Dafny.Com.Amazonaws.Kms.ReplicateKeyRequest concrete = (Dafny.Com.Amazonaws.Kms.ReplicateKeyRequest)value;
             Amazon.KeyManagementService.Model.ReplicateKeyRequest converted =
                 new Amazon.KeyManagementService.Model.ReplicateKeyRequest();
             converted.KeyId =
-                (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S19_ReplicateKeyRequest__M5_KeyId(concrete.KeyId);
+                (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S19_ReplicateKeyRequest__M5_KeyId(concrete.KeyId);
             converted.ReplicaRegion =
-                (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S19_ReplicateKeyRequest__M13_ReplicaRegion(
+                (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S19_ReplicateKeyRequest__M13_ReplicaRegion(
                     concrete.ReplicaRegion);
             if (concrete.Policy.is_Some)
                 converted.Policy =
-                    (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S19_ReplicateKeyRequest__M6_Policy(
-                        concrete.Policy);
+                    (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S19_ReplicateKeyRequest__M6_Policy(concrete.Policy);
             if (concrete.BypassPolicyLockoutSafetyCheck.is_Some)
                 converted.BypassPolicyLockoutSafetyCheck =
                     (bool)
@@ -6564,7 +6594,7 @@ namespace Com.Amazonaws.Kms
                         concrete.BypassPolicyLockoutSafetyCheck);
             if (concrete.Description.is_Some)
                 converted.Description =
-                    (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S19_ReplicateKeyRequest__M11_Description(
+                    (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S19_ReplicateKeyRequest__M11_Description(
                         concrete.Description);
             if (concrete.Tags.is_Some)
                 converted.Tags =
@@ -6577,21 +6607,25 @@ namespace Com.Amazonaws.Kms
             ToDafny_N3_com__N9_amazonaws__N3_kms__S19_ReplicateKeyRequest(
                 Amazon.KeyManagementService.Model.ReplicateKeyRequest value)
         {
+            string var_policy = value.Policy;
+            bool? var_bypassPolicyLockoutSafetyCheck = value.BypassPolicyLockoutSafetyCheck;
+            string var_description = value.Description;
+            System.Collections.Generic.List<Amazon.KeyManagementService.Model.Tag> var_tags = value.Tags;
             return new Dafny.Com.Amazonaws.Kms.ReplicateKeyRequest(
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S19_ReplicateKeyRequest__M5_KeyId(value.KeyId),
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S19_ReplicateKeyRequest__M13_ReplicaRegion(value.ReplicaRegion),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S19_ReplicateKeyRequest__M6_Policy(value.Policy),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S19_ReplicateKeyRequest__M6_Policy(var_policy),
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S19_ReplicateKeyRequest__M30_BypassPolicyLockoutSafetyCheck(
-                    value.BypassPolicyLockoutSafetyCheck),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S19_ReplicateKeyRequest__M11_Description(value.Description),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S19_ReplicateKeyRequest__M4_Tags(value.Tags));
+                    var_bypassPolicyLockoutSafetyCheck),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S19_ReplicateKeyRequest__M11_Description(var_description),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S19_ReplicateKeyRequest__M4_Tags(var_tags));
         }
 
         public static bool? FromDafny_N3_com__N9_amazonaws__N3_kms__S16_CreateKeyRequest__M11_MultiRegion(
             Wrappers_Compile._IOption<bool> value)
         {
             return value.is_None
-                ? (bool?) null
+                ? (bool?)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S19_NullableBooleanType(value.Extract());
         }
 
@@ -6601,7 +6635,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<bool>.create_None()
                 : Wrappers_Compile.Option<bool>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S19_NullableBooleanType((bool) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S19_NullableBooleanType((bool)value));
         }
 
         public static Amazon.KeyManagementService.KeySpec
@@ -6609,7 +6643,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.Com.Amazonaws.Kms._IKeySpec> value)
         {
             return value.is_None
-                ? (Amazon.KeyManagementService.KeySpec) null
+                ? (Amazon.KeyManagementService.KeySpec)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S7_KeySpec(value.Extract());
         }
 
@@ -6620,7 +6654,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._IKeySpec>.create_None()
                 : Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._IKeySpec>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S7_KeySpec((Amazon.KeyManagementService.KeySpec) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S7_KeySpec((Amazon.KeyManagementService.KeySpec)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S16_EnableKeyRequest__M5_KeyId(
@@ -6640,7 +6674,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>> value)
         {
             return value.is_None
-                ? (System.Collections.Generic.Dictionary<string, string>) null
+                ? (System.Collections.Generic.Dictionary<string, string>)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S21_EncryptionContextType(value.Extract());
         }
 
@@ -6652,7 +6686,7 @@ namespace Com.Amazonaws.Kms
                 ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>>.create_None()
                 : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>>.create_Some(
                     ToDafny_N3_com__N9_amazonaws__N3_kms__S21_EncryptionContextType(
-                        (System.Collections.Generic.Dictionary<string, string>) value));
+                        (System.Collections.Generic.Dictionary<string, string>)value));
         }
 
         public static Amazon.KeyManagementService.Model.DeleteImportedKeyMaterialRequest
@@ -6660,11 +6694,11 @@ namespace Com.Amazonaws.Kms
                 Dafny.Com.Amazonaws.Kms._IDeleteImportedKeyMaterialRequest value)
         {
             Dafny.Com.Amazonaws.Kms.DeleteImportedKeyMaterialRequest concrete =
-                (Dafny.Com.Amazonaws.Kms.DeleteImportedKeyMaterialRequest) value;
+                (Dafny.Com.Amazonaws.Kms.DeleteImportedKeyMaterialRequest)value;
             Amazon.KeyManagementService.Model.DeleteImportedKeyMaterialRequest converted =
                 new Amazon.KeyManagementService.Model.DeleteImportedKeyMaterialRequest();
             converted.KeyId =
-                (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S32_DeleteImportedKeyMaterialRequest__M5_KeyId(
+                (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S32_DeleteImportedKeyMaterialRequest__M5_KeyId(
                     concrete.KeyId);
             return converted;
         }
@@ -6695,47 +6729,42 @@ namespace Com.Amazonaws.Kms
 
         public static Amazon.KeyManagementService.Model.DependencyTimeoutException
             FromDafny_N3_com__N9_amazonaws__N3_kms__S26_DependencyTimeoutException(
-                Dafny.Com.Amazonaws.Kms._IDependencyTimeoutException value)
+                Dafny.Com.Amazonaws.Kms.DependencyTimeoutException value)
         {
-            Dafny.Com.Amazonaws.Kms.DependencyTimeoutException concrete =
-                (Dafny.Com.Amazonaws.Kms.DependencyTimeoutException) value;
-            string message = concrete.message.is_Some
+            string message = value.message.Count == 0
                 ? null
-                : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(concrete.message.Extract());
+                : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.message);
             return new Amazon.KeyManagementService.Model.DependencyTimeoutException(message);
         }
 
-        public static Dafny.Com.Amazonaws.Kms._IDependencyTimeoutException
+        public static Dafny.Com.Amazonaws.Kms.DependencyTimeoutException
             ToDafny_N3_com__N9_amazonaws__N3_kms__S26_DependencyTimeoutException(
                 Amazon.KeyManagementService.Model.DependencyTimeoutException value)
         {
-            Wrappers_Compile._IOption<Dafny.ISequence<char>> message = System.String.IsNullOrEmpty(value.Message)
-                ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
-                : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Message));
-            return new Dafny.Com.Amazonaws.Kms.DependencyTimeoutException(message);
+            Dafny.ISequence<char> message = System.String.IsNullOrEmpty(value.Message)
+                ? Dafny.Sequence<char>.Empty
+                : ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Message);
+            return new Dafny.Com.Amazonaws.Kms.DependencyTimeoutException { message = message };
         }
 
         public static Amazon.KeyManagementService.Model.NotFoundException
             FromDafny_N3_com__N9_amazonaws__N3_kms__S17_NotFoundException(
-                Dafny.Com.Amazonaws.Kms._INotFoundException value)
+                Dafny.Com.Amazonaws.Kms.NotFoundException value)
         {
-            Dafny.Com.Amazonaws.Kms.NotFoundException concrete = (Dafny.Com.Amazonaws.Kms.NotFoundException) value;
-            string message = concrete.message.is_Some
+            string message = value.message.Count == 0
                 ? null
-                : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(concrete.message.Extract());
+                : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.message);
             return new Amazon.KeyManagementService.Model.NotFoundException(message);
         }
 
-        public static Dafny.Com.Amazonaws.Kms._INotFoundException
+        public static Dafny.Com.Amazonaws.Kms.NotFoundException
             ToDafny_N3_com__N9_amazonaws__N3_kms__S17_NotFoundException(
                 Amazon.KeyManagementService.Model.NotFoundException value)
         {
-            Wrappers_Compile._IOption<Dafny.ISequence<char>> message = System.String.IsNullOrEmpty(value.Message)
-                ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
-                : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Message));
-            return new Dafny.Com.Amazonaws.Kms.NotFoundException(message);
+            Dafny.ISequence<char> message = System.String.IsNullOrEmpty(value.Message)
+                ? Dafny.Sequence<char>.Empty
+                : ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Message);
+            return new Dafny.Com.Amazonaws.Kms.NotFoundException { message = message };
         }
 
         public static Amazon.KeyManagementService.ExpirationModelType
@@ -6743,7 +6772,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.Com.Amazonaws.Kms._IExpirationModelType> value)
         {
             return value.is_None
-                ? (Amazon.KeyManagementService.ExpirationModelType) null
+                ? (Amazon.KeyManagementService.ExpirationModelType)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S19_ExpirationModelType(value.Extract());
         }
 
@@ -6755,7 +6784,7 @@ namespace Com.Amazonaws.Kms
                 ? Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._IExpirationModelType>.create_None()
                 : Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._IExpirationModelType>.create_Some(
                     ToDafny_N3_com__N9_amazonaws__N3_kms__S19_ExpirationModelType(
-                        (Amazon.KeyManagementService.ExpirationModelType) value));
+                        (Amazon.KeyManagementService.ExpirationModelType)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S26_TrustAnchorCertificateType(
@@ -6775,7 +6804,7 @@ namespace Com.Amazonaws.Kms
                 Dafny.Com.Amazonaws.Kms._IImportKeyMaterialResponse value)
         {
             Dafny.Com.Amazonaws.Kms.ImportKeyMaterialResponse concrete =
-                (Dafny.Com.Amazonaws.Kms.ImportKeyMaterialResponse) value;
+                (Dafny.Com.Amazonaws.Kms.ImportKeyMaterialResponse)value;
             Amazon.KeyManagementService.Model.ImportKeyMaterialResponse converted =
                 new Amazon.KeyManagementService.Model.ImportKeyMaterialResponse();
             return converted;
@@ -6793,7 +6822,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.ISequence<Dafny.Com.Amazonaws.Kms._ITag>> value)
         {
             return value.is_None
-                ? (System.Collections.Generic.List<Amazon.KeyManagementService.Model.Tag>) null
+                ? (System.Collections.Generic.List<Amazon.KeyManagementService.Model.Tag>)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S7_TagList(value.Extract());
         }
 
@@ -6805,37 +6834,34 @@ namespace Com.Amazonaws.Kms
                 ? Wrappers_Compile.Option<Dafny.ISequence<Dafny.Com.Amazonaws.Kms._ITag>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<Dafny.Com.Amazonaws.Kms._ITag>>.create_Some(
                     ToDafny_N3_com__N9_amazonaws__N3_kms__S7_TagList(
-                        (System.Collections.Generic.List<Amazon.KeyManagementService.Model.Tag>) value));
+                        (System.Collections.Generic.List<Amazon.KeyManagementService.Model.Tag>)value));
         }
 
         public static Amazon.KeyManagementService.Model.KMSInvalidSignatureException
             FromDafny_N3_com__N9_amazonaws__N3_kms__S28_KMSInvalidSignatureException(
-                Dafny.Com.Amazonaws.Kms._IKMSInvalidSignatureException value)
+                Dafny.Com.Amazonaws.Kms.KMSInvalidSignatureException value)
         {
-            Dafny.Com.Amazonaws.Kms.KMSInvalidSignatureException concrete =
-                (Dafny.Com.Amazonaws.Kms.KMSInvalidSignatureException) value;
-            string message = concrete.message.is_Some
+            string message = value.message.Count == 0
                 ? null
-                : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(concrete.message.Extract());
+                : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.message);
             return new Amazon.KeyManagementService.Model.KMSInvalidSignatureException(message);
         }
 
-        public static Dafny.Com.Amazonaws.Kms._IKMSInvalidSignatureException
+        public static Dafny.Com.Amazonaws.Kms.KMSInvalidSignatureException
             ToDafny_N3_com__N9_amazonaws__N3_kms__S28_KMSInvalidSignatureException(
                 Amazon.KeyManagementService.Model.KMSInvalidSignatureException value)
         {
-            Wrappers_Compile._IOption<Dafny.ISequence<char>> message = System.String.IsNullOrEmpty(value.Message)
-                ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
-                : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Message));
-            return new Dafny.Com.Amazonaws.Kms.KMSInvalidSignatureException(message);
+            Dafny.ISequence<char> message = System.String.IsNullOrEmpty(value.Message)
+                ? Dafny.Sequence<char>.Empty
+                : ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Message);
+            return new Dafny.Com.Amazonaws.Kms.KMSInvalidSignatureException { message = message };
         }
 
         public static Amazon.KeyManagementService.Model.ListGrantsResponse
             FromDafny_N3_com__N9_amazonaws__N3_kms__S18_ListGrantsResponse(
                 Dafny.Com.Amazonaws.Kms._IListGrantsResponse value)
         {
-            Dafny.Com.Amazonaws.Kms.ListGrantsResponse concrete = (Dafny.Com.Amazonaws.Kms.ListGrantsResponse) value;
+            Dafny.Com.Amazonaws.Kms.ListGrantsResponse concrete = (Dafny.Com.Amazonaws.Kms.ListGrantsResponse)value;
             Amazon.KeyManagementService.Model.ListGrantsResponse converted =
                 new Amazon.KeyManagementService.Model.ListGrantsResponse();
             if (concrete.Grants.is_Some)
@@ -6844,11 +6870,11 @@ namespace Com.Amazonaws.Kms
                     FromDafny_N3_com__N9_amazonaws__N3_kms__S18_ListGrantsResponse__M6_Grants(concrete.Grants);
             if (concrete.NextMarker.is_Some)
                 converted.NextMarker =
-                    (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S18_ListGrantsResponse__M10_NextMarker(
+                    (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S18_ListGrantsResponse__M10_NextMarker(
                         concrete.NextMarker);
             if (concrete.Truncated.is_Some)
                 converted.Truncated =
-                    (bool) FromDafny_N3_com__N9_amazonaws__N3_kms__S18_ListGrantsResponse__M9_Truncated(
+                    (bool)FromDafny_N3_com__N9_amazonaws__N3_kms__S18_ListGrantsResponse__M9_Truncated(
                         concrete.Truncated);
             return converted;
         }
@@ -6857,10 +6883,31 @@ namespace Com.Amazonaws.Kms
             ToDafny_N3_com__N9_amazonaws__N3_kms__S18_ListGrantsResponse(
                 Amazon.KeyManagementService.Model.ListGrantsResponse value)
         {
+            System.Collections.Generic.List<Amazon.KeyManagementService.Model.GrantListEntry> var_grants = value.Grants;
+            string var_nextMarker = value.NextMarker;
+            bool? var_truncated = value.Truncated;
             return new Dafny.Com.Amazonaws.Kms.ListGrantsResponse(
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S18_ListGrantsResponse__M6_Grants(value.Grants),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S18_ListGrantsResponse__M10_NextMarker(value.NextMarker),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S18_ListGrantsResponse__M9_Truncated(value.Truncated));
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S18_ListGrantsResponse__M6_Grants(var_grants),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S18_ListGrantsResponse__M10_NextMarker(var_nextMarker),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S18_ListGrantsResponse__M9_Truncated(var_truncated));
+        }
+
+        public static string
+            FromDafny_N3_com__N9_amazonaws__N3_kms__S27_UpdateCustomKeyStoreRequest__M17_CloudHsmClusterId(
+                Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
+        {
+            return value.is_None
+                ? (string)null
+                : FromDafny_N3_com__N9_amazonaws__N3_kms__S21_CloudHsmClusterIdType(value.Extract());
+        }
+
+        public static Wrappers_Compile._IOption<Dafny.ISequence<char>>
+            ToDafny_N3_com__N9_amazonaws__N3_kms__S27_UpdateCustomKeyStoreRequest__M17_CloudHsmClusterId(string value)
+        {
+            return value == null
+                ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
+                : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S21_CloudHsmClusterIdType((string)value));
         }
 
         public static Amazon.KeyManagementService.EncryptionAlgorithmSpec
@@ -6868,7 +6915,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.Com.Amazonaws.Kms._IEncryptionAlgorithmSpec> value)
         {
             return value.is_None
-                ? (Amazon.KeyManagementService.EncryptionAlgorithmSpec) null
+                ? (Amazon.KeyManagementService.EncryptionAlgorithmSpec)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S23_EncryptionAlgorithmSpec(value.Extract());
         }
 
@@ -6880,25 +6927,7 @@ namespace Com.Amazonaws.Kms
                 ? Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._IEncryptionAlgorithmSpec>.create_None()
                 : Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._IEncryptionAlgorithmSpec>.create_Some(
                     ToDafny_N3_com__N9_amazonaws__N3_kms__S23_EncryptionAlgorithmSpec(
-                        (Amazon.KeyManagementService.EncryptionAlgorithmSpec) value));
-        }
-
-        public static string
-            FromDafny_N3_com__N9_amazonaws__N3_kms__S27_UpdateCustomKeyStoreRequest__M17_CloudHsmClusterId(
-                Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
-        {
-            return value.is_None
-                ? (string) null
-                : FromDafny_N3_com__N9_amazonaws__N3_kms__S21_CloudHsmClusterIdType(value.Extract());
-        }
-
-        public static Wrappers_Compile._IOption<Dafny.ISequence<char>>
-            ToDafny_N3_com__N9_amazonaws__N3_kms__S27_UpdateCustomKeyStoreRequest__M17_CloudHsmClusterId(string value)
-        {
-            return value == null
-                ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
-                : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S21_CloudHsmClusterIdType((string) value));
+                        (Amazon.KeyManagementService.EncryptionAlgorithmSpec)value));
         }
 
         public static System.Collections.Generic.List<string>
@@ -6906,7 +6935,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.ISequence<Dafny.ISequence<char>>> value)
         {
             return value.is_None
-                ? (System.Collections.Generic.List<string>) null
+                ? (System.Collections.Generic.List<string>)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S14_GrantTokenList(value.Extract());
         }
 
@@ -6918,7 +6947,7 @@ namespace Com.Amazonaws.Kms
                 ? Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_Some(
                     ToDafny_N3_com__N9_amazonaws__N3_kms__S14_GrantTokenList(
-                        (System.Collections.Generic.List<string>) value));
+                        (System.Collections.Generic.List<string>)value));
         }
 
         public static System.IO.MemoryStream
@@ -6926,7 +6955,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.ISequence<byte>> value)
         {
             return value.is_None
-                ? (System.IO.MemoryStream) null
+                ? (System.IO.MemoryStream)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S13_PublicKeyType(value.Extract());
         }
 
@@ -6937,7 +6966,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<byte>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<byte>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S13_PublicKeyType((System.IO.MemoryStream) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S13_PublicKeyType((System.IO.MemoryStream)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S7_ArnType(Dafny.ISequence<char> value)
@@ -6967,7 +6996,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<bool> value)
         {
             return value.is_None
-                ? (bool?) null
+                ? (bool?)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S11_BooleanType(value.Extract());
         }
 
@@ -6978,7 +7007,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<bool>.create_None()
                 : Wrappers_Compile.Option<bool>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S11_BooleanType((bool) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S11_BooleanType((bool)value));
         }
 
         public static int?
@@ -6986,7 +7015,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<int> value)
         {
             return value.is_None
-                ? (int?) null
+                ? (int?)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S17_NumberOfBytesType(value.Extract());
         }
 
@@ -6997,7 +7026,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<int>.create_None()
                 : Wrappers_Compile.Option<int>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S17_NumberOfBytesType((int) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S17_NumberOfBytesType((int)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S26_UpdatePrimaryRegionRequest__M5_KeyId(
@@ -7016,7 +7045,7 @@ namespace Com.Amazonaws.Kms
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Extract());
         }
 
@@ -7026,7 +7055,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType((string)value));
         }
 
         public static Amazon.KeyManagementService.MessageType FromDafny_N3_com__N9_amazonaws__N3_kms__S11_MessageType(
@@ -7099,7 +7128,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.Com.Amazonaws.Kms._IKeyMetadata> value)
         {
             return value.is_None
-                ? (Amazon.KeyManagementService.Model.KeyMetadata) null
+                ? (Amazon.KeyManagementService.Model.KeyMetadata)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata(value.Extract());
         }
 
@@ -7111,14 +7140,14 @@ namespace Com.Amazonaws.Kms
                 ? Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._IKeyMetadata>.create_None()
                 : Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._IKeyMetadata>.create_Some(
                     ToDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata(
-                        (Amazon.KeyManagementService.Model.KeyMetadata) value));
+                        (Amazon.KeyManagementService.Model.KeyMetadata)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S19_CreateGrantResponse__M7_GrantId(
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S11_GrantIdType(value.Extract());
         }
 
@@ -7128,7 +7157,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S11_GrantIdType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S11_GrantIdType((string)value));
         }
 
         public static System.IO.MemoryStream FromDafny_N3_com__N9_amazonaws__N3_kms__S13_PlaintextType(
@@ -7148,7 +7177,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.ISequence<Dafny.ISequence<char>>> value)
         {
             return value.is_None
-                ? (System.Collections.Generic.List<string>) null
+                ? (System.Collections.Generic.List<string>)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S14_GrantTokenList(value.Extract());
         }
 
@@ -7160,7 +7189,7 @@ namespace Com.Amazonaws.Kms
                 ? Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_Some(
                     ToDafny_N3_com__N9_amazonaws__N3_kms__S14_GrantTokenList(
-                        (System.Collections.Generic.List<string>) value));
+                        (System.Collections.Generic.List<string>)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S19_PutKeyPolicyRequest__M5_KeyId(
@@ -7180,11 +7209,11 @@ namespace Com.Amazonaws.Kms
                 Dafny.Com.Amazonaws.Kms._IGetParametersForImportRequest value)
         {
             Dafny.Com.Amazonaws.Kms.GetParametersForImportRequest concrete =
-                (Dafny.Com.Amazonaws.Kms.GetParametersForImportRequest) value;
+                (Dafny.Com.Amazonaws.Kms.GetParametersForImportRequest)value;
             Amazon.KeyManagementService.Model.GetParametersForImportRequest converted =
                 new Amazon.KeyManagementService.Model.GetParametersForImportRequest();
             converted.KeyId =
-                (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S29_GetParametersForImportRequest__M5_KeyId(
+                (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S29_GetParametersForImportRequest__M5_KeyId(
                     concrete.KeyId);
             converted.WrappingAlgorithm =
                 (Amazon.KeyManagementService.AlgorithmSpec)
@@ -7214,7 +7243,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.Com.Amazonaws.Kms._IKeyState> value)
         {
             return value.is_None
-                ? (Amazon.KeyManagementService.KeyState) null
+                ? (Amazon.KeyManagementService.KeyState)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S8_KeyState(value.Extract());
         }
 
@@ -7225,7 +7254,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._IKeyState>.create_None()
                 : Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._IKeyState>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S8_KeyState((Amazon.KeyManagementService.KeyState) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S8_KeyState((Amazon.KeyManagementService.KeyState)value));
         }
 
         public static System.Collections.Generic.List<Amazon.KeyManagementService.Model.CustomKeyStoresListEntry>
@@ -7233,7 +7262,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.ISequence<Dafny.Com.Amazonaws.Kms._ICustomKeyStoresListEntry>> value)
         {
             return value.is_None
-                ? (System.Collections.Generic.List<Amazon.KeyManagementService.Model.CustomKeyStoresListEntry>) null
+                ? (System.Collections.Generic.List<Amazon.KeyManagementService.Model.CustomKeyStoresListEntry>)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S19_CustomKeyStoresList(value.Extract());
         }
 
@@ -7280,7 +7309,7 @@ namespace Com.Amazonaws.Kms
             Wrappers_Compile._IOption<bool> value)
         {
             return value.is_None
-                ? (bool?) null
+                ? (bool?)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S11_BooleanType(value.Extract());
         }
 
@@ -7290,7 +7319,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<bool>.create_None()
                 : Wrappers_Compile.Option<bool>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S11_BooleanType((bool) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S11_BooleanType((bool)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S18_CreateAliasRequest__M9_AliasName(
@@ -7310,7 +7339,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.ISequence<byte>> value)
         {
             return value.is_None
-                ? (System.IO.MemoryStream) null
+                ? (System.IO.MemoryStream)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S14_CiphertextType(value.Extract());
         }
 
@@ -7321,30 +7350,27 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<byte>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<byte>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S14_CiphertextType((System.IO.MemoryStream) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S14_CiphertextType((System.IO.MemoryStream)value));
         }
 
         public static Amazon.KeyManagementService.Model.IncorrectKeyException
             FromDafny_N3_com__N9_amazonaws__N3_kms__S21_IncorrectKeyException(
-                Dafny.Com.Amazonaws.Kms._IIncorrectKeyException value)
+                Dafny.Com.Amazonaws.Kms.IncorrectKeyException value)
         {
-            Dafny.Com.Amazonaws.Kms.IncorrectKeyException concrete =
-                (Dafny.Com.Amazonaws.Kms.IncorrectKeyException) value;
-            string message = concrete.message.is_Some
+            string message = value.message.Count == 0
                 ? null
-                : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(concrete.message.Extract());
+                : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.message);
             return new Amazon.KeyManagementService.Model.IncorrectKeyException(message);
         }
 
-        public static Dafny.Com.Amazonaws.Kms._IIncorrectKeyException
+        public static Dafny.Com.Amazonaws.Kms.IncorrectKeyException
             ToDafny_N3_com__N9_amazonaws__N3_kms__S21_IncorrectKeyException(
                 Amazon.KeyManagementService.Model.IncorrectKeyException value)
         {
-            Wrappers_Compile._IOption<Dafny.ISequence<char>> message = System.String.IsNullOrEmpty(value.Message)
-                ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
-                : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Message));
-            return new Dafny.Com.Amazonaws.Kms.IncorrectKeyException(message);
+            Dafny.ISequence<char> message = System.String.IsNullOrEmpty(value.Message)
+                ? Dafny.Sequence<char>.Empty
+                : ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Message);
+            return new Dafny.Com.Amazonaws.Kms.IncorrectKeyException { message = message };
         }
 
         public static System.Collections.Generic.Dictionary<string, string>
@@ -7352,7 +7378,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>> value)
         {
             return value.is_None
-                ? (System.Collections.Generic.Dictionary<string, string>) null
+                ? (System.Collections.Generic.Dictionary<string, string>)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S21_EncryptionContextType(value.Extract());
         }
 
@@ -7364,15 +7390,13 @@ namespace Com.Amazonaws.Kms
                 ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>>.create_None()
                 : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>>.create_Some(
                     ToDafny_N3_com__N9_amazonaws__N3_kms__S21_EncryptionContextType(
-                        (System.Collections.Generic.Dictionary<string, string>) value));
+                        (System.Collections.Generic.Dictionary<string, string>)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S12_SignResponse__M5_KeyId(
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
-            return value.is_None
-                ? (string) null
-                : FromDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType(value.Extract());
+            return value.is_None ? (string)null : FromDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType(value.Extract());
         }
 
         public static Wrappers_Compile._IOption<Dafny.ISequence<char>>
@@ -7381,14 +7405,14 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType((string)value));
         }
 
         public static System.DateTime? FromDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata__M7_ValidTo(
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (System.DateTime?) null
+                ? (System.DateTime?)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S8_DateType(value.Extract());
         }
 
@@ -7398,27 +7422,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S8_DateType((System.DateTime) value));
-        }
-
-        public static Amazon.KeyManagementService.EncryptionAlgorithmSpec
-            FromDafny_N3_com__N9_amazonaws__N3_kms__S15_EncryptResponse__M19_EncryptionAlgorithm(
-                Wrappers_Compile._IOption<Dafny.Com.Amazonaws.Kms._IEncryptionAlgorithmSpec> value)
-        {
-            return value.is_None
-                ? (Amazon.KeyManagementService.EncryptionAlgorithmSpec) null
-                : FromDafny_N3_com__N9_amazonaws__N3_kms__S23_EncryptionAlgorithmSpec(value.Extract());
-        }
-
-        public static Wrappers_Compile._IOption<Dafny.Com.Amazonaws.Kms._IEncryptionAlgorithmSpec>
-            ToDafny_N3_com__N9_amazonaws__N3_kms__S15_EncryptResponse__M19_EncryptionAlgorithm(
-                Amazon.KeyManagementService.EncryptionAlgorithmSpec value)
-        {
-            return value == null
-                ? Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._IEncryptionAlgorithmSpec>.create_None()
-                : Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._IEncryptionAlgorithmSpec>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S23_EncryptionAlgorithmSpec(
-                        (Amazon.KeyManagementService.EncryptionAlgorithmSpec) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S8_DateType((System.DateTime)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S27_UpdateKeyDescriptionRequest__M5_KeyId(
@@ -7433,21 +7437,41 @@ namespace Com.Amazonaws.Kms
             return ToDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType(value);
         }
 
+        public static Amazon.KeyManagementService.EncryptionAlgorithmSpec
+            FromDafny_N3_com__N9_amazonaws__N3_kms__S15_EncryptResponse__M19_EncryptionAlgorithm(
+                Wrappers_Compile._IOption<Dafny.Com.Amazonaws.Kms._IEncryptionAlgorithmSpec> value)
+        {
+            return value.is_None
+                ? (Amazon.KeyManagementService.EncryptionAlgorithmSpec)null
+                : FromDafny_N3_com__N9_amazonaws__N3_kms__S23_EncryptionAlgorithmSpec(value.Extract());
+        }
+
+        public static Wrappers_Compile._IOption<Dafny.Com.Amazonaws.Kms._IEncryptionAlgorithmSpec>
+            ToDafny_N3_com__N9_amazonaws__N3_kms__S15_EncryptResponse__M19_EncryptionAlgorithm(
+                Amazon.KeyManagementService.EncryptionAlgorithmSpec value)
+        {
+            return value == null
+                ? Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._IEncryptionAlgorithmSpec>.create_None()
+                : Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._IEncryptionAlgorithmSpec>.create_Some(
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S23_EncryptionAlgorithmSpec(
+                        (Amazon.KeyManagementService.EncryptionAlgorithmSpec)value));
+        }
+
         public static Amazon.KeyManagementService.Model.GenerateRandomRequest
             FromDafny_N3_com__N9_amazonaws__N3_kms__S21_GenerateRandomRequest(
                 Dafny.Com.Amazonaws.Kms._IGenerateRandomRequest value)
         {
             Dafny.Com.Amazonaws.Kms.GenerateRandomRequest concrete =
-                (Dafny.Com.Amazonaws.Kms.GenerateRandomRequest) value;
+                (Dafny.Com.Amazonaws.Kms.GenerateRandomRequest)value;
             Amazon.KeyManagementService.Model.GenerateRandomRequest converted =
                 new Amazon.KeyManagementService.Model.GenerateRandomRequest();
             if (concrete.NumberOfBytes.is_Some)
                 converted.NumberOfBytes =
-                    (int) FromDafny_N3_com__N9_amazonaws__N3_kms__S21_GenerateRandomRequest__M13_NumberOfBytes(
+                    (int)FromDafny_N3_com__N9_amazonaws__N3_kms__S21_GenerateRandomRequest__M13_NumberOfBytes(
                         concrete.NumberOfBytes);
             if (concrete.CustomKeyStoreId.is_Some)
                 converted.CustomKeyStoreId =
-                    (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S21_GenerateRandomRequest__M16_CustomKeyStoreId(
+                    (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S21_GenerateRandomRequest__M16_CustomKeyStoreId(
                         concrete.CustomKeyStoreId);
             return converted;
         }
@@ -7456,10 +7480,12 @@ namespace Com.Amazonaws.Kms
             ToDafny_N3_com__N9_amazonaws__N3_kms__S21_GenerateRandomRequest(
                 Amazon.KeyManagementService.Model.GenerateRandomRequest value)
         {
+            int? var_numberOfBytes = value.NumberOfBytes;
+            string var_customKeyStoreId = value.CustomKeyStoreId;
             return new Dafny.Com.Amazonaws.Kms.GenerateRandomRequest(
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S21_GenerateRandomRequest__M13_NumberOfBytes(value.NumberOfBytes),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S21_GenerateRandomRequest__M13_NumberOfBytes(var_numberOfBytes),
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S21_GenerateRandomRequest__M16_CustomKeyStoreId(
-                    value.CustomKeyStoreId));
+                    var_customKeyStoreId));
         }
 
         public static Amazon.KeyManagementService.CustomerMasterKeySpec
@@ -7467,7 +7493,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.Com.Amazonaws.Kms._ICustomerMasterKeySpec> value)
         {
             return value.is_None
-                ? (Amazon.KeyManagementService.CustomerMasterKeySpec) null
+                ? (Amazon.KeyManagementService.CustomerMasterKeySpec)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S21_CustomerMasterKeySpec(value.Extract());
         }
 
@@ -7479,7 +7505,7 @@ namespace Com.Amazonaws.Kms
                 ? Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._ICustomerMasterKeySpec>.create_None()
                 : Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._ICustomerMasterKeySpec>.create_Some(
                     ToDafny_N3_com__N9_amazonaws__N3_kms__S21_CustomerMasterKeySpec(
-                        (Amazon.KeyManagementService.CustomerMasterKeySpec) value));
+                        (Amazon.KeyManagementService.CustomerMasterKeySpec)value));
         }
 
         public static string
@@ -7510,7 +7536,7 @@ namespace Com.Amazonaws.Kms
             FromDafny_N3_com__N9_amazonaws__N3_kms__S19_ListAliasesResponse(
                 Dafny.Com.Amazonaws.Kms._IListAliasesResponse value)
         {
-            Dafny.Com.Amazonaws.Kms.ListAliasesResponse concrete = (Dafny.Com.Amazonaws.Kms.ListAliasesResponse) value;
+            Dafny.Com.Amazonaws.Kms.ListAliasesResponse concrete = (Dafny.Com.Amazonaws.Kms.ListAliasesResponse)value;
             Amazon.KeyManagementService.Model.ListAliasesResponse converted =
                 new Amazon.KeyManagementService.Model.ListAliasesResponse();
             if (concrete.Aliases.is_Some)
@@ -7519,11 +7545,11 @@ namespace Com.Amazonaws.Kms
                     FromDafny_N3_com__N9_amazonaws__N3_kms__S19_ListAliasesResponse__M7_Aliases(concrete.Aliases);
             if (concrete.NextMarker.is_Some)
                 converted.NextMarker =
-                    (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S19_ListAliasesResponse__M10_NextMarker(
+                    (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S19_ListAliasesResponse__M10_NextMarker(
                         concrete.NextMarker);
             if (concrete.Truncated.is_Some)
                 converted.Truncated =
-                    (bool) FromDafny_N3_com__N9_amazonaws__N3_kms__S19_ListAliasesResponse__M9_Truncated(
+                    (bool)FromDafny_N3_com__N9_amazonaws__N3_kms__S19_ListAliasesResponse__M9_Truncated(
                         concrete.Truncated);
             return converted;
         }
@@ -7532,10 +7558,14 @@ namespace Com.Amazonaws.Kms
             ToDafny_N3_com__N9_amazonaws__N3_kms__S19_ListAliasesResponse(
                 Amazon.KeyManagementService.Model.ListAliasesResponse value)
         {
+            System.Collections.Generic.List<Amazon.KeyManagementService.Model.AliasListEntry> var_aliases =
+                value.Aliases;
+            string var_nextMarker = value.NextMarker;
+            bool? var_truncated = value.Truncated;
             return new Dafny.Com.Amazonaws.Kms.ListAliasesResponse(
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S19_ListAliasesResponse__M7_Aliases(value.Aliases),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S19_ListAliasesResponse__M10_NextMarker(value.NextMarker),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S19_ListAliasesResponse__M9_Truncated(value.Truncated));
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S19_ListAliasesResponse__M7_Aliases(var_aliases),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S19_ListAliasesResponse__M10_NextMarker(var_nextMarker),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S19_ListAliasesResponse__M9_Truncated(var_truncated));
         }
 
         public static Amazon.KeyManagementService.Model.GrantConstraints
@@ -7543,7 +7573,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.Com.Amazonaws.Kms._IGrantConstraints> value)
         {
             return value.is_None
-                ? (Amazon.KeyManagementService.Model.GrantConstraints) null
+                ? (Amazon.KeyManagementService.Model.GrantConstraints)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_GrantConstraints(value.Extract());
         }
 
@@ -7555,7 +7585,7 @@ namespace Com.Amazonaws.Kms
                 ? Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._IGrantConstraints>.create_None()
                 : Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._IGrantConstraints>.create_Some(
                     ToDafny_N3_com__N9_amazonaws__N3_kms__S16_GrantConstraints(
-                        (Amazon.KeyManagementService.Model.GrantConstraints) value));
+                        (Amazon.KeyManagementService.Model.GrantConstraints)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S17_DisableKeyRequest__M5_KeyId(
@@ -7575,7 +7605,7 @@ namespace Com.Amazonaws.Kms
                 Dafny.Com.Amazonaws.Kms._IDescribeCustomKeyStoresRequest value)
         {
             Dafny.Com.Amazonaws.Kms.DescribeCustomKeyStoresRequest concrete =
-                (Dafny.Com.Amazonaws.Kms.DescribeCustomKeyStoresRequest) value;
+                (Dafny.Com.Amazonaws.Kms.DescribeCustomKeyStoresRequest)value;
             Amazon.KeyManagementService.Model.DescribeCustomKeyStoresRequest converted =
                 new Amazon.KeyManagementService.Model.DescribeCustomKeyStoresRequest();
             if (concrete.CustomKeyStoreId.is_Some)
@@ -7590,11 +7620,11 @@ namespace Com.Amazonaws.Kms
                         concrete.CustomKeyStoreName);
             if (concrete.Limit.is_Some)
                 converted.Limit =
-                    (int) FromDafny_N3_com__N9_amazonaws__N3_kms__S30_DescribeCustomKeyStoresRequest__M5_Limit(
+                    (int)FromDafny_N3_com__N9_amazonaws__N3_kms__S30_DescribeCustomKeyStoresRequest__M5_Limit(
                         concrete.Limit);
             if (concrete.Marker.is_Some)
                 converted.Marker =
-                    (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S30_DescribeCustomKeyStoresRequest__M6_Marker(
+                    (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S30_DescribeCustomKeyStoresRequest__M6_Marker(
                         concrete.Marker);
             return converted;
         }
@@ -7603,13 +7633,17 @@ namespace Com.Amazonaws.Kms
             ToDafny_N3_com__N9_amazonaws__N3_kms__S30_DescribeCustomKeyStoresRequest(
                 Amazon.KeyManagementService.Model.DescribeCustomKeyStoresRequest value)
         {
+            string var_customKeyStoreId = value.CustomKeyStoreId;
+            string var_customKeyStoreName = value.CustomKeyStoreName;
+            int? var_limit = value.Limit;
+            string var_marker = value.Marker;
             return new Dafny.Com.Amazonaws.Kms.DescribeCustomKeyStoresRequest(
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S30_DescribeCustomKeyStoresRequest__M16_CustomKeyStoreId(
-                    value.CustomKeyStoreId),
+                    var_customKeyStoreId),
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S30_DescribeCustomKeyStoresRequest__M18_CustomKeyStoreName(
-                    value.CustomKeyStoreName),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S30_DescribeCustomKeyStoresRequest__M5_Limit(value.Limit),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S30_DescribeCustomKeyStoresRequest__M6_Marker(value.Marker));
+                    var_customKeyStoreName),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S30_DescribeCustomKeyStoresRequest__M5_Limit(var_limit),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S30_DescribeCustomKeyStoresRequest__M6_Marker(var_marker));
         }
 
         public static System.IO.MemoryStream FromDafny_N3_com__N9_amazonaws__N3_kms__S14_EncryptRequest__M9_Plaintext(
@@ -7629,7 +7663,7 @@ namespace Com.Amazonaws.Kms
                 Dafny.Com.Amazonaws.Kms._IConnectCustomKeyStoreResponse value)
         {
             Dafny.Com.Amazonaws.Kms.ConnectCustomKeyStoreResponse concrete =
-                (Dafny.Com.Amazonaws.Kms.ConnectCustomKeyStoreResponse) value;
+                (Dafny.Com.Amazonaws.Kms.ConnectCustomKeyStoreResponse)value;
             Amazon.KeyManagementService.Model.ConnectCustomKeyStoreResponse converted =
                 new Amazon.KeyManagementService.Model.ConnectCustomKeyStoreResponse();
             return converted;
@@ -7647,7 +7681,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.ISequence<byte>> value)
         {
             return value.is_None
-                ? (System.IO.MemoryStream) null
+                ? (System.IO.MemoryStream)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S13_PublicKeyType(value.Extract());
         }
 
@@ -7657,7 +7691,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<byte>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<byte>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S13_PublicKeyType((System.IO.MemoryStream) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S13_PublicKeyType((System.IO.MemoryStream)value));
         }
 
         public static Amazon.KeyManagementService.ExpirationModelType
@@ -7665,7 +7699,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.Com.Amazonaws.Kms._IExpirationModelType> value)
         {
             return value.is_None
-                ? (Amazon.KeyManagementService.ExpirationModelType) null
+                ? (Amazon.KeyManagementService.ExpirationModelType)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S19_ExpirationModelType(value.Extract());
         }
 
@@ -7677,14 +7711,14 @@ namespace Com.Amazonaws.Kms
                 ? Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._IExpirationModelType>.create_None()
                 : Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._IExpirationModelType>.create_Some(
                     ToDafny_N3_com__N9_amazonaws__N3_kms__S19_ExpirationModelType(
-                        (Amazon.KeyManagementService.ExpirationModelType) value));
+                        (Amazon.KeyManagementService.ExpirationModelType)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S19_InvalidArnException__M7_message(
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Extract());
         }
 
@@ -7694,7 +7728,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType((string)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S18_CreateGrantRequest__M16_GranteePrincipal(
@@ -7713,7 +7747,7 @@ namespace Com.Amazonaws.Kms
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S10_PolicyType(value.Extract());
         }
 
@@ -7723,7 +7757,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S10_PolicyType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S10_PolicyType((string)value));
         }
 
         public static Amazon.KeyManagementService.ConnectionStateType
@@ -7731,7 +7765,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.Com.Amazonaws.Kms._IConnectionStateType> value)
         {
             return value.is_None
-                ? (Amazon.KeyManagementService.ConnectionStateType) null
+                ? (Amazon.KeyManagementService.ConnectionStateType)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S19_ConnectionStateType(value.Extract());
         }
 
@@ -7743,7 +7777,7 @@ namespace Com.Amazonaws.Kms
                 ? Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._IConnectionStateType>.create_None()
                 : Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._IConnectionStateType>.create_Some(
                     ToDafny_N3_com__N9_amazonaws__N3_kms__S19_ConnectionStateType(
-                        (Amazon.KeyManagementService.ConnectionStateType) value));
+                        (Amazon.KeyManagementService.ConnectionStateType)value));
         }
 
         public static Amazon.KeyManagementService.Model.CreateCustomKeyStoreRequest
@@ -7751,22 +7785,21 @@ namespace Com.Amazonaws.Kms
                 Dafny.Com.Amazonaws.Kms._ICreateCustomKeyStoreRequest value)
         {
             Dafny.Com.Amazonaws.Kms.CreateCustomKeyStoreRequest concrete =
-                (Dafny.Com.Amazonaws.Kms.CreateCustomKeyStoreRequest) value;
+                (Dafny.Com.Amazonaws.Kms.CreateCustomKeyStoreRequest)value;
             Amazon.KeyManagementService.Model.CreateCustomKeyStoreRequest converted =
                 new Amazon.KeyManagementService.Model.CreateCustomKeyStoreRequest();
             converted.CustomKeyStoreName =
-                (string)
-                FromDafny_N3_com__N9_amazonaws__N3_kms__S27_CreateCustomKeyStoreRequest__M18_CustomKeyStoreName(
+                (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S27_CreateCustomKeyStoreRequest__M18_CustomKeyStoreName(
                     concrete.CustomKeyStoreName);
             converted.CloudHsmClusterId =
-                (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S27_CreateCustomKeyStoreRequest__M17_CloudHsmClusterId(
+                (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S27_CreateCustomKeyStoreRequest__M17_CloudHsmClusterId(
                     concrete.CloudHsmClusterId);
             converted.TrustAnchorCertificate =
                 (string)
                 FromDafny_N3_com__N9_amazonaws__N3_kms__S27_CreateCustomKeyStoreRequest__M22_TrustAnchorCertificate(
                     concrete.TrustAnchorCertificate);
             converted.KeyStorePassword =
-                (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S27_CreateCustomKeyStoreRequest__M16_KeyStorePassword(
+                (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S27_CreateCustomKeyStoreRequest__M16_KeyStorePassword(
                     concrete.KeyStorePassword);
             return converted;
         }
@@ -7827,7 +7860,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.ISequence<Dafny.ISequence<char>>> value)
         {
             return value.is_None
-                ? (System.Collections.Generic.List<string>) null
+                ? (System.Collections.Generic.List<string>)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S14_GrantTokenList(value.Extract());
         }
 
@@ -7839,7 +7872,7 @@ namespace Com.Amazonaws.Kms
                 ? Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_Some(
                     ToDafny_N3_com__N9_amazonaws__N3_kms__S14_GrantTokenList(
-                        (System.Collections.Generic.List<string>) value));
+                        (System.Collections.Generic.List<string>)value));
         }
 
         public static System.Collections.Generic.List<string>
@@ -7860,14 +7893,14 @@ namespace Com.Amazonaws.Kms
             FromDafny_N3_com__N9_amazonaws__N3_kms__S18_CreateAliasRequest(
                 Dafny.Com.Amazonaws.Kms._ICreateAliasRequest value)
         {
-            Dafny.Com.Amazonaws.Kms.CreateAliasRequest concrete = (Dafny.Com.Amazonaws.Kms.CreateAliasRequest) value;
+            Dafny.Com.Amazonaws.Kms.CreateAliasRequest concrete = (Dafny.Com.Amazonaws.Kms.CreateAliasRequest)value;
             Amazon.KeyManagementService.Model.CreateAliasRequest converted =
                 new Amazon.KeyManagementService.Model.CreateAliasRequest();
             converted.AliasName =
-                (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S18_CreateAliasRequest__M9_AliasName(
+                (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S18_CreateAliasRequest__M9_AliasName(
                     concrete.AliasName);
             converted.TargetKeyId =
-                (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S18_CreateAliasRequest__M11_TargetKeyId(
+                (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S18_CreateAliasRequest__M11_TargetKeyId(
                     concrete.TargetKeyId);
             return converted;
         }
@@ -7884,9 +7917,7 @@ namespace Com.Amazonaws.Kms
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S17_ReEncryptResponse__M11_SourceKeyId(
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
-            return value.is_None
-                ? (string) null
-                : FromDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType(value.Extract());
+            return value.is_None ? (string)null : FromDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType(value.Extract());
         }
 
         public static Wrappers_Compile._IOption<Dafny.ISequence<char>>
@@ -7895,15 +7926,13 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType((string)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S15_EncryptResponse__M5_KeyId(
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
-            return value.is_None
-                ? (string) null
-                : FromDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType(value.Extract());
+            return value.is_None ? (string)null : FromDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType(value.Extract());
         }
 
         public static Wrappers_Compile._IOption<Dafny.ISequence<char>>
@@ -7912,7 +7941,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType((string)value));
         }
 
         public static string
@@ -7932,7 +7961,7 @@ namespace Com.Amazonaws.Kms
             Wrappers_Compile._IOption<Dafny.ISequence<byte>> value)
         {
             return value.is_None
-                ? (System.IO.MemoryStream) null
+                ? (System.IO.MemoryStream)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S14_CiphertextType(value.Extract());
         }
 
@@ -7942,16 +7971,14 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<byte>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<byte>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S14_CiphertextType((System.IO.MemoryStream) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S14_CiphertextType((System.IO.MemoryStream)value));
         }
 
         public static string
             FromDafny_N3_com__N9_amazonaws__N3_kms__S39_GenerateDataKeyWithoutPlaintextResponse__M5_KeyId(
                 Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
-            return value.is_None
-                ? (string) null
-                : FromDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType(value.Extract());
+            return value.is_None ? (string)null : FromDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType(value.Extract());
         }
 
         public static Wrappers_Compile._IOption<Dafny.ISequence<char>>
@@ -7960,14 +7987,14 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType((string)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata__M17_CloudHsmClusterId(
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S21_CloudHsmClusterIdType(value.Extract());
         }
 
@@ -7977,30 +8004,27 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S21_CloudHsmClusterIdType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S21_CloudHsmClusterIdType((string)value));
         }
 
         public static Amazon.KeyManagementService.Model.IncorrectTrustAnchorException
             FromDafny_N3_com__N9_amazonaws__N3_kms__S29_IncorrectTrustAnchorException(
-                Dafny.Com.Amazonaws.Kms._IIncorrectTrustAnchorException value)
+                Dafny.Com.Amazonaws.Kms.IncorrectTrustAnchorException value)
         {
-            Dafny.Com.Amazonaws.Kms.IncorrectTrustAnchorException concrete =
-                (Dafny.Com.Amazonaws.Kms.IncorrectTrustAnchorException) value;
-            string message = concrete.message.is_Some
+            string message = value.message.Count == 0
                 ? null
-                : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(concrete.message.Extract());
+                : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.message);
             return new Amazon.KeyManagementService.Model.IncorrectTrustAnchorException(message);
         }
 
-        public static Dafny.Com.Amazonaws.Kms._IIncorrectTrustAnchorException
+        public static Dafny.Com.Amazonaws.Kms.IncorrectTrustAnchorException
             ToDafny_N3_com__N9_amazonaws__N3_kms__S29_IncorrectTrustAnchorException(
                 Amazon.KeyManagementService.Model.IncorrectTrustAnchorException value)
         {
-            Wrappers_Compile._IOption<Dafny.ISequence<char>> message = System.String.IsNullOrEmpty(value.Message)
-                ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
-                : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Message));
-            return new Dafny.Com.Amazonaws.Kms.IncorrectTrustAnchorException(message);
+            Dafny.ISequence<char> message = System.String.IsNullOrEmpty(value.Message)
+                ? Dafny.Sequence<char>.Empty
+                : ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Message);
+            return new Dafny.Com.Amazonaws.Kms.IncorrectTrustAnchorException { message = message };
         }
 
         public static Amazon.KeyManagementService.EncryptionAlgorithmSpec
@@ -8008,7 +8032,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.Com.Amazonaws.Kms._IEncryptionAlgorithmSpec> value)
         {
             return value.is_None
-                ? (Amazon.KeyManagementService.EncryptionAlgorithmSpec) null
+                ? (Amazon.KeyManagementService.EncryptionAlgorithmSpec)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S23_EncryptionAlgorithmSpec(value.Extract());
         }
 
@@ -8020,7 +8044,7 @@ namespace Com.Amazonaws.Kms
                 ? Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._IEncryptionAlgorithmSpec>.create_None()
                 : Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._IEncryptionAlgorithmSpec>.create_Some(
                     ToDafny_N3_com__N9_amazonaws__N3_kms__S23_EncryptionAlgorithmSpec(
-                        (Amazon.KeyManagementService.EncryptionAlgorithmSpec) value));
+                        (Amazon.KeyManagementService.EncryptionAlgorithmSpec)value));
         }
 
         public static System.Collections.Generic.List<Amazon.KeyManagementService.Model.MultiRegionKey>
@@ -8028,7 +8052,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.ISequence<Dafny.Com.Amazonaws.Kms._IMultiRegionKey>> value)
         {
             return value.is_None
-                ? (System.Collections.Generic.List<Amazon.KeyManagementService.Model.MultiRegionKey>) null
+                ? (System.Collections.Generic.List<Amazon.KeyManagementService.Model.MultiRegionKey>)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S18_MultiRegionKeyList(value.Extract());
         }
 
@@ -8040,7 +8064,7 @@ namespace Com.Amazonaws.Kms
                 ? Wrappers_Compile.Option<Dafny.ISequence<Dafny.Com.Amazonaws.Kms._IMultiRegionKey>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<Dafny.Com.Amazonaws.Kms._IMultiRegionKey>>.create_Some(
                     ToDafny_N3_com__N9_amazonaws__N3_kms__S18_MultiRegionKeyList(
-                        (System.Collections.Generic.List<Amazon.KeyManagementService.Model.MultiRegionKey>) value));
+                        (System.Collections.Generic.List<Amazon.KeyManagementService.Model.MultiRegionKey>)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S27_UpdateKeyDescriptionRequest__M11_Description(
@@ -8058,15 +8082,15 @@ namespace Com.Amazonaws.Kms
         public static Amazon.KeyManagementService.Model.VerifyResponse
             FromDafny_N3_com__N9_amazonaws__N3_kms__S14_VerifyResponse(Dafny.Com.Amazonaws.Kms._IVerifyResponse value)
         {
-            Dafny.Com.Amazonaws.Kms.VerifyResponse concrete = (Dafny.Com.Amazonaws.Kms.VerifyResponse) value;
+            Dafny.Com.Amazonaws.Kms.VerifyResponse concrete = (Dafny.Com.Amazonaws.Kms.VerifyResponse)value;
             Amazon.KeyManagementService.Model.VerifyResponse converted =
                 new Amazon.KeyManagementService.Model.VerifyResponse();
             if (concrete.KeyId.is_Some)
                 converted.KeyId =
-                    (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S14_VerifyResponse__M5_KeyId(concrete.KeyId);
+                    (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S14_VerifyResponse__M5_KeyId(concrete.KeyId);
             if (concrete.SignatureValid.is_Some)
                 converted.SignatureValid =
-                    (bool) FromDafny_N3_com__N9_amazonaws__N3_kms__S14_VerifyResponse__M14_SignatureValid(
+                    (bool)FromDafny_N3_com__N9_amazonaws__N3_kms__S14_VerifyResponse__M14_SignatureValid(
                         concrete.SignatureValid);
             if (concrete.SigningAlgorithm.is_Some)
                 converted.SigningAlgorithm =
@@ -8079,10 +8103,13 @@ namespace Com.Amazonaws.Kms
         public static Dafny.Com.Amazonaws.Kms._IVerifyResponse ToDafny_N3_com__N9_amazonaws__N3_kms__S14_VerifyResponse(
             Amazon.KeyManagementService.Model.VerifyResponse value)
         {
+            string var_keyId = value.KeyId;
+            bool? var_signatureValid = value.SignatureValid;
+            Amazon.KeyManagementService.SigningAlgorithmSpec var_signingAlgorithm = value.SigningAlgorithm;
             return new Dafny.Com.Amazonaws.Kms.VerifyResponse(
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S14_VerifyResponse__M5_KeyId(value.KeyId),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S14_VerifyResponse__M14_SignatureValid(value.SignatureValid),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S14_VerifyResponse__M16_SigningAlgorithm(value.SigningAlgorithm));
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S14_VerifyResponse__M5_KeyId(var_keyId),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S14_VerifyResponse__M14_SignatureValid(var_signatureValid),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S14_VerifyResponse__M16_SigningAlgorithm(var_signingAlgorithm));
         }
 
         public static System.Collections.Generic.Dictionary<string, string>
@@ -8126,7 +8153,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (System.DateTime?) null
+                ? (System.DateTime?)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S8_DateType(value.Extract());
         }
 
@@ -8137,7 +8164,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S8_DateType((System.DateTime) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S8_DateType((System.DateTime)value));
         }
 
         public static System.Collections.Generic.List<string>
@@ -8145,7 +8172,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.ISequence<Dafny.ISequence<char>>> value)
         {
             return value.is_None
-                ? (System.Collections.Generic.List<string>) null
+                ? (System.Collections.Generic.List<string>)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S14_GrantTokenList(value.Extract());
         }
 
@@ -8157,15 +8184,13 @@ namespace Com.Amazonaws.Kms
                 ? Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_Some(
                     ToDafny_N3_com__N9_amazonaws__N3_kms__S14_GrantTokenList(
-                        (System.Collections.Generic.List<string>) value));
+                        (System.Collections.Generic.List<string>)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S25_CancelKeyDeletionResponse__M5_KeyId(
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
-            return value.is_None
-                ? (string) null
-                : FromDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType(value.Extract());
+            return value.is_None ? (string)null : FromDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType(value.Extract());
         }
 
         public static Wrappers_Compile._IOption<Dafny.ISequence<char>>
@@ -8174,7 +8199,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType((string)value));
         }
 
         public static System.Collections.Generic.Dictionary<string, string>
@@ -8182,7 +8207,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>> value)
         {
             return value.is_None
-                ? (System.Collections.Generic.Dictionary<string, string>) null
+                ? (System.Collections.Generic.Dictionary<string, string>)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S21_EncryptionContextType(value.Extract());
         }
 
@@ -8194,36 +8219,33 @@ namespace Com.Amazonaws.Kms
                 ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>>.create_None()
                 : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>>.create_Some(
                     ToDafny_N3_com__N9_amazonaws__N3_kms__S21_EncryptionContextType(
-                        (System.Collections.Generic.Dictionary<string, string>) value));
+                        (System.Collections.Generic.Dictionary<string, string>)value));
         }
 
         public static Amazon.KeyManagementService.Model.InvalidImportTokenException
             FromDafny_N3_com__N9_amazonaws__N3_kms__S27_InvalidImportTokenException(
-                Dafny.Com.Amazonaws.Kms._IInvalidImportTokenException value)
+                Dafny.Com.Amazonaws.Kms.InvalidImportTokenException value)
         {
-            Dafny.Com.Amazonaws.Kms.InvalidImportTokenException concrete =
-                (Dafny.Com.Amazonaws.Kms.InvalidImportTokenException) value;
-            string message = concrete.message.is_Some
+            string message = value.message.Count == 0
                 ? null
-                : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(concrete.message.Extract());
+                : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.message);
             return new Amazon.KeyManagementService.Model.InvalidImportTokenException(message);
         }
 
-        public static Dafny.Com.Amazonaws.Kms._IInvalidImportTokenException
+        public static Dafny.Com.Amazonaws.Kms.InvalidImportTokenException
             ToDafny_N3_com__N9_amazonaws__N3_kms__S27_InvalidImportTokenException(
                 Amazon.KeyManagementService.Model.InvalidImportTokenException value)
         {
-            Wrappers_Compile._IOption<Dafny.ISequence<char>> message = System.String.IsNullOrEmpty(value.Message)
-                ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
-                : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Message));
-            return new Dafny.Com.Amazonaws.Kms.InvalidImportTokenException(message);
+            Dafny.ISequence<char> message = System.String.IsNullOrEmpty(value.Message)
+                ? Dafny.Sequence<char>.Empty
+                : ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Message);
+            return new Dafny.Com.Amazonaws.Kms.InvalidImportTokenException { message = message };
         }
 
         public static int? FromDafny_N3_com__N9_amazonaws__N3_kms__S23_ListResourceTagsRequest__M5_Limit(
             Wrappers_Compile._IOption<int> value)
         {
-            return value.is_None ? (int?) null : FromDafny_N3_com__N9_amazonaws__N3_kms__S9_LimitType(value.Extract());
+            return value.is_None ? (int?)null : FromDafny_N3_com__N9_amazonaws__N3_kms__S9_LimitType(value.Extract());
         }
 
         public static Wrappers_Compile._IOption<int>
@@ -8232,7 +8254,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<int>.create_None()
                 : Wrappers_Compile.Option<int>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S9_LimitType((int) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S9_LimitType((int)value));
         }
 
         public static Amazon.KeyManagementService.SigningAlgorithmSpec
@@ -8254,7 +8276,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.ISequence<byte>> value)
         {
             return value.is_None
-                ? (System.IO.MemoryStream) null
+                ? (System.IO.MemoryStream)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S13_PlaintextType(value.Extract());
         }
 
@@ -8265,7 +8287,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<byte>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<byte>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S13_PlaintextType((System.IO.MemoryStream) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S13_PlaintextType((System.IO.MemoryStream)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S14_GrantTokenList__M6_member(
@@ -8285,7 +8307,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S22_CustomKeyStoreNameType(value.Extract());
         }
 
@@ -8295,14 +8317,14 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S22_CustomKeyStoreNameType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S22_CustomKeyStoreNameType((string)value));
         }
 
         public static bool? FromDafny_N3_com__N9_amazonaws__N3_kms__S14_VerifyResponse__M14_SignatureValid(
             Wrappers_Compile._IOption<bool> value)
         {
             return value.is_None
-                ? (bool?) null
+                ? (bool?)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S11_BooleanType(value.Extract());
         }
 
@@ -8312,7 +8334,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<bool>.create_None()
                 : Wrappers_Compile.Option<bool>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S11_BooleanType((bool) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S11_BooleanType((bool)value));
         }
 
         public static Amazon.KeyManagementService.ConnectionErrorCodeType
@@ -8320,7 +8342,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.Com.Amazonaws.Kms._IConnectionErrorCodeType> value)
         {
             return value.is_None
-                ? (Amazon.KeyManagementService.ConnectionErrorCodeType) null
+                ? (Amazon.KeyManagementService.ConnectionErrorCodeType)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S23_ConnectionErrorCodeType(value.Extract());
         }
 
@@ -8332,7 +8354,7 @@ namespace Com.Amazonaws.Kms
                 ? Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._IConnectionErrorCodeType>.create_None()
                 : Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._IConnectionErrorCodeType>.create_Some(
                     ToDafny_N3_com__N9_amazonaws__N3_kms__S23_ConnectionErrorCodeType(
-                        (Amazon.KeyManagementService.ConnectionErrorCodeType) value));
+                        (Amazon.KeyManagementService.ConnectionErrorCodeType)value));
         }
 
         public static System.Collections.Generic.List<string>
@@ -8353,7 +8375,7 @@ namespace Com.Amazonaws.Kms
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S10_MarkerType(value.Extract());
         }
 
@@ -8363,19 +8385,18 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S10_MarkerType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S10_MarkerType((string)value));
         }
 
         public static Amazon.KeyManagementService.Model.SignRequest
             FromDafny_N3_com__N9_amazonaws__N3_kms__S11_SignRequest(Dafny.Com.Amazonaws.Kms._ISignRequest value)
         {
-            Dafny.Com.Amazonaws.Kms.SignRequest concrete = (Dafny.Com.Amazonaws.Kms.SignRequest) value;
+            Dafny.Com.Amazonaws.Kms.SignRequest concrete = (Dafny.Com.Amazonaws.Kms.SignRequest)value;
             Amazon.KeyManagementService.Model.SignRequest converted =
                 new Amazon.KeyManagementService.Model.SignRequest();
-            converted.KeyId =
-                (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S11_SignRequest__M5_KeyId(concrete.KeyId);
+            converted.KeyId = (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S11_SignRequest__M5_KeyId(concrete.KeyId);
             converted.Message =
-                (System.IO.MemoryStream) FromDafny_N3_com__N9_amazonaws__N3_kms__S11_SignRequest__M7_Message(
+                (System.IO.MemoryStream)FromDafny_N3_com__N9_amazonaws__N3_kms__S11_SignRequest__M7_Message(
                     concrete.Message);
             if (concrete.MessageType.is_Some)
                 converted.MessageType =
@@ -8395,11 +8416,13 @@ namespace Com.Amazonaws.Kms
         public static Dafny.Com.Amazonaws.Kms._ISignRequest ToDafny_N3_com__N9_amazonaws__N3_kms__S11_SignRequest(
             Amazon.KeyManagementService.Model.SignRequest value)
         {
+            Amazon.KeyManagementService.MessageType var_messageType = value.MessageType;
+            System.Collections.Generic.List<string> var_grantTokens = value.GrantTokens;
             return new Dafny.Com.Amazonaws.Kms.SignRequest(
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S11_SignRequest__M5_KeyId(value.KeyId),
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S11_SignRequest__M7_Message(value.Message),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S11_SignRequest__M11_MessageType(value.MessageType),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S11_SignRequest__M11_GrantTokens(value.GrantTokens),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S11_SignRequest__M11_MessageType(var_messageType),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S11_SignRequest__M11_GrantTokens(var_grantTokens),
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S11_SignRequest__M16_SigningAlgorithm(value.SigningAlgorithm));
         }
 
@@ -8421,25 +8444,22 @@ namespace Com.Amazonaws.Kms
 
         public static Amazon.KeyManagementService.Model.CloudHsmClusterNotRelatedException
             FromDafny_N3_com__N9_amazonaws__N3_kms__S34_CloudHsmClusterNotRelatedException(
-                Dafny.Com.Amazonaws.Kms._ICloudHsmClusterNotRelatedException value)
+                Dafny.Com.Amazonaws.Kms.CloudHsmClusterNotRelatedException value)
         {
-            Dafny.Com.Amazonaws.Kms.CloudHsmClusterNotRelatedException concrete =
-                (Dafny.Com.Amazonaws.Kms.CloudHsmClusterNotRelatedException) value;
-            string message = concrete.message.is_Some
+            string message = value.message.Count == 0
                 ? null
-                : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(concrete.message.Extract());
+                : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.message);
             return new Amazon.KeyManagementService.Model.CloudHsmClusterNotRelatedException(message);
         }
 
-        public static Dafny.Com.Amazonaws.Kms._ICloudHsmClusterNotRelatedException
+        public static Dafny.Com.Amazonaws.Kms.CloudHsmClusterNotRelatedException
             ToDafny_N3_com__N9_amazonaws__N3_kms__S34_CloudHsmClusterNotRelatedException(
                 Amazon.KeyManagementService.Model.CloudHsmClusterNotRelatedException value)
         {
-            Wrappers_Compile._IOption<Dafny.ISequence<char>> message = System.String.IsNullOrEmpty(value.Message)
-                ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
-                : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Message));
-            return new Dafny.Com.Amazonaws.Kms.CloudHsmClusterNotRelatedException(message);
+            Dafny.ISequence<char> message = System.String.IsNullOrEmpty(value.Message)
+                ? Dafny.Sequence<char>.Empty
+                : ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Message);
+            return new Dafny.Com.Amazonaws.Kms.CloudHsmClusterNotRelatedException { message = message };
         }
 
         public static System.Collections.Generic.Dictionary<string, string>
@@ -8447,7 +8467,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>> value)
         {
             return value.is_None
-                ? (System.Collections.Generic.Dictionary<string, string>) null
+                ? (System.Collections.Generic.Dictionary<string, string>)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S21_EncryptionContextType(value.Extract());
         }
 
@@ -8459,14 +8479,14 @@ namespace Com.Amazonaws.Kms
                 ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>>.create_None()
                 : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>>.create_Some(
                     ToDafny_N3_com__N9_amazonaws__N3_kms__S21_EncryptionContextType(
-                        (System.Collections.Generic.Dictionary<string, string>) value));
+                        (System.Collections.Generic.Dictionary<string, string>)value));
         }
 
         public static bool? FromDafny_N3_com__N9_amazonaws__N3_kms__S19_ListAliasesResponse__M9_Truncated(
             Wrappers_Compile._IOption<bool> value)
         {
             return value.is_None
-                ? (bool?) null
+                ? (bool?)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S11_BooleanType(value.Extract());
         }
 
@@ -8476,7 +8496,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<bool>.create_None()
                 : Wrappers_Compile.Option<bool>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S11_BooleanType((bool) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S11_BooleanType((bool)value));
         }
 
         public static Amazon.KeyManagementService.Model.UpdateCustomKeyStoreRequest
@@ -8484,11 +8504,11 @@ namespace Com.Amazonaws.Kms
                 Dafny.Com.Amazonaws.Kms._IUpdateCustomKeyStoreRequest value)
         {
             Dafny.Com.Amazonaws.Kms.UpdateCustomKeyStoreRequest concrete =
-                (Dafny.Com.Amazonaws.Kms.UpdateCustomKeyStoreRequest) value;
+                (Dafny.Com.Amazonaws.Kms.UpdateCustomKeyStoreRequest)value;
             Amazon.KeyManagementService.Model.UpdateCustomKeyStoreRequest converted =
                 new Amazon.KeyManagementService.Model.UpdateCustomKeyStoreRequest();
             converted.CustomKeyStoreId =
-                (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S27_UpdateCustomKeyStoreRequest__M16_CustomKeyStoreId(
+                (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S27_UpdateCustomKeyStoreRequest__M16_CustomKeyStoreId(
                     concrete.CustomKeyStoreId);
             if (concrete.NewCustomKeyStoreName.is_Some)
                 converted.NewCustomKeyStoreName =
@@ -8512,35 +8532,18 @@ namespace Com.Amazonaws.Kms
             ToDafny_N3_com__N9_amazonaws__N3_kms__S27_UpdateCustomKeyStoreRequest(
                 Amazon.KeyManagementService.Model.UpdateCustomKeyStoreRequest value)
         {
+            string var_newCustomKeyStoreName = value.NewCustomKeyStoreName;
+            string var_keyStorePassword = value.KeyStorePassword;
+            string var_cloudHsmClusterId = value.CloudHsmClusterId;
             return new Dafny.Com.Amazonaws.Kms.UpdateCustomKeyStoreRequest(
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S27_UpdateCustomKeyStoreRequest__M16_CustomKeyStoreId(
                     value.CustomKeyStoreId),
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S27_UpdateCustomKeyStoreRequest__M21_NewCustomKeyStoreName(
-                    value.NewCustomKeyStoreName),
+                    var_newCustomKeyStoreName),
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S27_UpdateCustomKeyStoreRequest__M16_KeyStorePassword(
-                    value.KeyStorePassword),
+                    var_keyStorePassword),
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S27_UpdateCustomKeyStoreRequest__M17_CloudHsmClusterId(
-                    value.CloudHsmClusterId));
-        }
-
-        public static Amazon.KeyManagementService.SigningAlgorithmSpec
-            FromDafny_N3_com__N9_amazonaws__N3_kms__S14_VerifyResponse__M16_SigningAlgorithm(
-                Wrappers_Compile._IOption<Dafny.Com.Amazonaws.Kms._ISigningAlgorithmSpec> value)
-        {
-            return value.is_None
-                ? (Amazon.KeyManagementService.SigningAlgorithmSpec) null
-                : FromDafny_N3_com__N9_amazonaws__N3_kms__S20_SigningAlgorithmSpec(value.Extract());
-        }
-
-        public static Wrappers_Compile._IOption<Dafny.Com.Amazonaws.Kms._ISigningAlgorithmSpec>
-            ToDafny_N3_com__N9_amazonaws__N3_kms__S14_VerifyResponse__M16_SigningAlgorithm(
-                Amazon.KeyManagementService.SigningAlgorithmSpec value)
-        {
-            return value == null
-                ? Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._ISigningAlgorithmSpec>.create_None()
-                : Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._ISigningAlgorithmSpec>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S20_SigningAlgorithmSpec(
-                        (Amazon.KeyManagementService.SigningAlgorithmSpec) value));
+                    var_cloudHsmClusterId));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ReEncryptRequest__M16_DestinationKeyId(
@@ -8553,6 +8556,26 @@ namespace Com.Amazonaws.Kms
             ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ReEncryptRequest__M16_DestinationKeyId(string value)
         {
             return ToDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType(value);
+        }
+
+        public static Amazon.KeyManagementService.SigningAlgorithmSpec
+            FromDafny_N3_com__N9_amazonaws__N3_kms__S14_VerifyResponse__M16_SigningAlgorithm(
+                Wrappers_Compile._IOption<Dafny.Com.Amazonaws.Kms._ISigningAlgorithmSpec> value)
+        {
+            return value.is_None
+                ? (Amazon.KeyManagementService.SigningAlgorithmSpec)null
+                : FromDafny_N3_com__N9_amazonaws__N3_kms__S20_SigningAlgorithmSpec(value.Extract());
+        }
+
+        public static Wrappers_Compile._IOption<Dafny.Com.Amazonaws.Kms._ISigningAlgorithmSpec>
+            ToDafny_N3_com__N9_amazonaws__N3_kms__S14_VerifyResponse__M16_SigningAlgorithm(
+                Amazon.KeyManagementService.SigningAlgorithmSpec value)
+        {
+            return value == null
+                ? Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._ISigningAlgorithmSpec>.create_None()
+                : Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._ISigningAlgorithmSpec>.create_Some(
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S20_SigningAlgorithmSpec(
+                        (Amazon.KeyManagementService.SigningAlgorithmSpec)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S26_ScheduleKeyDeletionRequest__M5_KeyId(
@@ -8584,12 +8607,12 @@ namespace Com.Amazonaws.Kms
                 Dafny.Com.Amazonaws.Kms._ICancelKeyDeletionResponse value)
         {
             Dafny.Com.Amazonaws.Kms.CancelKeyDeletionResponse concrete =
-                (Dafny.Com.Amazonaws.Kms.CancelKeyDeletionResponse) value;
+                (Dafny.Com.Amazonaws.Kms.CancelKeyDeletionResponse)value;
             Amazon.KeyManagementService.Model.CancelKeyDeletionResponse converted =
                 new Amazon.KeyManagementService.Model.CancelKeyDeletionResponse();
             if (concrete.KeyId.is_Some)
                 converted.KeyId =
-                    (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S25_CancelKeyDeletionResponse__M5_KeyId(
+                    (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S25_CancelKeyDeletionResponse__M5_KeyId(
                         concrete.KeyId);
             return converted;
         }
@@ -8598,8 +8621,9 @@ namespace Com.Amazonaws.Kms
             ToDafny_N3_com__N9_amazonaws__N3_kms__S25_CancelKeyDeletionResponse(
                 Amazon.KeyManagementService.Model.CancelKeyDeletionResponse value)
         {
+            string var_keyId = value.KeyId;
             return new Dafny.Com.Amazonaws.Kms.CancelKeyDeletionResponse(
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S25_CancelKeyDeletionResponse__M5_KeyId(value.KeyId));
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S25_CancelKeyDeletionResponse__M5_KeyId(var_keyId));
         }
 
         public static Amazon.KeyManagementService.Model.CustomKeyStoresListEntry
@@ -8607,12 +8631,12 @@ namespace Com.Amazonaws.Kms
                 Dafny.Com.Amazonaws.Kms._ICustomKeyStoresListEntry value)
         {
             Dafny.Com.Amazonaws.Kms.CustomKeyStoresListEntry concrete =
-                (Dafny.Com.Amazonaws.Kms.CustomKeyStoresListEntry) value;
+                (Dafny.Com.Amazonaws.Kms.CustomKeyStoresListEntry)value;
             Amazon.KeyManagementService.Model.CustomKeyStoresListEntry converted =
                 new Amazon.KeyManagementService.Model.CustomKeyStoresListEntry();
             if (concrete.CustomKeyStoreId.is_Some)
                 converted.CustomKeyStoreId =
-                    (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S24_CustomKeyStoresListEntry__M16_CustomKeyStoreId(
+                    (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S24_CustomKeyStoresListEntry__M16_CustomKeyStoreId(
                         concrete.CustomKeyStoreId);
             if (concrete.CustomKeyStoreName.is_Some)
                 converted.CustomKeyStoreName =
@@ -8621,8 +8645,7 @@ namespace Com.Amazonaws.Kms
                         concrete.CustomKeyStoreName);
             if (concrete.CloudHsmClusterId.is_Some)
                 converted.CloudHsmClusterId =
-                    (string)
-                    FromDafny_N3_com__N9_amazonaws__N3_kms__S24_CustomKeyStoresListEntry__M17_CloudHsmClusterId(
+                    (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S24_CustomKeyStoresListEntry__M17_CloudHsmClusterId(
                         concrete.CloudHsmClusterId);
             if (concrete.TrustAnchorCertificate.is_Some)
                 converted.TrustAnchorCertificate =
@@ -8651,47 +8674,52 @@ namespace Com.Amazonaws.Kms
             ToDafny_N3_com__N9_amazonaws__N3_kms__S24_CustomKeyStoresListEntry(
                 Amazon.KeyManagementService.Model.CustomKeyStoresListEntry value)
         {
+            string var_customKeyStoreId = value.CustomKeyStoreId;
+            string var_customKeyStoreName = value.CustomKeyStoreName;
+            string var_cloudHsmClusterId = value.CloudHsmClusterId;
+            string var_trustAnchorCertificate = value.TrustAnchorCertificate;
+            Amazon.KeyManagementService.ConnectionStateType var_connectionState = value.ConnectionState;
+            Amazon.KeyManagementService.ConnectionErrorCodeType var_connectionErrorCode = value.ConnectionErrorCode;
+            System.DateTime? var_creationDate = value.CreationDate;
             return new Dafny.Com.Amazonaws.Kms.CustomKeyStoresListEntry(
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S24_CustomKeyStoresListEntry__M16_CustomKeyStoreId(
-                    value.CustomKeyStoreId),
+                    var_customKeyStoreId),
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S24_CustomKeyStoresListEntry__M18_CustomKeyStoreName(
-                    value.CustomKeyStoreName),
+                    var_customKeyStoreName),
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S24_CustomKeyStoresListEntry__M17_CloudHsmClusterId(
-                    value.CloudHsmClusterId),
+                    var_cloudHsmClusterId),
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S24_CustomKeyStoresListEntry__M22_TrustAnchorCertificate(
-                    value.TrustAnchorCertificate),
+                    var_trustAnchorCertificate),
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S24_CustomKeyStoresListEntry__M15_ConnectionState(
-                    value.ConnectionState),
+                    var_connectionState),
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S24_CustomKeyStoresListEntry__M19_ConnectionErrorCode(
-                    value.ConnectionErrorCode),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S24_CustomKeyStoresListEntry__M12_CreationDate(
-                    value.CreationDate));
+                    var_connectionErrorCode),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S24_CustomKeyStoresListEntry__M12_CreationDate(var_creationDate));
         }
 
         public static Amazon.KeyManagementService.Model.KeyMetadata
             FromDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata(Dafny.Com.Amazonaws.Kms._IKeyMetadata value)
         {
-            Dafny.Com.Amazonaws.Kms.KeyMetadata concrete = (Dafny.Com.Amazonaws.Kms.KeyMetadata) value;
+            Dafny.Com.Amazonaws.Kms.KeyMetadata concrete = (Dafny.Com.Amazonaws.Kms.KeyMetadata)value;
             Amazon.KeyManagementService.Model.KeyMetadata converted =
                 new Amazon.KeyManagementService.Model.KeyMetadata();
             if (concrete.AWSAccountId.is_Some)
                 converted.AWSAccountId =
-                    (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata__M12_AWSAccountId(
+                    (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata__M12_AWSAccountId(
                         concrete.AWSAccountId);
-            converted.KeyId =
-                (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata__M5_KeyId(concrete.KeyId);
+            converted.KeyId = (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata__M5_KeyId(concrete.KeyId);
             if (concrete.Arn.is_Some)
-                converted.Arn = (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata__M3_Arn(concrete.Arn);
+                converted.Arn = (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata__M3_Arn(concrete.Arn);
             if (concrete.CreationDate.is_Some)
                 converted.CreationDate =
-                    (System.DateTime) FromDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata__M12_CreationDate(
+                    (System.DateTime)FromDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata__M12_CreationDate(
                         concrete.CreationDate);
             if (concrete.Enabled.is_Some)
                 converted.Enabled =
-                    (bool) FromDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata__M7_Enabled(concrete.Enabled);
+                    (bool)FromDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata__M7_Enabled(concrete.Enabled);
             if (concrete.Description.is_Some)
                 converted.Description =
-                    (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata__M11_Description(
+                    (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata__M11_Description(
                         concrete.Description);
             if (concrete.KeyUsage.is_Some)
                 converted.KeyUsage =
@@ -8703,11 +8731,11 @@ namespace Com.Amazonaws.Kms
                     FromDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata__M8_KeyState(concrete.KeyState);
             if (concrete.DeletionDate.is_Some)
                 converted.DeletionDate =
-                    (System.DateTime) FromDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata__M12_DeletionDate(
+                    (System.DateTime)FromDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata__M12_DeletionDate(
                         concrete.DeletionDate);
             if (concrete.ValidTo.is_Some)
                 converted.ValidTo =
-                    (System.DateTime) FromDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata__M7_ValidTo(
+                    (System.DateTime)FromDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata__M7_ValidTo(
                         concrete.ValidTo);
             if (concrete.Origin.is_Some)
                 converted.Origin =
@@ -8715,11 +8743,11 @@ namespace Com.Amazonaws.Kms
                     FromDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata__M6_Origin(concrete.Origin);
             if (concrete.CustomKeyStoreId.is_Some)
                 converted.CustomKeyStoreId =
-                    (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata__M16_CustomKeyStoreId(
+                    (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata__M16_CustomKeyStoreId(
                         concrete.CustomKeyStoreId);
             if (concrete.CloudHsmClusterId.is_Some)
                 converted.CloudHsmClusterId =
-                    (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata__M17_CloudHsmClusterId(
+                    (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata__M17_CloudHsmClusterId(
                         concrete.CloudHsmClusterId);
             if (concrete.ExpirationModel.is_Some)
                 converted.ExpirationModel =
@@ -8751,7 +8779,7 @@ namespace Com.Amazonaws.Kms
                         concrete.SigningAlgorithms);
             if (concrete.MultiRegion.is_Some)
                 converted.MultiRegion =
-                    (bool) FromDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata__M11_MultiRegion(
+                    (bool)FromDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata__M11_MultiRegion(
                         concrete.MultiRegion);
             if (concrete.MultiRegionConfiguration.is_Some)
                 converted.MultiRegionConfiguration =
@@ -8760,7 +8788,7 @@ namespace Com.Amazonaws.Kms
                         concrete.MultiRegionConfiguration);
             if (concrete.PendingDeletionWindowInDays.is_Some)
                 converted.PendingDeletionWindowInDays =
-                    (int) FromDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata__M27_PendingDeletionWindowInDays(
+                    (int)FromDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata__M27_PendingDeletionWindowInDays(
                         concrete.PendingDeletionWindowInDays);
             return converted;
         }
@@ -8768,33 +8796,55 @@ namespace Com.Amazonaws.Kms
         public static Dafny.Com.Amazonaws.Kms._IKeyMetadata ToDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata(
             Amazon.KeyManagementService.Model.KeyMetadata value)
         {
+            string var_aWSAccountId = value.AWSAccountId;
+            string var_arn = value.Arn;
+            System.DateTime? var_creationDate = value.CreationDate;
+            bool? var_enabled = value.Enabled;
+            string var_description = value.Description;
+            Amazon.KeyManagementService.KeyUsageType var_keyUsage = value.KeyUsage;
+            Amazon.KeyManagementService.KeyState var_keyState = value.KeyState;
+            System.DateTime? var_deletionDate = value.DeletionDate;
+            System.DateTime? var_validTo = value.ValidTo;
+            Amazon.KeyManagementService.OriginType var_origin = value.Origin;
+            string var_customKeyStoreId = value.CustomKeyStoreId;
+            string var_cloudHsmClusterId = value.CloudHsmClusterId;
+            Amazon.KeyManagementService.ExpirationModelType var_expirationModel = value.ExpirationModel;
+            Amazon.KeyManagementService.KeyManagerType var_keyManager = value.KeyManager;
+            Amazon.KeyManagementService.CustomerMasterKeySpec var_customerMasterKeySpec = value.CustomerMasterKeySpec;
+            Amazon.KeyManagementService.KeySpec var_keySpec = value.KeySpec;
+            System.Collections.Generic.List<string> var_encryptionAlgorithms = value.EncryptionAlgorithms;
+            System.Collections.Generic.List<string> var_signingAlgorithms = value.SigningAlgorithms;
+            bool? var_multiRegion = value.MultiRegion;
+            Amazon.KeyManagementService.Model.MultiRegionConfiguration var_multiRegionConfiguration =
+                value.MultiRegionConfiguration;
+            int? var_pendingDeletionWindowInDays = value.PendingDeletionWindowInDays;
             return new Dafny.Com.Amazonaws.Kms.KeyMetadata(
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata__M12_AWSAccountId(value.AWSAccountId),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata__M12_AWSAccountId(var_aWSAccountId),
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata__M5_KeyId(value.KeyId),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata__M3_Arn(value.Arn),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata__M12_CreationDate(value.CreationDate),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata__M7_Enabled(value.Enabled),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata__M11_Description(value.Description),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata__M8_KeyUsage(value.KeyUsage),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata__M8_KeyState(value.KeyState),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata__M12_DeletionDate(value.DeletionDate),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata__M7_ValidTo(value.ValidTo),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata__M6_Origin(value.Origin),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata__M16_CustomKeyStoreId(value.CustomKeyStoreId),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata__M17_CloudHsmClusterId(value.CloudHsmClusterId),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata__M15_ExpirationModel(value.ExpirationModel),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata__M10_KeyManager(value.KeyManager),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata__M3_Arn(var_arn),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata__M12_CreationDate(var_creationDate),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata__M7_Enabled(var_enabled),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata__M11_Description(var_description),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata__M8_KeyUsage(var_keyUsage),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata__M8_KeyState(var_keyState),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata__M12_DeletionDate(var_deletionDate),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata__M7_ValidTo(var_validTo),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata__M6_Origin(var_origin),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata__M16_CustomKeyStoreId(var_customKeyStoreId),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata__M17_CloudHsmClusterId(var_cloudHsmClusterId),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata__M15_ExpirationModel(var_expirationModel),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata__M10_KeyManager(var_keyManager),
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata__M21_CustomerMasterKeySpec(
-                    value.CustomerMasterKeySpec),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata__M7_KeySpec(value.KeySpec),
+                    var_customerMasterKeySpec),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata__M7_KeySpec(var_keySpec),
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata__M20_EncryptionAlgorithms(
-                    value.EncryptionAlgorithms),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata__M17_SigningAlgorithms(value.SigningAlgorithms),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata__M11_MultiRegion(value.MultiRegion),
+                    var_encryptionAlgorithms),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata__M17_SigningAlgorithms(var_signingAlgorithms),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata__M11_MultiRegion(var_multiRegion),
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata__M24_MultiRegionConfiguration(
-                    value.MultiRegionConfiguration),
+                    var_multiRegionConfiguration),
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata__M27_PendingDeletionWindowInDays(
-                    value.PendingDeletionWindowInDays));
+                    var_pendingDeletionWindowInDays));
         }
 
         public static System.DateTime?
@@ -8802,7 +8852,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (System.DateTime?) null
+                ? (System.DateTime?)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S8_DateType(value.Extract());
         }
 
@@ -8812,14 +8862,14 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S8_DateType((System.DateTime) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S8_DateType((System.DateTime)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S26_DependencyTimeoutException__M7_message(
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Extract());
         }
 
@@ -8829,14 +8879,14 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType((string)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S22_InvalidMarkerException__M7_message(
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Extract());
         }
 
@@ -8846,7 +8896,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType((string)value));
         }
 
         public static System.IO.MemoryStream
@@ -8854,7 +8904,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.ISequence<byte>> value)
         {
             return value.is_None
-                ? (System.IO.MemoryStream) null
+                ? (System.IO.MemoryStream)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S14_CiphertextType(value.Extract());
         }
 
@@ -8865,14 +8915,14 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<byte>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<byte>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S14_CiphertextType((System.IO.MemoryStream) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S14_CiphertextType((System.IO.MemoryStream)value));
         }
 
         public static System.DateTime? FromDafny_N3_com__N9_amazonaws__N3_kms__S11_KeyMetadata__M12_CreationDate(
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (System.DateTime?) null
+                ? (System.DateTime?)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S8_DateType(value.Extract());
         }
 
@@ -8882,7 +8932,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S8_DateType((System.DateTime) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S8_DateType((System.DateTime)value));
         }
 
         public static Amazon.KeyManagementService.Model.UpdateKeyDescriptionRequest
@@ -8890,14 +8940,14 @@ namespace Com.Amazonaws.Kms
                 Dafny.Com.Amazonaws.Kms._IUpdateKeyDescriptionRequest value)
         {
             Dafny.Com.Amazonaws.Kms.UpdateKeyDescriptionRequest concrete =
-                (Dafny.Com.Amazonaws.Kms.UpdateKeyDescriptionRequest) value;
+                (Dafny.Com.Amazonaws.Kms.UpdateKeyDescriptionRequest)value;
             Amazon.KeyManagementService.Model.UpdateKeyDescriptionRequest converted =
                 new Amazon.KeyManagementService.Model.UpdateKeyDescriptionRequest();
             converted.KeyId =
-                (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S27_UpdateKeyDescriptionRequest__M5_KeyId(
+                (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S27_UpdateKeyDescriptionRequest__M5_KeyId(
                     concrete.KeyId);
             converted.Description =
-                (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S27_UpdateKeyDescriptionRequest__M11_Description(
+                (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S27_UpdateKeyDescriptionRequest__M11_Description(
                     concrete.Description);
             return converted;
         }
@@ -8917,7 +8967,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.ISequence<Dafny.Com.Amazonaws.Kms._ITag>> value)
         {
             return value.is_None
-                ? (System.Collections.Generic.List<Amazon.KeyManagementService.Model.Tag>) null
+                ? (System.Collections.Generic.List<Amazon.KeyManagementService.Model.Tag>)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S7_TagList(value.Extract());
         }
 
@@ -8929,15 +8979,13 @@ namespace Com.Amazonaws.Kms
                 ? Wrappers_Compile.Option<Dafny.ISequence<Dafny.Com.Amazonaws.Kms._ITag>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<Dafny.Com.Amazonaws.Kms._ITag>>.create_Some(
                     ToDafny_N3_com__N9_amazonaws__N3_kms__S7_TagList(
-                        (System.Collections.Generic.List<Amazon.KeyManagementService.Model.Tag>) value));
+                        (System.Collections.Generic.List<Amazon.KeyManagementService.Model.Tag>)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S27_ScheduleKeyDeletionResponse__M5_KeyId(
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
-            return value.is_None
-                ? (string) null
-                : FromDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType(value.Extract());
+            return value.is_None ? (string)null : FromDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType(value.Extract());
         }
 
         public static Wrappers_Compile._IOption<Dafny.ISequence<char>>
@@ -8946,7 +8994,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType((string)value));
         }
 
         public static Amazon.KeyManagementService.MultiRegionKeyType
@@ -8985,7 +9033,7 @@ namespace Com.Amazonaws.Kms
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S10_MarkerType(value.Extract());
         }
 
@@ -8995,7 +9043,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S10_MarkerType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S10_MarkerType((string)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S10_RegionType(Dafny.ISequence<char> value)
@@ -9012,7 +9060,7 @@ namespace Com.Amazonaws.Kms
             Wrappers_Compile._IOption<int> value)
         {
             return value.is_None
-                ? (int?) null
+                ? (int?)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S17_NumberOfBytesType(value.Extract());
         }
 
@@ -9022,14 +9070,14 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<int>.create_None()
                 : Wrappers_Compile.Option<int>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S17_NumberOfBytesType((int) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S17_NumberOfBytesType((int)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S22_AlreadyExistsException__M7_message(
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Extract());
         }
 
@@ -9039,31 +9087,14 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType((string) value));
-        }
-
-        public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S25_InvalidAliasNameException__M7_message(
-            Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
-        {
-            return value.is_None
-                ? (string) null
-                : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Extract());
-        }
-
-        public static Wrappers_Compile._IOption<Dafny.ISequence<char>>
-            ToDafny_N3_com__N9_amazonaws__N3_kms__S25_InvalidAliasNameException__M7_message(string value)
-        {
-            return value == null
-                ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
-                : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType((string)value));
         }
 
         public static System.IO.MemoryStream FromDafny_N3_com__N9_amazonaws__N3_kms__S15_DecryptResponse__M9_Plaintext(
             Wrappers_Compile._IOption<Dafny.ISequence<byte>> value)
         {
             return value.is_None
-                ? (System.IO.MemoryStream) null
+                ? (System.IO.MemoryStream)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S13_PlaintextType(value.Extract());
         }
 
@@ -9073,7 +9104,24 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<byte>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<byte>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S13_PlaintextType((System.IO.MemoryStream) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S13_PlaintextType((System.IO.MemoryStream)value));
+        }
+
+        public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S25_InvalidAliasNameException__M7_message(
+            Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
+        {
+            return value.is_None
+                ? (string)null
+                : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Extract());
+        }
+
+        public static Wrappers_Compile._IOption<Dafny.ISequence<char>>
+            ToDafny_N3_com__N9_amazonaws__N3_kms__S25_InvalidAliasNameException__M7_message(string value)
+        {
+            return value == null
+                ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
+                : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType((string)value));
         }
 
         public static string
@@ -9081,7 +9129,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S26_TrustAnchorCertificateType(value.Extract());
         }
 
@@ -9091,7 +9139,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S26_TrustAnchorCertificateType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S26_TrustAnchorCertificateType((string)value));
         }
 
         public static string
@@ -9124,7 +9172,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S22_CustomKeyStoreNameType(value.Extract());
         }
 
@@ -9135,7 +9183,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S22_CustomKeyStoreNameType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S22_CustomKeyStoreNameType((string)value));
         }
 
         public static int?
@@ -9143,7 +9191,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<int> value)
         {
             return value.is_None
-                ? (int?) null
+                ? (int?)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S23_PendingWindowInDaysType(value.Extract());
         }
 
@@ -9153,7 +9201,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<int>.create_None()
                 : Wrappers_Compile.Option<int>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S23_PendingWindowInDaysType((int) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S23_PendingWindowInDaysType((int)value));
         }
 
         public static System.Collections.Generic.List<string>
@@ -9161,7 +9209,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.ISequence<Dafny.ISequence<char>>> value)
         {
             return value.is_None
-                ? (System.Collections.Generic.List<string>) null
+                ? (System.Collections.Generic.List<string>)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S14_GrantTokenList(value.Extract());
         }
 
@@ -9173,14 +9221,14 @@ namespace Com.Amazonaws.Kms
                 ? Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_Some(
                     ToDafny_N3_com__N9_amazonaws__N3_kms__S14_GrantTokenList(
-                        (System.Collections.Generic.List<string>) value));
+                        (System.Collections.Generic.List<string>)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S14_MultiRegionKey__M6_Region(
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S10_RegionType(value.Extract());
         }
 
@@ -9190,37 +9238,34 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S10_RegionType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S10_RegionType((string)value));
         }
 
         public static Amazon.KeyManagementService.Model.CustomKeyStoreNotFoundException
             FromDafny_N3_com__N9_amazonaws__N3_kms__S31_CustomKeyStoreNotFoundException(
-                Dafny.Com.Amazonaws.Kms._ICustomKeyStoreNotFoundException value)
+                Dafny.Com.Amazonaws.Kms.CustomKeyStoreNotFoundException value)
         {
-            Dafny.Com.Amazonaws.Kms.CustomKeyStoreNotFoundException concrete =
-                (Dafny.Com.Amazonaws.Kms.CustomKeyStoreNotFoundException) value;
-            string message = concrete.message.is_Some
+            string message = value.message.Count == 0
                 ? null
-                : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(concrete.message.Extract());
+                : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.message);
             return new Amazon.KeyManagementService.Model.CustomKeyStoreNotFoundException(message);
         }
 
-        public static Dafny.Com.Amazonaws.Kms._ICustomKeyStoreNotFoundException
+        public static Dafny.Com.Amazonaws.Kms.CustomKeyStoreNotFoundException
             ToDafny_N3_com__N9_amazonaws__N3_kms__S31_CustomKeyStoreNotFoundException(
                 Amazon.KeyManagementService.Model.CustomKeyStoreNotFoundException value)
         {
-            Wrappers_Compile._IOption<Dafny.ISequence<char>> message = System.String.IsNullOrEmpty(value.Message)
-                ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
-                : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Message));
-            return new Dafny.Com.Amazonaws.Kms.CustomKeyStoreNotFoundException(message);
+            Dafny.ISequence<char> message = System.String.IsNullOrEmpty(value.Message)
+                ? Dafny.Sequence<char>.Empty
+                : ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Message);
+            return new Dafny.Com.Amazonaws.Kms.CustomKeyStoreNotFoundException { message = message };
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S18_ListAliasesRequest__M6_Marker(
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S10_MarkerType(value.Extract());
         }
 
@@ -9230,14 +9275,14 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S10_MarkerType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S10_MarkerType((string)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S23_ListKeyPoliciesResponse__M10_NextMarker(
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S10_MarkerType(value.Extract());
         }
 
@@ -9247,14 +9292,14 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S10_MarkerType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S10_MarkerType((string)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S22_ListKeyPoliciesRequest__M6_Marker(
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S10_MarkerType(value.Extract());
         }
 
@@ -9264,14 +9309,14 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S10_MarkerType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S10_MarkerType((string)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S26_InvalidGrantTokenException__M7_message(
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Extract());
         }
 
@@ -9281,7 +9326,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType((string)value));
         }
 
         public static Amazon.KeyManagementService.SigningAlgorithmSpec
@@ -9289,7 +9334,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.Com.Amazonaws.Kms._ISigningAlgorithmSpec> value)
         {
             return value.is_None
-                ? (Amazon.KeyManagementService.SigningAlgorithmSpec) null
+                ? (Amazon.KeyManagementService.SigningAlgorithmSpec)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S20_SigningAlgorithmSpec(value.Extract());
         }
 
@@ -9301,24 +9346,24 @@ namespace Com.Amazonaws.Kms
                 ? Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._ISigningAlgorithmSpec>.create_None()
                 : Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._ISigningAlgorithmSpec>.create_Some(
                     ToDafny_N3_com__N9_amazonaws__N3_kms__S20_SigningAlgorithmSpec(
-                        (Amazon.KeyManagementService.SigningAlgorithmSpec) value));
+                        (Amazon.KeyManagementService.SigningAlgorithmSpec)value));
         }
 
         public static Amazon.KeyManagementService.Model.CreateGrantRequest
             FromDafny_N3_com__N9_amazonaws__N3_kms__S18_CreateGrantRequest(
                 Dafny.Com.Amazonaws.Kms._ICreateGrantRequest value)
         {
-            Dafny.Com.Amazonaws.Kms.CreateGrantRequest concrete = (Dafny.Com.Amazonaws.Kms.CreateGrantRequest) value;
+            Dafny.Com.Amazonaws.Kms.CreateGrantRequest concrete = (Dafny.Com.Amazonaws.Kms.CreateGrantRequest)value;
             Amazon.KeyManagementService.Model.CreateGrantRequest converted =
                 new Amazon.KeyManagementService.Model.CreateGrantRequest();
             converted.KeyId =
-                (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S18_CreateGrantRequest__M5_KeyId(concrete.KeyId);
+                (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S18_CreateGrantRequest__M5_KeyId(concrete.KeyId);
             converted.GranteePrincipal =
-                (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S18_CreateGrantRequest__M16_GranteePrincipal(
+                (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S18_CreateGrantRequest__M16_GranteePrincipal(
                     concrete.GranteePrincipal);
             if (concrete.RetiringPrincipal.is_Some)
                 converted.RetiringPrincipal =
-                    (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S18_CreateGrantRequest__M17_RetiringPrincipal(
+                    (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S18_CreateGrantRequest__M17_RetiringPrincipal(
                         concrete.RetiringPrincipal);
             converted.Operations =
                 (System.Collections.Generic.List<string>)
@@ -9335,7 +9380,7 @@ namespace Com.Amazonaws.Kms
                         concrete.GrantTokens);
             if (concrete.Name.is_Some)
                 converted.Name =
-                    (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S18_CreateGrantRequest__M4_Name(concrete.Name);
+                    (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S18_CreateGrantRequest__M4_Name(concrete.Name);
             return converted;
         }
 
@@ -9343,16 +9388,20 @@ namespace Com.Amazonaws.Kms
             ToDafny_N3_com__N9_amazonaws__N3_kms__S18_CreateGrantRequest(
                 Amazon.KeyManagementService.Model.CreateGrantRequest value)
         {
+            string var_retiringPrincipal = value.RetiringPrincipal;
+            Amazon.KeyManagementService.Model.GrantConstraints var_constraints = value.Constraints;
+            System.Collections.Generic.List<string> var_grantTokens = value.GrantTokens;
+            string var_name = value.Name;
             return new Dafny.Com.Amazonaws.Kms.CreateGrantRequest(
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S18_CreateGrantRequest__M5_KeyId(value.KeyId),
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S18_CreateGrantRequest__M16_GranteePrincipal(
                     value.GranteePrincipal),
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S18_CreateGrantRequest__M17_RetiringPrincipal(
-                    value.RetiringPrincipal),
+                    var_retiringPrincipal),
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S18_CreateGrantRequest__M10_Operations(value.Operations),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S18_CreateGrantRequest__M11_Constraints(value.Constraints),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S18_CreateGrantRequest__M11_GrantTokens(value.GrantTokens),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S18_CreateGrantRequest__M4_Name(value.Name));
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S18_CreateGrantRequest__M11_Constraints(var_constraints),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S18_CreateGrantRequest__M11_GrantTokens(var_grantTokens),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S18_CreateGrantRequest__M4_Name(var_name));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S24_CancelKeyDeletionRequest__M5_KeyId(
@@ -9396,7 +9445,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.Com.Amazonaws.Kms._IKeyUsageType> value)
         {
             return value.is_None
-                ? (Amazon.KeyManagementService.KeyUsageType) null
+                ? (Amazon.KeyManagementService.KeyUsageType)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S12_KeyUsageType(value.Extract());
         }
 
@@ -9408,7 +9457,7 @@ namespace Com.Amazonaws.Kms
                 ? Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._IKeyUsageType>.create_None()
                 : Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._IKeyUsageType>.create_Some(
                     ToDafny_N3_com__N9_amazonaws__N3_kms__S12_KeyUsageType(
-                        (Amazon.KeyManagementService.KeyUsageType) value));
+                        (Amazon.KeyManagementService.KeyUsageType)value));
         }
 
         public static Amazon.KeyManagementService.KeyManagerType
@@ -9434,7 +9483,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.ISequence<Dafny.Com.Amazonaws.Kms._IAliasListEntry>> value)
         {
             return value.is_None
-                ? (System.Collections.Generic.List<Amazon.KeyManagementService.Model.AliasListEntry>) null
+                ? (System.Collections.Generic.List<Amazon.KeyManagementService.Model.AliasListEntry>)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S9_AliasList(value.Extract());
         }
 
@@ -9446,14 +9495,14 @@ namespace Com.Amazonaws.Kms
                 ? Wrappers_Compile.Option<Dafny.ISequence<Dafny.Com.Amazonaws.Kms._IAliasListEntry>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<Dafny.Com.Amazonaws.Kms._IAliasListEntry>>.create_Some(
                     ToDafny_N3_com__N9_amazonaws__N3_kms__S9_AliasList(
-                        (System.Collections.Generic.List<Amazon.KeyManagementService.Model.AliasListEntry>) value));
+                        (System.Collections.Generic.List<Amazon.KeyManagementService.Model.AliasListEntry>)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S23_InvalidGrantIdException__M7_message(
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Extract());
         }
 
@@ -9463,7 +9512,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType((string)value));
         }
 
         public static System.Collections.Generic.List<string>
@@ -9471,7 +9520,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.ISequence<Dafny.Com.Amazonaws.Kms._IEncryptionAlgorithmSpec>> value)
         {
             return value.is_None
-                ? (System.Collections.Generic.List<string>) null
+                ? (System.Collections.Generic.List<string>)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S27_EncryptionAlgorithmSpecList(value.Extract());
         }
 
@@ -9485,7 +9534,7 @@ namespace Com.Amazonaws.Kms
                 : Wrappers_Compile.Option<Dafny.ISequence<Dafny.Com.Amazonaws.Kms._IEncryptionAlgorithmSpec>>
                     .create_Some(
                         ToDafny_N3_com__N9_amazonaws__N3_kms__S27_EncryptionAlgorithmSpecList(
-                            (System.Collections.Generic.List<string>) value));
+                            (System.Collections.Generic.List<string>)value));
         }
 
         public static Amazon.KeyManagementService.Model.DisconnectCustomKeyStoreResponse
@@ -9493,7 +9542,7 @@ namespace Com.Amazonaws.Kms
                 Dafny.Com.Amazonaws.Kms._IDisconnectCustomKeyStoreResponse value)
         {
             Dafny.Com.Amazonaws.Kms.DisconnectCustomKeyStoreResponse concrete =
-                (Dafny.Com.Amazonaws.Kms.DisconnectCustomKeyStoreResponse) value;
+                (Dafny.Com.Amazonaws.Kms.DisconnectCustomKeyStoreResponse)value;
             Amazon.KeyManagementService.Model.DisconnectCustomKeyStoreResponse converted =
                 new Amazon.KeyManagementService.Model.DisconnectCustomKeyStoreResponse();
             return converted;
@@ -9510,13 +9559,13 @@ namespace Com.Amazonaws.Kms
             FromDafny_N3_com__N9_amazonaws__N3_kms__S18_RevokeGrantRequest(
                 Dafny.Com.Amazonaws.Kms._IRevokeGrantRequest value)
         {
-            Dafny.Com.Amazonaws.Kms.RevokeGrantRequest concrete = (Dafny.Com.Amazonaws.Kms.RevokeGrantRequest) value;
+            Dafny.Com.Amazonaws.Kms.RevokeGrantRequest concrete = (Dafny.Com.Amazonaws.Kms.RevokeGrantRequest)value;
             Amazon.KeyManagementService.Model.RevokeGrantRequest converted =
                 new Amazon.KeyManagementService.Model.RevokeGrantRequest();
             converted.KeyId =
-                (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S18_RevokeGrantRequest__M5_KeyId(concrete.KeyId);
+                (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S18_RevokeGrantRequest__M5_KeyId(concrete.KeyId);
             converted.GrantId =
-                (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S18_RevokeGrantRequest__M7_GrantId(concrete.GrantId);
+                (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S18_RevokeGrantRequest__M7_GrantId(concrete.GrantId);
             return converted;
         }
 
@@ -9533,7 +9582,7 @@ namespace Com.Amazonaws.Kms
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S10_PolicyType(value.Extract());
         }
 
@@ -9543,7 +9592,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S10_PolicyType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S10_PolicyType((string)value));
         }
 
         public static int?
@@ -9551,7 +9600,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<int> value)
         {
             return value.is_None
-                ? (int?) null
+                ? (int?)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S23_PendingWindowInDaysType(value.Extract());
         }
 
@@ -9561,7 +9610,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<int>.create_None()
                 : Wrappers_Compile.Option<int>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S23_PendingWindowInDaysType((int) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S23_PendingWindowInDaysType((int)value));
         }
 
         public static Amazon.KeyManagementService.Model.CancelKeyDeletionRequest
@@ -9569,11 +9618,11 @@ namespace Com.Amazonaws.Kms
                 Dafny.Com.Amazonaws.Kms._ICancelKeyDeletionRequest value)
         {
             Dafny.Com.Amazonaws.Kms.CancelKeyDeletionRequest concrete =
-                (Dafny.Com.Amazonaws.Kms.CancelKeyDeletionRequest) value;
+                (Dafny.Com.Amazonaws.Kms.CancelKeyDeletionRequest)value;
             Amazon.KeyManagementService.Model.CancelKeyDeletionRequest converted =
                 new Amazon.KeyManagementService.Model.CancelKeyDeletionRequest();
             converted.KeyId =
-                (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S24_CancelKeyDeletionRequest__M5_KeyId(concrete.KeyId);
+                (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S24_CancelKeyDeletionRequest__M5_KeyId(concrete.KeyId);
             return converted;
         }
 
@@ -9603,7 +9652,7 @@ namespace Com.Amazonaws.Kms
             Wrappers_Compile._IOption<bool> value)
         {
             return value.is_None
-                ? (bool?) null
+                ? (bool?)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S11_BooleanType(value.Extract());
         }
 
@@ -9613,7 +9662,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<bool>.create_None()
                 : Wrappers_Compile.Option<bool>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S11_BooleanType((bool) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S11_BooleanType((bool)value));
         }
 
         public static Amazon.KeyManagementService.Model.EnableKeyRotationRequest
@@ -9621,11 +9670,11 @@ namespace Com.Amazonaws.Kms
                 Dafny.Com.Amazonaws.Kms._IEnableKeyRotationRequest value)
         {
             Dafny.Com.Amazonaws.Kms.EnableKeyRotationRequest concrete =
-                (Dafny.Com.Amazonaws.Kms.EnableKeyRotationRequest) value;
+                (Dafny.Com.Amazonaws.Kms.EnableKeyRotationRequest)value;
             Amazon.KeyManagementService.Model.EnableKeyRotationRequest converted =
                 new Amazon.KeyManagementService.Model.EnableKeyRotationRequest();
             converted.KeyId =
-                (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S24_EnableKeyRotationRequest__M5_KeyId(concrete.KeyId);
+                (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S24_EnableKeyRotationRequest__M5_KeyId(concrete.KeyId);
             return converted;
         }
 
@@ -9642,7 +9691,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>> value)
         {
             return value.is_None
-                ? (System.Collections.Generic.Dictionary<string, string>) null
+                ? (System.Collections.Generic.Dictionary<string, string>)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S21_EncryptionContextType(value.Extract());
         }
 
@@ -9654,7 +9703,7 @@ namespace Com.Amazonaws.Kms
                 ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>>.create_None()
                 : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>>.create_Some(
                     ToDafny_N3_com__N9_amazonaws__N3_kms__S21_EncryptionContextType(
-                        (System.Collections.Generic.Dictionary<string, string>) value));
+                        (System.Collections.Generic.Dictionary<string, string>)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S22_CustomKeyStoreNameType(
@@ -9686,7 +9735,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.ISequence<Dafny.ISequence<char>>> value)
         {
             return value.is_None
-                ? (System.Collections.Generic.List<string>) null
+                ? (System.Collections.Generic.List<string>)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S14_GrantTokenList(value.Extract());
         }
 
@@ -9698,30 +9747,27 @@ namespace Com.Amazonaws.Kms
                 ? Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_Some(
                     ToDafny_N3_com__N9_amazonaws__N3_kms__S14_GrantTokenList(
-                        (System.Collections.Generic.List<string>) value));
+                        (System.Collections.Generic.List<string>)value));
         }
 
         public static Amazon.KeyManagementService.Model.CloudHsmClusterNotFoundException
             FromDafny_N3_com__N9_amazonaws__N3_kms__S32_CloudHsmClusterNotFoundException(
-                Dafny.Com.Amazonaws.Kms._ICloudHsmClusterNotFoundException value)
+                Dafny.Com.Amazonaws.Kms.CloudHsmClusterNotFoundException value)
         {
-            Dafny.Com.Amazonaws.Kms.CloudHsmClusterNotFoundException concrete =
-                (Dafny.Com.Amazonaws.Kms.CloudHsmClusterNotFoundException) value;
-            string message = concrete.message.is_Some
+            string message = value.message.Count == 0
                 ? null
-                : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(concrete.message.Extract());
+                : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.message);
             return new Amazon.KeyManagementService.Model.CloudHsmClusterNotFoundException(message);
         }
 
-        public static Dafny.Com.Amazonaws.Kms._ICloudHsmClusterNotFoundException
+        public static Dafny.Com.Amazonaws.Kms.CloudHsmClusterNotFoundException
             ToDafny_N3_com__N9_amazonaws__N3_kms__S32_CloudHsmClusterNotFoundException(
                 Amazon.KeyManagementService.Model.CloudHsmClusterNotFoundException value)
         {
-            Wrappers_Compile._IOption<Dafny.ISequence<char>> message = System.String.IsNullOrEmpty(value.Message)
-                ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
-                : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Message));
-            return new Dafny.Com.Amazonaws.Kms.CloudHsmClusterNotFoundException(message);
+            Dafny.ISequence<char> message = System.String.IsNullOrEmpty(value.Message)
+                ? Dafny.Sequence<char>.Empty
+                : ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Message);
+            return new Dafny.Com.Amazonaws.Kms.CloudHsmClusterNotFoundException { message = message };
         }
 
         public static System.Collections.Generic.Dictionary<string, string>
@@ -9729,7 +9775,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>> value)
         {
             return value.is_None
-                ? (System.Collections.Generic.Dictionary<string, string>) null
+                ? (System.Collections.Generic.Dictionary<string, string>)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S21_EncryptionContextType(value.Extract());
         }
 
@@ -9741,14 +9787,14 @@ namespace Com.Amazonaws.Kms
                 ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>>.create_None()
                 : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<char>, Dafny.ISequence<char>>>.create_Some(
                     ToDafny_N3_com__N9_amazonaws__N3_kms__S21_EncryptionContextType(
-                        (System.Collections.Generic.Dictionary<string, string>) value));
+                        (System.Collections.Generic.Dictionary<string, string>)value));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S20_KMSInternalException__M7_message(
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (string) null
+                ? (string)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Extract());
         }
 
@@ -9758,26 +9804,26 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType((string) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType((string)value));
         }
 
         public static Amazon.KeyManagementService.Model.VerifyRequest
             FromDafny_N3_com__N9_amazonaws__N3_kms__S13_VerifyRequest(Dafny.Com.Amazonaws.Kms._IVerifyRequest value)
         {
-            Dafny.Com.Amazonaws.Kms.VerifyRequest concrete = (Dafny.Com.Amazonaws.Kms.VerifyRequest) value;
+            Dafny.Com.Amazonaws.Kms.VerifyRequest concrete = (Dafny.Com.Amazonaws.Kms.VerifyRequest)value;
             Amazon.KeyManagementService.Model.VerifyRequest converted =
                 new Amazon.KeyManagementService.Model.VerifyRequest();
             converted.KeyId =
-                (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S13_VerifyRequest__M5_KeyId(concrete.KeyId);
+                (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S13_VerifyRequest__M5_KeyId(concrete.KeyId);
             converted.Message =
-                (System.IO.MemoryStream) FromDafny_N3_com__N9_amazonaws__N3_kms__S13_VerifyRequest__M7_Message(
+                (System.IO.MemoryStream)FromDafny_N3_com__N9_amazonaws__N3_kms__S13_VerifyRequest__M7_Message(
                     concrete.Message);
             if (concrete.MessageType.is_Some)
                 converted.MessageType =
                     (Amazon.KeyManagementService.MessageType)
                     FromDafny_N3_com__N9_amazonaws__N3_kms__S13_VerifyRequest__M11_MessageType(concrete.MessageType);
             converted.Signature =
-                (System.IO.MemoryStream) FromDafny_N3_com__N9_amazonaws__N3_kms__S13_VerifyRequest__M9_Signature(
+                (System.IO.MemoryStream)FromDafny_N3_com__N9_amazonaws__N3_kms__S13_VerifyRequest__M9_Signature(
                     concrete.Signature);
             converted.SigningAlgorithm =
                 (Amazon.KeyManagementService.SigningAlgorithmSpec)
@@ -9793,13 +9839,15 @@ namespace Com.Amazonaws.Kms
         public static Dafny.Com.Amazonaws.Kms._IVerifyRequest ToDafny_N3_com__N9_amazonaws__N3_kms__S13_VerifyRequest(
             Amazon.KeyManagementService.Model.VerifyRequest value)
         {
+            Amazon.KeyManagementService.MessageType var_messageType = value.MessageType;
+            System.Collections.Generic.List<string> var_grantTokens = value.GrantTokens;
             return new Dafny.Com.Amazonaws.Kms.VerifyRequest(
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S13_VerifyRequest__M5_KeyId(value.KeyId),
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S13_VerifyRequest__M7_Message(value.Message),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S13_VerifyRequest__M11_MessageType(value.MessageType),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S13_VerifyRequest__M11_MessageType(var_messageType),
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S13_VerifyRequest__M9_Signature(value.Signature),
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S13_VerifyRequest__M16_SigningAlgorithm(value.SigningAlgorithm),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S13_VerifyRequest__M11_GrantTokens(value.GrantTokens));
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S13_VerifyRequest__M11_GrantTokens(var_grantTokens));
         }
 
         public static System.IO.MemoryStream FromDafny_N3_com__N9_amazonaws__N3_kms__S13_VerifyRequest__M7_Message(
@@ -9819,7 +9867,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.ISequence<Dafny.ISequence<char>>> value)
         {
             return value.is_None
-                ? (System.Collections.Generic.List<string>) null
+                ? (System.Collections.Generic.List<string>)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S14_GrantTokenList(value.Extract());
         }
 
@@ -9831,7 +9879,7 @@ namespace Com.Amazonaws.Kms
                 ? Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_Some(
                     ToDafny_N3_com__N9_amazonaws__N3_kms__S14_GrantTokenList(
-                        (System.Collections.Generic.List<string>) value));
+                        (System.Collections.Generic.List<string>)value));
         }
 
         public static System.IO.MemoryStream FromDafny_N3_com__N9_amazonaws__N3_kms__S13_VerifyRequest__M9_Signature(
@@ -9850,15 +9898,15 @@ namespace Com.Amazonaws.Kms
             FromDafny_N3_com__N9_amazonaws__N3_kms__S16_CreateKeyRequest(
                 Dafny.Com.Amazonaws.Kms._ICreateKeyRequest value)
         {
-            Dafny.Com.Amazonaws.Kms.CreateKeyRequest concrete = (Dafny.Com.Amazonaws.Kms.CreateKeyRequest) value;
+            Dafny.Com.Amazonaws.Kms.CreateKeyRequest concrete = (Dafny.Com.Amazonaws.Kms.CreateKeyRequest)value;
             Amazon.KeyManagementService.Model.CreateKeyRequest converted =
                 new Amazon.KeyManagementService.Model.CreateKeyRequest();
             if (concrete.Policy.is_Some)
                 converted.Policy =
-                    (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S16_CreateKeyRequest__M6_Policy(concrete.Policy);
+                    (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S16_CreateKeyRequest__M6_Policy(concrete.Policy);
             if (concrete.Description.is_Some)
                 converted.Description =
-                    (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S16_CreateKeyRequest__M11_Description(
+                    (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S16_CreateKeyRequest__M11_Description(
                         concrete.Description);
             if (concrete.KeyUsage.is_Some)
                 converted.KeyUsage =
@@ -9879,7 +9927,7 @@ namespace Com.Amazonaws.Kms
                     FromDafny_N3_com__N9_amazonaws__N3_kms__S16_CreateKeyRequest__M6_Origin(concrete.Origin);
             if (concrete.CustomKeyStoreId.is_Some)
                 converted.CustomKeyStoreId =
-                    (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S16_CreateKeyRequest__M16_CustomKeyStoreId(
+                    (string)FromDafny_N3_com__N9_amazonaws__N3_kms__S16_CreateKeyRequest__M16_CustomKeyStoreId(
                         concrete.CustomKeyStoreId);
             if (concrete.BypassPolicyLockoutSafetyCheck.is_Some)
                 converted.BypassPolicyLockoutSafetyCheck =
@@ -9892,7 +9940,7 @@ namespace Com.Amazonaws.Kms
                     FromDafny_N3_com__N9_amazonaws__N3_kms__S16_CreateKeyRequest__M4_Tags(concrete.Tags);
             if (concrete.MultiRegion.is_Some)
                 converted.MultiRegion =
-                    (bool) FromDafny_N3_com__N9_amazonaws__N3_kms__S16_CreateKeyRequest__M11_MultiRegion(
+                    (bool)FromDafny_N3_com__N9_amazonaws__N3_kms__S16_CreateKeyRequest__M11_MultiRegion(
                         concrete.MultiRegion);
             return converted;
         }
@@ -9901,20 +9949,29 @@ namespace Com.Amazonaws.Kms
             ToDafny_N3_com__N9_amazonaws__N3_kms__S16_CreateKeyRequest(
                 Amazon.KeyManagementService.Model.CreateKeyRequest value)
         {
+            string var_policy = value.Policy;
+            string var_description = value.Description;
+            Amazon.KeyManagementService.KeyUsageType var_keyUsage = value.KeyUsage;
+            Amazon.KeyManagementService.CustomerMasterKeySpec var_customerMasterKeySpec = value.CustomerMasterKeySpec;
+            Amazon.KeyManagementService.KeySpec var_keySpec = value.KeySpec;
+            Amazon.KeyManagementService.OriginType var_origin = value.Origin;
+            string var_customKeyStoreId = value.CustomKeyStoreId;
+            bool? var_bypassPolicyLockoutSafetyCheck = value.BypassPolicyLockoutSafetyCheck;
+            System.Collections.Generic.List<Amazon.KeyManagementService.Model.Tag> var_tags = value.Tags;
+            bool? var_multiRegion = value.MultiRegion;
             return new Dafny.Com.Amazonaws.Kms.CreateKeyRequest(
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S16_CreateKeyRequest__M6_Policy(value.Policy),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S16_CreateKeyRequest__M11_Description(value.Description),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S16_CreateKeyRequest__M8_KeyUsage(value.KeyUsage),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S16_CreateKeyRequest__M6_Policy(var_policy),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S16_CreateKeyRequest__M11_Description(var_description),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S16_CreateKeyRequest__M8_KeyUsage(var_keyUsage),
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S16_CreateKeyRequest__M21_CustomerMasterKeySpec(
-                    value.CustomerMasterKeySpec),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S16_CreateKeyRequest__M7_KeySpec(value.KeySpec),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S16_CreateKeyRequest__M6_Origin(value.Origin),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S16_CreateKeyRequest__M16_CustomKeyStoreId(
-                    value.CustomKeyStoreId),
+                    var_customerMasterKeySpec),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S16_CreateKeyRequest__M7_KeySpec(var_keySpec),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S16_CreateKeyRequest__M6_Origin(var_origin),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S16_CreateKeyRequest__M16_CustomKeyStoreId(var_customKeyStoreId),
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S16_CreateKeyRequest__M30_BypassPolicyLockoutSafetyCheck(
-                    value.BypassPolicyLockoutSafetyCheck),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S16_CreateKeyRequest__M4_Tags(value.Tags),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S16_CreateKeyRequest__M11_MultiRegion(value.MultiRegion));
+                    var_bypassPolicyLockoutSafetyCheck),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S16_CreateKeyRequest__M4_Tags(var_tags),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S16_CreateKeyRequest__M11_MultiRegion(var_multiRegion));
         }
 
         public static Amazon.KeyManagementService.EncryptionAlgorithmSpec
@@ -9922,7 +9979,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.Com.Amazonaws.Kms._IEncryptionAlgorithmSpec> value)
         {
             return value.is_None
-                ? (Amazon.KeyManagementService.EncryptionAlgorithmSpec) null
+                ? (Amazon.KeyManagementService.EncryptionAlgorithmSpec)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S23_EncryptionAlgorithmSpec(value.Extract());
         }
 
@@ -9934,7 +9991,7 @@ namespace Com.Amazonaws.Kms
                 ? Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._IEncryptionAlgorithmSpec>.create_None()
                 : Wrappers_Compile.Option<Dafny.Com.Amazonaws.Kms._IEncryptionAlgorithmSpec>.create_Some(
                     ToDafny_N3_com__N9_amazonaws__N3_kms__S23_EncryptionAlgorithmSpec(
-                        (Amazon.KeyManagementService.EncryptionAlgorithmSpec) value));
+                        (Amazon.KeyManagementService.EncryptionAlgorithmSpec)value));
         }
 
         public static System.DateTime?
@@ -9942,7 +9999,7 @@ namespace Com.Amazonaws.Kms
                 Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
             return value.is_None
-                ? (System.DateTime?) null
+                ? (System.DateTime?)null
                 : FromDafny_N3_com__N9_amazonaws__N3_kms__S8_DateType(value.Extract());
         }
 
@@ -9953,7 +10010,7 @@ namespace Com.Amazonaws.Kms
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S8_DateType((System.DateTime) value));
+                    ToDafny_N3_com__N9_amazonaws__N3_kms__S8_DateType((System.DateTime)value));
         }
 
         public static System.IO.MemoryStream
@@ -9971,25 +10028,22 @@ namespace Com.Amazonaws.Kms
 
         public static Amazon.KeyManagementService.Model.CloudHsmClusterNotActiveException
             FromDafny_N3_com__N9_amazonaws__N3_kms__S33_CloudHsmClusterNotActiveException(
-                Dafny.Com.Amazonaws.Kms._ICloudHsmClusterNotActiveException value)
+                Dafny.Com.Amazonaws.Kms.CloudHsmClusterNotActiveException value)
         {
-            Dafny.Com.Amazonaws.Kms.CloudHsmClusterNotActiveException concrete =
-                (Dafny.Com.Amazonaws.Kms.CloudHsmClusterNotActiveException) value;
-            string message = concrete.message.is_Some
+            string message = value.message.Count == 0
                 ? null
-                : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(concrete.message.Extract());
+                : FromDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.message);
             return new Amazon.KeyManagementService.Model.CloudHsmClusterNotActiveException(message);
         }
 
-        public static Dafny.Com.Amazonaws.Kms._ICloudHsmClusterNotActiveException
+        public static Dafny.Com.Amazonaws.Kms.CloudHsmClusterNotActiveException
             ToDafny_N3_com__N9_amazonaws__N3_kms__S33_CloudHsmClusterNotActiveException(
                 Amazon.KeyManagementService.Model.CloudHsmClusterNotActiveException value)
         {
-            Wrappers_Compile._IOption<Dafny.ISequence<char>> message = System.String.IsNullOrEmpty(value.Message)
-                ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
-                : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Message));
-            return new Dafny.Com.Amazonaws.Kms.CloudHsmClusterNotActiveException(message);
+            Dafny.ISequence<char> message = System.String.IsNullOrEmpty(value.Message)
+                ? Dafny.Sequence<char>.Empty
+                : ToDafny_N3_com__N9_amazonaws__N3_kms__S16_ErrorMessageType(value.Message);
+            return new Dafny.Com.Amazonaws.Kms.CloudHsmClusterNotActiveException { message = message };
         }
     }
 }

@@ -1,5 +1,6 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
+// Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 
 using System;
 using System.IO;
@@ -17,7 +18,7 @@ namespace Com.Amazonaws.Kms
         }
 
         public Wrappers_Compile._IResult<Dafny.Com.Amazonaws.Kms._ICancelKeyDeletionResponse,
-            Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError> CancelKeyDeletion(
+            Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException> CancelKeyDeletion(
             Dafny.Com.Amazonaws.Kms._ICancelKeyDeletionRequest request)
         {
             Amazon.KeyManagementService.Model.CancelKeyDeletionRequest sdkRequest =
@@ -28,23 +29,21 @@ namespace Com.Amazonaws.Kms
                     this._impl.CancelKeyDeletionAsync(sdkRequest).Result;
                 return Wrappers_Compile
                     .Result<Dafny.Com.Amazonaws.Kms._ICancelKeyDeletionResponse,
-                        Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>.create_Success(
+                        Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>.create_Success(
                         TypeConversion
                             .ToDafny_N3_com__N9_amazonaws__N3_kms__S25_CancelKeyDeletionResponse(sdkResponse));
             }
-            catch (System.AggregateException ex) when (ex.InnerException is Amazon.KeyManagementService
-                                                           .AmazonKeyManagementServiceException)
+            catch (System.AggregateException aggregate) when (aggregate.InnerException is
+                Amazon.KeyManagementService.AmazonKeyManagementServiceException ex)
             {
                 return Wrappers_Compile
                     .Result<Dafny.Com.Amazonaws.Kms._ICancelKeyDeletionResponse,
-                        Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>.create_Failure(
-                        this.ConvertError(
-                            (Amazon.KeyManagementService.AmazonKeyManagementServiceException) ex.InnerException));
+                        Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>.create_Failure(this.ConvertError(ex));
             }
         }
 
         public Wrappers_Compile._IResult<Dafny.Com.Amazonaws.Kms._IConnectCustomKeyStoreResponse,
-            Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError> ConnectCustomKeyStore(
+            Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException> ConnectCustomKeyStore(
             Dafny.Com.Amazonaws.Kms._IConnectCustomKeyStoreRequest request)
         {
             Amazon.KeyManagementService.Model.ConnectCustomKeyStoreRequest sdkRequest =
@@ -55,22 +54,20 @@ namespace Com.Amazonaws.Kms
                     this._impl.ConnectCustomKeyStoreAsync(sdkRequest).Result;
                 return Wrappers_Compile
                     .Result<Dafny.Com.Amazonaws.Kms._IConnectCustomKeyStoreResponse,
-                        Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>.create_Success(
+                        Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>.create_Success(
                         TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S29_ConnectCustomKeyStoreResponse(
                             sdkResponse));
             }
-            catch (System.AggregateException ex) when (ex.InnerException is Amazon.KeyManagementService
-                                                           .AmazonKeyManagementServiceException)
+            catch (System.AggregateException aggregate) when (aggregate.InnerException is
+                Amazon.KeyManagementService.AmazonKeyManagementServiceException ex)
             {
                 return Wrappers_Compile
                     .Result<Dafny.Com.Amazonaws.Kms._IConnectCustomKeyStoreResponse,
-                        Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>.create_Failure(
-                        this.ConvertError(
-                            (Amazon.KeyManagementService.AmazonKeyManagementServiceException) ex.InnerException));
+                        Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>.create_Failure(this.ConvertError(ex));
             }
         }
 
-        public Wrappers_Compile._IResult<_System._ITuple0, Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>
+        public Wrappers_Compile._IResult<_System._ITuple0, Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>
             CreateAlias(Dafny.Com.Amazonaws.Kms._ICreateAliasRequest request)
         {
             Amazon.KeyManagementService.Model.CreateAliasRequest sdkRequest =
@@ -78,20 +75,19 @@ namespace Com.Amazonaws.Kms
             try
             {
                 this._impl.CreateAliasAsync(sdkRequest).Wait();
-                return Wrappers_Compile.Result<_System._ITuple0, Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>
+                return Wrappers_Compile.Result<_System._ITuple0, Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>
                     .create_Success(_System.Tuple0.Default());
             }
-            catch (System.AggregateException ex) when (ex.InnerException is Amazon.KeyManagementService
-                                                           .AmazonKeyManagementServiceException)
+            catch (System.AggregateException aggregate) when (aggregate.InnerException is
+                Amazon.KeyManagementService.AmazonKeyManagementServiceException ex)
             {
-                return Wrappers_Compile.Result<_System._ITuple0, Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>
-                    .create_Failure(this.ConvertError(
-                        (Amazon.KeyManagementService.AmazonKeyManagementServiceException) ex.InnerException));
+                return Wrappers_Compile.Result<_System._ITuple0, Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>
+                    .create_Failure(this.ConvertError(ex));
             }
         }
 
         public Wrappers_Compile._IResult<Dafny.Com.Amazonaws.Kms._ICreateCustomKeyStoreResponse,
-            Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError> CreateCustomKeyStore(
+            Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException> CreateCustomKeyStore(
             Dafny.Com.Amazonaws.Kms._ICreateCustomKeyStoreRequest request)
         {
             Amazon.KeyManagementService.Model.CreateCustomKeyStoreRequest sdkRequest =
@@ -102,23 +98,21 @@ namespace Com.Amazonaws.Kms
                     this._impl.CreateCustomKeyStoreAsync(sdkRequest).Result;
                 return Wrappers_Compile
                     .Result<Dafny.Com.Amazonaws.Kms._ICreateCustomKeyStoreResponse,
-                        Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>.create_Success(
+                        Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>.create_Success(
                         TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S28_CreateCustomKeyStoreResponse(
                             sdkResponse));
             }
-            catch (System.AggregateException ex) when (ex.InnerException is Amazon.KeyManagementService
-                                                           .AmazonKeyManagementServiceException)
+            catch (System.AggregateException aggregate) when (aggregate.InnerException is
+                Amazon.KeyManagementService.AmazonKeyManagementServiceException ex)
             {
                 return Wrappers_Compile
                     .Result<Dafny.Com.Amazonaws.Kms._ICreateCustomKeyStoreResponse,
-                        Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>.create_Failure(
-                        this.ConvertError(
-                            (Amazon.KeyManagementService.AmazonKeyManagementServiceException) ex.InnerException));
+                        Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>.create_Failure(this.ConvertError(ex));
             }
         }
 
         public Wrappers_Compile._IResult<Dafny.Com.Amazonaws.Kms._ICreateGrantResponse,
-            Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError> CreateGrant(
+            Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException> CreateGrant(
             Dafny.Com.Amazonaws.Kms._ICreateGrantRequest request)
         {
             Amazon.KeyManagementService.Model.CreateGrantRequest sdkRequest =
@@ -129,22 +123,20 @@ namespace Com.Amazonaws.Kms
                     this._impl.CreateGrantAsync(sdkRequest).Result;
                 return Wrappers_Compile
                     .Result<Dafny.Com.Amazonaws.Kms._ICreateGrantResponse,
-                        Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>.create_Success(
+                        Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>.create_Success(
                         TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S19_CreateGrantResponse(sdkResponse));
             }
-            catch (System.AggregateException ex) when (ex.InnerException is Amazon.KeyManagementService
-                                                           .AmazonKeyManagementServiceException)
+            catch (System.AggregateException aggregate) when (aggregate.InnerException is
+                Amazon.KeyManagementService.AmazonKeyManagementServiceException ex)
             {
                 return Wrappers_Compile
                     .Result<Dafny.Com.Amazonaws.Kms._ICreateGrantResponse,
-                        Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>.create_Failure(
-                        this.ConvertError(
-                            (Amazon.KeyManagementService.AmazonKeyManagementServiceException) ex.InnerException));
+                        Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>.create_Failure(this.ConvertError(ex));
             }
         }
 
         public Wrappers_Compile._IResult<Dafny.Com.Amazonaws.Kms._ICreateKeyResponse,
-            Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError> CreateKey(
+            Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException> CreateKey(
             Dafny.Com.Amazonaws.Kms._ICreateKeyRequest request)
         {
             Amazon.KeyManagementService.Model.CreateKeyRequest sdkRequest =
@@ -155,22 +147,20 @@ namespace Com.Amazonaws.Kms
                     this._impl.CreateKeyAsync(sdkRequest).Result;
                 return Wrappers_Compile
                     .Result<Dafny.Com.Amazonaws.Kms._ICreateKeyResponse,
-                        Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>.create_Success(
+                        Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>.create_Success(
                         TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S17_CreateKeyResponse(sdkResponse));
             }
-            catch (System.AggregateException ex) when (ex.InnerException is Amazon.KeyManagementService
-                                                           .AmazonKeyManagementServiceException)
+            catch (System.AggregateException aggregate) when (aggregate.InnerException is
+                Amazon.KeyManagementService.AmazonKeyManagementServiceException ex)
             {
                 return Wrappers_Compile
                     .Result<Dafny.Com.Amazonaws.Kms._ICreateKeyResponse,
-                        Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>.create_Failure(
-                        this.ConvertError(
-                            (Amazon.KeyManagementService.AmazonKeyManagementServiceException) ex.InnerException));
+                        Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>.create_Failure(this.ConvertError(ex));
             }
         }
 
         public Wrappers_Compile._IResult<Dafny.Com.Amazonaws.Kms._IDecryptResponse,
-            Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError> Decrypt(
+            Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException> Decrypt(
             Dafny.Com.Amazonaws.Kms._IDecryptRequest request)
         {
             Amazon.KeyManagementService.Model.DecryptRequest sdkRequest =
@@ -181,21 +171,19 @@ namespace Com.Amazonaws.Kms
                     this._impl.DecryptAsync(sdkRequest).Result;
                 return Wrappers_Compile
                     .Result<Dafny.Com.Amazonaws.Kms._IDecryptResponse,
-                        Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>.create_Success(
+                        Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>.create_Success(
                         TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S15_DecryptResponse(sdkResponse));
             }
-            catch (System.AggregateException ex) when (ex.InnerException is Amazon.KeyManagementService
-                                                           .AmazonKeyManagementServiceException)
+            catch (System.AggregateException aggregate) when (aggregate.InnerException is
+                Amazon.KeyManagementService.AmazonKeyManagementServiceException ex)
             {
                 return Wrappers_Compile
                     .Result<Dafny.Com.Amazonaws.Kms._IDecryptResponse,
-                        Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>.create_Failure(
-                        this.ConvertError(
-                            (Amazon.KeyManagementService.AmazonKeyManagementServiceException) ex.InnerException));
+                        Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>.create_Failure(this.ConvertError(ex));
             }
         }
 
-        public Wrappers_Compile._IResult<_System._ITuple0, Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>
+        public Wrappers_Compile._IResult<_System._ITuple0, Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>
             DeleteAlias(Dafny.Com.Amazonaws.Kms._IDeleteAliasRequest request)
         {
             Amazon.KeyManagementService.Model.DeleteAliasRequest sdkRequest =
@@ -203,20 +191,19 @@ namespace Com.Amazonaws.Kms
             try
             {
                 this._impl.DeleteAliasAsync(sdkRequest).Wait();
-                return Wrappers_Compile.Result<_System._ITuple0, Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>
+                return Wrappers_Compile.Result<_System._ITuple0, Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>
                     .create_Success(_System.Tuple0.Default());
             }
-            catch (System.AggregateException ex) when (ex.InnerException is Amazon.KeyManagementService
-                                                           .AmazonKeyManagementServiceException)
+            catch (System.AggregateException aggregate) when (aggregate.InnerException is
+                Amazon.KeyManagementService.AmazonKeyManagementServiceException ex)
             {
-                return Wrappers_Compile.Result<_System._ITuple0, Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>
-                    .create_Failure(this.ConvertError(
-                        (Amazon.KeyManagementService.AmazonKeyManagementServiceException) ex.InnerException));
+                return Wrappers_Compile.Result<_System._ITuple0, Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>
+                    .create_Failure(this.ConvertError(ex));
             }
         }
 
         public Wrappers_Compile._IResult<Dafny.Com.Amazonaws.Kms._IDeleteCustomKeyStoreResponse,
-            Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError> DeleteCustomKeyStore(
+            Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException> DeleteCustomKeyStore(
             Dafny.Com.Amazonaws.Kms._IDeleteCustomKeyStoreRequest request)
         {
             Amazon.KeyManagementService.Model.DeleteCustomKeyStoreRequest sdkRequest =
@@ -227,22 +214,20 @@ namespace Com.Amazonaws.Kms
                     this._impl.DeleteCustomKeyStoreAsync(sdkRequest).Result;
                 return Wrappers_Compile
                     .Result<Dafny.Com.Amazonaws.Kms._IDeleteCustomKeyStoreResponse,
-                        Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>.create_Success(
+                        Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>.create_Success(
                         TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S28_DeleteCustomKeyStoreResponse(
                             sdkResponse));
             }
-            catch (System.AggregateException ex) when (ex.InnerException is Amazon.KeyManagementService
-                                                           .AmazonKeyManagementServiceException)
+            catch (System.AggregateException aggregate) when (aggregate.InnerException is
+                Amazon.KeyManagementService.AmazonKeyManagementServiceException ex)
             {
                 return Wrappers_Compile
                     .Result<Dafny.Com.Amazonaws.Kms._IDeleteCustomKeyStoreResponse,
-                        Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>.create_Failure(
-                        this.ConvertError(
-                            (Amazon.KeyManagementService.AmazonKeyManagementServiceException) ex.InnerException));
+                        Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>.create_Failure(this.ConvertError(ex));
             }
         }
 
-        public Wrappers_Compile._IResult<_System._ITuple0, Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>
+        public Wrappers_Compile._IResult<_System._ITuple0, Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>
             DeleteImportedKeyMaterial(Dafny.Com.Amazonaws.Kms._IDeleteImportedKeyMaterialRequest request)
         {
             Amazon.KeyManagementService.Model.DeleteImportedKeyMaterialRequest sdkRequest =
@@ -250,20 +235,19 @@ namespace Com.Amazonaws.Kms
             try
             {
                 this._impl.DeleteImportedKeyMaterialAsync(sdkRequest).Wait();
-                return Wrappers_Compile.Result<_System._ITuple0, Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>
+                return Wrappers_Compile.Result<_System._ITuple0, Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>
                     .create_Success(_System.Tuple0.Default());
             }
-            catch (System.AggregateException ex) when (ex.InnerException is Amazon.KeyManagementService
-                                                           .AmazonKeyManagementServiceException)
+            catch (System.AggregateException aggregate) when (aggregate.InnerException is
+                Amazon.KeyManagementService.AmazonKeyManagementServiceException ex)
             {
-                return Wrappers_Compile.Result<_System._ITuple0, Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>
-                    .create_Failure(this.ConvertError(
-                        (Amazon.KeyManagementService.AmazonKeyManagementServiceException) ex.InnerException));
+                return Wrappers_Compile.Result<_System._ITuple0, Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>
+                    .create_Failure(this.ConvertError(ex));
             }
         }
 
         public Wrappers_Compile._IResult<Dafny.Com.Amazonaws.Kms._IDescribeCustomKeyStoresResponse,
-            Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError> DescribeCustomKeyStores(
+            Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException> DescribeCustomKeyStores(
             Dafny.Com.Amazonaws.Kms._IDescribeCustomKeyStoresRequest request)
         {
             Amazon.KeyManagementService.Model.DescribeCustomKeyStoresRequest sdkRequest =
@@ -274,23 +258,21 @@ namespace Com.Amazonaws.Kms
                     this._impl.DescribeCustomKeyStoresAsync(sdkRequest).Result;
                 return Wrappers_Compile
                     .Result<Dafny.Com.Amazonaws.Kms._IDescribeCustomKeyStoresResponse,
-                        Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>.create_Success(
+                        Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>.create_Success(
                         TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S31_DescribeCustomKeyStoresResponse(
                             sdkResponse));
             }
-            catch (System.AggregateException ex) when (ex.InnerException is Amazon.KeyManagementService
-                                                           .AmazonKeyManagementServiceException)
+            catch (System.AggregateException aggregate) when (aggregate.InnerException is
+                Amazon.KeyManagementService.AmazonKeyManagementServiceException ex)
             {
                 return Wrappers_Compile
                     .Result<Dafny.Com.Amazonaws.Kms._IDescribeCustomKeyStoresResponse,
-                        Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>.create_Failure(
-                        this.ConvertError(
-                            (Amazon.KeyManagementService.AmazonKeyManagementServiceException) ex.InnerException));
+                        Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>.create_Failure(this.ConvertError(ex));
             }
         }
 
         public Wrappers_Compile._IResult<Dafny.Com.Amazonaws.Kms._IDescribeKeyResponse,
-            Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError> DescribeKey(
+            Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException> DescribeKey(
             Dafny.Com.Amazonaws.Kms._IDescribeKeyRequest request)
         {
             Amazon.KeyManagementService.Model.DescribeKeyRequest sdkRequest =
@@ -301,21 +283,19 @@ namespace Com.Amazonaws.Kms
                     this._impl.DescribeKeyAsync(sdkRequest).Result;
                 return Wrappers_Compile
                     .Result<Dafny.Com.Amazonaws.Kms._IDescribeKeyResponse,
-                        Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>.create_Success(
+                        Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>.create_Success(
                         TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S19_DescribeKeyResponse(sdkResponse));
             }
-            catch (System.AggregateException ex) when (ex.InnerException is Amazon.KeyManagementService
-                                                           .AmazonKeyManagementServiceException)
+            catch (System.AggregateException aggregate) when (aggregate.InnerException is
+                Amazon.KeyManagementService.AmazonKeyManagementServiceException ex)
             {
                 return Wrappers_Compile
                     .Result<Dafny.Com.Amazonaws.Kms._IDescribeKeyResponse,
-                        Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>.create_Failure(
-                        this.ConvertError(
-                            (Amazon.KeyManagementService.AmazonKeyManagementServiceException) ex.InnerException));
+                        Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>.create_Failure(this.ConvertError(ex));
             }
         }
 
-        public Wrappers_Compile._IResult<_System._ITuple0, Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>
+        public Wrappers_Compile._IResult<_System._ITuple0, Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>
             DisableKey(Dafny.Com.Amazonaws.Kms._IDisableKeyRequest request)
         {
             Amazon.KeyManagementService.Model.DisableKeyRequest sdkRequest =
@@ -323,19 +303,18 @@ namespace Com.Amazonaws.Kms
             try
             {
                 this._impl.DisableKeyAsync(sdkRequest).Wait();
-                return Wrappers_Compile.Result<_System._ITuple0, Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>
+                return Wrappers_Compile.Result<_System._ITuple0, Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>
                     .create_Success(_System.Tuple0.Default());
             }
-            catch (System.AggregateException ex) when (ex.InnerException is Amazon.KeyManagementService
-                                                           .AmazonKeyManagementServiceException)
+            catch (System.AggregateException aggregate) when (aggregate.InnerException is
+                Amazon.KeyManagementService.AmazonKeyManagementServiceException ex)
             {
-                return Wrappers_Compile.Result<_System._ITuple0, Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>
-                    .create_Failure(this.ConvertError(
-                        (Amazon.KeyManagementService.AmazonKeyManagementServiceException) ex.InnerException));
+                return Wrappers_Compile.Result<_System._ITuple0, Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>
+                    .create_Failure(this.ConvertError(ex));
             }
         }
 
-        public Wrappers_Compile._IResult<_System._ITuple0, Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>
+        public Wrappers_Compile._IResult<_System._ITuple0, Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>
             DisableKeyRotation(Dafny.Com.Amazonaws.Kms._IDisableKeyRotationRequest request)
         {
             Amazon.KeyManagementService.Model.DisableKeyRotationRequest sdkRequest =
@@ -343,20 +322,19 @@ namespace Com.Amazonaws.Kms
             try
             {
                 this._impl.DisableKeyRotationAsync(sdkRequest).Wait();
-                return Wrappers_Compile.Result<_System._ITuple0, Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>
+                return Wrappers_Compile.Result<_System._ITuple0, Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>
                     .create_Success(_System.Tuple0.Default());
             }
-            catch (System.AggregateException ex) when (ex.InnerException is Amazon.KeyManagementService
-                                                           .AmazonKeyManagementServiceException)
+            catch (System.AggregateException aggregate) when (aggregate.InnerException is
+                Amazon.KeyManagementService.AmazonKeyManagementServiceException ex)
             {
-                return Wrappers_Compile.Result<_System._ITuple0, Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>
-                    .create_Failure(this.ConvertError(
-                        (Amazon.KeyManagementService.AmazonKeyManagementServiceException) ex.InnerException));
+                return Wrappers_Compile.Result<_System._ITuple0, Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>
+                    .create_Failure(this.ConvertError(ex));
             }
         }
 
         public Wrappers_Compile._IResult<Dafny.Com.Amazonaws.Kms._IDisconnectCustomKeyStoreResponse,
-            Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError> DisconnectCustomKeyStore(
+            Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException> DisconnectCustomKeyStore(
             Dafny.Com.Amazonaws.Kms._IDisconnectCustomKeyStoreRequest request)
         {
             Amazon.KeyManagementService.Model.DisconnectCustomKeyStoreRequest sdkRequest =
@@ -367,22 +345,20 @@ namespace Com.Amazonaws.Kms
                     this._impl.DisconnectCustomKeyStoreAsync(sdkRequest).Result;
                 return Wrappers_Compile
                     .Result<Dafny.Com.Amazonaws.Kms._IDisconnectCustomKeyStoreResponse,
-                        Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>.create_Success(
+                        Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>.create_Success(
                         TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S32_DisconnectCustomKeyStoreResponse(
                             sdkResponse));
             }
-            catch (System.AggregateException ex) when (ex.InnerException is Amazon.KeyManagementService
-                                                           .AmazonKeyManagementServiceException)
+            catch (System.AggregateException aggregate) when (aggregate.InnerException is
+                Amazon.KeyManagementService.AmazonKeyManagementServiceException ex)
             {
                 return Wrappers_Compile
                     .Result<Dafny.Com.Amazonaws.Kms._IDisconnectCustomKeyStoreResponse,
-                        Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>.create_Failure(
-                        this.ConvertError(
-                            (Amazon.KeyManagementService.AmazonKeyManagementServiceException) ex.InnerException));
+                        Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>.create_Failure(this.ConvertError(ex));
             }
         }
 
-        public Wrappers_Compile._IResult<_System._ITuple0, Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>
+        public Wrappers_Compile._IResult<_System._ITuple0, Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>
             EnableKey(Dafny.Com.Amazonaws.Kms._IEnableKeyRequest request)
         {
             Amazon.KeyManagementService.Model.EnableKeyRequest sdkRequest =
@@ -390,19 +366,18 @@ namespace Com.Amazonaws.Kms
             try
             {
                 this._impl.EnableKeyAsync(sdkRequest).Wait();
-                return Wrappers_Compile.Result<_System._ITuple0, Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>
+                return Wrappers_Compile.Result<_System._ITuple0, Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>
                     .create_Success(_System.Tuple0.Default());
             }
-            catch (System.AggregateException ex) when (ex.InnerException is Amazon.KeyManagementService
-                                                           .AmazonKeyManagementServiceException)
+            catch (System.AggregateException aggregate) when (aggregate.InnerException is
+                Amazon.KeyManagementService.AmazonKeyManagementServiceException ex)
             {
-                return Wrappers_Compile.Result<_System._ITuple0, Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>
-                    .create_Failure(this.ConvertError(
-                        (Amazon.KeyManagementService.AmazonKeyManagementServiceException) ex.InnerException));
+                return Wrappers_Compile.Result<_System._ITuple0, Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>
+                    .create_Failure(this.ConvertError(ex));
             }
         }
 
-        public Wrappers_Compile._IResult<_System._ITuple0, Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>
+        public Wrappers_Compile._IResult<_System._ITuple0, Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>
             EnableKeyRotation(Dafny.Com.Amazonaws.Kms._IEnableKeyRotationRequest request)
         {
             Amazon.KeyManagementService.Model.EnableKeyRotationRequest sdkRequest =
@@ -410,20 +385,19 @@ namespace Com.Amazonaws.Kms
             try
             {
                 this._impl.EnableKeyRotationAsync(sdkRequest).Wait();
-                return Wrappers_Compile.Result<_System._ITuple0, Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>
+                return Wrappers_Compile.Result<_System._ITuple0, Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>
                     .create_Success(_System.Tuple0.Default());
             }
-            catch (System.AggregateException ex) when (ex.InnerException is Amazon.KeyManagementService
-                                                           .AmazonKeyManagementServiceException)
+            catch (System.AggregateException aggregate) when (aggregate.InnerException is
+                Amazon.KeyManagementService.AmazonKeyManagementServiceException ex)
             {
-                return Wrappers_Compile.Result<_System._ITuple0, Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>
-                    .create_Failure(this.ConvertError(
-                        (Amazon.KeyManagementService.AmazonKeyManagementServiceException) ex.InnerException));
+                return Wrappers_Compile.Result<_System._ITuple0, Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>
+                    .create_Failure(this.ConvertError(ex));
             }
         }
 
         public Wrappers_Compile._IResult<Dafny.Com.Amazonaws.Kms._IEncryptResponse,
-            Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError> Encrypt(
+            Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException> Encrypt(
             Dafny.Com.Amazonaws.Kms._IEncryptRequest request)
         {
             Amazon.KeyManagementService.Model.EncryptRequest sdkRequest =
@@ -434,22 +408,20 @@ namespace Com.Amazonaws.Kms
                     this._impl.EncryptAsync(sdkRequest).Result;
                 return Wrappers_Compile
                     .Result<Dafny.Com.Amazonaws.Kms._IEncryptResponse,
-                        Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>.create_Success(
+                        Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>.create_Success(
                         TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S15_EncryptResponse(sdkResponse));
             }
-            catch (System.AggregateException ex) when (ex.InnerException is Amazon.KeyManagementService
-                                                           .AmazonKeyManagementServiceException)
+            catch (System.AggregateException aggregate) when (aggregate.InnerException is
+                Amazon.KeyManagementService.AmazonKeyManagementServiceException ex)
             {
                 return Wrappers_Compile
                     .Result<Dafny.Com.Amazonaws.Kms._IEncryptResponse,
-                        Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>.create_Failure(
-                        this.ConvertError(
-                            (Amazon.KeyManagementService.AmazonKeyManagementServiceException) ex.InnerException));
+                        Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>.create_Failure(this.ConvertError(ex));
             }
         }
 
         public Wrappers_Compile._IResult<Dafny.Com.Amazonaws.Kms._IGenerateDataKeyResponse,
-            Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError> GenerateDataKey(
+            Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException> GenerateDataKey(
             Dafny.Com.Amazonaws.Kms._IGenerateDataKeyRequest request)
         {
             Amazon.KeyManagementService.Model.GenerateDataKeyRequest sdkRequest =
@@ -460,22 +432,20 @@ namespace Com.Amazonaws.Kms
                     this._impl.GenerateDataKeyAsync(sdkRequest).Result;
                 return Wrappers_Compile
                     .Result<Dafny.Com.Amazonaws.Kms._IGenerateDataKeyResponse,
-                        Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>.create_Success(
+                        Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>.create_Success(
                         TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S23_GenerateDataKeyResponse(sdkResponse));
             }
-            catch (System.AggregateException ex) when (ex.InnerException is Amazon.KeyManagementService
-                                                           .AmazonKeyManagementServiceException)
+            catch (System.AggregateException aggregate) when (aggregate.InnerException is
+                Amazon.KeyManagementService.AmazonKeyManagementServiceException ex)
             {
                 return Wrappers_Compile
                     .Result<Dafny.Com.Amazonaws.Kms._IGenerateDataKeyResponse,
-                        Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>.create_Failure(
-                        this.ConvertError(
-                            (Amazon.KeyManagementService.AmazonKeyManagementServiceException) ex.InnerException));
+                        Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>.create_Failure(this.ConvertError(ex));
             }
         }
 
         public Wrappers_Compile._IResult<Dafny.Com.Amazonaws.Kms._IGenerateDataKeyPairResponse,
-            Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError> GenerateDataKeyPair(
+            Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException> GenerateDataKeyPair(
             Dafny.Com.Amazonaws.Kms._IGenerateDataKeyPairRequest request)
         {
             Amazon.KeyManagementService.Model.GenerateDataKeyPairRequest sdkRequest =
@@ -486,23 +456,21 @@ namespace Com.Amazonaws.Kms
                     this._impl.GenerateDataKeyPairAsync(sdkRequest).Result;
                 return Wrappers_Compile
                     .Result<Dafny.Com.Amazonaws.Kms._IGenerateDataKeyPairResponse,
-                        Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>.create_Success(
+                        Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>.create_Success(
                         TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S27_GenerateDataKeyPairResponse(
                             sdkResponse));
             }
-            catch (System.AggregateException ex) when (ex.InnerException is Amazon.KeyManagementService
-                                                           .AmazonKeyManagementServiceException)
+            catch (System.AggregateException aggregate) when (aggregate.InnerException is
+                Amazon.KeyManagementService.AmazonKeyManagementServiceException ex)
             {
                 return Wrappers_Compile
                     .Result<Dafny.Com.Amazonaws.Kms._IGenerateDataKeyPairResponse,
-                        Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>.create_Failure(
-                        this.ConvertError(
-                            (Amazon.KeyManagementService.AmazonKeyManagementServiceException) ex.InnerException));
+                        Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>.create_Failure(this.ConvertError(ex));
             }
         }
 
         public Wrappers_Compile._IResult<Dafny.Com.Amazonaws.Kms._IGenerateDataKeyPairWithoutPlaintextResponse,
-            Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError> GenerateDataKeyPairWithoutPlaintext(
+            Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException> GenerateDataKeyPairWithoutPlaintext(
             Dafny.Com.Amazonaws.Kms._IGenerateDataKeyPairWithoutPlaintextRequest request)
         {
             Amazon.KeyManagementService.Model.GenerateDataKeyPairWithoutPlaintextRequest sdkRequest =
@@ -514,24 +482,22 @@ namespace Com.Amazonaws.Kms
                     this._impl.GenerateDataKeyPairWithoutPlaintextAsync(sdkRequest).Result;
                 return Wrappers_Compile
                     .Result<Dafny.Com.Amazonaws.Kms._IGenerateDataKeyPairWithoutPlaintextResponse,
-                        Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>.create_Success(
+                        Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>.create_Success(
                         TypeConversion
                             .ToDafny_N3_com__N9_amazonaws__N3_kms__S43_GenerateDataKeyPairWithoutPlaintextResponse(
                                 sdkResponse));
             }
-            catch (System.AggregateException ex) when (ex.InnerException is Amazon.KeyManagementService
-                                                           .AmazonKeyManagementServiceException)
+            catch (System.AggregateException aggregate) when (aggregate.InnerException is
+                Amazon.KeyManagementService.AmazonKeyManagementServiceException ex)
             {
                 return Wrappers_Compile
                     .Result<Dafny.Com.Amazonaws.Kms._IGenerateDataKeyPairWithoutPlaintextResponse,
-                        Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>.create_Failure(
-                        this.ConvertError(
-                            (Amazon.KeyManagementService.AmazonKeyManagementServiceException) ex.InnerException));
+                        Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>.create_Failure(this.ConvertError(ex));
             }
         }
 
         public Wrappers_Compile._IResult<Dafny.Com.Amazonaws.Kms._IGenerateDataKeyWithoutPlaintextResponse,
-            Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError> GenerateDataKeyWithoutPlaintext(
+            Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException> GenerateDataKeyWithoutPlaintext(
             Dafny.Com.Amazonaws.Kms._IGenerateDataKeyWithoutPlaintextRequest request)
         {
             Amazon.KeyManagementService.Model.GenerateDataKeyWithoutPlaintextRequest sdkRequest =
@@ -543,24 +509,22 @@ namespace Com.Amazonaws.Kms
                     this._impl.GenerateDataKeyWithoutPlaintextAsync(sdkRequest).Result;
                 return Wrappers_Compile
                     .Result<Dafny.Com.Amazonaws.Kms._IGenerateDataKeyWithoutPlaintextResponse,
-                        Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>.create_Success(
+                        Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>.create_Success(
                         TypeConversion
                             .ToDafny_N3_com__N9_amazonaws__N3_kms__S39_GenerateDataKeyWithoutPlaintextResponse(
                                 sdkResponse));
             }
-            catch (System.AggregateException ex) when (ex.InnerException is Amazon.KeyManagementService
-                                                           .AmazonKeyManagementServiceException)
+            catch (System.AggregateException aggregate) when (aggregate.InnerException is
+                Amazon.KeyManagementService.AmazonKeyManagementServiceException ex)
             {
                 return Wrappers_Compile
                     .Result<Dafny.Com.Amazonaws.Kms._IGenerateDataKeyWithoutPlaintextResponse,
-                        Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>.create_Failure(
-                        this.ConvertError(
-                            (Amazon.KeyManagementService.AmazonKeyManagementServiceException) ex.InnerException));
+                        Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>.create_Failure(this.ConvertError(ex));
             }
         }
 
         public Wrappers_Compile._IResult<Dafny.Com.Amazonaws.Kms._IGenerateRandomResponse,
-            Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError> GenerateRandom(
+            Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException> GenerateRandom(
             Dafny.Com.Amazonaws.Kms._IGenerateRandomRequest request)
         {
             Amazon.KeyManagementService.Model.GenerateRandomRequest sdkRequest =
@@ -571,22 +535,20 @@ namespace Com.Amazonaws.Kms
                     this._impl.GenerateRandomAsync(sdkRequest).Result;
                 return Wrappers_Compile
                     .Result<Dafny.Com.Amazonaws.Kms._IGenerateRandomResponse,
-                        Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>.create_Success(
+                        Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>.create_Success(
                         TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S22_GenerateRandomResponse(sdkResponse));
             }
-            catch (System.AggregateException ex) when (ex.InnerException is Amazon.KeyManagementService
-                                                           .AmazonKeyManagementServiceException)
+            catch (System.AggregateException aggregate) when (aggregate.InnerException is
+                Amazon.KeyManagementService.AmazonKeyManagementServiceException ex)
             {
                 return Wrappers_Compile
                     .Result<Dafny.Com.Amazonaws.Kms._IGenerateRandomResponse,
-                        Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>.create_Failure(
-                        this.ConvertError(
-                            (Amazon.KeyManagementService.AmazonKeyManagementServiceException) ex.InnerException));
+                        Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>.create_Failure(this.ConvertError(ex));
             }
         }
 
         public Wrappers_Compile._IResult<Dafny.Com.Amazonaws.Kms._IGetKeyPolicyResponse,
-            Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError> GetKeyPolicy(
+            Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException> GetKeyPolicy(
             Dafny.Com.Amazonaws.Kms._IGetKeyPolicyRequest request)
         {
             Amazon.KeyManagementService.Model.GetKeyPolicyRequest sdkRequest =
@@ -597,22 +559,20 @@ namespace Com.Amazonaws.Kms
                     this._impl.GetKeyPolicyAsync(sdkRequest).Result;
                 return Wrappers_Compile
                     .Result<Dafny.Com.Amazonaws.Kms._IGetKeyPolicyResponse,
-                        Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>.create_Success(
+                        Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>.create_Success(
                         TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S20_GetKeyPolicyResponse(sdkResponse));
             }
-            catch (System.AggregateException ex) when (ex.InnerException is Amazon.KeyManagementService
-                                                           .AmazonKeyManagementServiceException)
+            catch (System.AggregateException aggregate) when (aggregate.InnerException is
+                Amazon.KeyManagementService.AmazonKeyManagementServiceException ex)
             {
                 return Wrappers_Compile
                     .Result<Dafny.Com.Amazonaws.Kms._IGetKeyPolicyResponse,
-                        Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>.create_Failure(
-                        this.ConvertError(
-                            (Amazon.KeyManagementService.AmazonKeyManagementServiceException) ex.InnerException));
+                        Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>.create_Failure(this.ConvertError(ex));
             }
         }
 
         public Wrappers_Compile._IResult<Dafny.Com.Amazonaws.Kms._IGetKeyRotationStatusResponse,
-            Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError> GetKeyRotationStatus(
+            Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException> GetKeyRotationStatus(
             Dafny.Com.Amazonaws.Kms._IGetKeyRotationStatusRequest request)
         {
             Amazon.KeyManagementService.Model.GetKeyRotationStatusRequest sdkRequest =
@@ -623,23 +583,21 @@ namespace Com.Amazonaws.Kms
                     this._impl.GetKeyRotationStatusAsync(sdkRequest).Result;
                 return Wrappers_Compile
                     .Result<Dafny.Com.Amazonaws.Kms._IGetKeyRotationStatusResponse,
-                        Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>.create_Success(
+                        Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>.create_Success(
                         TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S28_GetKeyRotationStatusResponse(
                             sdkResponse));
             }
-            catch (System.AggregateException ex) when (ex.InnerException is Amazon.KeyManagementService
-                                                           .AmazonKeyManagementServiceException)
+            catch (System.AggregateException aggregate) when (aggregate.InnerException is
+                Amazon.KeyManagementService.AmazonKeyManagementServiceException ex)
             {
                 return Wrappers_Compile
                     .Result<Dafny.Com.Amazonaws.Kms._IGetKeyRotationStatusResponse,
-                        Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>.create_Failure(
-                        this.ConvertError(
-                            (Amazon.KeyManagementService.AmazonKeyManagementServiceException) ex.InnerException));
+                        Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>.create_Failure(this.ConvertError(ex));
             }
         }
 
         public Wrappers_Compile._IResult<Dafny.Com.Amazonaws.Kms._IGetParametersForImportResponse,
-            Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError> GetParametersForImport(
+            Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException> GetParametersForImport(
             Dafny.Com.Amazonaws.Kms._IGetParametersForImportRequest request)
         {
             Amazon.KeyManagementService.Model.GetParametersForImportRequest sdkRequest =
@@ -650,23 +608,21 @@ namespace Com.Amazonaws.Kms
                     this._impl.GetParametersForImportAsync(sdkRequest).Result;
                 return Wrappers_Compile
                     .Result<Dafny.Com.Amazonaws.Kms._IGetParametersForImportResponse,
-                        Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>.create_Success(
+                        Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>.create_Success(
                         TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S30_GetParametersForImportResponse(
                             sdkResponse));
             }
-            catch (System.AggregateException ex) when (ex.InnerException is Amazon.KeyManagementService
-                                                           .AmazonKeyManagementServiceException)
+            catch (System.AggregateException aggregate) when (aggregate.InnerException is
+                Amazon.KeyManagementService.AmazonKeyManagementServiceException ex)
             {
                 return Wrappers_Compile
                     .Result<Dafny.Com.Amazonaws.Kms._IGetParametersForImportResponse,
-                        Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>.create_Failure(
-                        this.ConvertError(
-                            (Amazon.KeyManagementService.AmazonKeyManagementServiceException) ex.InnerException));
+                        Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>.create_Failure(this.ConvertError(ex));
             }
         }
 
         public Wrappers_Compile._IResult<Dafny.Com.Amazonaws.Kms._IGetPublicKeyResponse,
-            Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError> GetPublicKey(
+            Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException> GetPublicKey(
             Dafny.Com.Amazonaws.Kms._IGetPublicKeyRequest request)
         {
             Amazon.KeyManagementService.Model.GetPublicKeyRequest sdkRequest =
@@ -677,22 +633,20 @@ namespace Com.Amazonaws.Kms
                     this._impl.GetPublicKeyAsync(sdkRequest).Result;
                 return Wrappers_Compile
                     .Result<Dafny.Com.Amazonaws.Kms._IGetPublicKeyResponse,
-                        Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>.create_Success(
+                        Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>.create_Success(
                         TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S20_GetPublicKeyResponse(sdkResponse));
             }
-            catch (System.AggregateException ex) when (ex.InnerException is Amazon.KeyManagementService
-                                                           .AmazonKeyManagementServiceException)
+            catch (System.AggregateException aggregate) when (aggregate.InnerException is
+                Amazon.KeyManagementService.AmazonKeyManagementServiceException ex)
             {
                 return Wrappers_Compile
                     .Result<Dafny.Com.Amazonaws.Kms._IGetPublicKeyResponse,
-                        Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>.create_Failure(
-                        this.ConvertError(
-                            (Amazon.KeyManagementService.AmazonKeyManagementServiceException) ex.InnerException));
+                        Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>.create_Failure(this.ConvertError(ex));
             }
         }
 
         public Wrappers_Compile._IResult<Dafny.Com.Amazonaws.Kms._IImportKeyMaterialResponse,
-            Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError> ImportKeyMaterial(
+            Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException> ImportKeyMaterial(
             Dafny.Com.Amazonaws.Kms._IImportKeyMaterialRequest request)
         {
             Amazon.KeyManagementService.Model.ImportKeyMaterialRequest sdkRequest =
@@ -703,23 +657,21 @@ namespace Com.Amazonaws.Kms
                     this._impl.ImportKeyMaterialAsync(sdkRequest).Result;
                 return Wrappers_Compile
                     .Result<Dafny.Com.Amazonaws.Kms._IImportKeyMaterialResponse,
-                        Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>.create_Success(
+                        Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>.create_Success(
                         TypeConversion
                             .ToDafny_N3_com__N9_amazonaws__N3_kms__S25_ImportKeyMaterialResponse(sdkResponse));
             }
-            catch (System.AggregateException ex) when (ex.InnerException is Amazon.KeyManagementService
-                                                           .AmazonKeyManagementServiceException)
+            catch (System.AggregateException aggregate) when (aggregate.InnerException is
+                Amazon.KeyManagementService.AmazonKeyManagementServiceException ex)
             {
                 return Wrappers_Compile
                     .Result<Dafny.Com.Amazonaws.Kms._IImportKeyMaterialResponse,
-                        Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>.create_Failure(
-                        this.ConvertError(
-                            (Amazon.KeyManagementService.AmazonKeyManagementServiceException) ex.InnerException));
+                        Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>.create_Failure(this.ConvertError(ex));
             }
         }
 
         public Wrappers_Compile._IResult<Dafny.Com.Amazonaws.Kms._IListAliasesResponse,
-            Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError> ListAliases(
+            Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException> ListAliases(
             Dafny.Com.Amazonaws.Kms._IListAliasesRequest request)
         {
             Amazon.KeyManagementService.Model.ListAliasesRequest sdkRequest =
@@ -730,22 +682,20 @@ namespace Com.Amazonaws.Kms
                     this._impl.ListAliasesAsync(sdkRequest).Result;
                 return Wrappers_Compile
                     .Result<Dafny.Com.Amazonaws.Kms._IListAliasesResponse,
-                        Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>.create_Success(
+                        Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>.create_Success(
                         TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S19_ListAliasesResponse(sdkResponse));
             }
-            catch (System.AggregateException ex) when (ex.InnerException is Amazon.KeyManagementService
-                                                           .AmazonKeyManagementServiceException)
+            catch (System.AggregateException aggregate) when (aggregate.InnerException is
+                Amazon.KeyManagementService.AmazonKeyManagementServiceException ex)
             {
                 return Wrappers_Compile
                     .Result<Dafny.Com.Amazonaws.Kms._IListAliasesResponse,
-                        Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>.create_Failure(
-                        this.ConvertError(
-                            (Amazon.KeyManagementService.AmazonKeyManagementServiceException) ex.InnerException));
+                        Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>.create_Failure(this.ConvertError(ex));
             }
         }
 
         public Wrappers_Compile._IResult<Dafny.Com.Amazonaws.Kms._IListGrantsResponse,
-            Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError> ListGrants(
+            Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException> ListGrants(
             Dafny.Com.Amazonaws.Kms._IListGrantsRequest request)
         {
             Amazon.KeyManagementService.Model.ListGrantsRequest sdkRequest =
@@ -756,22 +706,20 @@ namespace Com.Amazonaws.Kms
                     this._impl.ListGrantsAsync(sdkRequest).Result;
                 return Wrappers_Compile
                     .Result<Dafny.Com.Amazonaws.Kms._IListGrantsResponse,
-                        Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>.create_Success(
+                        Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>.create_Success(
                         TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S18_ListGrantsResponse(sdkResponse));
             }
-            catch (System.AggregateException ex) when (ex.InnerException is Amazon.KeyManagementService
-                                                           .AmazonKeyManagementServiceException)
+            catch (System.AggregateException aggregate) when (aggregate.InnerException is
+                Amazon.KeyManagementService.AmazonKeyManagementServiceException ex)
             {
                 return Wrappers_Compile
                     .Result<Dafny.Com.Amazonaws.Kms._IListGrantsResponse,
-                        Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>.create_Failure(
-                        this.ConvertError(
-                            (Amazon.KeyManagementService.AmazonKeyManagementServiceException) ex.InnerException));
+                        Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>.create_Failure(this.ConvertError(ex));
             }
         }
 
         public Wrappers_Compile._IResult<Dafny.Com.Amazonaws.Kms._IListKeyPoliciesResponse,
-            Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError> ListKeyPolicies(
+            Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException> ListKeyPolicies(
             Dafny.Com.Amazonaws.Kms._IListKeyPoliciesRequest request)
         {
             Amazon.KeyManagementService.Model.ListKeyPoliciesRequest sdkRequest =
@@ -782,22 +730,20 @@ namespace Com.Amazonaws.Kms
                     this._impl.ListKeyPoliciesAsync(sdkRequest).Result;
                 return Wrappers_Compile
                     .Result<Dafny.Com.Amazonaws.Kms._IListKeyPoliciesResponse,
-                        Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>.create_Success(
+                        Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>.create_Success(
                         TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S23_ListKeyPoliciesResponse(sdkResponse));
             }
-            catch (System.AggregateException ex) when (ex.InnerException is Amazon.KeyManagementService
-                                                           .AmazonKeyManagementServiceException)
+            catch (System.AggregateException aggregate) when (aggregate.InnerException is
+                Amazon.KeyManagementService.AmazonKeyManagementServiceException ex)
             {
                 return Wrappers_Compile
                     .Result<Dafny.Com.Amazonaws.Kms._IListKeyPoliciesResponse,
-                        Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>.create_Failure(
-                        this.ConvertError(
-                            (Amazon.KeyManagementService.AmazonKeyManagementServiceException) ex.InnerException));
+                        Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>.create_Failure(this.ConvertError(ex));
             }
         }
 
         public Wrappers_Compile._IResult<Dafny.Com.Amazonaws.Kms._IListResourceTagsResponse,
-            Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError> ListResourceTags(
+            Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException> ListResourceTags(
             Dafny.Com.Amazonaws.Kms._IListResourceTagsRequest request)
         {
             Amazon.KeyManagementService.Model.ListResourceTagsRequest sdkRequest =
@@ -808,21 +754,19 @@ namespace Com.Amazonaws.Kms
                     this._impl.ListResourceTagsAsync(sdkRequest).Result;
                 return Wrappers_Compile
                     .Result<Dafny.Com.Amazonaws.Kms._IListResourceTagsResponse,
-                        Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>.create_Success(
+                        Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>.create_Success(
                         TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S24_ListResourceTagsResponse(sdkResponse));
             }
-            catch (System.AggregateException ex) when (ex.InnerException is Amazon.KeyManagementService
-                                                           .AmazonKeyManagementServiceException)
+            catch (System.AggregateException aggregate) when (aggregate.InnerException is
+                Amazon.KeyManagementService.AmazonKeyManagementServiceException ex)
             {
                 return Wrappers_Compile
                     .Result<Dafny.Com.Amazonaws.Kms._IListResourceTagsResponse,
-                        Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>.create_Failure(
-                        this.ConvertError(
-                            (Amazon.KeyManagementService.AmazonKeyManagementServiceException) ex.InnerException));
+                        Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>.create_Failure(this.ConvertError(ex));
             }
         }
 
-        public Wrappers_Compile._IResult<_System._ITuple0, Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>
+        public Wrappers_Compile._IResult<_System._ITuple0, Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>
             PutKeyPolicy(Dafny.Com.Amazonaws.Kms._IPutKeyPolicyRequest request)
         {
             Amazon.KeyManagementService.Model.PutKeyPolicyRequest sdkRequest =
@@ -830,20 +774,19 @@ namespace Com.Amazonaws.Kms
             try
             {
                 this._impl.PutKeyPolicyAsync(sdkRequest).Wait();
-                return Wrappers_Compile.Result<_System._ITuple0, Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>
+                return Wrappers_Compile.Result<_System._ITuple0, Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>
                     .create_Success(_System.Tuple0.Default());
             }
-            catch (System.AggregateException ex) when (ex.InnerException is Amazon.KeyManagementService
-                                                           .AmazonKeyManagementServiceException)
+            catch (System.AggregateException aggregate) when (aggregate.InnerException is
+                Amazon.KeyManagementService.AmazonKeyManagementServiceException ex)
             {
-                return Wrappers_Compile.Result<_System._ITuple0, Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>
-                    .create_Failure(this.ConvertError(
-                        (Amazon.KeyManagementService.AmazonKeyManagementServiceException) ex.InnerException));
+                return Wrappers_Compile.Result<_System._ITuple0, Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>
+                    .create_Failure(this.ConvertError(ex));
             }
         }
 
         public Wrappers_Compile._IResult<Dafny.Com.Amazonaws.Kms._IReEncryptResponse,
-            Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError> ReEncrypt(
+            Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException> ReEncrypt(
             Dafny.Com.Amazonaws.Kms._IReEncryptRequest request)
         {
             Amazon.KeyManagementService.Model.ReEncryptRequest sdkRequest =
@@ -854,22 +797,20 @@ namespace Com.Amazonaws.Kms
                     this._impl.ReEncryptAsync(sdkRequest).Result;
                 return Wrappers_Compile
                     .Result<Dafny.Com.Amazonaws.Kms._IReEncryptResponse,
-                        Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>.create_Success(
+                        Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>.create_Success(
                         TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S17_ReEncryptResponse(sdkResponse));
             }
-            catch (System.AggregateException ex) when (ex.InnerException is Amazon.KeyManagementService
-                                                           .AmazonKeyManagementServiceException)
+            catch (System.AggregateException aggregate) when (aggregate.InnerException is
+                Amazon.KeyManagementService.AmazonKeyManagementServiceException ex)
             {
                 return Wrappers_Compile
                     .Result<Dafny.Com.Amazonaws.Kms._IReEncryptResponse,
-                        Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>.create_Failure(
-                        this.ConvertError(
-                            (Amazon.KeyManagementService.AmazonKeyManagementServiceException) ex.InnerException));
+                        Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>.create_Failure(this.ConvertError(ex));
             }
         }
 
         public Wrappers_Compile._IResult<Dafny.Com.Amazonaws.Kms._IReplicateKeyResponse,
-            Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError> ReplicateKey(
+            Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException> ReplicateKey(
             Dafny.Com.Amazonaws.Kms._IReplicateKeyRequest request)
         {
             Amazon.KeyManagementService.Model.ReplicateKeyRequest sdkRequest =
@@ -880,21 +821,19 @@ namespace Com.Amazonaws.Kms
                     this._impl.ReplicateKeyAsync(sdkRequest).Result;
                 return Wrappers_Compile
                     .Result<Dafny.Com.Amazonaws.Kms._IReplicateKeyResponse,
-                        Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>.create_Success(
+                        Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>.create_Success(
                         TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S20_ReplicateKeyResponse(sdkResponse));
             }
-            catch (System.AggregateException ex) when (ex.InnerException is Amazon.KeyManagementService
-                                                           .AmazonKeyManagementServiceException)
+            catch (System.AggregateException aggregate) when (aggregate.InnerException is
+                Amazon.KeyManagementService.AmazonKeyManagementServiceException ex)
             {
                 return Wrappers_Compile
                     .Result<Dafny.Com.Amazonaws.Kms._IReplicateKeyResponse,
-                        Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>.create_Failure(
-                        this.ConvertError(
-                            (Amazon.KeyManagementService.AmazonKeyManagementServiceException) ex.InnerException));
+                        Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>.create_Failure(this.ConvertError(ex));
             }
         }
 
-        public Wrappers_Compile._IResult<_System._ITuple0, Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>
+        public Wrappers_Compile._IResult<_System._ITuple0, Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>
             RetireGrant(Dafny.Com.Amazonaws.Kms._IRetireGrantRequest request)
         {
             Amazon.KeyManagementService.Model.RetireGrantRequest sdkRequest =
@@ -902,19 +841,18 @@ namespace Com.Amazonaws.Kms
             try
             {
                 this._impl.RetireGrantAsync(sdkRequest).Wait();
-                return Wrappers_Compile.Result<_System._ITuple0, Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>
+                return Wrappers_Compile.Result<_System._ITuple0, Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>
                     .create_Success(_System.Tuple0.Default());
             }
-            catch (System.AggregateException ex) when (ex.InnerException is Amazon.KeyManagementService
-                                                           .AmazonKeyManagementServiceException)
+            catch (System.AggregateException aggregate) when (aggregate.InnerException is
+                Amazon.KeyManagementService.AmazonKeyManagementServiceException ex)
             {
-                return Wrappers_Compile.Result<_System._ITuple0, Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>
-                    .create_Failure(this.ConvertError(
-                        (Amazon.KeyManagementService.AmazonKeyManagementServiceException) ex.InnerException));
+                return Wrappers_Compile.Result<_System._ITuple0, Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>
+                    .create_Failure(this.ConvertError(ex));
             }
         }
 
-        public Wrappers_Compile._IResult<_System._ITuple0, Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>
+        public Wrappers_Compile._IResult<_System._ITuple0, Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>
             RevokeGrant(Dafny.Com.Amazonaws.Kms._IRevokeGrantRequest request)
         {
             Amazon.KeyManagementService.Model.RevokeGrantRequest sdkRequest =
@@ -922,20 +860,19 @@ namespace Com.Amazonaws.Kms
             try
             {
                 this._impl.RevokeGrantAsync(sdkRequest).Wait();
-                return Wrappers_Compile.Result<_System._ITuple0, Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>
+                return Wrappers_Compile.Result<_System._ITuple0, Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>
                     .create_Success(_System.Tuple0.Default());
             }
-            catch (System.AggregateException ex) when (ex.InnerException is Amazon.KeyManagementService
-                                                           .AmazonKeyManagementServiceException)
+            catch (System.AggregateException aggregate) when (aggregate.InnerException is
+                Amazon.KeyManagementService.AmazonKeyManagementServiceException ex)
             {
-                return Wrappers_Compile.Result<_System._ITuple0, Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>
-                    .create_Failure(this.ConvertError(
-                        (Amazon.KeyManagementService.AmazonKeyManagementServiceException) ex.InnerException));
+                return Wrappers_Compile.Result<_System._ITuple0, Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>
+                    .create_Failure(this.ConvertError(ex));
             }
         }
 
         public Wrappers_Compile._IResult<Dafny.Com.Amazonaws.Kms._IScheduleKeyDeletionResponse,
-            Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError> ScheduleKeyDeletion(
+            Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException> ScheduleKeyDeletion(
             Dafny.Com.Amazonaws.Kms._IScheduleKeyDeletionRequest request)
         {
             Amazon.KeyManagementService.Model.ScheduleKeyDeletionRequest sdkRequest =
@@ -946,23 +883,21 @@ namespace Com.Amazonaws.Kms
                     this._impl.ScheduleKeyDeletionAsync(sdkRequest).Result;
                 return Wrappers_Compile
                     .Result<Dafny.Com.Amazonaws.Kms._IScheduleKeyDeletionResponse,
-                        Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>.create_Success(
+                        Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>.create_Success(
                         TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S27_ScheduleKeyDeletionResponse(
                             sdkResponse));
             }
-            catch (System.AggregateException ex) when (ex.InnerException is Amazon.KeyManagementService
-                                                           .AmazonKeyManagementServiceException)
+            catch (System.AggregateException aggregate) when (aggregate.InnerException is
+                Amazon.KeyManagementService.AmazonKeyManagementServiceException ex)
             {
                 return Wrappers_Compile
                     .Result<Dafny.Com.Amazonaws.Kms._IScheduleKeyDeletionResponse,
-                        Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>.create_Failure(
-                        this.ConvertError(
-                            (Amazon.KeyManagementService.AmazonKeyManagementServiceException) ex.InnerException));
+                        Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>.create_Failure(this.ConvertError(ex));
             }
         }
 
         public Wrappers_Compile._IResult<Dafny.Com.Amazonaws.Kms._ISignResponse,
-            Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError> Sign(Dafny.Com.Amazonaws.Kms._ISignRequest request)
+            Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException> Sign(Dafny.Com.Amazonaws.Kms._ISignRequest request)
         {
             Amazon.KeyManagementService.Model.SignRequest sdkRequest =
                 TypeConversion.FromDafny_N3_com__N9_amazonaws__N3_kms__S11_SignRequest(request);
@@ -971,20 +906,20 @@ namespace Com.Amazonaws.Kms
                 Amazon.KeyManagementService.Model.SignResponse sdkResponse =
                     this._impl.SignAsync(sdkRequest).Result;
                 return Wrappers_Compile
-                    .Result<Dafny.Com.Amazonaws.Kms._ISignResponse, Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>
-                    .create_Success(TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S12_SignResponse(sdkResponse));
+                    .Result<Dafny.Com.Amazonaws.Kms._ISignResponse,
+                        Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>.create_Success(
+                        TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S12_SignResponse(sdkResponse));
             }
-            catch (System.AggregateException ex) when (ex.InnerException is Amazon.KeyManagementService
-                                                           .AmazonKeyManagementServiceException)
+            catch (System.AggregateException aggregate) when (aggregate.InnerException is
+                Amazon.KeyManagementService.AmazonKeyManagementServiceException ex)
             {
                 return Wrappers_Compile
-                    .Result<Dafny.Com.Amazonaws.Kms._ISignResponse, Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>
-                    .create_Failure(this.ConvertError(
-                        (Amazon.KeyManagementService.AmazonKeyManagementServiceException) ex.InnerException));
+                    .Result<Dafny.Com.Amazonaws.Kms._ISignResponse,
+                        Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>.create_Failure(this.ConvertError(ex));
             }
         }
 
-        public Wrappers_Compile._IResult<_System._ITuple0, Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>
+        public Wrappers_Compile._IResult<_System._ITuple0, Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>
             TagResource(Dafny.Com.Amazonaws.Kms._ITagResourceRequest request)
         {
             Amazon.KeyManagementService.Model.TagResourceRequest sdkRequest =
@@ -992,19 +927,18 @@ namespace Com.Amazonaws.Kms
             try
             {
                 this._impl.TagResourceAsync(sdkRequest).Wait();
-                return Wrappers_Compile.Result<_System._ITuple0, Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>
+                return Wrappers_Compile.Result<_System._ITuple0, Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>
                     .create_Success(_System.Tuple0.Default());
             }
-            catch (System.AggregateException ex) when (ex.InnerException is Amazon.KeyManagementService
-                                                           .AmazonKeyManagementServiceException)
+            catch (System.AggregateException aggregate) when (aggregate.InnerException is
+                Amazon.KeyManagementService.AmazonKeyManagementServiceException ex)
             {
-                return Wrappers_Compile.Result<_System._ITuple0, Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>
-                    .create_Failure(this.ConvertError(
-                        (Amazon.KeyManagementService.AmazonKeyManagementServiceException) ex.InnerException));
+                return Wrappers_Compile.Result<_System._ITuple0, Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>
+                    .create_Failure(this.ConvertError(ex));
             }
         }
 
-        public Wrappers_Compile._IResult<_System._ITuple0, Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>
+        public Wrappers_Compile._IResult<_System._ITuple0, Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>
             UntagResource(Dafny.Com.Amazonaws.Kms._IUntagResourceRequest request)
         {
             Amazon.KeyManagementService.Model.UntagResourceRequest sdkRequest =
@@ -1012,19 +946,18 @@ namespace Com.Amazonaws.Kms
             try
             {
                 this._impl.UntagResourceAsync(sdkRequest).Wait();
-                return Wrappers_Compile.Result<_System._ITuple0, Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>
+                return Wrappers_Compile.Result<_System._ITuple0, Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>
                     .create_Success(_System.Tuple0.Default());
             }
-            catch (System.AggregateException ex) when (ex.InnerException is Amazon.KeyManagementService
-                                                           .AmazonKeyManagementServiceException)
+            catch (System.AggregateException aggregate) when (aggregate.InnerException is
+                Amazon.KeyManagementService.AmazonKeyManagementServiceException ex)
             {
-                return Wrappers_Compile.Result<_System._ITuple0, Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>
-                    .create_Failure(this.ConvertError(
-                        (Amazon.KeyManagementService.AmazonKeyManagementServiceException) ex.InnerException));
+                return Wrappers_Compile.Result<_System._ITuple0, Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>
+                    .create_Failure(this.ConvertError(ex));
             }
         }
 
-        public Wrappers_Compile._IResult<_System._ITuple0, Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>
+        public Wrappers_Compile._IResult<_System._ITuple0, Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>
             UpdateAlias(Dafny.Com.Amazonaws.Kms._IUpdateAliasRequest request)
         {
             Amazon.KeyManagementService.Model.UpdateAliasRequest sdkRequest =
@@ -1032,20 +965,19 @@ namespace Com.Amazonaws.Kms
             try
             {
                 this._impl.UpdateAliasAsync(sdkRequest).Wait();
-                return Wrappers_Compile.Result<_System._ITuple0, Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>
+                return Wrappers_Compile.Result<_System._ITuple0, Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>
                     .create_Success(_System.Tuple0.Default());
             }
-            catch (System.AggregateException ex) when (ex.InnerException is Amazon.KeyManagementService
-                                                           .AmazonKeyManagementServiceException)
+            catch (System.AggregateException aggregate) when (aggregate.InnerException is
+                Amazon.KeyManagementService.AmazonKeyManagementServiceException ex)
             {
-                return Wrappers_Compile.Result<_System._ITuple0, Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>
-                    .create_Failure(this.ConvertError(
-                        (Amazon.KeyManagementService.AmazonKeyManagementServiceException) ex.InnerException));
+                return Wrappers_Compile.Result<_System._ITuple0, Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>
+                    .create_Failure(this.ConvertError(ex));
             }
         }
 
         public Wrappers_Compile._IResult<Dafny.Com.Amazonaws.Kms._IUpdateCustomKeyStoreResponse,
-            Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError> UpdateCustomKeyStore(
+            Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException> UpdateCustomKeyStore(
             Dafny.Com.Amazonaws.Kms._IUpdateCustomKeyStoreRequest request)
         {
             Amazon.KeyManagementService.Model.UpdateCustomKeyStoreRequest sdkRequest =
@@ -1056,22 +988,20 @@ namespace Com.Amazonaws.Kms
                     this._impl.UpdateCustomKeyStoreAsync(sdkRequest).Result;
                 return Wrappers_Compile
                     .Result<Dafny.Com.Amazonaws.Kms._IUpdateCustomKeyStoreResponse,
-                        Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>.create_Success(
+                        Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>.create_Success(
                         TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S28_UpdateCustomKeyStoreResponse(
                             sdkResponse));
             }
-            catch (System.AggregateException ex) when (ex.InnerException is Amazon.KeyManagementService
-                                                           .AmazonKeyManagementServiceException)
+            catch (System.AggregateException aggregate) when (aggregate.InnerException is
+                Amazon.KeyManagementService.AmazonKeyManagementServiceException ex)
             {
                 return Wrappers_Compile
                     .Result<Dafny.Com.Amazonaws.Kms._IUpdateCustomKeyStoreResponse,
-                        Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>.create_Failure(
-                        this.ConvertError(
-                            (Amazon.KeyManagementService.AmazonKeyManagementServiceException) ex.InnerException));
+                        Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>.create_Failure(this.ConvertError(ex));
             }
         }
 
-        public Wrappers_Compile._IResult<_System._ITuple0, Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>
+        public Wrappers_Compile._IResult<_System._ITuple0, Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>
             UpdateKeyDescription(Dafny.Com.Amazonaws.Kms._IUpdateKeyDescriptionRequest request)
         {
             Amazon.KeyManagementService.Model.UpdateKeyDescriptionRequest sdkRequest =
@@ -1079,19 +1009,18 @@ namespace Com.Amazonaws.Kms
             try
             {
                 this._impl.UpdateKeyDescriptionAsync(sdkRequest).Wait();
-                return Wrappers_Compile.Result<_System._ITuple0, Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>
+                return Wrappers_Compile.Result<_System._ITuple0, Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>
                     .create_Success(_System.Tuple0.Default());
             }
-            catch (System.AggregateException ex) when (ex.InnerException is Amazon.KeyManagementService
-                                                           .AmazonKeyManagementServiceException)
+            catch (System.AggregateException aggregate) when (aggregate.InnerException is
+                Amazon.KeyManagementService.AmazonKeyManagementServiceException ex)
             {
-                return Wrappers_Compile.Result<_System._ITuple0, Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>
-                    .create_Failure(this.ConvertError(
-                        (Amazon.KeyManagementService.AmazonKeyManagementServiceException) ex.InnerException));
+                return Wrappers_Compile.Result<_System._ITuple0, Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>
+                    .create_Failure(this.ConvertError(ex));
             }
         }
 
-        public Wrappers_Compile._IResult<_System._ITuple0, Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>
+        public Wrappers_Compile._IResult<_System._ITuple0, Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>
             UpdatePrimaryRegion(Dafny.Com.Amazonaws.Kms._IUpdatePrimaryRegionRequest request)
         {
             Amazon.KeyManagementService.Model.UpdatePrimaryRegionRequest sdkRequest =
@@ -1099,20 +1028,20 @@ namespace Com.Amazonaws.Kms
             try
             {
                 this._impl.UpdatePrimaryRegionAsync(sdkRequest).Wait();
-                return Wrappers_Compile.Result<_System._ITuple0, Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>
+                return Wrappers_Compile.Result<_System._ITuple0, Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>
                     .create_Success(_System.Tuple0.Default());
             }
-            catch (System.AggregateException ex) when (ex.InnerException is Amazon.KeyManagementService
-                                                           .AmazonKeyManagementServiceException)
+            catch (System.AggregateException aggregate) when (aggregate.InnerException is
+                Amazon.KeyManagementService.AmazonKeyManagementServiceException ex)
             {
-                return Wrappers_Compile.Result<_System._ITuple0, Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>
-                    .create_Failure(this.ConvertError(
-                        (Amazon.KeyManagementService.AmazonKeyManagementServiceException) ex.InnerException));
+                return Wrappers_Compile.Result<_System._ITuple0, Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>
+                    .create_Failure(this.ConvertError(ex));
             }
         }
 
         public Wrappers_Compile._IResult<Dafny.Com.Amazonaws.Kms._IVerifyResponse,
-            Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError> Verify(Dafny.Com.Amazonaws.Kms._IVerifyRequest request)
+            Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException> Verify(
+            Dafny.Com.Amazonaws.Kms._IVerifyRequest request)
         {
             Amazon.KeyManagementService.Model.VerifyRequest sdkRequest =
                 TypeConversion.FromDafny_N3_com__N9_amazonaws__N3_kms__S13_VerifyRequest(request);
@@ -1122,288 +1051,132 @@ namespace Com.Amazonaws.Kms
                     this._impl.VerifyAsync(sdkRequest).Result;
                 return Wrappers_Compile
                     .Result<Dafny.Com.Amazonaws.Kms._IVerifyResponse,
-                        Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>.create_Success(
+                        Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>.create_Success(
                         TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S14_VerifyResponse(sdkResponse));
             }
-            catch (System.AggregateException ex) when (ex.InnerException is Amazon.KeyManagementService
-                                                           .AmazonKeyManagementServiceException)
+            catch (System.AggregateException aggregate) when (aggregate.InnerException is
+                Amazon.KeyManagementService.AmazonKeyManagementServiceException ex)
             {
                 return Wrappers_Compile
                     .Result<Dafny.Com.Amazonaws.Kms._IVerifyResponse,
-                        Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError>.create_Failure(
-                        this.ConvertError(
-                            (Amazon.KeyManagementService.AmazonKeyManagementServiceException) ex.InnerException));
+                        Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException>.create_Failure(this.ConvertError(ex));
             }
         }
 
-        private Dafny.Com.Amazonaws.Kms._IKeyManagementServiceError ConvertError(
+        private Dafny.Com.Amazonaws.Kms.IKeyManagementServiceException ConvertError(
             Amazon.KeyManagementService.AmazonKeyManagementServiceException error)
         {
-            if (error is Amazon.KeyManagementService.Model.AlreadyExistsException)
+            switch (error)
             {
-                return Dafny.Com.Amazonaws.Kms.KeyManagementServiceError
-                    .create_KeyManagementService__AlreadyExistsException(
-                        TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S22_AlreadyExistsException(
-                            (Amazon.KeyManagementService.Model.AlreadyExistsException) error));
-            }
+                case Amazon.KeyManagementService.Model.AlreadyExistsException e:
+                    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S22_AlreadyExistsException(e);
 
-            if (error is Amazon.KeyManagementService.Model.CloudHsmClusterInUseException)
-            {
-                return Dafny.Com.Amazonaws.Kms.KeyManagementServiceError
-                    .create_KeyManagementService__CloudHsmClusterInUseException(
-                        TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S29_CloudHsmClusterInUseException(
-                            (Amazon.KeyManagementService.Model.CloudHsmClusterInUseException) error));
-            }
+                case Amazon.KeyManagementService.Model.CloudHsmClusterInUseException e:
+                    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S29_CloudHsmClusterInUseException(e);
 
-            if (error is Amazon.KeyManagementService.Model.CloudHsmClusterInvalidConfigurationException)
-            {
-                return Dafny.Com.Amazonaws.Kms.KeyManagementServiceError
-                    .create_KeyManagementService__CloudHsmClusterInvalidConfigurationException(
-                        TypeConversion
-                            .ToDafny_N3_com__N9_amazonaws__N3_kms__S44_CloudHsmClusterInvalidConfigurationException(
-                                (Amazon.KeyManagementService.Model.CloudHsmClusterInvalidConfigurationException)
-                                error));
-            }
+                case Amazon.KeyManagementService.Model.CloudHsmClusterInvalidConfigurationException e:
+                    return TypeConversion
+                        .ToDafny_N3_com__N9_amazonaws__N3_kms__S44_CloudHsmClusterInvalidConfigurationException(e);
 
-            if (error is Amazon.KeyManagementService.Model.CloudHsmClusterNotActiveException)
-            {
-                return Dafny.Com.Amazonaws.Kms.KeyManagementServiceError
-                    .create_KeyManagementService__CloudHsmClusterNotActiveException(
-                        TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S33_CloudHsmClusterNotActiveException(
-                            (Amazon.KeyManagementService.Model.CloudHsmClusterNotActiveException) error));
-            }
+                case Amazon.KeyManagementService.Model.CloudHsmClusterNotActiveException e:
+                    return TypeConversion
+                        .ToDafny_N3_com__N9_amazonaws__N3_kms__S33_CloudHsmClusterNotActiveException(e);
 
-            if (error is Amazon.KeyManagementService.Model.CloudHsmClusterNotFoundException)
-            {
-                return Dafny.Com.Amazonaws.Kms.KeyManagementServiceError
-                    .create_KeyManagementService__CloudHsmClusterNotFoundException(
-                        TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S32_CloudHsmClusterNotFoundException(
-                            (Amazon.KeyManagementService.Model.CloudHsmClusterNotFoundException) error));
-            }
+                case Amazon.KeyManagementService.Model.CloudHsmClusterNotFoundException e:
+                    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S32_CloudHsmClusterNotFoundException(e);
 
-            if (error is Amazon.KeyManagementService.Model.CloudHsmClusterNotRelatedException)
-            {
-                return Dafny.Com.Amazonaws.Kms.KeyManagementServiceError
-                    .create_KeyManagementService__CloudHsmClusterNotRelatedException(
-                        TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S34_CloudHsmClusterNotRelatedException(
-                            (Amazon.KeyManagementService.Model.CloudHsmClusterNotRelatedException) error));
-            }
+                case Amazon.KeyManagementService.Model.CloudHsmClusterNotRelatedException e:
+                    return TypeConversion
+                        .ToDafny_N3_com__N9_amazonaws__N3_kms__S34_CloudHsmClusterNotRelatedException(e);
 
-            if (error is Amazon.KeyManagementService.Model.CustomKeyStoreHasCMKsException)
-            {
-                return Dafny.Com.Amazonaws.Kms.KeyManagementServiceError
-                    .create_KeyManagementService__CustomKeyStoreHasCMKsException(
-                        TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S30_CustomKeyStoreHasCMKsException(
-                            (Amazon.KeyManagementService.Model.CustomKeyStoreHasCMKsException) error));
-            }
+                case Amazon.KeyManagementService.Model.CustomKeyStoreHasCMKsException e:
+                    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S30_CustomKeyStoreHasCMKsException(e);
 
-            if (error is Amazon.KeyManagementService.Model.CustomKeyStoreInvalidStateException)
-            {
-                return Dafny.Com.Amazonaws.Kms.KeyManagementServiceError
-                    .create_KeyManagementService__CustomKeyStoreInvalidStateException(
-                        TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S35_CustomKeyStoreInvalidStateException(
-                            (Amazon.KeyManagementService.Model.CustomKeyStoreInvalidStateException) error));
-            }
+                case Amazon.KeyManagementService.Model.CustomKeyStoreInvalidStateException e:
+                    return TypeConversion
+                        .ToDafny_N3_com__N9_amazonaws__N3_kms__S35_CustomKeyStoreInvalidStateException(e);
 
-            if (error is Amazon.KeyManagementService.Model.CustomKeyStoreNameInUseException)
-            {
-                return Dafny.Com.Amazonaws.Kms.KeyManagementServiceError
-                    .create_KeyManagementService__CustomKeyStoreNameInUseException(
-                        TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S32_CustomKeyStoreNameInUseException(
-                            (Amazon.KeyManagementService.Model.CustomKeyStoreNameInUseException) error));
-            }
+                case Amazon.KeyManagementService.Model.CustomKeyStoreNameInUseException e:
+                    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S32_CustomKeyStoreNameInUseException(e);
 
-            if (error is Amazon.KeyManagementService.Model.CustomKeyStoreNotFoundException)
-            {
-                return Dafny.Com.Amazonaws.Kms.KeyManagementServiceError
-                    .create_KeyManagementService__CustomKeyStoreNotFoundException(
-                        TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S31_CustomKeyStoreNotFoundException(
-                            (Amazon.KeyManagementService.Model.CustomKeyStoreNotFoundException) error));
-            }
+                case Amazon.KeyManagementService.Model.CustomKeyStoreNotFoundException e:
+                    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S31_CustomKeyStoreNotFoundException(e);
 
-            if (error is Amazon.KeyManagementService.Model.DependencyTimeoutException)
-            {
-                return Dafny.Com.Amazonaws.Kms.KeyManagementServiceError
-                    .create_KeyManagementService__DependencyTimeoutException(
-                        TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S26_DependencyTimeoutException(
-                            (Amazon.KeyManagementService.Model.DependencyTimeoutException) error));
-            }
+                case Amazon.KeyManagementService.Model.DependencyTimeoutException e:
+                    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S26_DependencyTimeoutException(e);
 
-            if (error is Amazon.KeyManagementService.Model.DisabledException)
-            {
-                return Dafny.Com.Amazonaws.Kms.KeyManagementServiceError.create_KeyManagementService__DisabledException(
-                    TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S17_DisabledException(
-                        (Amazon.KeyManagementService.Model.DisabledException) error));
-            }
+                case Amazon.KeyManagementService.Model.DisabledException e:
+                    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S17_DisabledException(e);
 
-            if (error is Amazon.KeyManagementService.Model.ExpiredImportTokenException)
-            {
-                return Dafny.Com.Amazonaws.Kms.KeyManagementServiceError
-                    .create_KeyManagementService__ExpiredImportTokenException(
-                        TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S27_ExpiredImportTokenException(
-                            (Amazon.KeyManagementService.Model.ExpiredImportTokenException) error));
-            }
+                case Amazon.KeyManagementService.Model.ExpiredImportTokenException e:
+                    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S27_ExpiredImportTokenException(e);
 
-            if (error is Amazon.KeyManagementService.Model.IncorrectKeyException)
-            {
-                return Dafny.Com.Amazonaws.Kms.KeyManagementServiceError
-                    .create_KeyManagementService__IncorrectKeyException(
-                        TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S21_IncorrectKeyException(
-                            (Amazon.KeyManagementService.Model.IncorrectKeyException) error));
-            }
+                case Amazon.KeyManagementService.Model.IncorrectKeyException e:
+                    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S21_IncorrectKeyException(e);
 
-            if (error is Amazon.KeyManagementService.Model.IncorrectKeyMaterialException)
-            {
-                return Dafny.Com.Amazonaws.Kms.KeyManagementServiceError
-                    .create_KeyManagementService__IncorrectKeyMaterialException(
-                        TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S29_IncorrectKeyMaterialException(
-                            (Amazon.KeyManagementService.Model.IncorrectKeyMaterialException) error));
-            }
+                case Amazon.KeyManagementService.Model.IncorrectKeyMaterialException e:
+                    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S29_IncorrectKeyMaterialException(e);
 
-            if (error is Amazon.KeyManagementService.Model.IncorrectTrustAnchorException)
-            {
-                return Dafny.Com.Amazonaws.Kms.KeyManagementServiceError
-                    .create_KeyManagementService__IncorrectTrustAnchorException(
-                        TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S29_IncorrectTrustAnchorException(
-                            (Amazon.KeyManagementService.Model.IncorrectTrustAnchorException) error));
-            }
+                case Amazon.KeyManagementService.Model.IncorrectTrustAnchorException e:
+                    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S29_IncorrectTrustAnchorException(e);
 
-            if (error is Amazon.KeyManagementService.Model.InvalidAliasNameException)
-            {
-                return Dafny.Com.Amazonaws.Kms.KeyManagementServiceError
-                    .create_KeyManagementService__InvalidAliasNameException(
-                        TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S25_InvalidAliasNameException(
-                            (Amazon.KeyManagementService.Model.InvalidAliasNameException) error));
-            }
+                case Amazon.KeyManagementService.Model.InvalidAliasNameException e:
+                    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S25_InvalidAliasNameException(e);
 
-            if (error is Amazon.KeyManagementService.Model.InvalidArnException)
-            {
-                return Dafny.Com.Amazonaws.Kms.KeyManagementServiceError
-                    .create_KeyManagementService__InvalidArnException(
-                        TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S19_InvalidArnException(
-                            (Amazon.KeyManagementService.Model.InvalidArnException) error));
-            }
+                case Amazon.KeyManagementService.Model.InvalidArnException e:
+                    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S19_InvalidArnException(e);
 
-            if (error is Amazon.KeyManagementService.Model.InvalidCiphertextException)
-            {
-                return Dafny.Com.Amazonaws.Kms.KeyManagementServiceError
-                    .create_KeyManagementService__InvalidCiphertextException(
-                        TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S26_InvalidCiphertextException(
-                            (Amazon.KeyManagementService.Model.InvalidCiphertextException) error));
-            }
+                case Amazon.KeyManagementService.Model.InvalidCiphertextException e:
+                    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S26_InvalidCiphertextException(e);
 
-            if (error is Amazon.KeyManagementService.Model.InvalidGrantIdException)
-            {
-                return Dafny.Com.Amazonaws.Kms.KeyManagementServiceError
-                    .create_KeyManagementService__InvalidGrantIdException(
-                        TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S23_InvalidGrantIdException(
-                            (Amazon.KeyManagementService.Model.InvalidGrantIdException) error));
-            }
+                case Amazon.KeyManagementService.Model.InvalidGrantIdException e:
+                    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S23_InvalidGrantIdException(e);
 
-            if (error is Amazon.KeyManagementService.Model.InvalidGrantTokenException)
-            {
-                return Dafny.Com.Amazonaws.Kms.KeyManagementServiceError
-                    .create_KeyManagementService__InvalidGrantTokenException(
-                        TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S26_InvalidGrantTokenException(
-                            (Amazon.KeyManagementService.Model.InvalidGrantTokenException) error));
-            }
+                case Amazon.KeyManagementService.Model.InvalidGrantTokenException e:
+                    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S26_InvalidGrantTokenException(e);
 
-            if (error is Amazon.KeyManagementService.Model.InvalidImportTokenException)
-            {
-                return Dafny.Com.Amazonaws.Kms.KeyManagementServiceError
-                    .create_KeyManagementService__InvalidImportTokenException(
-                        TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S27_InvalidImportTokenException(
-                            (Amazon.KeyManagementService.Model.InvalidImportTokenException) error));
-            }
+                case Amazon.KeyManagementService.Model.InvalidImportTokenException e:
+                    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S27_InvalidImportTokenException(e);
 
-            if (error is Amazon.KeyManagementService.Model.InvalidKeyUsageException)
-            {
-                return Dafny.Com.Amazonaws.Kms.KeyManagementServiceError
-                    .create_KeyManagementService__InvalidKeyUsageException(
-                        TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S24_InvalidKeyUsageException(
-                            (Amazon.KeyManagementService.Model.InvalidKeyUsageException) error));
-            }
+                case Amazon.KeyManagementService.Model.InvalidKeyUsageException e:
+                    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S24_InvalidKeyUsageException(e);
 
-            if (error is Amazon.KeyManagementService.Model.InvalidMarkerException)
-            {
-                return Dafny.Com.Amazonaws.Kms.KeyManagementServiceError
-                    .create_KeyManagementService__InvalidMarkerException(
-                        TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S22_InvalidMarkerException(
-                            (Amazon.KeyManagementService.Model.InvalidMarkerException) error));
-            }
+                case Amazon.KeyManagementService.Model.InvalidMarkerException e:
+                    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S22_InvalidMarkerException(e);
 
-            if (error is Amazon.KeyManagementService.Model.KeyUnavailableException)
-            {
-                return Dafny.Com.Amazonaws.Kms.KeyManagementServiceError
-                    .create_KeyManagementService__KeyUnavailableException(
-                        TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S23_KeyUnavailableException(
-                            (Amazon.KeyManagementService.Model.KeyUnavailableException) error));
-            }
+                case Amazon.KeyManagementService.Model.KeyUnavailableException e:
+                    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S23_KeyUnavailableException(e);
 
-            if (error is Amazon.KeyManagementService.Model.KMSInternalException)
-            {
-                return Dafny.Com.Amazonaws.Kms.KeyManagementServiceError
-                    .create_KeyManagementService__KMSInternalException(
-                        TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S20_KMSInternalException(
-                            (Amazon.KeyManagementService.Model.KMSInternalException) error));
-            }
+                case Amazon.KeyManagementService.Model.KMSInternalException e:
+                    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S20_KMSInternalException(e);
 
-            if (error is Amazon.KeyManagementService.Model.KMSInvalidSignatureException)
-            {
-                return Dafny.Com.Amazonaws.Kms.KeyManagementServiceError
-                    .create_KeyManagementService__KMSInvalidSignatureException(
-                        TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S28_KMSInvalidSignatureException(
-                            (Amazon.KeyManagementService.Model.KMSInvalidSignatureException) error));
-            }
+                case Amazon.KeyManagementService.Model.KMSInvalidSignatureException e:
+                    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S28_KMSInvalidSignatureException(e);
 
-            if (error is Amazon.KeyManagementService.Model.KMSInvalidStateException)
-            {
-                return Dafny.Com.Amazonaws.Kms.KeyManagementServiceError
-                    .create_KeyManagementService__KMSInvalidStateException(
-                        TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S24_KMSInvalidStateException(
-                            (Amazon.KeyManagementService.Model.KMSInvalidStateException) error));
-            }
+                case Amazon.KeyManagementService.Model.KMSInvalidStateException e:
+                    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S24_KMSInvalidStateException(e);
 
-            if (error is Amazon.KeyManagementService.Model.LimitExceededException)
-            {
-                return Dafny.Com.Amazonaws.Kms.KeyManagementServiceError
-                    .create_KeyManagementService__LimitExceededException(
-                        TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S22_LimitExceededException(
-                            (Amazon.KeyManagementService.Model.LimitExceededException) error));
-            }
+                case Amazon.KeyManagementService.Model.LimitExceededException e:
+                    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S22_LimitExceededException(e);
 
-            if (error is Amazon.KeyManagementService.Model.MalformedPolicyDocumentException)
-            {
-                return Dafny.Com.Amazonaws.Kms.KeyManagementServiceError
-                    .create_KeyManagementService__MalformedPolicyDocumentException(
-                        TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S32_MalformedPolicyDocumentException(
-                            (Amazon.KeyManagementService.Model.MalformedPolicyDocumentException) error));
-            }
+                case Amazon.KeyManagementService.Model.MalformedPolicyDocumentException e:
+                    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S32_MalformedPolicyDocumentException(e);
 
-            if (error is Amazon.KeyManagementService.Model.NotFoundException)
-            {
-                return Dafny.Com.Amazonaws.Kms.KeyManagementServiceError.create_KeyManagementService__NotFoundException(
-                    TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S17_NotFoundException(
-                        (Amazon.KeyManagementService.Model.NotFoundException) error));
-            }
+                case Amazon.KeyManagementService.Model.NotFoundException e:
+                    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S17_NotFoundException(e);
 
-            if (error is Amazon.KeyManagementService.Model.TagException)
-            {
-                return Dafny.Com.Amazonaws.Kms.KeyManagementServiceError.create_KeyManagementService__TagException(
-                    TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S12_TagException(
-                        (Amazon.KeyManagementService.Model.TagException) error));
-            }
+                case Amazon.KeyManagementService.Model.TagException e:
+                    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S12_TagException(e);
 
-            if (error is Amazon.KeyManagementService.Model.UnsupportedOperationException)
-            {
-                return Dafny.Com.Amazonaws.Kms.KeyManagementServiceError
-                    .create_KeyManagementService__UnsupportedOperationException(
-                        TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S29_UnsupportedOperationException(
-                            (Amazon.KeyManagementService.Model.UnsupportedOperationException) error));
-            }
+                case Amazon.KeyManagementService.Model.UnsupportedOperationException e:
+                    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S29_UnsupportedOperationException(e);
 
-            return Dafny.Com.Amazonaws.Kms.KeyManagementServiceError.create_KeyManagementService__Unknown(
-                TypeConversion.ToDafny_N6_smithy__N3_api__S6_String(error.Message));
+                default:
+                    return new Dafny.Com.Amazonaws.Kms.UnknownKeyManagementServiceError
+                    {
+                        message = TypeConversion.ToDafny_N6_smithy__N3_api__S6_String(error.Message ?? "")
+                    };
+            }
         }
     }
 }

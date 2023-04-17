@@ -35,18 +35,14 @@ We start with AWS KMS examples, then show how to use other wrapping keys.
     * [How to decrypt when you don't know the AWS KMS key](./Keyring/AwsKmsDiscoveryKeyringExample.cs)
     * [How to limit decryption to a single region](./Keyring/AwsKmsMrkDiscoveryKeyringExample.cs)
     * [How to decrypt with a preferred region but failover to others](./Keyring/AwsKmsMrkDiscoveryMultiKeyringExample.cs)
-    * [How to reproduce the behavior of an AWS KMS master key provider](./) *TODO*
+    * [How to reproduce the behavior of an AWS KMS master key provider](./Keyring/AwsKmsMultiKeyringExample.cs)
 * Using raw wrapping keys
     * [How to use a raw AES wrapping key](./Keyring/RawAESKeyringExample.cs)
     * [How to use a raw RSA wrapping key](./Keyring/RawRSAKeyringExample.cs)
-    * [How to use a raw RSA wrapping key when the key is PEM or DER encoded](./) *TODO*
-    * [How to encrypt with a raw RSA public key wrapping key without access to the private key](./) *TODO*
 * Combining wrapping keys
     * [How to combine AWS KMS with an offline escrow key](./Keyring/MultiKeyringExample.cs)
 * How to restrict algorithm suites
-    * [with a custom cryptographic materials manager](./) *TODO*
-* How to require encryption context fields
-    * [with a custom cryptographic materials manager](./) *TODO*
+    * [with a custom cryptographic materials manager](./CryptographicMaterialsManager/RestrictAlgorithmSuite/SigningSuiteOnlyCMM.cs)
 
 ### Keyrings
 
@@ -66,7 +62,7 @@ enforcing the use of certain algorithm suites or encryption context settings,
 reusing data keys across messages,
 or changing how you interact with keyrings.
 You can find these examples in
-[`Examples/CryptoMaterialsManager`](./CryptoMaterialsManager).
+[`Examples/CryptographicMaterialsManager`](./CryptographicMaterialsManager).
 
 ### Client Supplier
 

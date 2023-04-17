@@ -22,22 +22,7 @@ dotnet build -t:VerifyDafny test
 The tests currently require native implementations of cryptographic primitives and other methods,
 so they can only be run when embedding this library into one of the compilation target languages supported by Dafny:
 
-- [.NET](https://github.com/awslabs/aws-encryption-sdk-net)
-
-## Generate code
-
-TODO: remove before launch; customers wont' be using this
-
-If you change any of the ESDK model files you will need to re-run our code generators to generate
-the API skeletons and shims. This is done via our [polymorph](https://github.com/awslabs/polymorph)
-package.
-
-First, clone that repository to some local location.
-
-Then, from the root of this repository, run `bin/generate-code.sh`,
-passing the root location of your polymorph repository as a parameter.
-
-Finally, you'll need to manually run a code formatter as described in the [README](./aws-encryption-sdk-net/Source/API/Generated).
+- [.NET](aws-encryption-sdk-net)
 
 ## Generate Duvet Reports
 

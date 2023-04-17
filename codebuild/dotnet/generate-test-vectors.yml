@@ -7,6 +7,7 @@ env:
 phases:
   install:
     runtime-versions:
+      # TODO update to .NET 6.0
       dotnet: 5.0
       nodejs: 14
     commands:

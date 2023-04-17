@@ -10,31 +10,22 @@ The AWS Encryption SDK is available on [NuGet](https://www.nuget.org/) and can r
 
 Using the dotnet CLI:
 ```shell
-dotnet add <your-project-name>.csproj package AWSEncryptionSDK
+dotnet add <your-project-name>.csproj package AWS.EncryptionSDK
 ```
 
 Alternatively, you may directly modify the `.csproj` and add the AWS Encryption SDK to `PackageReference` `ItemGroup`:
 ```xml
-<PackageReference Include="AWSEncryptionSDK" />
+<PackageReference Include="AWS.EncryptionSDK" />
 ```
 
 The AWS Encryption SDK targets both [.NET/.NET Core](https://docs.microsoft.com/en-us/dotnet/core/introduction) 3.1 and newer on all platforms, and [.NET Framework](https://docs.microsoft.com/en-us/dotnet/framework/) 4.5.2 and newer on Windows only.
 
-### Configure system dependencies - macOS only
+### Additional setup for macOS only
 
 If you are using macOS then you must install OpenSSL 1.1,
 and the OpenSSL 1.1 `lib` directory must be on the dynamic linker path at runtime.
-We recommend that you install OpenSSL via Homebrew using `brew install openssl@1.1`,
-and then set the `DYLD_LIBRARY_PATH` environment variable as follows:
-
-```bash
-$ export DYLD_LIBRARY_PATH="/usr/local/opt/openssl@1.1/lib"
-```
-
-If the .NET runtime cannot locate your OpenSSL 1.1 libraries,
-you may encounter an error that says:
-
-> No usable version of libssl was found
+Also, if using an M1-based Mac, you must install OpenSSL and the .NET SDK for x86-64.
+Please refer to [the wiki](https://github.com/aws/aws-encryption-sdk-dafny/wiki/Using-the-AWS-Encryption-SDK-for-.NET-on-macOS) for detailed instructions.
 
 ## Building the AWS Encryption SDK for .NET
 

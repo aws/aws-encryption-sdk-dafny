@@ -24,6 +24,10 @@ phases:
   build:
     commands:
       - cd aws-encryption-sdk-net/Test
+      # For some reason, this isn't always automatically configured on the manually-installed .NET SDK
+      - >-
+        $env:Path = $PathPrefix + $env:Path;
+        dotnet nuget add source --name nuget.org https://api.nuget.org/v3/index.json
       - >-
         $env:Path = $PathPrefix + $env:Path;
         dotnet test /nowarn:CS0105,CS0618

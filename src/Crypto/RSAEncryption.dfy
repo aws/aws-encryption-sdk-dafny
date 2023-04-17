@@ -29,7 +29,6 @@ module {:extern "RSAEncryption"} RSAEncryption {
 
   // This trait represents the parent for RSA public and private keys
   trait {:termination false} Key {
-    ghost var Repr: set<object>
     const strength: StrengthBits
     const pem: seq<uint8>
     predicate Valid()
@@ -65,7 +64,8 @@ module {:extern "RSAEncryption"} RSAEncryption {
   }
 
   method GenerateKeyPair(strength: StrengthBits)
-      returns (publicKey: PublicKey, privateKey: PrivateKey)
+    returns (publicKey: PublicKey, privateKey: PrivateKey)
+    requires strength <= 4096
     ensures privateKey.Valid()
     ensures publicKey.Valid()
   {

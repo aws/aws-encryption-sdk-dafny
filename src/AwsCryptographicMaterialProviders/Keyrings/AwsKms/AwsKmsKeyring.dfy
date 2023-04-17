@@ -304,7 +304,7 @@ module
         //# the encryption materials (../structures.md#encryption-materials) and
         //# MUST fail.
         if maybeGenerateResponse.Failure? {
-          var errMsg := KMS.CastKeyManagementServiceErrorToString(maybeGenerateResponse.error);
+          var errMsg := maybeGenerateResponse.error.GetMessage();
           var exception := new Crypto.AwsCryptographicMaterialProvidersException(errMsg);
           return Failure(exception);
         }
@@ -382,7 +382,7 @@ module
         //# (https://docs.aws.amazon.com/kms/latest/APIReference/
         //# API_Encrypt.html) does not succeed, OnEncrypt MUST fail.
         if maybeEncryptResponse.Failure? {
-          var errMsg := KMS.CastKeyManagementServiceErrorToString(maybeEncryptResponse.error);
+          var errMsg := maybeEncryptResponse.error.GetMessage();
           var exception := new Crypto.AwsCryptographicMaterialProvidersException(errMsg);
           return Failure(exception);
         }
@@ -720,7 +720,7 @@ module
 
       var maybeDecryptResponse := client.Decrypt(decryptRequest);
       if maybeDecryptResponse.Failure? {
-        return Failure(KMS.CastKeyManagementServiceErrorToString(maybeDecryptResponse.error));
+        return Failure(maybeDecryptResponse.error.GetMessage());
       }
 
       var decryptResponse := maybeDecryptResponse.value;

@@ -30,6 +30,10 @@ phases:
   build:
     commands:
       - cd aws-encryption-sdk-net/Benchmarks
+      # For some reason, this isn't always automatically configured on the manually-installed .NET SDK
+      - >-
+        $env:Path = $PathPrefix + $env:Path;
+        dotnet nuget add source --name nuget.org https://api.nuget.org/v3/index.json
       - >-
         $env:Path = $PathPrefix + $env:Path;
         dotnet run -c Release -f netcoreapp3.1 /nowarn:CS0105,CS0618 -- -f '*' --join 6>&1 5>&1 4>&1 > $null

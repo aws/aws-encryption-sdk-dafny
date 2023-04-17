@@ -8,6 +8,11 @@ module StandardLibrary {
   import opened Wrappers
   import opened U = UInt
 
+  lemma SeqTakeAppend<A>(s: seq<A>, i: int)
+    requires 0 <= i < |s|
+    ensures s[..i] + [s[i]] == s[..i + 1]
+  {}
+
   function method {:tailrecursion} Join<T>(ss: seq<seq<T>>, joiner: seq<T>): (s: seq<T>)
     requires 0 < |ss|
   {

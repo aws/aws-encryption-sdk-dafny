@@ -1,9 +1,12 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+using System.Threading.Tasks;
 using Amazon;
 using Amazon.KeyManagementService;
 using Amazon.Runtime;
+using Amazon.Runtime.Internal;
+using Amazon.Util;
 // ReSharper disable once RedundantUsingDirective
 using AWS.EncryptionSDK.Core;
 
@@ -21,33 +24,82 @@ namespace DefaultClientSupplier
             Dafny.Aws.EncryptionSdk.Core._IGetClientInput input)
         {
             GetClientInput convertedInput =
-                TypeConversion.FromDafny_N3_aws__N13_encryptionSdk__N4_core__S14_GetClientInput(input);
+                AWS.EncryptionSDK.Core.TypeConversion.FromDafny_N3_aws__N13_encryptionSdk__N4_core__S14_GetClientInput(input);
             try
             {
-                IAmazonKeyManagementService client;
-                if (convertedInput.Region != "")
+                var regionEndpoint = string.IsNullOrEmpty(convertedInput.Region)
+                    ? null
+                    : RegionEndpoint.GetBySystemName(convertedInput.Region);
+                var clientConfig = new AmazonKeyManagementServiceConfig
                 {
-                    var regionEndpoint = RegionEndpoint.GetBySystemName(convertedInput.Region);
-                    client = new AmazonKeyManagementServiceClient(regionEndpoint);
-                }
-                else
-                {
-                    client = new AmazonKeyManagementServiceClient();
-                }
+                    RegionEndpoint = regionEndpoint
+                };
+                var client = new DefaultKmsClient(clientConfig);
 
                 // ReSharper disable once RedundantNameQualifier
                 return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Kms.IKeyManagementServiceClient,
                     Dafny.Aws.EncryptionSdk.Core.IAwsCryptographicMaterialProvidersException>.create_Success(
-                    TypeConversion.ToDafny_N3_aws__N13_encryptionSdk__N4_core__S15_GetClientOutput__M6_client(client)
+                    AWS.EncryptionSDK.Core.TypeConversion.ToDafny_N3_aws__N13_encryptionSdk__N4_core__S15_GetClientOutput__M6_client(client)
                 );
             }
             catch (AmazonServiceException e)
             {
                 return Result<Dafny.Com.Amazonaws.Kms.IKeyManagementServiceClient,
                     Dafny.Aws.EncryptionSdk.Core.IAwsCryptographicMaterialProvidersException>.create_Failure(
-                    TypeConversion.ToDafny_CommonError(e)
+                    AWS.EncryptionSDK.Core.TypeConversion.ToDafny_CommonError(e)
                 );
             }
+        }
+    }
+
+    /// <summary>
+    /// A KMS client that adds the Encryption SDK version to the user agent.
+    /// </summary>
+    internal class DefaultKmsClient : AmazonKeyManagementServiceClient
+    {
+        public DefaultKmsClient(AmazonKeyManagementServiceConfig config) : base(config)
+        {
+        }
+
+        protected override void CustomizeRuntimePipeline(RuntimePipeline pipeline)
+        {
+            base.CustomizeRuntimePipeline(pipeline);
+            pipeline.AddHandlerAfter<Marshaller>(new UserAgentHandler());
+        }
+    }
+
+    /// <summary>
+    /// Adds the Encryption SDK version to the user agent.
+    /// </summary>
+    internal class UserAgentHandler : PipelineHandler
+    {
+        private static readonly string UserAgentSuffix;
+
+        static UserAgentHandler()
+        {
+            var version = typeof(UserAgentHandler).Assembly.GetName().Version;
+            var semver = $"{version.Major}.{version.Minor}.{version.Build}";
+            UserAgentSuffix = $" AwsEncryptionSdkNet/{semver}";
+        }
+
+        /// <inheritdoc />
+        public override void InvokeSync(IExecutionContext executionContext)
+        {
+            AddUserAgent(executionContext);
+            base.InvokeSync(executionContext);
+        }
+
+        /// <inheritdoc />
+        public override Task<T> InvokeAsync<T>(IExecutionContext executionContext)
+        {
+            AddUserAgent(executionContext);
+            return base.InvokeAsync<T>(executionContext);
+        }
+
+        private static void AddUserAgent(IExecutionContext executionContext)
+        {
+            var request = executionContext.RequestContext.Request;
+            request.Headers[AWSSDKUtils.UserAgentHeader] += UserAgentSuffix;
         }
     }
 }
