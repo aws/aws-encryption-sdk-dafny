@@ -144,7 +144,8 @@ Resources:
               "Effect": "Allow",
               "Action": [
                 "kms:Decrypt",
-                "kms:GenerateDataKeyWithoutPlaintext"
+                "kms:GenerateDataKeyWithoutPlaintext",
+                "kms:ReEncrypt*"
               ],
               "Resource": "arn:aws:kms:*:${AWS::AccountId}:key/${HierarchicalGitHubKMSKeyID}"
             }
