@@ -32,7 +32,7 @@ jobs:
       with:
         dafny-version: "3.5.0"
     - name: Configure AWS credentials for pulling from CA
-      uses: aws-actions/configure-aws-credentials@v1
+      uses: aws-actions/configure-aws-credentials@v2
       with:
         role-to-assume: arn:aws:iam::587316601012:role/GitHub-DotNet-CA-Writer
         role-session-name: push_to_code_artifact
@@ -45,8 +45,8 @@ jobs:
       run: |
         cd $GITHUB_WORKSPACE/aws-encryption-sdk-net
         export BASE_VERSION=`grep '<Version>' Source/AWSEncryptionSDK.csproj | sed 's/.*<Version>\(.*\)<\/Version>/\1/'`
-        export UNIQUE_VERSION=$BASE_VERSION-`git rev-parse --short HEAD`
-        echo "::set-output name=UNIQUE_VERSION::$UNIQUE_VERSION"
+        export UNIQUE_VERSION=$BASE_VERSION-`git rev-parse --short HEAD`-`date +%Y-%m-%d`
+        echo "UNIQUE_VERSION=$UNIQUE_VERSION" >> $GITHUB_OUTPUT
         echo "UNIQUE_VERSION=$UNIQUE_VERSION" >> $GITHUB_ENV
     - name: Build and pack
       run: |
@@ -57,7 +57,7 @@ jobs:
       run: |
         cd $GITHUB_WORKSPACE/aws-encryption-sdk-net
         aws codeartifact login --tool dotnet --domain github --domain-owner 587316601012 --repository dotnet-esdk --duration-seconds 900
-        dotnet nuget push build/AWS.EncryptionSDK.$UNIQUE_VERSION.nupkg --source github/dotnet-esdk
+        dotnet nuget push build/AWS.EncryptionSDK.$UNIQUE_VERSION.nupkg --source github/dotnet-esdk --skip-duplicate
 
   test_installation:
     name: test_installation_${{ matrix.os }}
@@ -70,8 +70,12 @@ jobs:
       id-token: write
       contents: read
     steps:
+    - name: Setup .NET Core SDK 3.1.x
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '3.1.x'
     - name: Configure AWS credentials for pulling from CA
-      uses: aws-actions/configure-aws-credentials@v1
+      uses: aws-actions/configure-aws-credentials@v2
       with:
         role-to-assume: arn:aws:iam::587316601012:role/GitHub-DotNet-CA-Reader
         aws-region: us-west-2
@@ -108,7 +112,7 @@ jobs:
       contents: read
     steps:
     - name: Configure AWS credentials for pulling from CA
-      uses: aws-actions/configure-aws-credentials@v1
+      uses: aws-actions/configure-aws-credentials@v2
       with:
         role-to-assume: arn:aws:iam::587316601012:role/GitHub-DotNet-CA-Reader
         aws-region: us-west-2
@@ -142,7 +146,7 @@ jobs:
       contents: read
     steps:
     - name: Configure AWS credentials for pulling from CA
-      uses: aws-actions/configure-aws-credentials@v1
+      uses: aws-actions/configure-aws-credentials@v2
       with:
         role-to-assume: arn:aws:iam::587316601012:role/GitHub-DotNet-CA-Purger
         aws-region: us-west-2
@@ -151,4 +155,4 @@ jobs:
         export UNIQUE_VERSION=${{ needs.push_to_code_artifact.outputs.UNIQUE_VERSION }}
         echo "UNIQUE_VERSION=$UNIQUE_VERSION" >> $GITHUB_ENV
     - name: CodeArtifact Purger
-      run: aws codeartifact delete-package-versions --domain github --repository dotnet-esdk --format nuget --package awsencryptionsdk --versions $UNIQUE_VERSION
+      run: aws codeartifact delete-package-versions --domain github --repository dotnet-esdk --format nuget --package aws.encryptionsdk --versions "${{ needs.push_to_code_artifact.outputs.UNIQUE_VERSION }}"
