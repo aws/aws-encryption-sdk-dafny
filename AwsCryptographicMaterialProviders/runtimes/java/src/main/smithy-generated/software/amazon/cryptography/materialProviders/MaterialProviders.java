@@ -55,6 +55,10 @@ public class MaterialProviders {
     this._impl = result.dtor_value();
   }
 
+  MaterialProviders(IAwsCryptographicMaterialProvidersClient impl) {
+    this._impl = impl;
+  }
+
   public static Builder builder() {
     return new BuilderImpl();
   }

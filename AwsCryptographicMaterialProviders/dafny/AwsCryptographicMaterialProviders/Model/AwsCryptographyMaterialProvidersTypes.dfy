@@ -766,7 +766,6 @@ include "../../../../StandardLibrary/src/Index.dfy"
  datatype CreateAwsKmsHierarchicalKeyringInput = | CreateAwsKmsHierarchicalKeyringInput (
  nameonly branchKeyId: Option<string> ,
  nameonly branchKeyIdSupplier: Option<IBranchKeyIdSupplier> ,
- nameonly kmsKeyId: KmsKeyId ,
  nameonly keyStore: AwsCryptographyKeyStoreTypes.IKeyStoreClient ,
  nameonly ttlSeconds: PositiveLong ,
  nameonly maxCacheSize: Option<PositiveInteger> ,

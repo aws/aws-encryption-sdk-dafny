@@ -32,6 +32,7 @@ module CreateKeys {
   const KEY_CREATE_TIME := "create-time";
   const HIERARCHY_VERSION := "hierarchy-version";
   const TABLE_FIELD := "tablename";
+  const KMS_FIELD := "kms-arn";
 
   // A GenerateDataKeyWithoutPlaintext of request size 32 returns a ciphertext size of 184 bytes.
   const KMS_GEN_KEY_NO_PLAINTEXT_LENGTH_32 := 184;
@@ -44,9 +45,10 @@ module CreateKeys {
     && KEY_CREATE_TIME in m
     && HIERARCHY_VERSION in m
     && TABLE_FIELD in m
+    && KMS_FIELD in m
   }
 
-  function method activeBranchKeyEncryptionContext(id: string, version: string, timestamp: string, tableName: string): (output: map<string, string>)
+  function method activeBranchKeyEncryptionContext(id: string, version: string, timestamp: string, tableName: string, kmsKeyArn: string): (output: map<string, string>)
     ensures branchKeyContextHasRequiredFields?(output)
   {
     map[
@@ -55,11 +57,12 @@ module CreateKeys {
       KEY_STATUS := "ACTIVE",
       KEY_CREATE_TIME := timestamp,
       TABLE_FIELD := tableName,
+      KMS_FIELD := kmsKeyArn,
       HIERARCHY_VERSION := "1"
     ]
   }
 
-  function method beaconKeyEncryptionContext(id: string, timestamp: string, tableName: string): (output: map<string, string>)
+  function method beaconKeyEncryptionContext(id: string, timestamp: string, tableName: string, kmsKeyArn: string): (output: map<string, string>)
     ensures branchKeyContextHasRequiredFields?(output)
   {
     map[
@@ -68,14 +71,16 @@ module CreateKeys {
       KEY_STATUS := "SEARCH",
       KEY_CREATE_TIME := timestamp,
       TABLE_FIELD := tableName,
+      KMS_FIELD := kmsKeyArn,
       HIERARCHY_VERSION := "1"
     ]
   }
 
-  method CreateBranchAndBeaconKeys(input: Types.CreateKeyInput, ddbTableName: DDB.TableName, kmsClient: KMS.IKMSClient, ddbClient: DDB.IDynamoDBClient)
+  method CreateBranchAndBeaconKeys(input: Types.CreateKeyInput, ddbTableName: DDB.TableName, kmsKeyArn: Types.KmsKeyArn, kmsClient: KMS.IKMSClient, ddbClient: DDB.IDynamoDBClient)
     returns (res: Result<Types.CreateKeyOutput, Types.Error>)
     requires kmsClient.ValidState() && ddbClient.ValidState()
     requires DDB.IsValid_TableName(ddbTableName)
+    requires KMS.IsValid_KeyIdType(kmsKeyArn)
     modifies ddbClient.Modifies, kmsClient.Modifies
     ensures ddbClient.ValidState() && kmsClient.ValidState()
   {
@@ -85,16 +90,17 @@ module CreateKeys {
     var timestamp :- Time.GetCurrentTimeStamp()
       .MapFailure(e => E(e));
 
-    :- Need(
-      && ValidateKmsKeyId(input.awsKmsKeyArn).Success?,
-      E("Must supply AWS KMS Key ARN or AWS invalid KMS Key ARN")
-    );
-
+    //= aws-encryption-sdk-specification/framework/branch-key-store.md#createkey
+    //# - MAY provide a list of Grant Tokens
     var grantTokens := GetValidGrantTokens(input.grantTokens);
     :- Need(
       && grantTokens.Success?,
       E("CreateKey received invalid grant tokens")
     );
+    
+    //= aws-encryption-sdk-specification/framework/branch-key-store.md#createkey
+    //# This operation MUST create both a [branch key](#branch-key) and a [beacon key](#beacon-key) according to
+    //# the [Branch Key and Beacon Key Creation](#branch-key-and-beacon-key-creation) section.
     
     // Branch Key Creation
     var maybeBranchKeyVersion := UUID.GenerateUUID();
@@ -107,21 +113,21 @@ module CreateKeys {
       Types.KeyStoreException(message := "Failed to generate UUID for Key ID or Key Version.")
     );
     
-    var activeBranchKeyEncryptionContext: branchKeyItem := activeBranchKeyEncryptionContext(branchKeyId, branchKeyVersion, timestamp, ddbTableName);
+    var activeBranchKeyEncryptionContext: branchKeyItem := activeBranchKeyEncryptionContext(branchKeyId, branchKeyVersion, timestamp, ddbTableName, kmsKeyArn);
 
     var branchKeyWithoutPlaintext :- GenerateKey(
       activeBranchKeyEncryptionContext,
-      input.awsKmsKeyArn,
+      kmsKeyArn,
       grantTokens.value,
       kmsClient
     );
 
     // Beacon Key Creation
-    var beaconKeyEncryptionContext: branchKeyItem := beaconKeyEncryptionContext(branchKeyId, timestamp, ddbTableName);
+    var beaconKeyEncryptionContext: branchKeyItem := beaconKeyEncryptionContext(branchKeyId, timestamp, ddbTableName, kmsKeyArn);
 
     var beaconKeyWithoutPlaintext :- GenerateKey(
       beaconKeyEncryptionContext,
-      input.awsKmsKeyArn,
+      kmsKeyArn,
       grantTokens.value,
       kmsClient
     );
@@ -130,7 +136,7 @@ module CreateKeys {
       activeBranchKeyEncryptionContext,
       branchKeyWithoutPlaintext.CiphertextBlob.value,
       beaconKeyEncryptionContext,
-      beaconKeyWithoutPlaintext.CiphertextBlob.value, 
+      beaconKeyWithoutPlaintext.CiphertextBlob.value,
       ddbTableName,
       ddbClient
     );
@@ -143,7 +149,7 @@ module CreateKeys {
 
   method GenerateKey(
     encryptionContext: map<string, string>,
-    awsKmsKey: AwsKmsIdentifierString,
+    awsKmsKey: KMS.KeyIdType,
     grantTokens: KMS.GrantTokenList,
     kmsClient: KMS.IKMSClient
   ) 
@@ -255,6 +261,7 @@ module CreateKeys {
       TYPE_FIELD := DDB.AttributeValue.S(m[TYPE_FIELD]),
       KEY_STATUS := DDB.AttributeValue.S(m[KEY_STATUS]),
       KEY_FIELD := DDB.AttributeValue.B(k),
+      KMS_FIELD := DDB.AttributeValue.S(m[KMS_FIELD]),
       KEY_CREATE_TIME := DDB.AttributeValue.S(m[KEY_CREATE_TIME]),
       HIERARCHY_VERSION := DDB.AttributeValue.N(m[HIERARCHY_VERSION])
     ]

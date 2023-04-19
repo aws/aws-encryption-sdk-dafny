@@ -62,6 +62,7 @@ import Dafny.Aws.Cryptography.MaterialProviders.Types.GetClientInput;
 import Dafny.Aws.Cryptography.MaterialProviders.Types.GetEncryptionMaterialsInput;
 import Dafny.Aws.Cryptography.MaterialProviders.Types.GetEncryptionMaterialsOutput;
 import Dafny.Aws.Cryptography.MaterialProviders.Types.HKDF;
+import Dafny.Aws.Cryptography.MaterialProviders.Types.IAwsCryptographicMaterialProvidersClient;
 import Dafny.Aws.Cryptography.MaterialProviders.Types.IDENTITY;
 import Dafny.Aws.Cryptography.MaterialProviders.Types.InitializeDecryptionMaterialsInput;
 import Dafny.Aws.Cryptography.MaterialProviders.Types.InitializeEncryptionMaterialsInput;
@@ -253,8 +254,6 @@ public class ToDafny {
     branchKeyIdSupplier = Objects.nonNull(nativeValue.branchKeyIdSupplier()) ?
         Option.create_Some(ToDafny.BranchKeyIdSupplier(nativeValue.branchKeyIdSupplier()))
         : Option.create_None();
-    DafnySequence<? extends Character> kmsKeyId;
-    kmsKeyId = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.kmsKeyId());
     IKeyStoreClient keyStore;
     keyStore = software.amazon.cryptography.keyStore.ToDafny.KeyStore(nativeValue.keyStore());
     Long ttlSeconds;
@@ -267,7 +266,7 @@ public class ToDafny {
     grantTokens = (Objects.nonNull(nativeValue.grantTokens()) && nativeValue.grantTokens().size() > 0) ?
         Option.create_Some(ToDafny.GrantTokenList(nativeValue.grantTokens()))
         : Option.create_None();
-    return new CreateAwsKmsHierarchicalKeyringInput(branchKeyId, branchKeyIdSupplier, kmsKeyId, keyStore, ttlSeconds, maxCacheSize, grantTokens);
+    return new CreateAwsKmsHierarchicalKeyringInput(branchKeyId, branchKeyIdSupplier, keyStore, ttlSeconds, maxCacheSize, grantTokens);
   }
 
   public static DeleteCacheEntryInput DeleteCacheEntryInput(
@@ -1222,5 +1221,10 @@ public class ToDafny {
   public static Dafny.Aws.Cryptography.MaterialProviders.Types.ICryptographicMaterialsCache CryptographicMaterialsCache(
       ICryptographicMaterialsCache nativeValue) {
     return CryptographicMaterialsCache.wrap(nativeValue).impl();
+  }
+
+  public static IAwsCryptographicMaterialProvidersClient AwsCryptographicMaterialProviders(
+      MaterialProviders nativeValue) {
+    return nativeValue.impl();
   }
 }

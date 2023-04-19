@@ -12,7 +12,7 @@ public class CreateAwsKmsMrkMultiKeyringInput {
 
   private final List<String> kmsKeyIds;
 
-  private final ClientSupplier clientSupplier;
+  private final IClientSupplier clientSupplier;
 
   private final List<String> grantTokens;
 
@@ -31,7 +31,7 @@ public class CreateAwsKmsMrkMultiKeyringInput {
     return this.kmsKeyIds;
   }
 
-  public ClientSupplier clientSupplier() {
+  public IClientSupplier clientSupplier() {
     return this.clientSupplier;
   }
 
@@ -58,7 +58,7 @@ public class CreateAwsKmsMrkMultiKeyringInput {
 
     Builder clientSupplier(IClientSupplier clientSupplier);
 
-    ClientSupplier clientSupplier();
+    IClientSupplier clientSupplier();
 
     Builder grantTokens(List<String> grantTokens);
 
@@ -72,7 +72,7 @@ public class CreateAwsKmsMrkMultiKeyringInput {
 
     protected List<String> kmsKeyIds;
 
-    protected ClientSupplier clientSupplier;
+    protected IClientSupplier clientSupplier;
 
     protected List<String> grantTokens;
 
@@ -109,7 +109,7 @@ public class CreateAwsKmsMrkMultiKeyringInput {
       return this;
     }
 
-    public ClientSupplier clientSupplier() {
+    public IClientSupplier clientSupplier() {
       return this.clientSupplier;
     }
 

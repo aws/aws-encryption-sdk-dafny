@@ -11,14 +11,11 @@ public class GetBranchKeyVersionInput {
 
   private final String branchKeyVersion;
 
-  private final String awsKmsKeyArn;
-
   private final List<String> grantTokens;
 
   protected GetBranchKeyVersionInput(BuilderImpl builder) {
     this.branchKeyIdentifier = builder.branchKeyIdentifier();
     this.branchKeyVersion = builder.branchKeyVersion();
-    this.awsKmsKeyArn = builder.awsKmsKeyArn();
     this.grantTokens = builder.grantTokens();
   }
 
@@ -28,10 +25,6 @@ public class GetBranchKeyVersionInput {
 
   public String branchKeyVersion() {
     return this.branchKeyVersion;
-  }
-
-  public String awsKmsKeyArn() {
-    return this.awsKmsKeyArn;
   }
 
   public List<String> grantTokens() {
@@ -55,10 +48,6 @@ public class GetBranchKeyVersionInput {
 
     String branchKeyVersion();
 
-    Builder awsKmsKeyArn(String awsKmsKeyArn);
-
-    String awsKmsKeyArn();
-
     Builder grantTokens(List<String> grantTokens);
 
     List<String> grantTokens();
@@ -71,8 +60,6 @@ public class GetBranchKeyVersionInput {
 
     protected String branchKeyVersion;
 
-    protected String awsKmsKeyArn;
-
     protected List<String> grantTokens;
 
     protected BuilderImpl() {
@@ -81,7 +68,6 @@ public class GetBranchKeyVersionInput {
     protected BuilderImpl(GetBranchKeyVersionInput model) {
       this.branchKeyIdentifier = model.branchKeyIdentifier();
       this.branchKeyVersion = model.branchKeyVersion();
-      this.awsKmsKeyArn = model.awsKmsKeyArn();
       this.grantTokens = model.grantTokens();
     }
 
@@ -101,15 +87,6 @@ public class GetBranchKeyVersionInput {
 
     public String branchKeyVersion() {
       return this.branchKeyVersion;
-    }
-
-    public Builder awsKmsKeyArn(String awsKmsKeyArn) {
-      this.awsKmsKeyArn = awsKmsKeyArn;
-      return this;
-    }
-
-    public String awsKmsKeyArn() {
-      return this.awsKmsKeyArn;
     }
 
     public Builder grantTokens(List<String> grantTokens) {

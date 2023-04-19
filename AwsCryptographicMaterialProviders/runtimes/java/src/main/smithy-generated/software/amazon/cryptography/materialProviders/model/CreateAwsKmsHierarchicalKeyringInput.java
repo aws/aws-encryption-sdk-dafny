@@ -12,9 +12,7 @@ import software.amazon.cryptography.materialProviders.IBranchKeyIdSupplier;
 public class CreateAwsKmsHierarchicalKeyringInput {
   private final String branchKeyId;
 
-  private final BranchKeyIdSupplier branchKeyIdSupplier;
-
-  private final String kmsKeyId;
+  private final IBranchKeyIdSupplier branchKeyIdSupplier;
 
   private final KeyStore keyStore;
 
@@ -27,7 +25,6 @@ public class CreateAwsKmsHierarchicalKeyringInput {
   protected CreateAwsKmsHierarchicalKeyringInput(BuilderImpl builder) {
     this.branchKeyId = builder.branchKeyId();
     this.branchKeyIdSupplier = builder.branchKeyIdSupplier();
-    this.kmsKeyId = builder.kmsKeyId();
     this.keyStore = builder.keyStore();
     this.ttlSeconds = builder.ttlSeconds();
     this.maxCacheSize = builder.maxCacheSize();
@@ -38,12 +35,8 @@ public class CreateAwsKmsHierarchicalKeyringInput {
     return this.branchKeyId;
   }
 
-  public BranchKeyIdSupplier branchKeyIdSupplier() {
+  public IBranchKeyIdSupplier branchKeyIdSupplier() {
     return this.branchKeyIdSupplier;
-  }
-
-  public String kmsKeyId() {
-    return this.kmsKeyId;
   }
 
   public KeyStore keyStore() {
@@ -77,11 +70,7 @@ public class CreateAwsKmsHierarchicalKeyringInput {
 
     Builder branchKeyIdSupplier(IBranchKeyIdSupplier branchKeyIdSupplier);
 
-    BranchKeyIdSupplier branchKeyIdSupplier();
-
-    Builder kmsKeyId(String kmsKeyId);
-
-    String kmsKeyId();
+    IBranchKeyIdSupplier branchKeyIdSupplier();
 
     Builder keyStore(KeyStore keyStore);
 
@@ -105,9 +94,7 @@ public class CreateAwsKmsHierarchicalKeyringInput {
   static class BuilderImpl implements Builder {
     protected String branchKeyId;
 
-    protected BranchKeyIdSupplier branchKeyIdSupplier;
-
-    protected String kmsKeyId;
+    protected IBranchKeyIdSupplier branchKeyIdSupplier;
 
     protected KeyStore keyStore;
 
@@ -123,7 +110,6 @@ public class CreateAwsKmsHierarchicalKeyringInput {
     protected BuilderImpl(CreateAwsKmsHierarchicalKeyringInput model) {
       this.branchKeyId = model.branchKeyId();
       this.branchKeyIdSupplier = model.branchKeyIdSupplier();
-      this.kmsKeyId = model.kmsKeyId();
       this.keyStore = model.keyStore();
       this.ttlSeconds = model.ttlSeconds();
       this.maxCacheSize = model.maxCacheSize();
@@ -144,17 +130,8 @@ public class CreateAwsKmsHierarchicalKeyringInput {
       return this;
     }
 
-    public BranchKeyIdSupplier branchKeyIdSupplier() {
+    public IBranchKeyIdSupplier branchKeyIdSupplier() {
       return this.branchKeyIdSupplier;
-    }
-
-    public Builder kmsKeyId(String kmsKeyId) {
-      this.kmsKeyId = kmsKeyId;
-      return this;
-    }
-
-    public String kmsKeyId() {
-      return this.kmsKeyId;
     }
 
     public Builder keyStore(KeyStore keyStore) {
@@ -194,9 +171,6 @@ public class CreateAwsKmsHierarchicalKeyringInput {
     }
 
     public CreateAwsKmsHierarchicalKeyringInput build() {
-      if (Objects.isNull(this.kmsKeyId()))  {
-        throw new IllegalArgumentException("Missing value for required field `kmsKeyId`");
-      }
       if (Objects.isNull(this.keyStore()))  {
         throw new IllegalArgumentException("Missing value for required field `keyStore`");
       }

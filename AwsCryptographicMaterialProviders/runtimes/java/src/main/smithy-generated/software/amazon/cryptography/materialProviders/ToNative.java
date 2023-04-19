@@ -17,6 +17,7 @@ import Dafny.Aws.Cryptography.MaterialProviders.Types.Error_InvalidDecryptionMat
 import Dafny.Aws.Cryptography.MaterialProviders.Types.Error_InvalidEncryptionMaterials;
 import Dafny.Aws.Cryptography.MaterialProviders.Types.Error_InvalidEncryptionMaterialsTransition;
 import Dafny.Aws.Cryptography.MaterialProviders.Types.Error_Opaque;
+import Dafny.Aws.Cryptography.MaterialProviders.Types.IAwsCryptographicMaterialProvidersClient;
 import dafny.DafnyMap;
 import dafny.DafnySequence;
 import java.lang.Byte;
@@ -319,7 +320,6 @@ public class ToNative {
     if (dafnyValue.dtor_branchKeyIdSupplier().is_Some()) {
       nativeBuilder.branchKeyIdSupplier(ToNative.BranchKeyIdSupplier(dafnyValue.dtor_branchKeyIdSupplier().dtor_value()));
     }
-    nativeBuilder.kmsKeyId(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_kmsKeyId()));
     nativeBuilder.keyStore(software.amazon.cryptography.keyStore.ToNative.KeyStore(dafnyValue.dtor_keyStore()));
     nativeBuilder.ttlSeconds((dafnyValue.dtor_ttlSeconds()));
     if (dafnyValue.dtor_maxCacheSize().is_Some()) {
@@ -1128,5 +1128,10 @@ public class ToNative {
       return ((CryptographicMaterialsCache.NativeWrapper) dafnyValue)._impl;
     }
     return CryptographicMaterialsCache.wrap(dafnyValue);
+  }
+
+  public static MaterialProviders AwsCryptographicMaterialProviders(
+      IAwsCryptographicMaterialProvidersClient dafnyValue) {
+    return new MaterialProviders(dafnyValue);
   }
 }

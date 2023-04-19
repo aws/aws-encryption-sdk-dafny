@@ -118,8 +118,6 @@ module AwsKmsHierarchicalKeyring {
   {
     const branchKeyId: Option<string>
     const branchKeyIdSupplier: Option<Types.IBranchKeyIdSupplier>
-    const awsKmsKey: AwsKmsIdentifierString
-    const awsKmsArn: AwsKmsIdentifier
     const keyStore: KeyStore.IKeyStoreClient
     const ttlSeconds: Types.PositiveLong
     const maxCacheSize: Types.PositiveInteger
@@ -148,11 +146,7 @@ module AwsKmsHierarchicalKeyring {
     constructor (
       //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-hierarchical-keyring.md#initialization
       //= type=implication
-      //# - MUST provide an AWS KMS key identifier
-      awsKmsKey: string,
-      //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-hierarchical-keyring.md#initialization
-      //= type=implication
-      //= - MUST provide a [KeyStore](../branch-key-store.md)
+      //# - MUST provide a [KeyStore](../branch-key-store.md)
       keyStore: KeyStore.IKeyStoreClient,
       //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-hierarchical-keyring.md#initialization
       //= type=implication
@@ -160,7 +154,7 @@ module AwsKmsHierarchicalKeyring {
       grantTokens: KMS.GrantTokenList,
       //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-hierarchical-keyring.md#initialization
       //= type=implication
-      //# - MUST provide a Branch Key Identifier
+      //# - MUST provide either a Branch Key Identifier or a [Branch Key Supplier](#branch-key-supplier)
       branchKeyId: Option<string>,
       branchKeyIdSupplier: Option<Types.IBranchKeyIdSupplier>,
       //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-hierarchical-keyring.md#initialization
@@ -173,14 +167,6 @@ module AwsKmsHierarchicalKeyring {
       maxCacheSize: Types.PositiveInteger,
       cryptoPrimitives : Primitives.AtomicPrimitivesClient
     )
-      //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-hierarchical-keyring.md#initialization
-      //= type=implication
-      //# The AWS KMS
-      //# key identifier MUST be [a valid identifier](aws-kms-key-arn.md#a-
-      //# valid-aws-kms-identifier).
-      requires ParseAwsKmsIdentifier(awsKmsKey).Success?
-      requires UTF8.IsASCIIString(awsKmsKey)
-      requires 0 < |awsKmsKey| <= MAX_AWS_KMS_IDENTIFIER_LENGTH
       requires maxCacheSize >= 1
       requires ttlSeconds >= 0
       requires keyStore.ValidState() && cryptoPrimitives.ValidState()
@@ -188,7 +174,6 @@ module AwsKmsHierarchicalKeyring {
       requires (branchKeyIdSupplier.Some? || branchKeyId.Some?)
       requires (branchKeyIdSupplier.None? || branchKeyId.None?)
       ensures
-        && this.awsKmsKey    == awsKmsKey
         && this.grantTokens  == grantTokens
         && this.keyStore     == keyStore
         && this.branchKeyIdSupplier  == branchKeyIdSupplier
@@ -201,11 +186,8 @@ module AwsKmsHierarchicalKeyring {
         && var maybeSupplierModifies := if branchKeyIdSupplier.Some? then branchKeyIdSupplier.value.Modifies else {};
         && fresh(Modifies - keyStore.Modifies - cryptoPrimitives.Modifies - maybeSupplierModifies)
     {
-      var parsedAwsKmsId    := ParseAwsKmsIdentifier(awsKmsKey);
       var cmc := new LocalCMC(maxCacheSize as nat, 1);
 
-      this.awsKmsKey           := awsKmsKey;
-      this.awsKmsArn           := parsedAwsKmsId.value;
       this.keyStore            := keyStore;
       this.grantTokens         := grantTokens;
       this.branchKeyId         := branchKeyId;
@@ -257,10 +239,6 @@ module AwsKmsHierarchicalKeyring {
           input.materials,
           res.value.materials
         )
-
-      ensures !KMS.IsValid_KeyIdType(awsKmsKey)
-      ==>
-        res.Failure?
     {
       var materials := input.materials;
       var suite := materials.algorithmSuite;
@@ -272,8 +250,9 @@ module AwsKmsHierarchicalKeyring {
       var cacheId :- GetActiveCacheId(branchKeyIdForEncrypt, branchKeyIdUtf8, cryptoPrimitives);
       
       //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-hierarchical-keyring.md#onencrypt
-      //# The hierarchical keyring MUST attempt to obtain the hierarchical materials by querying 
-      //# the backing branch keystore
+      //# the hierarchical keyring MUST attempt to obtain the branch key materials
+      //# by querying the backing branch keystore specified in 
+      //# the [retrieve OnEncrypt branch key materials](#query-branch-keystore-onencrypt) section.
       var hierarchicalMaterials :- GetActiveHierarchicalMaterials(
         branchKeyIdForEncrypt,
         cacheId,
@@ -382,7 +361,6 @@ module AwsKmsHierarchicalKeyring {
         keyStore,
         cryptoPrimitives,
         branchKeyIdForDecrypt,
-        awsKmsKey,
         grantTokens,
         ttlSeconds,
         cache
@@ -474,7 +452,6 @@ module AwsKmsHierarchicalKeyring {
         var maybeRawBranchKeyMaterials := keyStore.GetActiveBranchKey(
           KeyStore.GetActiveBranchKeyInput(
             branchKeyIdentifier := branchKeyId,
-            awsKmsKeyArn := Some(awsKmsKey),
             grantTokens := Some(grantTokens)
           )
         );
@@ -565,7 +542,7 @@ module AwsKmsHierarchicalKeyring {
     // or 2). store it as raw bytes in the materials so that I can encode it once per call.
   {
       //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-hierarchical-keyring.md#branch-key-wrapping-and-unwrapping-aad
-      //# To construct the AAD, the keyring MUST concatante the following values
+      //# To construct the AAD, the keyring MUST concatenate the following values
       // (blank line for duvet)
       //# 1. "aws-kms-hierarchy" as UTF8 Bytes
       //# 1. Value of `branch-key-id` as UTF8 Bytes
@@ -639,7 +616,6 @@ module AwsKmsHierarchicalKeyring {
     const keyStore: KeyStore.IKeyStoreClient
     const cryptoPrimitives: Primitives.AtomicPrimitivesClient
     const branchKeyId: string
-    const awsKmsKey: AwsKmsIdentifierString
     const grantTokens: KMS.GrantTokenList
     const ttlSeconds: Types.PositiveLong
     const cache: L.LocalCMC
@@ -649,21 +625,16 @@ module AwsKmsHierarchicalKeyring {
       keyStore: KeyStore.IKeyStoreClient,
       cryptoPrimitives: Primitives.AtomicPrimitivesClient,
       branchKeyId: string,
-      awsKmsKey: AwsKmsIdentifierString,
       grantTokens: KMS.GrantTokenList,
       ttlSeconds: Types.PositiveLong,
       cache: L.LocalCMC
     )
-      requires ParseAwsKmsIdentifier(awsKmsKey).Success?
-      requires UTF8.IsASCIIString(awsKmsKey)
-      requires 0 < |awsKmsKey| <= MAX_AWS_KMS_IDENTIFIER_LENGTH
       requires keyStore.ValidState() && cryptoPrimitives.ValidState()
       ensures
       && this.materials == materials
       && this.keyStore == keyStore
       && this.cryptoPrimitives == cryptoPrimitives
       && this.branchKeyId == branchKeyId
-      && this.awsKmsKey == awsKmsKey
       && this.grantTokens == grantTokens
       && this.ttlSeconds == ttlSeconds
       && this.cache == cache
@@ -673,7 +644,6 @@ module AwsKmsHierarchicalKeyring {
       this.keyStore := keyStore;
       this.cryptoPrimitives := cryptoPrimitives;
       this.branchKeyId := branchKeyId;
-      this.awsKmsKey := awsKmsKey;
       this.grantTokens := grantTokens;
       this.ttlSeconds := ttlSeconds;
       this.cache := cache;
@@ -822,7 +792,6 @@ module AwsKmsHierarchicalKeyring {
           KeyStore.GetBranchKeyVersionInput(
             branchKeyIdentifier := branchKeyId,
             branchKeyVersion := version,
-            awsKmsKeyArn := Some(awsKmsKey),
             grantTokens := Some(grantTokens)
           )
         );

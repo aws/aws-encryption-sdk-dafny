@@ -17,7 +17,6 @@ include "../../../../StandardLibrary/src/Index.dfy"
  // Begin Generated Types
  
  datatype CreateKeyInput = | CreateKeyInput (
- nameonly awsKmsKeyArn: KmsKeyId ,
  nameonly grantTokens: Option<GrantTokenList>
  )
  datatype CreateKeyOutput = | CreateKeyOutput (
@@ -31,7 +30,6 @@ include "../../../../StandardLibrary/src/Index.dfy"
  )
  datatype GetActiveBranchKeyInput = | GetActiveBranchKeyInput (
  nameonly branchKeyIdentifier: string ,
- nameonly awsKmsKeyArn: Option<KmsKeyId> ,
  nameonly grantTokens: Option<GrantTokenList>
  )
  datatype GetActiveBranchKeyOutput = | GetActiveBranchKeyOutput (
@@ -40,7 +38,6 @@ include "../../../../StandardLibrary/src/Index.dfy"
  )
  datatype GetBeaconKeyInput = | GetBeaconKeyInput (
  nameonly branchKeyIdentifier: string ,
- nameonly awsKmsKeyArn: Option<KmsKeyId> ,
  nameonly grantTokens: Option<GrantTokenList>
  )
  datatype GetBeaconKeyOutput = | GetBeaconKeyOutput (
@@ -50,7 +47,6 @@ include "../../../../StandardLibrary/src/Index.dfy"
  datatype GetBranchKeyVersionInput = | GetBranchKeyVersionInput (
  nameonly branchKeyIdentifier: string ,
  nameonly branchKeyVersion: string ,
- nameonly awsKmsKeyArn: Option<KmsKeyId> ,
  nameonly grantTokens: Option<GrantTokenList>
  )
  datatype GetBranchKeyVersionOutput = | GetBranchKeyVersionOutput (
@@ -194,16 +190,16 @@ include "../../../../StandardLibrary/src/Index.dfy"
 }
  datatype KeyStoreConfig = | KeyStoreConfig (
  nameonly id: Option<string> ,
- nameonly ddbTableName: Option<ComAmazonawsDynamodbTypes.TableName> ,
+ nameonly ddbTableName: ComAmazonawsDynamodbTypes.TableName ,
+ nameonly kmsKeyArn: KmsKeyArn ,
  nameonly ddbClient: Option<ComAmazonawsDynamodbTypes.IDynamoDBClient> ,
  nameonly kmsClient: Option<ComAmazonawsKmsTypes.IKMSClient>
  )
- type KmsKeyId = string
+ type KmsKeyArn = string
  type Secret = seq<uint8>
  type Utf8Bytes = ValidUTF8Bytes
  datatype VersionKeyInput = | VersionKeyInput (
  nameonly branchKeyIdentifier: string ,
- nameonly awsKmsKeyArn: Option<KmsKeyId> ,
  nameonly grantTokens: Option<GrantTokenList>
  )
  datatype Error =

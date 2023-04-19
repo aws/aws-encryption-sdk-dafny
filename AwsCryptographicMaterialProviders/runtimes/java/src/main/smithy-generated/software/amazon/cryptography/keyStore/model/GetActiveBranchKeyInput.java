@@ -9,22 +9,15 @@ import java.util.Objects;
 public class GetActiveBranchKeyInput {
   private final String branchKeyIdentifier;
 
-  private final String awsKmsKeyArn;
-
   private final List<String> grantTokens;
 
   protected GetActiveBranchKeyInput(BuilderImpl builder) {
     this.branchKeyIdentifier = builder.branchKeyIdentifier();
-    this.awsKmsKeyArn = builder.awsKmsKeyArn();
     this.grantTokens = builder.grantTokens();
   }
 
   public String branchKeyIdentifier() {
     return this.branchKeyIdentifier;
-  }
-
-  public String awsKmsKeyArn() {
-    return this.awsKmsKeyArn;
   }
 
   public List<String> grantTokens() {
@@ -44,10 +37,6 @@ public class GetActiveBranchKeyInput {
 
     String branchKeyIdentifier();
 
-    Builder awsKmsKeyArn(String awsKmsKeyArn);
-
-    String awsKmsKeyArn();
-
     Builder grantTokens(List<String> grantTokens);
 
     List<String> grantTokens();
@@ -58,8 +47,6 @@ public class GetActiveBranchKeyInput {
   static class BuilderImpl implements Builder {
     protected String branchKeyIdentifier;
 
-    protected String awsKmsKeyArn;
-
     protected List<String> grantTokens;
 
     protected BuilderImpl() {
@@ -67,7 +54,6 @@ public class GetActiveBranchKeyInput {
 
     protected BuilderImpl(GetActiveBranchKeyInput model) {
       this.branchKeyIdentifier = model.branchKeyIdentifier();
-      this.awsKmsKeyArn = model.awsKmsKeyArn();
       this.grantTokens = model.grantTokens();
     }
 
@@ -78,15 +64,6 @@ public class GetActiveBranchKeyInput {
 
     public String branchKeyIdentifier() {
       return this.branchKeyIdentifier;
-    }
-
-    public Builder awsKmsKeyArn(String awsKmsKeyArn) {
-      this.awsKmsKeyArn = awsKmsKeyArn;
-      return this;
-    }
-
-    public String awsKmsKeyArn() {
-      return this.awsKmsKeyArn;
     }
 
     public Builder grantTokens(List<String> grantTokens) {
