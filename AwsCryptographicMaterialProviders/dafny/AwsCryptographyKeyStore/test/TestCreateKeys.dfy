@@ -21,7 +21,8 @@ module TestCreateKeys {
     var ddbClient :- expect DDB.DynamoDBClient();
     var keyStoreConfig := Types.KeyStoreConfig(
       id := None,
-      ddbTableName := Some(branchKeyStoreName),
+      kmsKeyArn := keyArn,
+      ddbTableName := branchKeyStoreName,
       ddbClient := Some(ddbClient),
       kmsClient := Some(kmsClient)
     );
@@ -29,19 +30,16 @@ module TestCreateKeys {
     var keyStore :- expect KeyStore.KeyStore(keyStoreConfig);
 
     var branchKeyId :- expect keyStore.CreateKey(Types.CreateKeyInput(
-      awsKmsKeyArn := keyArn,
       grantTokens := None
     ));
 
     var beaconKeyResult :- expect keyStore.GetBeaconKey(Types.GetBeaconKeyInput(
       branchKeyIdentifier := branchKeyId.branchKeyIdentifier,
-      awsKmsKeyArn := Some(keyArn),
       grantTokens := None
     ));
     
     var activeResult :- expect keyStore.GetActiveBranchKey(Types.GetActiveBranchKeyInput(
       branchKeyIdentifier := branchKeyId.branchKeyIdentifier,
-      awsKmsKeyArn := Some(keyArn),
       grantTokens := None
     ));
     

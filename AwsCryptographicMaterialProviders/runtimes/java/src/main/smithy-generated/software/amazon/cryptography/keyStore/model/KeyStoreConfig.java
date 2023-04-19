@@ -12,6 +12,8 @@ public class KeyStoreConfig {
 
   private final String ddbTableName;
 
+  private final String kmsKeyArn;
+
   private final DynamoDbClient ddbClient;
 
   private final KmsClient kmsClient;
@@ -19,6 +21,7 @@ public class KeyStoreConfig {
   protected KeyStoreConfig(BuilderImpl builder) {
     this.id = builder.id();
     this.ddbTableName = builder.ddbTableName();
+    this.kmsKeyArn = builder.kmsKeyArn();
     this.ddbClient = builder.ddbClient();
     this.kmsClient = builder.kmsClient();
   }
@@ -29,6 +32,10 @@ public class KeyStoreConfig {
 
   public String ddbTableName() {
     return this.ddbTableName;
+  }
+
+  public String kmsKeyArn() {
+    return this.kmsKeyArn;
   }
 
   public DynamoDbClient ddbClient() {
@@ -56,6 +63,10 @@ public class KeyStoreConfig {
 
     String ddbTableName();
 
+    Builder kmsKeyArn(String kmsKeyArn);
+
+    String kmsKeyArn();
+
     Builder ddbClient(DynamoDbClient ddbClient);
 
     DynamoDbClient ddbClient();
@@ -72,6 +83,8 @@ public class KeyStoreConfig {
 
     protected String ddbTableName;
 
+    protected String kmsKeyArn;
+
     protected DynamoDbClient ddbClient;
 
     protected KmsClient kmsClient;
@@ -82,6 +95,7 @@ public class KeyStoreConfig {
     protected BuilderImpl(KeyStoreConfig model) {
       this.id = model.id();
       this.ddbTableName = model.ddbTableName();
+      this.kmsKeyArn = model.kmsKeyArn();
       this.ddbClient = model.ddbClient();
       this.kmsClient = model.kmsClient();
     }
@@ -104,6 +118,15 @@ public class KeyStoreConfig {
       return this.ddbTableName;
     }
 
+    public Builder kmsKeyArn(String kmsKeyArn) {
+      this.kmsKeyArn = kmsKeyArn;
+      return this;
+    }
+
+    public String kmsKeyArn() {
+      return this.kmsKeyArn;
+    }
+
     public Builder ddbClient(DynamoDbClient ddbClient) {
       this.ddbClient = ddbClient;
       return this;
@@ -123,11 +146,17 @@ public class KeyStoreConfig {
     }
 
     public KeyStoreConfig build() {
+      if (Objects.isNull(this.ddbTableName()))  {
+        throw new IllegalArgumentException("Missing value for required field `ddbTableName`");
+      }
       if (Objects.nonNull(this.ddbTableName()) && this.ddbTableName().length() < 3) {
         throw new IllegalArgumentException("The size of `ddbTableName` must be greater than or equal to 3");
       }
       if (Objects.nonNull(this.ddbTableName()) && this.ddbTableName().length() > 255) {
         throw new IllegalArgumentException("The size of `ddbTableName` must be less than or equal to 255");
+      }
+      if (Objects.isNull(this.kmsKeyArn()))  {
+        throw new IllegalArgumentException("Missing value for required field `kmsKeyArn`");
       }
       return new KeyStoreConfig(this);
     }

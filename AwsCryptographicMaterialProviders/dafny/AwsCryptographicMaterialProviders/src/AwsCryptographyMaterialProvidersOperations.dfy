@@ -248,8 +248,6 @@ module AwsCryptographyMaterialProvidersOperations refines AbstractAwsCryptograph
   method CreateAwsKmsHierarchicalKeyring (config: InternalConfig, input: CreateAwsKmsHierarchicalKeyringInput)
     returns (output: Result<IKeyring, Error>)
   {
-    var _ :- ValidateKmsKeyId(input.kmsKeyId);
-
     var grantTokens :- GetValidGrantTokens(input.grantTokens);
     var maxCacheSize : int32;
     
@@ -279,7 +277,6 @@ module AwsCryptographyMaterialProvidersOperations refines AbstractAwsCryptograph
           message := "Must initialize keyring with either branchKeyId or BranchKeyIdSupplier."));
 
     var keyring := new AwsKmsHierarchicalKeyring.AwsKmsHierarchicalKeyring(
-      input.kmsKeyId,
       input.keyStore,
       grantTokens,
       input.branchKeyId,

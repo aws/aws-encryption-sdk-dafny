@@ -107,15 +107,14 @@ structure BranchKeyMaterials {
 }
 
 structure BeaconKeyMaterials {
-  //= aws-encryption-sdk-specification/framework/structures.md#beacon-key-materials
+  //= aws-encryption-sdk-specification/framework/structures.md#structure-4
   //= type=implication
   //# This structure MUST include the following fields:
-  //#
   //# - [Beacon Key Id](#beacon-key-id)
   @required
   beaconKeyIdentifier: String,
 
-  //= aws-encryption-sdk-specification/framework/structures.md#beacon-key-materials
+  //= aws-encryption-sdk-specification/framework/structures.md#structure-4
   //= type=implication
   //# This structure MAY include the following fields:
   //# - [Beacon Key](#beacon-key)

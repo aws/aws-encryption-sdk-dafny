@@ -33,8 +33,8 @@ duvet_report:
 	duvet \
 		report \
 		--spec-pattern "compliance/**/*.toml" \
-		--source-pattern "AwsCryptographicMaterialProviders/src/**/*.dfy" \
-		--source-pattern "AwsCryptographicMaterialProviders/Model/**/*.smithy" \
+		--source-pattern "AwsCryptographicMaterialProviders/dafny/**/src/**/*.dfy" \
+		--source-pattern "AwsCryptographicMaterialProviders/dafny/**/Model/**/*.smithy" \
 		--source-pattern "AwsCryptographicMaterialProviders/compliance_exceptions/**/*.txt" \
 		--source-pattern "(# //=,# //#).github/workflows/duvet.yaml" \
 		--html specification_compliance_report.html

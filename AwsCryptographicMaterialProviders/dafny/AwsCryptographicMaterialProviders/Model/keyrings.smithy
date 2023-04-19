@@ -271,9 +271,6 @@ structure CreateAwsKmsHierarchicalKeyringInput {
     branchKeyIdSupplier: BranchKeyIdSupplierReference,
 
     @required
-    kmsKeyId: KmsKeyId,
-
-    @required
     keyStore: KeyStoreReference,
     
     @required

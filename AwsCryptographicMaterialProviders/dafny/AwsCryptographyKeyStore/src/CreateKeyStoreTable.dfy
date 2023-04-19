@@ -99,11 +99,11 @@ module CreateKeyStoreTable {
           DDB.CreateTableInput(
             AttributeDefinitions := attrDef,
             TableName := tableName,
-            //= aws-encryption-sdk-specification/framework/branch-key-store.md#createkeystore
+            //= aws-encryption-sdk-specification/framework/branch-key-store.md#keyschema
             //# The following KeySchema MUST be configured on the table:
             KeySchema := keySchema,
             LocalSecondaryIndexes := None,
-            //= aws-encryption-sdk-specification/framework/branch-key-store.md#createkeystore
+            //= aws-encryption-sdk-specification/framework/branch-key-store.md#globalsecondary-indexes
             //# The table MUST configure a single GlobalSecondaryIndex:
             GlobalSecondaryIndexes := Some(gsi),
             BillingMode := Some(DDB.BillingMode.PAY_PER_REQUEST) ,
@@ -137,6 +137,10 @@ module CreateKeyStoreTable {
     } else {
       expect maybeDescribeTableResponse.value.Table.Some?;
       var tableDescription := maybeDescribeTableResponse.value.Table.value;
+      //= aws-encryption-sdk-specification/framework/branch-key-store.md#createkeystore
+      //# If the response is successful, this operation validates that the table has the expected
+      //# [KeySchema](#keyschema) and [GlobalSecondaryIndexes](#globalsecondary-indexes) as defined below.
+      //# If these values do not match, this operation MUST yield an error.
       :- Need(
         && keyStoreHasExpectedConstruction?(tableDescription),
         E("Configured table name does not conform to expected Key Store construction.")

@@ -46,7 +46,10 @@ service KeyStore {
 
 structure KeyStoreConfig {
   id: String,
+  @required
   ddbTableName: TableName,
+  @required
+  kmsKeyArn: KmsKeyArn,
   ddbClient: DdbClientReference,
   kmsClient: KmsClientReference,
 }
@@ -74,9 +77,6 @@ operation CreateKey {
 }
 
 structure CreateKeyInput {
-  @required
-  awsKmsKeyArn: KmsKeyId,
-
   grantTokens: GrantTokenList
 }
 
@@ -97,8 +97,6 @@ structure VersionKeyInput {
   @required
   branchKeyIdentifier: String,
   
-  awsKmsKeyArn: KmsKeyId,
-  
   grantTokens: GrantTokenList
 }
 
@@ -110,8 +108,6 @@ operation GetActiveBranchKey {
 structure GetActiveBranchKeyInput {
   @required
   branchKeyIdentifier: String,
-
-  awsKmsKeyArn: KmsKeyId,
   
   grantTokens: GrantTokenList
 }
@@ -136,8 +132,6 @@ structure GetBranchKeyVersionInput {
   @required
   branchKeyVersion: String,
   
-  awsKmsKeyArn: KmsKeyId,
-  
   grantTokens: GrantTokenList
 }
 
@@ -157,8 +151,6 @@ operation GetBeaconKey {
 structure GetBeaconKeyInput {
   @required
   branchKeyIdentifier: String,
-  
-  awsKmsKeyArn: KmsKeyId,
 
   grantTokens: GrantTokenList
 }
@@ -171,7 +163,7 @@ structure GetBeaconKeyOutput {
   beaconKey: Secret,
 }
 
-string KmsKeyId
+string KmsKeyArn
 
 list GrantTokenList {
   member: String

@@ -3,7 +3,7 @@
 
 include "../src/Index.dfy"
 
-module TestGetBeaconKey {
+module TestConfig {
   import Types = AwsCryptographyKeyStoreTypes
   import ComAmazonawsKmsTypes
   import KMS = Com.Amazonaws.Kms
@@ -12,50 +12,38 @@ module TestGetBeaconKey {
   import opened Wrappers
 
   const branchKeyStoreName := "KeyStoreTestTable";
-  const branchKeyId := "ef31c535-7436-406e-be37-371aea99b298";
   // THIS IS A TESTING RESOURCE DO NOT USE IN A PRODUCTION ENVIRONMENT
   const keyArn := "arn:aws:kms:us-west-2:370957321024:key/9d989aa2-2f9c-438c-a745-cc57d3ad0126";
-  
-  method {:test} TestGetBeaconKey() 
-  {
+  const keyId := "9d989aa2-2f9c-438c-a745-cc57d3ad0126";
+
+  method {:test} TestInvalidKmsKeyArnConfig() {
     var kmsClient :- expect KMS.KMSClient();
     var ddbClient :- expect DDB.DynamoDBClient();
     var keyStoreConfig := Types.KeyStoreConfig(
       id := None,
-      ddbTableName := Some(branchKeyStoreName),
+      kmsKeyArn := keyId,
+      ddbTableName := branchKeyStoreName,
       ddbClient := Some(ddbClient),
       kmsClient := Some(kmsClient)
     );
-
-    var keyStore :- expect KeyStore.KeyStore(keyStoreConfig);
-
-    var beaconKeyResult :- expect keyStore.GetBeaconKey(Types.GetBeaconKeyInput(
-      branchKeyIdentifier := branchKeyId,
-      awsKmsKeyArn := Some(keyArn),
-      grantTokens := None
-    ));
-    expect |beaconKeyResult.beaconKey| == 32;
+    
+    var keyStore := KeyStore.KeyStore(keyStoreConfig);
+    expect keyStore.Failure?;
+    expect keyStore.error == Types.KeyStoreException(message := "Invalid AWS KMS Key Arn");
   }
 
-  method {:test} TestGetActiveKey()
-  {
+  method {:test} TestValidConfig() {
     var kmsClient :- expect KMS.KMSClient();
     var ddbClient :- expect DDB.DynamoDBClient();
     var keyStoreConfig := Types.KeyStoreConfig(
       id := None,
-      ddbTableName := Some(branchKeyStoreName),
+      kmsKeyArn := keyArn,
+      ddbTableName := branchKeyStoreName,
       ddbClient := Some(ddbClient),
       kmsClient := Some(kmsClient)
     );
-
-    var keyStore :- expect KeyStore.KeyStore(keyStoreConfig);
-
-    var activeResult :- expect keyStore.GetActiveBranchKey(Types.GetActiveBranchKeyInput(
-      branchKeyIdentifier := branchKeyId,
-      awsKmsKeyArn := Some(keyArn),
-      grantTokens := None
-    ));
     
-    expect |activeResult.branchKey| == 32;
+    var keyStore := KeyStore.KeyStore(keyStoreConfig);
+    expect keyStore.Success?;
   }
 }

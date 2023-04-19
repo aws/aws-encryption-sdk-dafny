@@ -19,6 +19,7 @@ module AwsCryptographyKeyStoreOperations refines AbstractAwsCryptographyKeyStore
   datatype Config = Config(
     nameonly id: string,
     nameonly ddbTableName: DDB.TableName,
+    nameonly kmsKeyArn: KmsKeyArn,
     nameonly kmsClient: ComAmazonawsKmsTypes.IKMSClient,
     nameonly ddbClient: ComAmazonawsDynamodbTypes.IDynamoDBClient
   )
@@ -28,6 +29,7 @@ module AwsCryptographyKeyStoreOperations refines AbstractAwsCryptographyKeyStore
   predicate ValidInternalConfig?(config: InternalConfig)
   {
     && DDB.IsValid_TableName(config.ddbTableName)
+    && KMS.IsValid_KeyIdType(config.kmsKeyArn)
     && config.kmsClient.ValidState()
     && config.ddbClient.ValidState()
   }
@@ -73,7 +75,7 @@ module AwsCryptographyKeyStoreOperations refines AbstractAwsCryptographyKeyStore
       Types.KeyStoreException(message := "Invalid Table Name length.")
     );
 
-    output := CreateKeys.CreateBranchAndBeaconKeys(input, config.ddbTableName, config.kmsClient, config.ddbClient);
+    output := CreateKeys.CreateBranchAndBeaconKeys(input, config.ddbTableName, config.kmsKeyArn, config.kmsClient, config.ddbClient);
   }
   
   predicate VersionKeyEnsuresPublicly(input: VersionKeyInput, output: Result<(), Error>)
@@ -95,7 +97,8 @@ module AwsCryptographyKeyStoreOperations refines AbstractAwsCryptographyKeyStore
       DDB.IsValid_IndexName("Active-Keys-" + config.ddbTableName),
       Types.KeyStoreException(message := "Invalid table name length.")
     );
-    output := GetKeys.GetActiveKeyAndUnwrap(input, config.ddbTableName, config.kmsClient, config.ddbClient);
+
+    output := GetKeys.GetActiveKeyAndUnwrap(input, config.ddbTableName, config.kmsKeyArn, config.kmsClient, config.ddbClient);
   }
 
   predicate GetBranchKeyVersionEnsuresPublicly(input: GetBranchKeyVersionInput, output: Result<GetBranchKeyVersionOutput, Error>)
@@ -104,7 +107,7 @@ module AwsCryptographyKeyStoreOperations refines AbstractAwsCryptographyKeyStore
   method GetBranchKeyVersion(config: InternalConfig, input: GetBranchKeyVersionInput)
     returns (output: Result<GetBranchKeyVersionOutput, Error>)
   {
-    output := GetKeys.GetBranchKeyVersion(input, config.ddbTableName, config.kmsClient, config.ddbClient);
+    output := GetKeys.GetBranchKeyVersion(input, config.ddbTableName, config.kmsKeyArn, config.kmsClient, config.ddbClient);
   }
 
   predicate GetBeaconKeyEnsuresPublicly(input: GetBeaconKeyInput, output: Result<GetBeaconKeyOutput, Error>)
@@ -113,6 +116,6 @@ module AwsCryptographyKeyStoreOperations refines AbstractAwsCryptographyKeyStore
   method GetBeaconKey(config: InternalConfig, input: GetBeaconKeyInput)
     returns (output: Result<GetBeaconKeyOutput, Error>)
   {
-    output := GetKeys.GetBeaconKeyAndUnwrap(input, config.ddbTableName, config.kmsClient, config.ddbClient);
+    output := GetKeys.GetBeaconKeyAndUnwrap(input, config.ddbTableName, config.kmsKeyArn, config.kmsClient, config.ddbClient);
   }
 }

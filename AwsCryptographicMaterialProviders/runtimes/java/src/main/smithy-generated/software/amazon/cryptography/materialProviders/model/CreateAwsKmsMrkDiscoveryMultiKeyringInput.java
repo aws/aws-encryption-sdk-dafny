@@ -13,7 +13,7 @@ public class CreateAwsKmsMrkDiscoveryMultiKeyringInput {
 
   private final DiscoveryFilter discoveryFilter;
 
-  private final ClientSupplier clientSupplier;
+  private final IClientSupplier clientSupplier;
 
   private final List<String> grantTokens;
 
@@ -32,7 +32,7 @@ public class CreateAwsKmsMrkDiscoveryMultiKeyringInput {
     return this.discoveryFilter;
   }
 
-  public ClientSupplier clientSupplier() {
+  public IClientSupplier clientSupplier() {
     return this.clientSupplier;
   }
 
@@ -59,7 +59,7 @@ public class CreateAwsKmsMrkDiscoveryMultiKeyringInput {
 
     Builder clientSupplier(IClientSupplier clientSupplier);
 
-    ClientSupplier clientSupplier();
+    IClientSupplier clientSupplier();
 
     Builder grantTokens(List<String> grantTokens);
 
@@ -73,7 +73,7 @@ public class CreateAwsKmsMrkDiscoveryMultiKeyringInput {
 
     protected DiscoveryFilter discoveryFilter;
 
-    protected ClientSupplier clientSupplier;
+    protected IClientSupplier clientSupplier;
 
     protected List<String> grantTokens;
 
@@ -110,7 +110,7 @@ public class CreateAwsKmsMrkDiscoveryMultiKeyringInput {
       return this;
     }
 
-    public ClientSupplier clientSupplier() {
+    public IClientSupplier clientSupplier() {
       return this.clientSupplier;
     }
 

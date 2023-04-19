@@ -8,13 +8,13 @@ import software.amazon.cryptography.materialProviders.IKeyring;
 import software.amazon.cryptography.materialProviders.Keyring;
 
 public class CreateDefaultCryptographicMaterialsManagerInput {
-  private final Keyring keyring;
+  private final IKeyring keyring;
 
   protected CreateDefaultCryptographicMaterialsManagerInput(BuilderImpl builder) {
     this.keyring = builder.keyring();
   }
 
-  public Keyring keyring() {
+  public IKeyring keyring() {
     return this.keyring;
   }
 
@@ -29,13 +29,13 @@ public class CreateDefaultCryptographicMaterialsManagerInput {
   public interface Builder {
     Builder keyring(IKeyring keyring);
 
-    Keyring keyring();
+    IKeyring keyring();
 
     CreateDefaultCryptographicMaterialsManagerInput build();
   }
 
   static class BuilderImpl implements Builder {
-    protected Keyring keyring;
+    protected IKeyring keyring;
 
     protected BuilderImpl() {
     }
@@ -49,7 +49,7 @@ public class CreateDefaultCryptographicMaterialsManagerInput {
       return this;
     }
 
-    public Keyring keyring() {
+    public IKeyring keyring() {
       return this.keyring;
     }
 

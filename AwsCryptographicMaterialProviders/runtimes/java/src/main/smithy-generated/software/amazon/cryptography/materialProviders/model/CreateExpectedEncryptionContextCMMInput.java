@@ -11,9 +11,9 @@ import software.amazon.cryptography.materialProviders.IKeyring;
 import software.amazon.cryptography.materialProviders.Keyring;
 
 public class CreateExpectedEncryptionContextCMMInput {
-  private final CryptographicMaterialsManager underlyingCMM;
+  private final ICryptographicMaterialsManager underlyingCMM;
 
-  private final Keyring keyring;
+  private final IKeyring keyring;
 
   private final List<String> requiredEncryptionContextKeys;
 
@@ -23,11 +23,11 @@ public class CreateExpectedEncryptionContextCMMInput {
     this.requiredEncryptionContextKeys = builder.requiredEncryptionContextKeys();
   }
 
-  public CryptographicMaterialsManager underlyingCMM() {
+  public ICryptographicMaterialsManager underlyingCMM() {
     return this.underlyingCMM;
   }
 
-  public Keyring keyring() {
+  public IKeyring keyring() {
     return this.keyring;
   }
 
@@ -46,11 +46,11 @@ public class CreateExpectedEncryptionContextCMMInput {
   public interface Builder {
     Builder underlyingCMM(ICryptographicMaterialsManager underlyingCMM);
 
-    CryptographicMaterialsManager underlyingCMM();
+    ICryptographicMaterialsManager underlyingCMM();
 
     Builder keyring(IKeyring keyring);
 
-    Keyring keyring();
+    IKeyring keyring();
 
     Builder requiredEncryptionContextKeys(List<String> requiredEncryptionContextKeys);
 
@@ -60,9 +60,9 @@ public class CreateExpectedEncryptionContextCMMInput {
   }
 
   static class BuilderImpl implements Builder {
-    protected CryptographicMaterialsManager underlyingCMM;
+    protected ICryptographicMaterialsManager underlyingCMM;
 
-    protected Keyring keyring;
+    protected IKeyring keyring;
 
     protected List<String> requiredEncryptionContextKeys;
 
@@ -80,7 +80,7 @@ public class CreateExpectedEncryptionContextCMMInput {
       return this;
     }
 
-    public CryptographicMaterialsManager underlyingCMM() {
+    public ICryptographicMaterialsManager underlyingCMM() {
       return this.underlyingCMM;
     }
 
@@ -89,7 +89,7 @@ public class CreateExpectedEncryptionContextCMMInput {
       return this;
     }
 
-    public Keyring keyring() {
+    public IKeyring keyring() {
       return this.keyring;
     }
 
