@@ -9,7 +9,7 @@ PROJECT_SERVICES := \
 	TestVectorsAwsCryptographicMaterialProviders \
 
 SMITHY_MODEL_ROOT := $(PROJECT_ROOT)/AwsCryptographicMaterialProviders/dafny/AwsCryptographicMaterialProviders/Model
-OUTPUT_LOCAL_SERVICE := --local-service-test
+OUTPUT_LOCAL_SERVICE_TestVectorsAwsCryptographicMaterialProviders := --local-service-test
 
 SERVICE_NAMESPACE_TestVectorsAwsCryptographicMaterialProviders=aws.cryptography.materialProviders
 
