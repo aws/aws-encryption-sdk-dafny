@@ -203,7 +203,7 @@ _polymorph:
 	$(patsubst %, --dependent-model $(PROJECT_ROOT)/%/Model, $($(service_deps_var))) \
 	--namespace $($(namespace_var)) \
 	$(AWS_SDK_CMD) \
-	$(OUTPUT_LOCAL_SERVICE) \
+	$(OUTPUT_LOCAL_SERVICE_$(SERVICE)) \
 	";
 
 # Generates all target runtime code for all namespaces in this project.
@@ -292,7 +292,7 @@ test_net_mac_intel:
 		--framework net6.0
 
 test_net_mac_brew:
-	DYLD_LIBRARY_PATH="$(brew --prefix)/opt/openssl@1.1/lib" dotnet run \
+	DYLD_LIBRARY_PATH="$(shell brew --prefix)/opt/openssl@1.1/lib/" dotnet run \
 		--project runtimes/net/tests/ \
 		--framework net6.0
 
