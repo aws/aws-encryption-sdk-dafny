@@ -29,6 +29,7 @@ module AwsCryptographyKeyStoreOperations refines AbstractAwsCryptographyKeyStore
   predicate ValidInternalConfig?(config: InternalConfig)
   {
     && DDB.IsValid_TableName(config.ddbTableName)
+    && DDB.IsValid_IndexName(CreateKeyStoreTable.GSI_NAME)
     && KMS.IsValid_KeyIdType(config.kmsKeyArn)
     && config.kmsClient.ValidState()
     && config.ddbClient.ValidState()
@@ -48,11 +49,6 @@ module AwsCryptographyKeyStoreOperations refines AbstractAwsCryptographyKeyStore
       && AwsArnParsing.ParseAmazonDynamodbTableName(output.value.tableArn).Success?
       && AwsArnParsing.ParseAmazonDynamodbTableName(output.value.tableArn).value == config.ddbTableName
   {
-    :- Need(
-      DDB.IsValid_IndexName("Active-Keys-" + config.ddbTableName),
-      Types.KeyStoreException(message := "Invalid Table Name length.")
-    );
-
     var ddbTableArn :- CreateKeyStoreTable.CreateKeyStoreTable(config.ddbTableName, config.ddbClient);
     :- Need(
       && AwsArnParsing.ParseAmazonDynamodbTableName(ddbTableArn).Success?
@@ -70,11 +66,6 @@ module AwsCryptographyKeyStoreOperations refines AbstractAwsCryptographyKeyStore
   method CreateKey(config: InternalConfig, input: CreateKeyInput)
     returns (output: Result<CreateKeyOutput, Error>)
   {
-    :- Need(
-      DDB.IsValid_TableName(config.ddbTableName),
-      Types.KeyStoreException(message := "Invalid Table Name length.")
-    );
-
     output := CreateKeys.CreateBranchAndBeaconKeys(input, config.ddbTableName, config.kmsKeyArn, config.kmsClient, config.ddbClient);
   }
   
@@ -84,7 +75,7 @@ module AwsCryptographyKeyStoreOperations refines AbstractAwsCryptographyKeyStore
   method VersionKey(config: InternalConfig, input: VersionKeyInput)
     returns (output: Result<(), Error>)
   {
-    return Failure(KeyStoreException(message := "Implement me"));
+    output := CreateKeys.VersionActiveBranchKey(input, config.ddbTableName, config.kmsKeyArn, config.kmsClient, config.ddbClient);
   }
 
   predicate GetActiveBranchKeyEnsuresPublicly(input: GetActiveBranchKeyInput, output: Result<GetActiveBranchKeyOutput, Error>)
@@ -93,11 +84,6 @@ module AwsCryptographyKeyStoreOperations refines AbstractAwsCryptographyKeyStore
   method GetActiveBranchKey(config: InternalConfig, input: GetActiveBranchKeyInput) 
     returns (output: Result<GetActiveBranchKeyOutput, Error>)
   {
-    :- Need(
-      DDB.IsValid_IndexName("Active-Keys-" + config.ddbTableName),
-      Types.KeyStoreException(message := "Invalid table name length.")
-    );
-
     output := GetKeys.GetActiveKeyAndUnwrap(input, config.ddbTableName, config.kmsKeyArn, config.kmsClient, config.ddbClient);
   }
 

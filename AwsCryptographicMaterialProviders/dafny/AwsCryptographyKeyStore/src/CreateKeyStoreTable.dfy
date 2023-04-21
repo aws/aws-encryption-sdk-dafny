@@ -44,7 +44,7 @@ module CreateKeyStoreTable {
     ProjectionType := Some(DDB.ProjectionType.ALL),
     NonKeyAttributes := None
   ); 
-  const gsiPreFix := "Active-Keys-";
+  const GSI_NAME := "Active-Keys";
 
   // type tableName = tn : DDB.TableName;
   type keyStoreDescription = t: DDB.TableDescription | keyStoreHasExpectedConstruction?(t) witness *
@@ -56,7 +56,7 @@ module CreateKeyStoreTable {
     && var gsiList := t.GlobalSecondaryIndexes.value;
     && exists gsi | gsi in gsiList :: 
       && gsi.IndexName.Some? && gsi.KeySchema.Some? && gsi.Projection.Some?
-      && gsi.IndexName.value == gsiPreFix + t.TableName.value
+      && gsi.IndexName.value == GSI_NAME
       && ToSet(gsi.KeySchema.value) == ToSet(keySchemaGsi)
       && gsi.Projection.value == gsiProjection
   }
@@ -65,7 +65,7 @@ module CreateKeyStoreTable {
     returns (res: Result<string, Types.Error>)
     requires ddbClient.ValidState()
     requires DDB.IsValid_TableName(tableName)
-    requires DDB.IsValid_IndexName(gsiPreFix + tableName) 
+    requires DDB.IsValid_IndexName(GSI_NAME) 
     modifies ddbClient.Modifies
     ensures ddbClient.ValidState()
   {
@@ -85,7 +85,7 @@ module CreateKeyStoreTable {
       if error.ResourceNotFoundException? {
         var gsi: DDB.GlobalSecondaryIndexList := [
           DDB.GlobalSecondaryIndex(
-            IndexName := gsiPreFix + tableName,
+            IndexName := GSI_NAME,
             KeySchema := keySchemaGsi,
             Projection := gsiProjection,
             ProvisionedThroughput := None
