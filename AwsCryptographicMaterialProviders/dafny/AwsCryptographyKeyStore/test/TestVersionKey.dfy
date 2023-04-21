@@ -15,8 +15,6 @@ module TestVersionKey {
   import opened AwsKmsUtils
 
   const branchKeyStoreName := "KeyStoreTestTable";
-  // THIS IS THE DESIGNATED VERSION/ROTATION TEST KEY
-  const branchKeyId := "2ae3fa70-4143-4904-a2a9-daed27e22b0c";
   // THESE ARE TESTING RESOURCES DO NOT USE IN A PRODUCTION ENVIRONMENT
   const keyArn := "arn:aws:kms:us-west-2:370957321024:key/9d989aa2-2f9c-438c-a745-cc57d3ad0126";
   
@@ -34,15 +32,22 @@ module TestVersionKey {
 
     var keyStore :- expect KeyStore.KeyStore(keyStoreConfig);
 
+    // Create a new key
+    // We will create a use this new key per run to avoid tripping up
+    // when running in different runtimes
+    var branchKeyIdentifier :- expect keyStore.CreateKey(Types.CreateKeyInput(
+      grantTokens := None
+    ));
+
     var oldActiveResult :- expect keyStore.GetActiveBranchKey(Types.GetActiveBranchKeyInput(
-      branchKeyIdentifier := branchKeyId,
+      branchKeyIdentifier := branchKeyIdentifier.branchKeyIdentifier,
       grantTokens := None
     ));
 
     var oldActiveVersion :- expect UTF8.Decode(oldActiveResult.branchKeyVersion).MapFailure(WrapStringToError);
     
     var versionKeyResult := keyStore.VersionKey(Types.VersionKeyInput(
-      branchKeyIdentifier := branchKeyId,
+      branchKeyIdentifier := branchKeyIdentifier.branchKeyIdentifier,
       grantTokens := None
     ));
 
@@ -50,7 +55,7 @@ module TestVersionKey {
     
     var getBranchKeyVersionResult :- expect keyStore.GetBranchKeyVersion(
       Types.GetBranchKeyVersionInput(
-        branchKeyIdentifier := branchKeyId,
+        branchKeyIdentifier := branchKeyIdentifier.branchKeyIdentifier,
         // We get the old active key by using the version
         branchKeyVersion := oldActiveVersion,
         grantTokens := None
@@ -58,7 +63,7 @@ module TestVersionKey {
     );
     
     var newActiveResult :- expect keyStore.GetActiveBranchKey(Types.GetActiveBranchKeyInput(
-      branchKeyIdentifier := branchKeyId,
+      branchKeyIdentifier := branchKeyIdentifier.branchKeyIdentifier,
       grantTokens := None
     ));
 
@@ -67,5 +72,33 @@ module TestVersionKey {
     // We expect that if we rotate the branch key, the returned materials MUST not be equal to the previous active key.
     expect getBranchKeyVersionResult.branchKeyVersion != newActiveResult.branchKeyVersion;
     expect getBranchKeyVersionResult.branchKey != newActiveResult.branchKey;
+  }
+
+  method {:test} TestErrorActiveActiveVersion() {
+    // THIS IS THE DESIGNATED ACTIVE-ACTIVE KEY USED IN CI
+    var keyId := "9dfb8978-5696-4132-a7c6-30e40fcced5a";
+
+    var kmsClient :- expect KMS.KMSClient();
+    var ddbClient :- expect DDB.DynamoDBClient();
+    var keyStoreConfig := Types.KeyStoreConfig(
+      id := None,
+      kmsKeyArn := keyArn,
+      ddbTableName := branchKeyStoreName,
+      ddbClient := Some(ddbClient),
+      kmsClient := Some(kmsClient)
+    );
+
+    var keyStore :- expect KeyStore.KeyStore(keyStoreConfig);
+
+    // First we test that if we try to version or "rotate" a branch key in an 
+    // active-active situation we end up with a failure.
+    var versionKeyResult := keyStore.VersionKey(Types.VersionKeyInput(
+      branchKeyIdentifier := keyId,
+      grantTokens := None
+    ));
+
+    expect versionKeyResult.Failure?;
+    expect versionKeyResult.error == Types.KeyStoreException(
+      message := "Found more than one active key under: " + keyId + ". Resolve by calling ActiveKeyResolution API.");
   }
 }

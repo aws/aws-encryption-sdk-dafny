@@ -3,6 +3,7 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.keyStore;
 
+import Dafny.Aws.Cryptography.KeyStore.Types.BranchKeyStatusResolutionInput;
 import Dafny.Aws.Cryptography.KeyStore.Types.CreateKeyInput;
 import Dafny.Aws.Cryptography.KeyStore.Types.CreateKeyOutput;
 import Dafny.Aws.Cryptography.KeyStore.Types.CreateKeyStoreInput;
@@ -120,6 +121,17 @@ public class ToDafny {
         Option.create_Some(ToDafny.GrantTokenList(nativeValue.grantTokens()))
         : Option.create_None();
     return new GetBeaconKeyInput(branchKeyIdentifier, grantTokens);
+  }
+
+  public static BranchKeyStatusResolutionInput BranchKeyStatusResolutionInput(
+      software.amazon.cryptography.keyStore.model.BranchKeyStatusResolutionInput nativeValue) {
+    DafnySequence<? extends Character> branchKeyIdentifier;
+    branchKeyIdentifier = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.branchKeyIdentifier());
+    Option<DafnySequence<? extends DafnySequence<? extends Character>>> grantTokens;
+    grantTokens = (Objects.nonNull(nativeValue.grantTokens()) && nativeValue.grantTokens().size() > 0) ?
+        Option.create_Some(ToDafny.GrantTokenList(nativeValue.grantTokens()))
+        : Option.create_None();
+    return new BranchKeyStatusResolutionInput(branchKeyIdentifier, grantTokens);
   }
 
   public static VersionKeyInput VersionKeyInput(

@@ -39,7 +39,8 @@ service KeyStore {
     VersionKey,
     GetActiveBranchKey,
     GetBranchKeyVersion,
-    GetBeaconKey
+    GetBeaconKey,
+    BranchKeyStatusResolution
   ],
   errors: [KeyStoreException]
 }
@@ -161,6 +162,17 @@ structure GetBeaconKeyOutput {
 
   @required
   beaconKey: Secret,
+}
+
+operation BranchKeyStatusResolution {
+  input: BranchKeyStatusResolutionInput
+}
+
+structure BranchKeyStatusResolutionInput {
+  @required
+  branchKeyIdentifier: String,
+  
+  grantTokens: GrantTokenList
 }
 
 string KmsKeyArn

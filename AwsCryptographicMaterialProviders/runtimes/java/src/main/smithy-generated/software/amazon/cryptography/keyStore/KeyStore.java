@@ -11,6 +11,7 @@ import Wrappers_Compile.Result;
 import dafny.Tuple0;
 import java.lang.IllegalArgumentException;
 import java.util.Objects;
+import software.amazon.cryptography.keyStore.model.BranchKeyStatusResolutionInput;
 import software.amazon.cryptography.keyStore.model.CreateKeyInput;
 import software.amazon.cryptography.keyStore.model.CreateKeyOutput;
 import software.amazon.cryptography.keyStore.model.CreateKeyStoreInput;
@@ -96,6 +97,14 @@ public class KeyStore {
       throw ToNative.Error(result.dtor_error());
     }
     return ToNative.GetBeaconKeyOutput(result.dtor_value());
+  }
+
+  public void BranchKeyStatusResolution(BranchKeyStatusResolutionInput nativeValue) {
+    Dafny.Aws.Cryptography.KeyStore.Types.BranchKeyStatusResolutionInput dafnyValue = ToDafny.BranchKeyStatusResolutionInput(nativeValue);
+    Result<Tuple0, Error> result = this._impl.BranchKeyStatusResolution(dafnyValue);
+    if (result.is_Failure()) {
+      throw ToNative.Error(result.dtor_error());
+    }
   }
 
   protected IKeyStoreClient impl() {
