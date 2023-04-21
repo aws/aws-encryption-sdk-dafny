@@ -6,15 +6,17 @@ include "../../AwsCryptographicMaterialProviders/src/AwsArnParsing.dfy"
 include "GetKeys.dfy"
 include "CreateKeyStoreTable.dfy"
 include "CreateKeys.dfy"
+include "KeyResolution.dfy"
 
 module AwsCryptographyKeyStoreOperations refines AbstractAwsCryptographyKeyStoreOperations {
   import opened AwsArnParsing
   import KMS = ComAmazonawsKmsTypes
   import DDB = ComAmazonawsDynamodbTypes
   import MPL = AwsCryptographyMaterialProvidersTypes
-  import GetKeys
   import CreateKeys
   import CreateKeyStoreTable
+  import KeyResolution
+  import GetKeys
 
   datatype Config = Config(
     nameonly id: string,
@@ -103,5 +105,14 @@ module AwsCryptographyKeyStoreOperations refines AbstractAwsCryptographyKeyStore
     returns (output: Result<GetBeaconKeyOutput, Error>)
   {
     output := GetKeys.GetBeaconKeyAndUnwrap(input, config.ddbTableName, config.kmsKeyArn, config.kmsClient, config.ddbClient);
+  }
+
+  predicate BranchKeyStatusResolutionEnsuresPublicly(input: BranchKeyStatusResolutionInput, output: Result<(), Error>)
+  {true}
+
+  method BranchKeyStatusResolution(config: InternalConfig, input: BranchKeyStatusResolutionInput)
+    returns (output: Result<(), Error>)
+  {
+    output := KeyResolution.ActiveBranchKeysResolution(input, config.ddbTableName, config.kmsKeyArn, config.kmsClient, config.ddbClient);
   }
 }

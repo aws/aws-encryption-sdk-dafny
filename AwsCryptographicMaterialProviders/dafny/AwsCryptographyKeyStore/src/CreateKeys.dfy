@@ -23,23 +23,17 @@ module CreateKeys {
   import UUID
   import Time
 
-  const KEY_IDENTIFIER_FIELD := "branch-key-id";
-  const TYPE_FIELD := "type";
-  const BRANCH_KEY_TYPE_PREFIX := "version:";
   const BEACON_KEY_TYPE_VALUE := "beacon:true";
-  const KEY_FIELD := "enc";
   const KEY_STATUS := "status";
   const KEY_CREATE_TIME := "create-time";
   const HIERARCHY_VERSION := "hierarchy-version";
-  const TABLE_FIELD := "tablename";
-  const KMS_FIELD := "kms-arn";
 
   // A GenerateDataKeyWithoutPlaintext of request size 32 returns a ciphertext size of 184 bytes.
   const KMS_GEN_KEY_NO_PLAINTEXT_LENGTH_32 := 184;
 
   type BranchKeyContext = m: map<string, string> | branchKeyContextHasRequiredFields?(m) witness *
   predicate method branchKeyContextHasRequiredFields?(m: map<string, string>) {
-    && KEY_IDENTIFIER_FIELD in m
+    && BRANCH_KEY_IDENTIFIER_FIELD in m
     && TYPE_FIELD in m
     && KEY_STATUS in m
     && KEY_CREATE_TIME in m
@@ -52,7 +46,7 @@ module CreateKeys {
     ensures branchKeyContextHasRequiredFields?(output)
   {
     map[
-      KEY_IDENTIFIER_FIELD := id,
+      BRANCH_KEY_IDENTIFIER_FIELD := id,
       TYPE_FIELD := BRANCH_KEY_TYPE_PREFIX + version,
       KEY_STATUS := "ACTIVE",
       KEY_CREATE_TIME := timestamp,
@@ -66,7 +60,7 @@ module CreateKeys {
     ensures branchKeyContextHasRequiredFields?(output)
   {
     map[
-      KEY_IDENTIFIER_FIELD := id,
+      BRANCH_KEY_IDENTIFIER_FIELD := id,
       TYPE_FIELD := BRANCH_KEY_TYPE_PREFIX + version,
       KEY_STATUS := "DECRYPT_ONLY",
       KEY_CREATE_TIME := timestamp,
@@ -80,7 +74,7 @@ module CreateKeys {
     ensures branchKeyContextHasRequiredFields?(output)
   {
     map[
-      KEY_IDENTIFIER_FIELD := id,
+      BRANCH_KEY_IDENTIFIER_FIELD := id,
       TYPE_FIELD := BEACON_KEY_TYPE_VALUE,
       KEY_STATUS := "SEARCH",
       KEY_CREATE_TIME := timestamp,
@@ -333,10 +327,10 @@ module CreateKeys {
   function method ToBranchKeyItemAttributeMap(m: BranchKeyContext, k: seq<uint8>): (output: DDB.AttributeMap)
   {
     map[
-      KEY_IDENTIFIER_FIELD := DDB.AttributeValue.S(m[KEY_IDENTIFIER_FIELD]),
+      BRANCH_KEY_IDENTIFIER_FIELD := DDB.AttributeValue.S(m[BRANCH_KEY_IDENTIFIER_FIELD]),
       TYPE_FIELD := DDB.AttributeValue.S(m[TYPE_FIELD]),
       KEY_STATUS := DDB.AttributeValue.S(m[KEY_STATUS]),
-      KEY_FIELD := DDB.AttributeValue.B(k),
+      BRANCH_KEY_FIELD := DDB.AttributeValue.B(k),
       KMS_FIELD := DDB.AttributeValue.S(m[KMS_FIELD]),
       KEY_CREATE_TIME := DDB.AttributeValue.S(m[KEY_CREATE_TIME]),
       HIERARCHY_VERSION := DDB.AttributeValue.N(m[HIERARCHY_VERSION])
@@ -366,7 +360,21 @@ module CreateKeys {
     modifies ddbClient.Modifies, kmsClient.Modifies
     ensures ddbClient.ValidState() && kmsClient.ValidState()
   {
-    var queryOutput :- QueryForActiveBranchKey(input.branchKeyIdentifier, ddbTableName, ddbClient);
+    var maybeQueryOutput := GetKeys.QueryForActiveBranchKey(input.branchKeyIdentifier, ddbTableName, ddbClient);
+    //= aws-encryption-sdk-specification/framework/branch-key-store.md#versionkey
+    //= type=implication
+    //# 1. If the client is unable to fetch an `ACTIVE` key, GetActiveBranchKey MUST fail.
+    var queryOutput :- maybeQueryOutput
+      .MapFailure(e => Types.ComAmazonawsDynamodb(ComAmazonawsDynamodb := e));
+    
+    :- Need(
+      //= aws-encryption-sdk-specification/framework/branch-key-store.md#versionkey
+      //= type=implication
+      //# There MUST only be one `ACTIVE` key. If there is more than one `ACTIVE` key, the operation MUST fail.
+      && queryOutput.Items.Some?
+      && |queryOutput.Items.value| == 1,
+      E("Found more than one active key under: " + input.branchKeyIdentifier + ". Resolve by calling ActiveKeyResolution API.")
+    );
 
     :- Need(
       //= aws-encryption-sdk-specification/framework/branch-key-store.md#versionkey
@@ -400,7 +408,7 @@ module CreateKeys {
     //# The operation MUST create a branch key [encryption context](./structures.md#encryption-context)
     //# from the branch AWS DDB query response according to [branch key encryption context](#encryption-context).
     var oldActiveBranchKeyEncryptionContext := activeBranchKeyEncryptionContext(
-      item[KEY_IDENTIFIER_FIELD].S,
+      item[BRANCH_KEY_IDENTIFIER_FIELD].S,
       item[TYPE_FIELD].S[|BRANCH_KEY_TYPE_PREFIX|..],
       item[KEY_CREATE_TIME].S,
       ddbTableName,
@@ -412,7 +420,7 @@ module CreateKeys {
     //# The operation MUST create a branch key [encryption context](./structures.md#encryption-context)
     //# for DECRYPT_ONLY branch keys according to the [decrypt only branch key encryption context](#decrypt_only-encryption-context).
     var decryptOnlyBranchKeyEncryptionContext: BranchKeyContext := decryptOnlyBranchKeyEncryptionContext(
-      item[KEY_IDENTIFIER_FIELD].S,
+      item[BRANCH_KEY_IDENTIFIER_FIELD].S,
       item[TYPE_FIELD].S[|BRANCH_KEY_TYPE_PREFIX|..],
       item[KEY_CREATE_TIME].S,
       ddbTableName,
@@ -420,7 +428,7 @@ module CreateKeys {
     );
 
     var decryptOnlyBranchKey :- ReEncryptBranchKeyDecryptOnly(
-      item[KEY_FIELD].B,
+      item[BRANCH_KEY_FIELD].B,
       oldActiveBranchKeyEncryptionContext,
       decryptOnlyBranchKeyEncryptionContext,
       kmsKeyArn,
@@ -445,7 +453,7 @@ module CreateKeys {
       .MapFailure(e => E(e));
     
     var newActiveBranchKeyEncryptionContext: BranchKeyContext := activeBranchKeyEncryptionContext(
-      item[KEY_IDENTIFIER_FIELD].S,
+      item[BRANCH_KEY_IDENTIFIER_FIELD].S,
       branchKeyVersion,
       timestamp,
       ddbTableName,
@@ -470,94 +478,6 @@ module CreateKeys {
     );
 
     res := Success(());
-  }
-
-  method QueryForActiveBranchKey(branchKeyId: string, ddbTableName: DDB.TableName, ddbClient: DDB.IDynamoDBClient)
-    returns (res: Result<DDB.QueryOutput, Types.Error>)
-    requires ddbClient.ValidState()
-    modifies ddbClient.Modifies
-    ensures ddbClient.ValidState()
-    ensures 
-      && |ddbClient.History.Query| > 0
-      && var ddbOperationInput := Last(ddbClient.History.Query).input;
-      && var ddbOperationOutput := Last(ddbClient.History.Query).output;
-      && ddbOperationOutput.Success?
-      && ddbOperationOutput.value.Items.Some?
-      //= aws-encryption-sdk-specification/framework/branch-key-store.md#versionkey
-      //= type=implication
-      //# There MUST only be one `ACTIVE` key. If there is more than one `ACTIVE` key, the operation MUST fail.
-      && |ddbOperationOutput.value.Items.value| > 1
-      ==> res.Failure?
-    ensures 
-      && |ddbClient.History.Query| > 0
-      && var ddbOperationOutput := Last(ddbClient.History.Query).output;
-      //= aws-encryption-sdk-specification/framework/branch-key-store.md#versionkey
-      //= type=implication
-      //# 1. If the client is unable to fetch an `ACTIVE` key, GetActiveBranchKey MUST fail.
-      && ddbOperationOutput.Failure?
-      ==> res.Failure?
-    ensures res.Success? ==>
-      && |ddbClient.History.Query| > 0
-      //= aws-encryption-sdk-specification/framework/branch-key-store.md#versionkey
-      //= type=implication
-      //# This operation MUST make a DDB::Query to get the branch key at `branchKeyId` with status `ACTIVE`
-      && var ddbOperationInput := Last(ddbClient.History.Query).input;
-      && var ddbOperationOutput := Last(ddbClient.History.Query).output;
-      && var expressionAttributeValues: DDB.AttributeMap := map[
-        EXPRESSION_ATTRIBUTE_VALUE_BRANCH_KEY := DDB.AttributeValue.S(branchKeyId),
-        EXPRESSION_ATTRIBUTE_VALUE_STATUS_KEY := DDB.AttributeValue.S(STATUS_ACTIVE)];
-      && ddbOperationOutput.Success?
-      && ddbOperationInput.TableName == ddbTableName
-      && ddbOperationInput.IndexName.Some?
-      && ddbOperationInput.IndexName.value == CreateKeyStoreTable.GSI_NAME
-      && ddbOperationInput.KeyConditionExpression.Some?
-      && ddbOperationInput.KeyConditionExpression.value == STATUS_BRANCH_KEY_ID_MATCH_EXPRESSION
-      && ddbOperationInput.ExpressionAttributeNames.Some?
-      && ddbOperationInput.ExpressionAttributeNames.value == EXPRESSION_ATTRIBUTE_NAMES
-      && ddbOperationInput.ExpressionAttributeValues.Some?
-      && ddbOperationInput.ExpressionAttributeValues.value == expressionAttributeValues
-      && ddbOperationOutput.value == res.value
-    ensures res.Success?
-      ==>
-        && res.value.Items.Some?
-        && |res.value.Items.value| == 1
-  {
-    var expressionAttributeValues : DDB.AttributeMap := map[
-      EXPRESSION_ATTRIBUTE_VALUE_BRANCH_KEY := DDB.AttributeValue.S(branchKeyId),
-      EXPRESSION_ATTRIBUTE_VALUE_STATUS_KEY := DDB.AttributeValue.S(STATUS_ACTIVE)
-    ];
-    
-    var queryInput := DDB.QueryInput(
-      TableName := ddbTableName,
-      IndexName := Some(CreateKeyStoreTable.GSI_NAME),
-      Select := None,
-      AttributesToGet := None,
-      Limit := None,
-      ConsistentRead :=  None,
-      KeyConditions := None,
-      QueryFilter := None,
-      ConditionalOperator := None,
-      ScanIndexForward := None,
-      ExclusiveStartKey := None,
-      ReturnConsumedCapacity :=  None,
-      ProjectionExpression := None,
-      FilterExpression := None,
-      KeyConditionExpression := Some(STATUS_BRANCH_KEY_ID_MATCH_EXPRESSION),
-      ExpressionAttributeNames := Some(EXPRESSION_ATTRIBUTE_NAMES),
-      ExpressionAttributeValues := Some(expressionAttributeValues)
-    );
-    
-    var maybeQueryResponse := ddbClient.Query(queryInput);
-    var queryResponse :- maybeQueryResponse
-      .MapFailure(e => Types.ComAmazonawsDynamodb(ComAmazonawsDynamodb := e));
-
-    :- Need(
-      && queryResponse.Items.Some?
-      && |queryResponse.Items.value| == 1,
-      E("Found more than one active key under: " + branchKeyId + ". Resolve by calling ActiveKeyResolution API.")
-    );
-
-    return Success(queryResponse);
   }
 
   method ReEncryptBranchKeyDecryptOnly(

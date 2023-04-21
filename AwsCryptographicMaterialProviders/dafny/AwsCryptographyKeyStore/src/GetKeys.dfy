@@ -13,6 +13,7 @@ module GetKeys {
   import opened AwsArnParsing
   import opened AwsKmsUtils
   import opened CreateKeyStoreTable
+  import opened Seq
   import Types = AwsCryptographyKeyStoreTypes
   import DDB = ComAmazonawsDynamodbTypes
   import KMS = ComAmazonawsKmsTypes
@@ -94,31 +95,7 @@ module GetKeys {
     modifies ddbClient.Modifies, kmsClient.Modifies
     ensures ddbClient.ValidState() && kmsClient.ValidState()
   {
-    var expressionAttributeValues : DDB.AttributeMap := map[
-      EXPRESSION_ATTRIBUTE_VALUE_BRANCH_KEY := DDB.AttributeValue.S(input.branchKeyIdentifier),
-      EXPRESSION_ATTRIBUTE_VALUE_STATUS_KEY := DDB.AttributeValue.S(STATUS_ACTIVE)
-    ];
-
-    var queryInput := DDB.QueryInput(
-      TableName := tableName,
-      IndexName := Some(CreateKeyStoreTable.GSI_NAME),
-      Select := None,
-      AttributesToGet := None,
-      Limit := None,
-      ConsistentRead :=  None,
-      KeyConditions := None,
-      QueryFilter := None,
-      ConditionalOperator := None,
-      ScanIndexForward := None,
-      ExclusiveStartKey := None,
-      ReturnConsumedCapacity :=  None,
-      ProjectionExpression := None,
-      FilterExpression := None,
-      KeyConditionExpression := Some(STATUS_BRANCH_KEY_ID_MATCH_EXPRESSION),
-      ExpressionAttributeNames := Some(EXPRESSION_ATTRIBUTE_NAMES),
-      ExpressionAttributeValues := Some(expressionAttributeValues)
-    );
-    var maybeQueryResponse := ddbClient.Query(queryInput);
+    var maybeQueryResponse := QueryForActiveBranchKey(input.branchKeyIdentifier, tableName, ddbClient);
     var queryResponse :- maybeQueryResponse
       .MapFailure(e => Types.ComAmazonawsDynamodb(ComAmazonawsDynamodb := e));
     
@@ -149,6 +126,71 @@ module GetKeys {
       branchKeyVersion := branchKeyVersionUtf8,
       branchKey := branchKeyResponse.Plaintext.value
     ));
+  }
+
+  method QueryForActiveBranchKey(branchKeyId: string, ddbTableName: DDB.TableName, ddbClient: DDB.IDynamoDBClient)
+    returns (res: Result<DDB.QueryOutput, DDB.Error>)
+    requires ddbClient.ValidState()
+    modifies ddbClient.Modifies
+    ensures ddbClient.ValidState()
+    ensures 
+      && |ddbClient.History.Query| > 0
+      && var ddbOperationOutput := Last(ddbClient.History.Query).output;
+      //= aws-encryption-sdk-specification/framework/branch-key-store.md#versionkey
+      //= type=implication
+      //# 1. If the client is unable to fetch an `ACTIVE` key, GetActiveBranchKey MUST fail.
+      && ddbOperationOutput.Failure?
+      ==> res.Failure?
+    ensures res.Success? ==>
+      && |ddbClient.History.Query| > 0
+      //= aws-encryption-sdk-specification/framework/branch-key-store.md#versionkey
+      //= type=implication
+      //# This operation MUST make a DDB::Query to get the branch key at `branchKeyId` with status `ACTIVE`
+      && var ddbOperationInput := Last(ddbClient.History.Query).input;
+      && var ddbOperationOutput := Last(ddbClient.History.Query).output;
+      && var expressionAttributeValues: DDB.AttributeMap := map[
+        EXPRESSION_ATTRIBUTE_VALUE_BRANCH_KEY := DDB.AttributeValue.S(branchKeyId),
+        EXPRESSION_ATTRIBUTE_VALUE_STATUS_KEY := DDB.AttributeValue.S(STATUS_ACTIVE)];
+      && ddbOperationOutput.Success?
+      && ddbOperationInput.TableName == ddbTableName
+      && ddbOperationInput.IndexName.Some?
+      && ddbOperationInput.IndexName.value == CreateKeyStoreTable.GSI_NAME
+      && ddbOperationInput.KeyConditionExpression.Some?
+      && ddbOperationInput.KeyConditionExpression.value == STATUS_BRANCH_KEY_ID_MATCH_EXPRESSION
+      && ddbOperationInput.ExpressionAttributeNames.Some?
+      && ddbOperationInput.ExpressionAttributeNames.value == EXPRESSION_ATTRIBUTE_NAMES
+      && ddbOperationInput.ExpressionAttributeValues.Some?
+      && ddbOperationInput.ExpressionAttributeValues.value == expressionAttributeValues
+      && ddbOperationOutput.value == res.value
+  {
+    var expressionAttributeValues : DDB.AttributeMap := map[
+      EXPRESSION_ATTRIBUTE_VALUE_BRANCH_KEY := DDB.AttributeValue.S(branchKeyId),
+      EXPRESSION_ATTRIBUTE_VALUE_STATUS_KEY := DDB.AttributeValue.S(STATUS_ACTIVE)
+    ];
+    
+    var queryInput := DDB.QueryInput(
+      TableName := ddbTableName,
+      IndexName := Some(CreateKeyStoreTable.GSI_NAME),
+      Select := None,
+      AttributesToGet := None,
+      Limit := None,
+      ConsistentRead :=  None,
+      KeyConditions := None,
+      QueryFilter := None,
+      ConditionalOperator := None,
+      ScanIndexForward := None,
+      ExclusiveStartKey := None,
+      ReturnConsumedCapacity :=  None,
+      ProjectionExpression := None,
+      FilterExpression := None,
+      KeyConditionExpression := Some(STATUS_BRANCH_KEY_ID_MATCH_EXPRESSION),
+      ExpressionAttributeNames := Some(EXPRESSION_ATTRIBUTE_NAMES),
+      ExpressionAttributeValues := Some(expressionAttributeValues)
+    );
+    
+    var queryResponse :- ddbClient.Query(queryInput);
+    
+    res := Success(queryResponse);
   }
 
   method GetBranchKeyVersion(input: Types.GetBranchKeyVersionInput, tableName: DDB.TableName, kmsKeyArn: Types.KmsKeyArn, kmsClient: KMS.IKMSClient, ddbClient: DDB.IDynamoDBClient)
@@ -370,10 +412,12 @@ module GetKeys {
       if !LexicographicLessOrEqual(a, b, CharGreater) {
         newestBranchKey := queryResponse[i];
       } else {
-        var versionA := newestBranchKey["type"].S[|BRANCH_KEY_TYPE_PREFIX|..];
-        var versionB := tmp["type"].S[|BRANCH_KEY_TYPE_PREFIX|..];
-        if !LexicographicLessOrEqual(versionA, versionB, CharGreater) {
-          newestBranchKey := queryResponse[i];
+        if a == b {
+          var versionA := newestBranchKey["type"].S[|BRANCH_KEY_TYPE_PREFIX|..];
+          var versionB := tmp["type"].S[|BRANCH_KEY_TYPE_PREFIX|..];
+          if !LexicographicLessOrEqual(versionA, versionB, CharGreater) {
+            newestBranchKey := queryResponse[i];
+          }
         }
       }
     }

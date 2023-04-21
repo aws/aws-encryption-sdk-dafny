@@ -13,6 +13,7 @@ import java.lang.Character;
 import java.lang.RuntimeException;
 import java.lang.String;
 import java.util.List;
+import software.amazon.cryptography.keyStore.model.BranchKeyStatusResolutionInput;
 import software.amazon.cryptography.keyStore.model.CollectionOfErrors;
 import software.amazon.cryptography.keyStore.model.CreateKeyInput;
 import software.amazon.cryptography.keyStore.model.CreateKeyOutput;
@@ -126,6 +127,16 @@ public class ToNative {
   public static GetBeaconKeyInput GetBeaconKeyInput(
       Dafny.Aws.Cryptography.KeyStore.Types.GetBeaconKeyInput dafnyValue) {
     GetBeaconKeyInput.Builder nativeBuilder = GetBeaconKeyInput.builder();
+    nativeBuilder.branchKeyIdentifier(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_branchKeyIdentifier()));
+    if (dafnyValue.dtor_grantTokens().is_Some()) {
+      nativeBuilder.grantTokens(ToNative.GrantTokenList(dafnyValue.dtor_grantTokens().dtor_value()));
+    }
+    return nativeBuilder.build();
+  }
+
+  public static BranchKeyStatusResolutionInput BranchKeyStatusResolutionInput(
+      Dafny.Aws.Cryptography.KeyStore.Types.BranchKeyStatusResolutionInput dafnyValue) {
+    BranchKeyStatusResolutionInput.Builder nativeBuilder = BranchKeyStatusResolutionInput.builder();
     nativeBuilder.branchKeyIdentifier(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_branchKeyIdentifier()));
     if (dafnyValue.dtor_grantTokens().is_Some()) {
       nativeBuilder.grantTokens(ToNative.GrantTokenList(dafnyValue.dtor_grantTokens().dtor_value()));
