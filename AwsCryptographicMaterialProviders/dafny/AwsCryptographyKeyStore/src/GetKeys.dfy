@@ -26,15 +26,14 @@ module GetKeys {
   
   const BRANCH_KEY_FIELD := "enc";
   
-  const KEY_CONDITION_EXPRESSION := "#branch_key_id = :branch_key_id and #status = :status";
+  const STATUS_BRANCH_KEY_ID_MATCH_EXPRESSION := "#branch_key_id = :branch_key_id and #status = :status";
   const EXPRESSION_ATTRIBUTE_NAMES := map[
     "#branch_key_id" := "branch-key-id",
     "#status"       := "status"
   ];
   const EXPRESSION_ATTRIBUTE_VALUE_STATUS_KEY := ":status";
-  const EXPRESSION_ATTRIBUTE_VALUE_STATUS_VALUE := "ACTIVE";
+  const STATUS_ACTIVE := "ACTIVE";
   const EXPRESSION_ATTRIBUTE_VALUE_BRANCH_KEY := ":branch_key_id";
-  const gsiPreFix := "Active-Keys-";
   
   type baseKeyStoreItem = m: DDB.AttributeMap | baseKeyStoreItemHasRequiredAttributes?(m) witness *
   predicate method baseKeyStoreItemHasRequiredAttributes?(m: DDB.AttributeMap) {
@@ -91,21 +90,18 @@ module GetKeys {
     returns (res: Result<Types.GetActiveBranchKeyOutput, Types.Error>)
     requires kmsClient.ValidState() && ddbClient.ValidState()
     requires DDB.IsValid_TableName(tableName)
-    requires DDB.IsValid_IndexName(gsiPreFix + tableName)
     requires KMS.IsValid_KeyIdType(kmsKeyArn)
     modifies ddbClient.Modifies, kmsClient.Modifies
     ensures ddbClient.ValidState() && kmsClient.ValidState()
   {
-    var keyStoreGsi := gsiPreFix + tableName;
-    
     var expressionAttributeValues : DDB.AttributeMap := map[
       EXPRESSION_ATTRIBUTE_VALUE_BRANCH_KEY := DDB.AttributeValue.S(input.branchKeyIdentifier),
-      EXPRESSION_ATTRIBUTE_VALUE_STATUS_KEY := DDB.AttributeValue.S(EXPRESSION_ATTRIBUTE_VALUE_STATUS_VALUE)
+      EXPRESSION_ATTRIBUTE_VALUE_STATUS_KEY := DDB.AttributeValue.S(STATUS_ACTIVE)
     ];
 
     var queryInput := DDB.QueryInput(
       TableName := tableName,
-      IndexName := Some(keyStoreGsi),
+      IndexName := Some(CreateKeyStoreTable.GSI_NAME),
       Select := None,
       AttributesToGet := None,
       Limit := None,
@@ -118,7 +114,7 @@ module GetKeys {
       ReturnConsumedCapacity :=  None,
       ProjectionExpression := None,
       FilterExpression := None,
-      KeyConditionExpression := Some(KEY_CONDITION_EXPRESSION),
+      KeyConditionExpression := Some(STATUS_BRANCH_KEY_ID_MATCH_EXPRESSION),
       ExpressionAttributeNames := Some(EXPRESSION_ATTRIBUTE_NAMES),
       ExpressionAttributeValues := Some(expressionAttributeValues)
     );
@@ -211,9 +207,6 @@ module GetKeys {
     ));
   }
   
-  //= aws-encryption-sdk-specification/framework/branch-key-store.md#getbeaconkey
-  //# This operation MUST be supplied a `branchKeyId`, `kmsKeyId`, and a 
-  //# list of `Grant Tokens` as input.
   method GetBeaconKeyAndUnwrap(input: Types.GetBeaconKeyInput, tableName: DDB.TableName, kmsKeyArn: Types.KmsKeyArn, kmsClient: KMS.IKMSClient, ddbClient: DDB.IDynamoDBClient) 
     returns (res: Result<Types.GetBeaconKeyOutput, Types.Error>)
     requires kmsClient.ValidState() && ddbClient.ValidState()
@@ -301,7 +294,7 @@ module GetKeys {
         && output.value.KeyId.Some?
         //= aws-encryption-sdk-specification/framework/branch-key-store.md#getbeaconkey
         //= type=implication
-        //# - The `KeyId` field in the AWS KMS response MUST equal the provided AWS KMS key identifier.
+        //# - The `KeyId` field in the AWS KMS response MUST equal the configured AWS KMS Key ARN.
         && output.value.KeyId.value == awsKmsKeyArn
         && output.value.Plaintext.Some?
         && 32 == |output.value.Plaintext.value|
@@ -325,7 +318,7 @@ module GetKeys {
     var decryptRequest :=
       KMS.DecryptRequest(
         //= aws-encryption-sdk-specification/framework/branch-key-store.md#aws-kms-branch-key-decryption
-        //# - `KeyId` MUST be the kmsKeyId provided as input to the key store operation.
+        //# - `KeyId` MUST be the AWS KMS Key ARN configured in the key store operation.
         KeyId := Some(awsKmsKeyArn),
         //= aws-encryption-sdk-specification/framework/branch-key-store.md#aws-kms-branch-key-decryption
         //# - `CiphertextBlob` MUST be the `enc` AWS DDB response value.

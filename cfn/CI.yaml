@@ -40,7 +40,7 @@ Resources:
         WriteCapacityUnits: "5"
       TableName: !Ref KeyStoreTable
       GlobalSecondaryIndexes:
-      - IndexName: !Sub "Active-Keys-${KeyStoreTable}"
+      - IndexName: !Sub "Active-Keys"
         KeySchema:
           - AttributeName: "branch-key-id"
             KeyType: "HASH"
