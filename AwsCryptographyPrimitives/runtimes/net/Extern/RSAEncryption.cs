@@ -80,7 +80,7 @@ namespace RSAEncryption {
         // key and returns the AsymmetricKeyParameter for that public key, encoded using UTF-8
         private static AsymmetricKeyParameter GetPublicKeyFromByteSeq(ibyteseq key) {
             AsymmetricKeyParameter keyParam;
-            using (var stringReader = new StringReader(Encoding.UTF8.GetString(key.Elements))) {
+            using (var stringReader = new StringReader(Encoding.UTF8.GetString(key.CloneAsArray()))) {
                 return (AsymmetricKeyParameter) new PemReader(stringReader).ReadObject();
             }
         }
@@ -149,8 +149,9 @@ namespace RSAEncryption {
                 IAsymmetricBlockCipher engine = GetEngineForPadding(padding);
                 AsymmetricKeyParameter publicKeyParam = GetPublicKeyFromByteSeq(publicKey);
                 engine.Init(true, publicKeyParam);
+                var plaintextMessageBytes = plaintextMessage.CloneAsArray();
                 return Result<ibyteseq, _IError>.create_Success(byteseq.FromArray(
-                    engine.ProcessBlock(plaintextMessage.Elements, 0, plaintextMessage.Elements.Length)));
+                    engine.ProcessBlock(plaintextMessageBytes, 0, plaintextMessageBytes.Length)));
             }
             catch (Exception encryptEx) {
                 return Result<ibyteseq, _IError>
@@ -161,19 +162,43 @@ namespace RSAEncryption {
         public static _IResult<ibyteseq, _IError> DecryptExtern(_IRSAPaddingMode padding, ibyteseq privateKey, ibyteseq cipherText) {
             try {
                 IAsymmetricBlockCipher engine = GetEngineForPadding(padding);
-                AsymmetricCipherKeyPair keyPair;
-                using ( var stringReader = new StringReader(Encoding.UTF8.GetString(privateKey.Elements))) {
-                    // This needs to be read as an AsymmetricCipherKeyPair and cannot be read directly as a
-                    // AsymmetricKeyParameter like the public key can
-                    keyPair = (AsymmetricCipherKeyPair) new PemReader(stringReader).ReadObject();
-                }
-                engine.Init(false, keyPair.Private);
+                AsymmetricKeyParameter privateKeyParameters = GetPrivateKeyFromByteSeq(privateKey.CloneAsArray());
+                engine.Init(false, privateKeyParameters);
+                var cipherTextBytes = cipherText.CloneAsArray();
                 return Result<ibyteseq, _IError>.create_Success(byteseq.FromArray(
-                    engine.ProcessBlock(cipherText.Elements, 0, cipherText.Elements.Length)));
+                    engine.ProcessBlock(cipherTextBytes, 0, cipherTextBytes.Length)));
             }
             catch (Exception decryptEx) {
                 return Result<ibyteseq, _IError>
                     .create_Failure(new Error_Opaque(decryptEx));
+            }
+        }
+        
+        /// <summary>
+        /// Reads the given PEM-encoded private key, and returns the corresponding AsymmetricKeyParameter.
+        /// This is complicated because a PEM MAY contain both keys as a pair
+        /// or MAY only contain the private key.
+        /// </summary>
+        public static AsymmetricKeyParameter GetPrivateKeyFromByteSeq(
+            byte[] pemDataBlob
+        ) {
+            using ( var stringReader = new StringReader(Encoding.UTF8.GetString(pemDataBlob))) {
+
+                switch (new PemReader(stringReader).ReadObject())
+                {
+                    // These casts are for correctness.
+                    // This is to return RSA parameters,
+                    // and these two types both extend from AsymmetricKeyParameter.
+                    // But also other things do as well (elliptic curves),
+                    // these checks are to make sure that we only get RSA keys back.
+                    case AsymmetricCipherKeyPair keypair:
+                        var keyParams = (RsaPrivateCrtKeyParameters)keypair.Private;
+                        return keyParams;
+                    case RsaKeyParameters keyParameter:
+                        return keyParameter;
+                    default:
+                        throw new ArgumentException("PEM does not contain an RSA private key.");
+                }
             }
         }
     }
