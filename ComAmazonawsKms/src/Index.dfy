@@ -20,4 +20,12 @@ module {:extern "Dafny.Com.Amazonaws.Kms"} Com.Amazonaws.Kms refines AbstractCom
     region: string
   ): Option<bool>
 
+  method {:extern} KMSClientForRegion(region: string)
+    returns (res: Result<IKMSClient, Error>)
+    ensures res.Success? ==> 
+    && fresh(res.value)
+    && fresh(res.value.Modifies)
+    && fresh(res.value.History)
+    && res.value.ValidState()
+
 }

@@ -47,7 +47,7 @@ module DefaultClientSupplier {
       ensures GetClientEnsuresPublicly(input, output)
       ensures unchanged(History)
     {
-      var maybeClient := Kms.KMSClient();
+      var maybeClient := Kms.KMSClientForRegion(input.region);
       return maybeClient.MapFailure(e => ComAmazonawsKms(e));
     }
 

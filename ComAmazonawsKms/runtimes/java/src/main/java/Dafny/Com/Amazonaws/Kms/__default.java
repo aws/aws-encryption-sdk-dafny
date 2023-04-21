@@ -34,11 +34,14 @@ public class __default extends Dafny.Com.Amazonaws.Kms._ExternBase___default{
         }
     }
 
-    public static Result<IKMSClient, Error> KMSClient(final String region) {
+    public static Result<IKMSClient, Error> KMSClientForRegion(
+        final DafnySequence<? extends Character> region
+    ) {
         try {
+            final String regionString = new String((char[]) region.toArray().unwrap());
             KmsClientBuilder builder = KmsClient.builder();
-            KmsClient client = builder.region(Region.of(region)).build();
-            IKMSClient shim = new Shim(client, region);
+            KmsClient client = builder.region(Region.of(regionString)).build();
+            IKMSClient shim = new Shim(client, regionString);
             return Result.create_Success(shim);
         } catch (Exception e) {
             Error dafny_error = Error.create_KMSInternalException(
