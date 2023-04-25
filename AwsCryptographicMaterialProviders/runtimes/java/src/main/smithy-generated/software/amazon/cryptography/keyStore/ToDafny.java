@@ -4,7 +4,6 @@
 package software.amazon.cryptography.keyStore;
 
 import Dafny.Aws.Cryptography.KeyStore.Types.BranchKeyStatusResolutionInput;
-import Dafny.Aws.Cryptography.KeyStore.Types.CreateKeyInput;
 import Dafny.Aws.Cryptography.KeyStore.Types.CreateKeyOutput;
 import Dafny.Aws.Cryptography.KeyStore.Types.CreateKeyStoreInput;
 import Dafny.Aws.Cryptography.KeyStore.Types.CreateKeyStoreOutput;
@@ -60,15 +59,6 @@ public class ToDafny {
     return Error.create_CollectionOfErrors(list);
   }
 
-  public static CreateKeyInput CreateKeyInput(
-      software.amazon.cryptography.keyStore.model.CreateKeyInput nativeValue) {
-    Option<DafnySequence<? extends DafnySequence<? extends Character>>> grantTokens;
-    grantTokens = (Objects.nonNull(nativeValue.grantTokens()) && nativeValue.grantTokens().size() > 0) ?
-        Option.create_Some(ToDafny.GrantTokenList(nativeValue.grantTokens()))
-        : Option.create_None();
-    return new CreateKeyInput(grantTokens);
-  }
-
   public static GetBeaconKeyOutput GetBeaconKeyOutput(
       software.amazon.cryptography.keyStore.model.GetBeaconKeyOutput nativeValue) {
     DafnySequence<? extends Character> beaconKeyIdentifier;
@@ -98,11 +88,7 @@ public class ToDafny {
     branchKeyIdentifier = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.branchKeyIdentifier());
     DafnySequence<? extends Character> branchKeyVersion;
     branchKeyVersion = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.branchKeyVersion());
-    Option<DafnySequence<? extends DafnySequence<? extends Character>>> grantTokens;
-    grantTokens = (Objects.nonNull(nativeValue.grantTokens()) && nativeValue.grantTokens().size() > 0) ?
-        Option.create_Some(ToDafny.GrantTokenList(nativeValue.grantTokens()))
-        : Option.create_None();
-    return new GetBranchKeyVersionInput(branchKeyIdentifier, branchKeyVersion, grantTokens);
+    return new GetBranchKeyVersionInput(branchKeyIdentifier, branchKeyVersion);
   }
 
   public static CreateKeyStoreOutput CreateKeyStoreOutput(
@@ -116,33 +102,21 @@ public class ToDafny {
       software.amazon.cryptography.keyStore.model.GetBeaconKeyInput nativeValue) {
     DafnySequence<? extends Character> branchKeyIdentifier;
     branchKeyIdentifier = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.branchKeyIdentifier());
-    Option<DafnySequence<? extends DafnySequence<? extends Character>>> grantTokens;
-    grantTokens = (Objects.nonNull(nativeValue.grantTokens()) && nativeValue.grantTokens().size() > 0) ?
-        Option.create_Some(ToDafny.GrantTokenList(nativeValue.grantTokens()))
-        : Option.create_None();
-    return new GetBeaconKeyInput(branchKeyIdentifier, grantTokens);
+    return new GetBeaconKeyInput(branchKeyIdentifier);
   }
 
   public static BranchKeyStatusResolutionInput BranchKeyStatusResolutionInput(
       software.amazon.cryptography.keyStore.model.BranchKeyStatusResolutionInput nativeValue) {
     DafnySequence<? extends Character> branchKeyIdentifier;
     branchKeyIdentifier = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.branchKeyIdentifier());
-    Option<DafnySequence<? extends DafnySequence<? extends Character>>> grantTokens;
-    grantTokens = (Objects.nonNull(nativeValue.grantTokens()) && nativeValue.grantTokens().size() > 0) ?
-        Option.create_Some(ToDafny.GrantTokenList(nativeValue.grantTokens()))
-        : Option.create_None();
-    return new BranchKeyStatusResolutionInput(branchKeyIdentifier, grantTokens);
+    return new BranchKeyStatusResolutionInput(branchKeyIdentifier);
   }
 
   public static VersionKeyInput VersionKeyInput(
       software.amazon.cryptography.keyStore.model.VersionKeyInput nativeValue) {
     DafnySequence<? extends Character> branchKeyIdentifier;
     branchKeyIdentifier = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.branchKeyIdentifier());
-    Option<DafnySequence<? extends DafnySequence<? extends Character>>> grantTokens;
-    grantTokens = (Objects.nonNull(nativeValue.grantTokens()) && nativeValue.grantTokens().size() > 0) ?
-        Option.create_Some(ToDafny.GrantTokenList(nativeValue.grantTokens()))
-        : Option.create_None();
-    return new VersionKeyInput(branchKeyIdentifier, grantTokens);
+    return new VersionKeyInput(branchKeyIdentifier);
   }
 
   public static CreateKeyOutput CreateKeyOutput(
@@ -171,6 +145,10 @@ public class ToDafny {
     ddbTableName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.ddbTableName());
     DafnySequence<? extends Character> kmsKeyArn;
     kmsKeyArn = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.kmsKeyArn());
+    Option<DafnySequence<? extends DafnySequence<? extends Character>>> grantTokens;
+    grantTokens = (Objects.nonNull(nativeValue.grantTokens()) && nativeValue.grantTokens().size() > 0) ?
+        Option.create_Some(ToDafny.GrantTokenList(nativeValue.grantTokens()))
+        : Option.create_None();
     Option<IDynamoDBClient> ddbClient;
     ddbClient = Objects.nonNull(nativeValue.ddbClient()) ?
         Option.create_Some(Dafny.Com.Amazonaws.Dynamodb.ToDafny.DynamoDB_20120810(nativeValue.ddbClient()))
@@ -179,18 +157,14 @@ public class ToDafny {
     kmsClient = Objects.nonNull(nativeValue.kmsClient()) ?
         Option.create_Some(Dafny.Com.Amazonaws.Kms.ToDafny.TrentService(nativeValue.kmsClient()))
         : Option.create_None();
-    return new KeyStoreConfig(id, ddbTableName, kmsKeyArn, ddbClient, kmsClient);
+    return new KeyStoreConfig(id, ddbTableName, kmsKeyArn, grantTokens, ddbClient, kmsClient);
   }
 
   public static GetActiveBranchKeyInput GetActiveBranchKeyInput(
       software.amazon.cryptography.keyStore.model.GetActiveBranchKeyInput nativeValue) {
     DafnySequence<? extends Character> branchKeyIdentifier;
     branchKeyIdentifier = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.branchKeyIdentifier());
-    Option<DafnySequence<? extends DafnySequence<? extends Character>>> grantTokens;
-    grantTokens = (Objects.nonNull(nativeValue.grantTokens()) && nativeValue.grantTokens().size() > 0) ?
-        Option.create_Some(ToDafny.GrantTokenList(nativeValue.grantTokens()))
-        : Option.create_None();
-    return new GetActiveBranchKeyInput(branchKeyIdentifier, grantTokens);
+    return new GetActiveBranchKeyInput(branchKeyIdentifier);
   }
 
   public static Error Error(KeyStoreException nativeValue) {

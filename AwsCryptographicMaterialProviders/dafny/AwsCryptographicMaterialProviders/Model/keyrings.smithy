@@ -276,9 +276,7 @@ structure CreateAwsKmsHierarchicalKeyringInput {
     @required
     ttlSeconds: PositiveLong,
 
-    maxCacheSize: PositiveInteger,
-
-    grantTokens: GrantTokenList
+    maxCacheSize: PositiveInteger
 }
 
 // Raw

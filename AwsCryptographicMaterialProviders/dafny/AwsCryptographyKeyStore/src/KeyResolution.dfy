@@ -25,7 +25,14 @@ module KeyResolution {
   import KMS = ComAmazonawsKmsTypes
   import MPL = AwsCryptographyMaterialProvidersTypes
   
-  method ActiveBranchKeysResolution(input: Types.BranchKeyStatusResolutionInput, tableName: DDB.TableName, kmsKeyArn: Types.KmsKeyArn, kmsClient: KMS.IKMSClient, ddbClient: DDB.IDynamoDBClient)
+  method ActiveBranchKeysResolution(
+    input: Types.BranchKeyStatusResolutionInput,
+    tableName: DDB.TableName,
+    kmsKeyArn: Types.KmsKeyArn,
+    grantTokens: KMS.GrantTokenList,
+    kmsClient: KMS.IKMSClient,
+    ddbClient: DDB.IDynamoDBClient
+  )
     returns (res: Result<(), Types.Error>)
     requires KMS.IsValid_KeyIdType(kmsKeyArn)
     requires kmsClient.ValidState() && ddbClient.ValidState()
@@ -47,12 +54,6 @@ module KeyResolution {
       E("Malformed Branch Key entry")
     );
     
-    var grantTokens := GetValidGrantTokens(input.grantTokens);
-    :- Need(
-      && grantTokens.Success?,
-      E("CreateKey received invalid grant tokens")
-    );
-
     var latestActiveBranchKey := SortByTime(activeBranchKeys.Items.value);
     var activeBranchKeysAsSet := ToSet(activeBranchKeys.Items.value);
 
@@ -68,7 +69,7 @@ module KeyResolution {
       nonLatestActiveBranchKeys,
       tableName,
       kmsKeyArn,
-      grantTokens.value,
+      grantTokens,
       kmsClient
     );
 

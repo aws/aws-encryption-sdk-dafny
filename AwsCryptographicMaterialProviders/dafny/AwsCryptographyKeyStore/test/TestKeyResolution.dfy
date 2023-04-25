@@ -31,6 +31,7 @@ module TestKeyResolution {
     var keyStoreConfig := Types.KeyStoreConfig(
       id := None,
       kmsKeyArn := keyArn,
+      grantTokens := None,
       ddbTableName := branchKeyStoreName,
       ddbClient := Some(ddbClient),
       kmsClient := Some(kmsClient)
@@ -41,16 +42,13 @@ module TestKeyResolution {
     // Create a new key
     // We will create a use this new key per run to avoid tripping up
     // when running in different runtimes across different hosts
-    var branchKeyIdentifier :- expect keyStore.CreateKey(Types.CreateKeyInput(
-      grantTokens := None
-    ));
+    var branchKeyIdentifier :- expect keyStore.CreateKey();
     
     WriteActiveActiveBranchKey(branchKeyIdentifier.branchKeyIdentifier, kmsClient, ddbClient);
 
     // Resolve active key to latest key based on lexicographically timestamp value
     var resolveActiveKeyResult := keyStore.BranchKeyStatusResolution(Types.BranchKeyStatusResolutionInput(
-      branchKeyIdentifier := branchKeyIdentifier.branchKeyIdentifier,
-      grantTokens := None
+      branchKeyIdentifier := branchKeyIdentifier.branchKeyIdentifier
     ));
 
     expect resolveActiveKeyResult.Success?;

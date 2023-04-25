@@ -325,9 +325,6 @@ public class ToNative {
     if (dafnyValue.dtor_maxCacheSize().is_Some()) {
       nativeBuilder.maxCacheSize((dafnyValue.dtor_maxCacheSize().dtor_value()));
     }
-    if (dafnyValue.dtor_grantTokens().is_Some()) {
-      nativeBuilder.grantTokens(ToNative.GrantTokenList(dafnyValue.dtor_grantTokens().dtor_value()));
-    }
     return nativeBuilder.build();
   }
 

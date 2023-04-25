@@ -15,7 +15,6 @@ import java.lang.String;
 import java.util.List;
 import software.amazon.cryptography.keyStore.model.BranchKeyStatusResolutionInput;
 import software.amazon.cryptography.keyStore.model.CollectionOfErrors;
-import software.amazon.cryptography.keyStore.model.CreateKeyInput;
 import software.amazon.cryptography.keyStore.model.CreateKeyOutput;
 import software.amazon.cryptography.keyStore.model.CreateKeyStoreInput;
 import software.amazon.cryptography.keyStore.model.CreateKeyStoreOutput;
@@ -75,15 +74,6 @@ public class ToNative {
     return nativeBuilder.build();
   }
 
-  public static CreateKeyInput CreateKeyInput(
-      Dafny.Aws.Cryptography.KeyStore.Types.CreateKeyInput dafnyValue) {
-    CreateKeyInput.Builder nativeBuilder = CreateKeyInput.builder();
-    if (dafnyValue.dtor_grantTokens().is_Some()) {
-      nativeBuilder.grantTokens(ToNative.GrantTokenList(dafnyValue.dtor_grantTokens().dtor_value()));
-    }
-    return nativeBuilder.build();
-  }
-
   public static GetBeaconKeyOutput GetBeaconKeyOutput(
       Dafny.Aws.Cryptography.KeyStore.Types.GetBeaconKeyOutput dafnyValue) {
     GetBeaconKeyOutput.Builder nativeBuilder = GetBeaconKeyOutput.builder();
@@ -111,9 +101,6 @@ public class ToNative {
     GetBranchKeyVersionInput.Builder nativeBuilder = GetBranchKeyVersionInput.builder();
     nativeBuilder.branchKeyIdentifier(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_branchKeyIdentifier()));
     nativeBuilder.branchKeyVersion(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_branchKeyVersion()));
-    if (dafnyValue.dtor_grantTokens().is_Some()) {
-      nativeBuilder.grantTokens(ToNative.GrantTokenList(dafnyValue.dtor_grantTokens().dtor_value()));
-    }
     return nativeBuilder.build();
   }
 
@@ -128,9 +115,6 @@ public class ToNative {
       Dafny.Aws.Cryptography.KeyStore.Types.GetBeaconKeyInput dafnyValue) {
     GetBeaconKeyInput.Builder nativeBuilder = GetBeaconKeyInput.builder();
     nativeBuilder.branchKeyIdentifier(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_branchKeyIdentifier()));
-    if (dafnyValue.dtor_grantTokens().is_Some()) {
-      nativeBuilder.grantTokens(ToNative.GrantTokenList(dafnyValue.dtor_grantTokens().dtor_value()));
-    }
     return nativeBuilder.build();
   }
 
@@ -138,9 +122,6 @@ public class ToNative {
       Dafny.Aws.Cryptography.KeyStore.Types.BranchKeyStatusResolutionInput dafnyValue) {
     BranchKeyStatusResolutionInput.Builder nativeBuilder = BranchKeyStatusResolutionInput.builder();
     nativeBuilder.branchKeyIdentifier(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_branchKeyIdentifier()));
-    if (dafnyValue.dtor_grantTokens().is_Some()) {
-      nativeBuilder.grantTokens(ToNative.GrantTokenList(dafnyValue.dtor_grantTokens().dtor_value()));
-    }
     return nativeBuilder.build();
   }
 
@@ -148,9 +129,6 @@ public class ToNative {
       Dafny.Aws.Cryptography.KeyStore.Types.VersionKeyInput dafnyValue) {
     VersionKeyInput.Builder nativeBuilder = VersionKeyInput.builder();
     nativeBuilder.branchKeyIdentifier(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_branchKeyIdentifier()));
-    if (dafnyValue.dtor_grantTokens().is_Some()) {
-      nativeBuilder.grantTokens(ToNative.GrantTokenList(dafnyValue.dtor_grantTokens().dtor_value()));
-    }
     return nativeBuilder.build();
   }
 
@@ -177,6 +155,9 @@ public class ToNative {
     }
     nativeBuilder.ddbTableName(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_ddbTableName()));
     nativeBuilder.kmsKeyArn(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_kmsKeyArn()));
+    if (dafnyValue.dtor_grantTokens().is_Some()) {
+      nativeBuilder.grantTokens(ToNative.GrantTokenList(dafnyValue.dtor_grantTokens().dtor_value()));
+    }
     if (dafnyValue.dtor_ddbClient().is_Some()) {
       nativeBuilder.ddbClient(Dafny.Com.Amazonaws.Dynamodb.ToNative.DynamoDB_20120810(dafnyValue.dtor_ddbClient().dtor_value()));
     }
@@ -190,9 +171,6 @@ public class ToNative {
       Dafny.Aws.Cryptography.KeyStore.Types.GetActiveBranchKeyInput dafnyValue) {
     GetActiveBranchKeyInput.Builder nativeBuilder = GetActiveBranchKeyInput.builder();
     nativeBuilder.branchKeyIdentifier(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_branchKeyIdentifier()));
-    if (dafnyValue.dtor_grantTokens().is_Some()) {
-      nativeBuilder.grantTokens(ToNative.GrantTokenList(dafnyValue.dtor_grantTokens().dtor_value()));
-    }
     return nativeBuilder.build();
   }
 

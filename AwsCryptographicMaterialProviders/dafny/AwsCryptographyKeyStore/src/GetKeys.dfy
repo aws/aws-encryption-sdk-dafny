@@ -87,7 +87,14 @@ module GetKeys {
     }
   }
 
-  method GetActiveKeyAndUnwrap(input: Types.GetActiveBranchKeyInput, tableName: DDB.TableName, kmsKeyArn: Types.KmsKeyArn, kmsClient: KMS.IKMSClient, ddbClient: DDB.IDynamoDBClient)
+  method GetActiveKeyAndUnwrap(
+    input: Types.GetActiveBranchKeyInput,
+    tableName: DDB.TableName,
+    kmsKeyArn: Types.KmsKeyArn,
+    grantTokens: KMS.GrantTokenList,
+    kmsClient: KMS.IKMSClient,
+    ddbClient: DDB.IDynamoDBClient
+  )
     returns (res: Result<Types.GetActiveBranchKeyOutput, Types.Error>)
     requires kmsClient.ValidState() && ddbClient.ValidState()
     requires DDB.IsValid_TableName(tableName)
@@ -111,14 +118,8 @@ module GetKeys {
     );
 
     var branchKeyRecord := SortByTime(queryResponse.Items.value);
-
-    var grantTokens := GetValidGrantTokens(input.grantTokens);
-    :- Need(
-      && grantTokens.Success?,
-      E("GetActiveBranchKey received invalid grant tokens")
-    );
     
-    var branchKeyResponse :- decryptKeyStoreItem(branchKeyRecord, kmsKeyArn, grantTokens.value, tableName, kmsClient);
+    var branchKeyResponse :- decryptKeyStoreItem(branchKeyRecord, kmsKeyArn, grantTokens, tableName, kmsClient);
     var branchKeyVersion := branchKeyRecord["type"].S[|BRANCH_KEY_TYPE_PREFIX|..];
     var branchKeyVersionUtf8 :- UTF8.Encode(branchKeyVersion).MapFailure(e => E(e));
 
@@ -193,7 +194,14 @@ module GetKeys {
     res := Success(queryResponse);
   }
 
-  method GetBranchKeyVersion(input: Types.GetBranchKeyVersionInput, tableName: DDB.TableName, kmsKeyArn: Types.KmsKeyArn, kmsClient: KMS.IKMSClient, ddbClient: DDB.IDynamoDBClient)
+  method GetBranchKeyVersion(
+    input: Types.GetBranchKeyVersionInput,
+    tableName: DDB.TableName,
+    kmsKeyArn: Types.KmsKeyArn,
+    grantTokens: KMS.GrantTokenList,
+    kmsClient: KMS.IKMSClient,
+    ddbClient: DDB.IDynamoDBClient
+  )
     returns (res: Result<Types.GetBranchKeyVersionOutput, Types.Error>)
     requires kmsClient.ValidState() && ddbClient.ValidState()
     requires DDB.IsValid_TableName(tableName)
@@ -231,13 +239,7 @@ module GetKeys {
     
     var branchKeyRecord: versionBranchKeyItem := getItemResponse.Item.value;
 
-    var grantTokens := GetValidGrantTokens(input.grantTokens);
-    :- Need(
-      && grantTokens.Success?,
-      E("GetBranchKeyVersion received invalid grant tokens")
-    );
-
-    var maybeBranchKeyResponse := decryptKeyStoreItem(branchKeyRecord, kmsKeyArn, grantTokens.value, tableName, kmsClient);
+    var maybeBranchKeyResponse := decryptKeyStoreItem(branchKeyRecord, kmsKeyArn, grantTokens, tableName, kmsClient);
     var branchKeyResponse :- maybeBranchKeyResponse;
 
     var branchKeyVersion := branchKeyRecord["type"].S[|BRANCH_KEY_TYPE_PREFIX|..];
@@ -249,7 +251,14 @@ module GetKeys {
     ));
   }
   
-  method GetBeaconKeyAndUnwrap(input: Types.GetBeaconKeyInput, tableName: DDB.TableName, kmsKeyArn: Types.KmsKeyArn, kmsClient: KMS.IKMSClient, ddbClient: DDB.IDynamoDBClient) 
+  method GetBeaconKeyAndUnwrap(
+    input: Types.GetBeaconKeyInput,
+    tableName: DDB.TableName,
+    kmsKeyArn: Types.KmsKeyArn,
+    grantTokens: KMS.GrantTokenList,
+    kmsClient: KMS.IKMSClient,
+    ddbClient: DDB.IDynamoDBClient
+  )
     returns (res: Result<Types.GetBeaconKeyOutput, Types.Error>)
     requires kmsClient.ValidState() && ddbClient.ValidState()
     requires DDB.IsValid_TableName(tableName)
@@ -294,16 +303,10 @@ module GetKeys {
     );
   
     var beaconKeyItem: baseKeyStoreItem := getItemResponse.Item.value;
-
-    var grantTokens := GetValidGrantTokens(input.grantTokens);
-    :- Need(
-      && grantTokens.Success?,
-      E("GetBeaconKey received invalid grant tokens")
-    );
     
     //= aws-encryption-sdk-specification/framework/branch-key-store.md#getbeaconkey
     //# The operation MUST decrypt the beacon key according to the [AWS KMS Branch Key Decryption](#aws-kms-branch-key-decryption) section.
-    var beaconKeyResponse :- decryptKeyStoreItem(beaconKeyItem, kmsKeyArn, grantTokens.value, tableName, kmsClient);
+    var beaconKeyResponse :- decryptKeyStoreItem(beaconKeyItem, kmsKeyArn, grantTokens, tableName, kmsClient);
 
     //= aws-encryption-sdk-specification/framework/branch-key-store.md#getbeaconkey
     //# This operation MUST return the constructed [beacon key materials](./structures.md#beacon-key-materials).

@@ -22,6 +22,7 @@ module TestConfig {
     var keyStoreConfig := Types.KeyStoreConfig(
       id := None,
       kmsKeyArn := keyId,
+      grantTokens := None,
       ddbTableName := branchKeyStoreName,
       ddbClient := Some(ddbClient),
       kmsClient := Some(kmsClient)
@@ -38,6 +39,7 @@ module TestConfig {
     var keyStoreConfig := Types.KeyStoreConfig(
       id := None,
       kmsKeyArn := keyArn,
+      grantTokens := None,
       ddbTableName := branchKeyStoreName,
       ddbClient := Some(ddbClient),
       kmsClient := Some(kmsClient)

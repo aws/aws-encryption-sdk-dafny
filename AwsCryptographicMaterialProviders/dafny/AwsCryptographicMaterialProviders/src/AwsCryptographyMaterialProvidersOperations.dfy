@@ -248,7 +248,6 @@ module AwsCryptographyMaterialProvidersOperations refines AbstractAwsCryptograph
   method CreateAwsKmsHierarchicalKeyring (config: InternalConfig, input: CreateAwsKmsHierarchicalKeyringInput)
     returns (output: Result<IKeyring, Error>)
   {
-    var grantTokens :- GetValidGrantTokens(input.grantTokens);
     var maxCacheSize : int32;
     
     //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-hierarchical-keyring.md#initialization
@@ -278,7 +277,6 @@ module AwsCryptographyMaterialProvidersOperations refines AbstractAwsCryptograph
 
     var keyring := new AwsKmsHierarchicalKeyring.AwsKmsHierarchicalKeyring(
       input.keyStore,
-      grantTokens,
       input.branchKeyId,
       input.branchKeyIdSupplier,
       input.ttlSeconds,

@@ -3,11 +3,13 @@
 include "../Model/AwsCryptographyKeyStoreTypes.dfy"
 include "AwsCryptographyKeyStoreOperations.dfy"
 include "../../../dafny/AwsCryptographicMaterialProviders/src/AwsArnParsing.dfy"
+include "../../AwsCryptographicMaterialProviders/src/Keyrings/AwsKms/AwsKmsUtils.dfy"
 
 module {:extern "Dafny.Aws.Cryptography.KeyStore"}
   KeyStore refines AbstractAwsCryptographyKeyStoreService
 {
   import opened AwsArnParsing
+  import opened AwsKmsUtils
   import Operations = AwsCryptographyKeyStoreOperations
   import Com.Amazonaws.Kms
   import KMS = ComAmazonawsKmsTypes
@@ -23,6 +25,7 @@ module {:extern "Dafny.Aws.Cryptography.KeyStore"}
       id := None,
       ddbTableName := "None",
       kmsKeyArn := "",
+      grantTokens := None,
       kmsClient := None,
       ddbClient := None
     )
@@ -33,6 +36,7 @@ module {:extern "Dafny.Aws.Cryptography.KeyStore"}
     ensures res.Success? ==>
       && KMS.IsValid_KeyIdType(res.value.config.kmsKeyArn)
       && DDB.IsValid_TableName(config.ddbTableName)
+      && GetValidGrantTokens(config.grantTokens).Success?
       && config.kmsClient.Some?
       && config.ddbClient.Some?
       && res.value.config.kmsClient == config.kmsClient.value
@@ -66,11 +70,18 @@ module {:extern "Dafny.Aws.Cryptography.KeyStore"}
       Types.KeyStoreException(
         message := "Invalid AWS KMS Key Arn")
     );
+    
+    //= aws-encryption-sdk-specification/framework/branch-key-store.md#initialization
+    //# The following inputs MAY be specified to create a KeyStore:
+    var grantTokens := GetValidGrantTokens(config.grantTokens);
+    :- Need(
+      && grantTokens.Success?,
+      Types.KeyStoreException(
+        message := "CreateKey received invalid grant tokens")
+    );
 
     var keyStoreId;
 
-    //= aws-encryption-sdk-specification/framework/branch-key-store.md#initialization
-    //# The following inputs MAY be specified to create a KeyStore:
     if config.id.Some? {
       keyStoreId := config.id.value;
     } else {
@@ -87,6 +98,7 @@ module {:extern "Dafny.Aws.Cryptography.KeyStore"}
         id := keyStoreId,
         ddbTableName := config.ddbTableName,
         kmsKeyArn := config.kmsKeyArn,
+        grantTokens := grantTokens.value,
         kmsClient := config.kmsClient.value,
         ddbClient := config.ddbClient.value
       )

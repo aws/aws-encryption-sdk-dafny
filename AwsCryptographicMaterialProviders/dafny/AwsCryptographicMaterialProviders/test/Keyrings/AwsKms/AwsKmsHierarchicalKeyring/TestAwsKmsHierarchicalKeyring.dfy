@@ -72,6 +72,7 @@ module TestAwsKmsHierarchicalKeyring {
     var keyStoreConfig := KeyStoreTypes.KeyStoreConfig(
       id := None,
       kmsKeyArn := keyArn,
+      grantTokens := None,
       ddbTableName := branchKeyStoreName,
       kmsClient := Some(kmsClient),
       ddbClient := Some(dynamodbClient)
@@ -85,8 +86,7 @@ module TestAwsKmsHierarchicalKeyring {
         branchKeyIdSupplier := None,
         keyStore := keyStore,
         ttlSeconds := ttl,
-        maxCacheSize := Option.Some(10),
-        grantTokens := Option.None
+        maxCacheSize := Option.Some(10)
       )
     );
 
@@ -114,6 +114,7 @@ module TestAwsKmsHierarchicalKeyring {
     var keyStoreConfig := KeyStoreTypes.KeyStoreConfig(
       id := None,
       kmsKeyArn := keyArn,
+      grantTokens := None,
       ddbTableName := branchKeyStoreName,
       kmsClient := Some(kmsClient),
       ddbClient := Some(dynamodbClient)
@@ -127,8 +128,7 @@ module TestAwsKmsHierarchicalKeyring {
         branchKeyIdSupplier := None,
         keyStore := keyStore,
         ttlSeconds := ttl,
-        maxCacheSize := Option.Some(10),
-        grantTokens := Option.None
+        maxCacheSize := Option.Some(10)
       )
     );
 
@@ -151,6 +151,7 @@ module TestAwsKmsHierarchicalKeyring {
     var keyStoreConfig := KeyStoreTypes.KeyStoreConfig(
       id := None,
       kmsKeyArn := keyArn,
+      grantTokens := None,
       ddbTableName := branchKeyStoreName,
       kmsClient := Some(kmsClient),
       ddbClient := Some(dynamodbClient)
@@ -164,8 +165,7 @@ module TestAwsKmsHierarchicalKeyring {
         branchKeyIdSupplier := None,
         keyStore := keyStore,
         ttlSeconds := ttl,
-        maxCacheSize := Option.Some(10),
-        grantTokens := Option.None
+        maxCacheSize := Option.Some(10)
       )
     );
 
@@ -193,6 +193,7 @@ module TestAwsKmsHierarchicalKeyring {
     var keyStoreConfig := KeyStoreTypes.KeyStoreConfig(
       id := None,
       kmsKeyArn := keyArn,
+      grantTokens := None,
       ddbTableName := branchKeyStoreName,
       kmsClient := Some(kmsClient),
       ddbClient := Some(dynamodbClient)
@@ -206,8 +207,7 @@ module TestAwsKmsHierarchicalKeyring {
         branchKeyIdSupplier := None,
         keyStore := keyStore,
         ttlSeconds := ttl,
-        maxCacheSize := Option.Some(10),
-        grantTokens := Option.None
+        maxCacheSize := Option.Some(10)
       )
     );
 
@@ -232,6 +232,7 @@ module TestAwsKmsHierarchicalKeyring {
     var keyStoreConfig := KeyStoreTypes.KeyStoreConfig(
       id := None,
       kmsKeyArn := keyArn,
+      grantTokens := None,
       ddbTableName := branchKeyStoreName,
       kmsClient := Some(kmsClient),
       ddbClient := Some(dynamodbClient)
@@ -245,8 +246,7 @@ module TestAwsKmsHierarchicalKeyring {
         branchKeyIdSupplier := Some(branchKeyIdSupplier),
         keyStore := keyStore,
         ttlSeconds := ttl,
-        maxCacheSize := Option.Some(10),
-        grantTokens := Option.None
+        maxCacheSize := Option.Some(10)
       )
     );
     

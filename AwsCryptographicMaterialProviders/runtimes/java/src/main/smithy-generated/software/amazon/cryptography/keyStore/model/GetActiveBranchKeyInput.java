@@ -3,25 +3,17 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.keyStore.model;
 
-import java.util.List;
 import java.util.Objects;
 
 public class GetActiveBranchKeyInput {
   private final String branchKeyIdentifier;
 
-  private final List<String> grantTokens;
-
   protected GetActiveBranchKeyInput(BuilderImpl builder) {
     this.branchKeyIdentifier = builder.branchKeyIdentifier();
-    this.grantTokens = builder.grantTokens();
   }
 
   public String branchKeyIdentifier() {
     return this.branchKeyIdentifier;
-  }
-
-  public List<String> grantTokens() {
-    return this.grantTokens;
   }
 
   public Builder toBuilder() {
@@ -37,24 +29,17 @@ public class GetActiveBranchKeyInput {
 
     String branchKeyIdentifier();
 
-    Builder grantTokens(List<String> grantTokens);
-
-    List<String> grantTokens();
-
     GetActiveBranchKeyInput build();
   }
 
   static class BuilderImpl implements Builder {
     protected String branchKeyIdentifier;
 
-    protected List<String> grantTokens;
-
     protected BuilderImpl() {
     }
 
     protected BuilderImpl(GetActiveBranchKeyInput model) {
       this.branchKeyIdentifier = model.branchKeyIdentifier();
-      this.grantTokens = model.grantTokens();
     }
 
     public Builder branchKeyIdentifier(String branchKeyIdentifier) {
@@ -64,15 +49,6 @@ public class GetActiveBranchKeyInput {
 
     public String branchKeyIdentifier() {
       return this.branchKeyIdentifier;
-    }
-
-    public Builder grantTokens(List<String> grantTokens) {
-      this.grantTokens = grantTokens;
-      return this;
-    }
-
-    public List<String> grantTokens() {
-      return this.grantTokens;
     }
 
     public GetActiveBranchKeyInput build() {

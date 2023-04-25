@@ -17,11 +17,7 @@ include "../../../../StandardLibrary/src/Index.dfy"
  // Begin Generated Types
  
  datatype BranchKeyStatusResolutionInput = | BranchKeyStatusResolutionInput (
- nameonly branchKeyIdentifier: string ,
- nameonly grantTokens: Option<GrantTokenList>
- )
- datatype CreateKeyInput = | CreateKeyInput (
- nameonly grantTokens: Option<GrantTokenList>
+ nameonly branchKeyIdentifier: string
  )
  datatype CreateKeyOutput = | CreateKeyOutput (
  nameonly branchKeyIdentifier: string
@@ -33,16 +29,14 @@ include "../../../../StandardLibrary/src/Index.dfy"
  nameonly tableArn: ComAmazonawsDynamodbTypes.TableArn
  )
  datatype GetActiveBranchKeyInput = | GetActiveBranchKeyInput (
- nameonly branchKeyIdentifier: string ,
- nameonly grantTokens: Option<GrantTokenList>
+ nameonly branchKeyIdentifier: string
  )
  datatype GetActiveBranchKeyOutput = | GetActiveBranchKeyOutput (
  nameonly branchKeyVersion: Utf8Bytes ,
  nameonly branchKey: Secret
  )
  datatype GetBeaconKeyInput = | GetBeaconKeyInput (
- nameonly branchKeyIdentifier: string ,
- nameonly grantTokens: Option<GrantTokenList>
+ nameonly branchKeyIdentifier: string
  )
  datatype GetBeaconKeyOutput = | GetBeaconKeyOutput (
  nameonly beaconKeyIdentifier: string ,
@@ -50,8 +44,7 @@ include "../../../../StandardLibrary/src/Index.dfy"
  )
  datatype GetBranchKeyVersionInput = | GetBranchKeyVersionInput (
  nameonly branchKeyIdentifier: string ,
- nameonly branchKeyVersion: string ,
- nameonly grantTokens: Option<GrantTokenList>
+ nameonly branchKeyVersion: string
  )
  datatype GetBranchKeyVersionOutput = | GetBranchKeyVersionOutput (
  nameonly branchKeyVersion: Utf8Bytes ,
@@ -69,7 +62,7 @@ include "../../../../StandardLibrary/src/Index.dfy"
  BranchKeyStatusResolution := [];
 }
  ghost var CreateKeyStore: seq<DafnyCallEvent<CreateKeyStoreInput, Result<CreateKeyStoreOutput, Error>>>
- ghost var CreateKey: seq<DafnyCallEvent<CreateKeyInput, Result<CreateKeyOutput, Error>>>
+ ghost var CreateKey: seq<DafnyCallEvent<(), Result<CreateKeyOutput, Error>>>
  ghost var VersionKey: seq<DafnyCallEvent<VersionKeyInput, Result<(), Error>>>
  ghost var GetActiveBranchKey: seq<DafnyCallEvent<GetActiveBranchKeyInput, Result<GetActiveBranchKeyOutput, Error>>>
  ghost var GetBranchKeyVersion: seq<DafnyCallEvent<GetBranchKeyVersionInput, Result<GetBranchKeyVersionOutput, Error>>>
@@ -118,9 +111,9 @@ include "../../../../StandardLibrary/src/Index.dfy"
  ensures CreateKeyStoreEnsuresPublicly(input, output)
  ensures History.CreateKeyStore == old(History.CreateKeyStore) + [DafnyCallEvent(input, output)]
  
- predicate CreateKeyEnsuresPublicly(input: CreateKeyInput , output: Result<CreateKeyOutput, Error>)
+ predicate CreateKeyEnsuresPublicly(output: Result<CreateKeyOutput, Error>)
  // The public method to be called by library consumers
- method CreateKey ( input: CreateKeyInput )
+ method CreateKey (  )
  returns (output: Result<CreateKeyOutput, Error>)
  requires
  && ValidState()
@@ -130,8 +123,8 @@ include "../../../../StandardLibrary/src/Index.dfy"
  decreases Modifies - {History}
  ensures
  && ValidState()
- ensures CreateKeyEnsuresPublicly(input, output)
- ensures History.CreateKey == old(History.CreateKey) + [DafnyCallEvent(input, output)]
+ ensures CreateKeyEnsuresPublicly(output)
+ ensures History.CreateKey == old(History.CreateKey) + [DafnyCallEvent((), output)]
  
  predicate VersionKeyEnsuresPublicly(input: VersionKeyInput , output: Result<(), Error>)
  // The public method to be called by library consumers
@@ -213,6 +206,7 @@ include "../../../../StandardLibrary/src/Index.dfy"
  nameonly id: Option<string> ,
  nameonly ddbTableName: ComAmazonawsDynamodbTypes.TableName ,
  nameonly kmsKeyArn: KmsKeyArn ,
+ nameonly grantTokens: Option<GrantTokenList> ,
  nameonly ddbClient: Option<ComAmazonawsDynamodbTypes.IDynamoDBClient> ,
  nameonly kmsClient: Option<ComAmazonawsKmsTypes.IKMSClient>
  )
@@ -220,8 +214,7 @@ include "../../../../StandardLibrary/src/Index.dfy"
  type Secret = seq<uint8>
  type Utf8Bytes = ValidUTF8Bytes
  datatype VersionKeyInput = | VersionKeyInput (
- nameonly branchKeyIdentifier: string ,
- nameonly grantTokens: Option<GrantTokenList>
+ nameonly branchKeyIdentifier: string
  )
  datatype Error =
  // Local Error structures are listed here
@@ -330,10 +323,10 @@ include "../../../../StandardLibrary/src/Index.dfy"
  History.CreateKeyStore := History.CreateKeyStore + [DafnyCallEvent(input, output)];
 }
  
- predicate CreateKeyEnsuresPublicly(input: CreateKeyInput , output: Result<CreateKeyOutput, Error>)
- {Operations.CreateKeyEnsuresPublicly(input, output)}
+ predicate CreateKeyEnsuresPublicly(output: Result<CreateKeyOutput, Error>)
+ {Operations.CreateKeyEnsuresPublicly(output)}
  // The public method to be called by library consumers
- method CreateKey ( input: CreateKeyInput )
+ method CreateKey (  )
  returns (output: Result<CreateKeyOutput, Error>)
  requires
  && ValidState()
@@ -343,11 +336,11 @@ include "../../../../StandardLibrary/src/Index.dfy"
  decreases Modifies - {History}
  ensures
  && ValidState()
- ensures CreateKeyEnsuresPublicly(input, output)
- ensures History.CreateKey == old(History.CreateKey) + [DafnyCallEvent(input, output)]
+ ensures CreateKeyEnsuresPublicly(output)
+ ensures History.CreateKey == old(History.CreateKey) + [DafnyCallEvent((), output)]
  {
- output := Operations.CreateKey(config, input);
- History.CreateKey := History.CreateKey + [DafnyCallEvent(input, output)];
+ output := Operations.CreateKey(config);
+ History.CreateKey := History.CreateKey + [DafnyCallEvent((), output)];
 }
  
  predicate VersionKeyEnsuresPublicly(input: VersionKeyInput , output: Result<(), Error>)
@@ -476,11 +469,11 @@ include "../../../../StandardLibrary/src/Index.dfy"
  ensures CreateKeyStoreEnsuresPublicly(input, output)
 
 
- predicate CreateKeyEnsuresPublicly(input: CreateKeyInput , output: Result<CreateKeyOutput, Error>)
+ predicate CreateKeyEnsuresPublicly(output: Result<CreateKeyOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method CreateKey ( config: InternalConfig , input: CreateKeyInput )
+ method CreateKey ( config: InternalConfig )
  returns (output: Result<CreateKeyOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -489,7 +482,7 @@ include "../../../../StandardLibrary/src/Index.dfy"
  decreases ModifiesInternalConfig(config)
  ensures
  && ValidInternalConfig?(config)
- ensures CreateKeyEnsuresPublicly(input, output)
+ ensures CreateKeyEnsuresPublicly(output)
 
 
  predicate VersionKeyEnsuresPublicly(input: VersionKeyInput , output: Result<(), Error>)

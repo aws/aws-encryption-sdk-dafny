@@ -3,7 +3,6 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.keyStore.model;
 
-import java.util.List;
 import java.util.Objects;
 
 public class GetBranchKeyVersionInput {
@@ -11,12 +10,9 @@ public class GetBranchKeyVersionInput {
 
   private final String branchKeyVersion;
 
-  private final List<String> grantTokens;
-
   protected GetBranchKeyVersionInput(BuilderImpl builder) {
     this.branchKeyIdentifier = builder.branchKeyIdentifier();
     this.branchKeyVersion = builder.branchKeyVersion();
-    this.grantTokens = builder.grantTokens();
   }
 
   public String branchKeyIdentifier() {
@@ -25,10 +21,6 @@ public class GetBranchKeyVersionInput {
 
   public String branchKeyVersion() {
     return this.branchKeyVersion;
-  }
-
-  public List<String> grantTokens() {
-    return this.grantTokens;
   }
 
   public Builder toBuilder() {
@@ -48,10 +40,6 @@ public class GetBranchKeyVersionInput {
 
     String branchKeyVersion();
 
-    Builder grantTokens(List<String> grantTokens);
-
-    List<String> grantTokens();
-
     GetBranchKeyVersionInput build();
   }
 
@@ -60,15 +48,12 @@ public class GetBranchKeyVersionInput {
 
     protected String branchKeyVersion;
 
-    protected List<String> grantTokens;
-
     protected BuilderImpl() {
     }
 
     protected BuilderImpl(GetBranchKeyVersionInput model) {
       this.branchKeyIdentifier = model.branchKeyIdentifier();
       this.branchKeyVersion = model.branchKeyVersion();
-      this.grantTokens = model.grantTokens();
     }
 
     public Builder branchKeyIdentifier(String branchKeyIdentifier) {
@@ -87,15 +72,6 @@ public class GetBranchKeyVersionInput {
 
     public String branchKeyVersion() {
       return this.branchKeyVersion;
-    }
-
-    public Builder grantTokens(List<String> grantTokens) {
-      this.grantTokens = grantTokens;
-      return this;
-    }
-
-    public List<String> grantTokens() {
-      return this.grantTokens;
     }
 
     public GetBranchKeyVersionInput build() {
