@@ -3,7 +3,6 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.materialProviders.model;
 
-import java.util.List;
 import java.util.Objects;
 import software.amazon.cryptography.keyStore.KeyStore;
 import software.amazon.cryptography.materialProviders.BranchKeyIdSupplier;
@@ -20,15 +19,12 @@ public class CreateAwsKmsHierarchicalKeyringInput {
 
   private final int maxCacheSize;
 
-  private final List<String> grantTokens;
-
   protected CreateAwsKmsHierarchicalKeyringInput(BuilderImpl builder) {
     this.branchKeyId = builder.branchKeyId();
     this.branchKeyIdSupplier = builder.branchKeyIdSupplier();
     this.keyStore = builder.keyStore();
     this.ttlSeconds = builder.ttlSeconds();
     this.maxCacheSize = builder.maxCacheSize();
-    this.grantTokens = builder.grantTokens();
   }
 
   public String branchKeyId() {
@@ -49,10 +45,6 @@ public class CreateAwsKmsHierarchicalKeyringInput {
 
   public int maxCacheSize() {
     return this.maxCacheSize;
-  }
-
-  public List<String> grantTokens() {
-    return this.grantTokens;
   }
 
   public Builder toBuilder() {
@@ -84,10 +76,6 @@ public class CreateAwsKmsHierarchicalKeyringInput {
 
     int maxCacheSize();
 
-    Builder grantTokens(List<String> grantTokens);
-
-    List<String> grantTokens();
-
     CreateAwsKmsHierarchicalKeyringInput build();
   }
 
@@ -102,8 +90,6 @@ public class CreateAwsKmsHierarchicalKeyringInput {
 
     protected int maxCacheSize;
 
-    protected List<String> grantTokens;
-
     protected BuilderImpl() {
     }
 
@@ -113,7 +99,6 @@ public class CreateAwsKmsHierarchicalKeyringInput {
       this.keyStore = model.keyStore();
       this.ttlSeconds = model.ttlSeconds();
       this.maxCacheSize = model.maxCacheSize();
-      this.grantTokens = model.grantTokens();
     }
 
     public Builder branchKeyId(String branchKeyId) {
@@ -159,15 +144,6 @@ public class CreateAwsKmsHierarchicalKeyringInput {
 
     public int maxCacheSize() {
       return this.maxCacheSize;
-    }
-
-    public Builder grantTokens(List<String> grantTokens) {
-      this.grantTokens = grantTokens;
-      return this;
-    }
-
-    public List<String> grantTokens() {
-      return this.grantTokens;
     }
 
     public CreateAwsKmsHierarchicalKeyringInput build() {

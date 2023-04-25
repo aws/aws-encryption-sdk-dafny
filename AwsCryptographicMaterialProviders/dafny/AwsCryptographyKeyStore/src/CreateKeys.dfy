@@ -84,7 +84,13 @@ module CreateKeys {
     ]
   }
 
-  method CreateBranchAndBeaconKeys(input: Types.CreateKeyInput, ddbTableName: DDB.TableName, kmsKeyArn: Types.KmsKeyArn, kmsClient: KMS.IKMSClient, ddbClient: DDB.IDynamoDBClient)
+  method CreateBranchAndBeaconKeys(
+    ddbTableName: DDB.TableName,
+    kmsKeyArn: Types.KmsKeyArn,
+    grantTokens: KMS.GrantTokenList,
+    kmsClient: KMS.IKMSClient,
+    ddbClient: DDB.IDynamoDBClient
+  )
     returns (res: Result<Types.CreateKeyOutput, Types.Error>)
     requires kmsClient.ValidState() && ddbClient.ValidState()
     requires DDB.IsValid_TableName(ddbTableName)
@@ -102,14 +108,6 @@ module CreateKeys {
     //# This MUST be in ISO8601 format in UTC, to microsecond precision (e.g. “YYYY-MM-DDTHH:mm:ss.ssssssZ“)
     var timestamp :- Time.GetCurrentTimeStamp()
       .MapFailure(e => E(e));
-
-    //= aws-encryption-sdk-specification/framework/branch-key-store.md#createkey
-    //# - MAY provide a list of Grant Tokens
-    var grantTokens := GetValidGrantTokens(input.grantTokens);
-    :- Need(
-      && grantTokens.Success?,
-      E("CreateKey received invalid grant tokens")
-    );
     
     var maybeBranchKeyVersion := UUID.GenerateUUID();
     //= aws-encryption-sdk-specification/framework/branch-key-store.md#branch-key-and-beacon-key-creation
@@ -133,7 +131,7 @@ module CreateKeys {
       //# - `EncryptionContext` MUST be the [encryption context for branch keys](#encryption-context).
       activeBranchKeyEncryptionContext,
       kmsKeyArn,
-      grantTokens.value,
+      grantTokens,
       kmsClient
     );
 
@@ -148,7 +146,7 @@ module CreateKeys {
       //# - `EncryptionContext` MUST be the [encryption context for beacon keys](#encryption-context).
       beaconKeyEncryptionContext,
       kmsKeyArn,
-      grantTokens.value,
+      grantTokens,
       kmsClient
     );
 
@@ -353,7 +351,14 @@ module CreateKeys {
     )
   }
 
-  method VersionActiveBranchKey(input: Types.VersionKeyInput, ddbTableName: DDB.TableName, kmsKeyArn: Types.KmsKeyArn, kmsClient: KMS.IKMSClient, ddbClient: DDB.IDynamoDBClient)
+  method VersionActiveBranchKey(
+    input: Types.VersionKeyInput,
+    ddbTableName: DDB.TableName,
+    kmsKeyArn: Types.KmsKeyArn,
+    grantTokens: KMS.GrantTokenList,
+    kmsClient: KMS.IKMSClient,
+    ddbClient: DDB.IDynamoDBClient
+  )
     returns (res: Result<(), Types.Error>)
     requires KMS.IsValid_KeyIdType(kmsKeyArn)
     requires ddbClient.ValidState() && kmsClient.ValidState()
@@ -389,12 +394,6 @@ module CreateKeys {
       Types.KeyStoreException(message := "Active key for " + input.branchKeyIdentifier + " does not have required fields.")
     );
     
-    var grantTokens := GetValidGrantTokens(input.grantTokens);
-    :- Need(
-      && grantTokens.Success?,
-      E("CreateKey received invalid grant tokens")
-    );
-
     var item := queryOutput.Items.value[0];
     
     :- Need(
@@ -432,7 +431,7 @@ module CreateKeys {
       oldActiveBranchKeyEncryptionContext,
       decryptOnlyBranchKeyEncryptionContext,
       kmsKeyArn,
-      grantTokens.value,
+      grantTokens,
       kmsClient
     );
 
@@ -463,7 +462,7 @@ module CreateKeys {
     var newBranchKeyWithoutPlaintext :- GenerateKey(
       newActiveBranchKeyEncryptionContext,
       kmsKeyArn,
-      grantTokens.value,
+      grantTokens,
       kmsClient
     );
 

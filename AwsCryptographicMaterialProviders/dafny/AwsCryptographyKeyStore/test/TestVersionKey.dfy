@@ -25,6 +25,7 @@ module TestVersionKey {
     var keyStoreConfig := Types.KeyStoreConfig(
       id := None,
       kmsKeyArn := keyArn,
+      grantTokens := None,
       ddbTableName := branchKeyStoreName,
       ddbClient := Some(ddbClient),
       kmsClient := Some(kmsClient)
@@ -35,20 +36,16 @@ module TestVersionKey {
     // Create a new key
     // We will create a use this new key per run to avoid tripping up
     // when running in different runtimes
-    var branchKeyIdentifier :- expect keyStore.CreateKey(Types.CreateKeyInput(
-      grantTokens := None
-    ));
+    var branchKeyIdentifier :- expect keyStore.CreateKey();
 
     var oldActiveResult :- expect keyStore.GetActiveBranchKey(Types.GetActiveBranchKeyInput(
-      branchKeyIdentifier := branchKeyIdentifier.branchKeyIdentifier,
-      grantTokens := None
+      branchKeyIdentifier := branchKeyIdentifier.branchKeyIdentifier
     ));
 
     var oldActiveVersion :- expect UTF8.Decode(oldActiveResult.branchKeyVersion).MapFailure(WrapStringToError);
     
     var versionKeyResult := keyStore.VersionKey(Types.VersionKeyInput(
-      branchKeyIdentifier := branchKeyIdentifier.branchKeyIdentifier,
-      grantTokens := None
+      branchKeyIdentifier := branchKeyIdentifier.branchKeyIdentifier
     ));
 
     expect versionKeyResult.Success?;
@@ -57,14 +54,12 @@ module TestVersionKey {
       Types.GetBranchKeyVersionInput(
         branchKeyIdentifier := branchKeyIdentifier.branchKeyIdentifier,
         // We get the old active key by using the version
-        branchKeyVersion := oldActiveVersion,
-        grantTokens := None
+        branchKeyVersion := oldActiveVersion
       )
     );
     
     var newActiveResult :- expect keyStore.GetActiveBranchKey(Types.GetActiveBranchKeyInput(
-      branchKeyIdentifier := branchKeyIdentifier.branchKeyIdentifier,
-      grantTokens := None
+      branchKeyIdentifier := branchKeyIdentifier.branchKeyIdentifier
     ));
 
     // We expect that getting the old active key has the same version as getting a branch key through the get version key api
@@ -83,6 +78,7 @@ module TestVersionKey {
     var keyStoreConfig := Types.KeyStoreConfig(
       id := None,
       kmsKeyArn := keyArn,
+      grantTokens := None,
       ddbTableName := branchKeyStoreName,
       ddbClient := Some(ddbClient),
       kmsClient := Some(kmsClient)
@@ -93,8 +89,7 @@ module TestVersionKey {
     // First we test that if we try to version or "rotate" a branch key in an 
     // active-active situation we end up with a failure.
     var versionKeyResult := keyStore.VersionKey(Types.VersionKeyInput(
-      branchKeyIdentifier := keyId,
-      grantTokens := None
+      branchKeyIdentifier := keyId
     ));
 
     expect versionKeyResult.Failure?;

@@ -121,7 +121,6 @@ module AwsKmsHierarchicalKeyring {
     const keyStore: KeyStore.IKeyStoreClient
     const ttlSeconds: Types.PositiveLong
     const maxCacheSize: Types.PositiveInteger
-    const grantTokens: KMS.GrantTokenList
     const cryptoPrimitives: Primitives.AtomicPrimitivesClient
     const cache: LocalCMC
 
@@ -150,10 +149,6 @@ module AwsKmsHierarchicalKeyring {
       keyStore: KeyStore.IKeyStoreClient,
       //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-hierarchical-keyring.md#initialization
       //= type=implication
-      //# - MAY provide a list of Grant Tokens
-      grantTokens: KMS.GrantTokenList,
-      //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-hierarchical-keyring.md#initialization
-      //= type=implication
       //# - MUST provide either a Branch Key Identifier or a [Branch Key Supplier](#branch-key-supplier)
       branchKeyId: Option<string>,
       branchKeyIdSupplier: Option<Types.IBranchKeyIdSupplier>,
@@ -174,7 +169,6 @@ module AwsKmsHierarchicalKeyring {
       requires (branchKeyIdSupplier.Some? || branchKeyId.Some?)
       requires (branchKeyIdSupplier.None? || branchKeyId.None?)
       ensures
-        && this.grantTokens  == grantTokens
         && this.keyStore     == keyStore
         && this.branchKeyIdSupplier  == branchKeyIdSupplier
         && this.ttlSeconds   == ttlSeconds
@@ -189,7 +183,6 @@ module AwsKmsHierarchicalKeyring {
       var cmc := new LocalCMC(maxCacheSize as nat, 1);
 
       this.keyStore            := keyStore;
-      this.grantTokens         := grantTokens;
       this.branchKeyId         := branchKeyId;
       this.branchKeyIdSupplier := branchKeyIdSupplier;
       this.ttlSeconds          := ttlSeconds;
@@ -361,7 +354,6 @@ module AwsKmsHierarchicalKeyring {
         keyStore,
         cryptoPrimitives,
         branchKeyIdForDecrypt,
-        grantTokens,
         ttlSeconds,
         cache
       );
@@ -451,8 +443,7 @@ module AwsKmsHierarchicalKeyring {
       if getCacheOutput.Failure? {
         var maybeRawBranchKeyMaterials := keyStore.GetActiveBranchKey(
           KeyStore.GetActiveBranchKeyInput(
-            branchKeyIdentifier := branchKeyId,
-            grantTokens := Some(grantTokens)
+            branchKeyIdentifier := branchKeyId
           )
         );
         var rawBranchKeyMaterials :- maybeRawBranchKeyMaterials
@@ -616,7 +607,6 @@ module AwsKmsHierarchicalKeyring {
     const keyStore: KeyStore.IKeyStoreClient
     const cryptoPrimitives: Primitives.AtomicPrimitivesClient
     const branchKeyId: string
-    const grantTokens: KMS.GrantTokenList
     const ttlSeconds: Types.PositiveLong
     const cache: L.LocalCMC
 
@@ -625,7 +615,6 @@ module AwsKmsHierarchicalKeyring {
       keyStore: KeyStore.IKeyStoreClient,
       cryptoPrimitives: Primitives.AtomicPrimitivesClient,
       branchKeyId: string,
-      grantTokens: KMS.GrantTokenList,
       ttlSeconds: Types.PositiveLong,
       cache: L.LocalCMC
     )
@@ -635,7 +624,6 @@ module AwsKmsHierarchicalKeyring {
       && this.keyStore == keyStore
       && this.cryptoPrimitives == cryptoPrimitives
       && this.branchKeyId == branchKeyId
-      && this.grantTokens == grantTokens
       && this.ttlSeconds == ttlSeconds
       && this.cache == cache
       ensures Invariant()
@@ -644,7 +632,6 @@ module AwsKmsHierarchicalKeyring {
       this.keyStore := keyStore;
       this.cryptoPrimitives := cryptoPrimitives;
       this.branchKeyId := branchKeyId;
-      this.grantTokens := grantTokens;
       this.ttlSeconds := ttlSeconds;
       this.cache := cache;
       Modifies := keyStore.Modifies + cryptoPrimitives.Modifies;
@@ -791,8 +778,7 @@ module AwsKmsHierarchicalKeyring {
         var maybeRawBranchKeyMaterials := keyStore.GetBranchKeyVersion(
           KeyStore.GetBranchKeyVersionInput(
             branchKeyIdentifier := branchKeyId,
-            branchKeyVersion := version,
-            grantTokens := Some(grantTokens)
+            branchKeyVersion := version
           )
         );
         

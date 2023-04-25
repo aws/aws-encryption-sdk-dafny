@@ -262,11 +262,7 @@ public class ToDafny {
     maxCacheSize = Objects.nonNull(nativeValue.maxCacheSize()) ?
         Option.create_Some((nativeValue.maxCacheSize()))
         : Option.create_None();
-    Option<DafnySequence<? extends DafnySequence<? extends Character>>> grantTokens;
-    grantTokens = (Objects.nonNull(nativeValue.grantTokens()) && nativeValue.grantTokens().size() > 0) ?
-        Option.create_Some(ToDafny.GrantTokenList(nativeValue.grantTokens()))
-        : Option.create_None();
-    return new CreateAwsKmsHierarchicalKeyringInput(branchKeyId, branchKeyIdSupplier, keyStore, ttlSeconds, maxCacheSize, grantTokens);
+    return new CreateAwsKmsHierarchicalKeyringInput(branchKeyId, branchKeyIdSupplier, keyStore, ttlSeconds, maxCacheSize);
   }
 
   public static DeleteCacheEntryInput DeleteCacheEntryInput(

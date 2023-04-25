@@ -3,6 +3,7 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.keyStore.model;
 
+import java.util.List;
 import java.util.Objects;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.kms.KmsClient;
@@ -14,6 +15,8 @@ public class KeyStoreConfig {
 
   private final String kmsKeyArn;
 
+  private final List<String> grantTokens;
+
   private final DynamoDbClient ddbClient;
 
   private final KmsClient kmsClient;
@@ -22,6 +25,7 @@ public class KeyStoreConfig {
     this.id = builder.id();
     this.ddbTableName = builder.ddbTableName();
     this.kmsKeyArn = builder.kmsKeyArn();
+    this.grantTokens = builder.grantTokens();
     this.ddbClient = builder.ddbClient();
     this.kmsClient = builder.kmsClient();
   }
@@ -36,6 +40,10 @@ public class KeyStoreConfig {
 
   public String kmsKeyArn() {
     return this.kmsKeyArn;
+  }
+
+  public List<String> grantTokens() {
+    return this.grantTokens;
   }
 
   public DynamoDbClient ddbClient() {
@@ -67,6 +75,10 @@ public class KeyStoreConfig {
 
     String kmsKeyArn();
 
+    Builder grantTokens(List<String> grantTokens);
+
+    List<String> grantTokens();
+
     Builder ddbClient(DynamoDbClient ddbClient);
 
     DynamoDbClient ddbClient();
@@ -85,6 +97,8 @@ public class KeyStoreConfig {
 
     protected String kmsKeyArn;
 
+    protected List<String> grantTokens;
+
     protected DynamoDbClient ddbClient;
 
     protected KmsClient kmsClient;
@@ -96,6 +110,7 @@ public class KeyStoreConfig {
       this.id = model.id();
       this.ddbTableName = model.ddbTableName();
       this.kmsKeyArn = model.kmsKeyArn();
+      this.grantTokens = model.grantTokens();
       this.ddbClient = model.ddbClient();
       this.kmsClient = model.kmsClient();
     }
@@ -125,6 +140,15 @@ public class KeyStoreConfig {
 
     public String kmsKeyArn() {
       return this.kmsKeyArn;
+    }
+
+    public Builder grantTokens(List<String> grantTokens) {
+      this.grantTokens = grantTokens;
+      return this;
+    }
+
+    public List<String> grantTokens() {
+      return this.grantTokens;
     }
 
     public Builder ddbClient(DynamoDbClient ddbClient) {

@@ -12,7 +12,6 @@ import dafny.Tuple0;
 import java.lang.IllegalArgumentException;
 import java.util.Objects;
 import software.amazon.cryptography.keyStore.model.BranchKeyStatusResolutionInput;
-import software.amazon.cryptography.keyStore.model.CreateKeyInput;
 import software.amazon.cryptography.keyStore.model.CreateKeyOutput;
 import software.amazon.cryptography.keyStore.model.CreateKeyStoreInput;
 import software.amazon.cryptography.keyStore.model.CreateKeyStoreOutput;
@@ -55,9 +54,8 @@ public class KeyStore {
     return ToNative.CreateKeyStoreOutput(result.dtor_value());
   }
 
-  public CreateKeyOutput CreateKey(CreateKeyInput nativeValue) {
-    Dafny.Aws.Cryptography.KeyStore.Types.CreateKeyInput dafnyValue = ToDafny.CreateKeyInput(nativeValue);
-    Result<Dafny.Aws.Cryptography.KeyStore.Types.CreateKeyOutput, Error> result = this._impl.CreateKey(dafnyValue);
+  public CreateKeyOutput CreateKey() {
+    Result<Dafny.Aws.Cryptography.KeyStore.Types.CreateKeyOutput, Error> result = this._impl.CreateKey();
     if (result.is_Failure()) {
       throw ToNative.Error(result.dtor_error());
     }

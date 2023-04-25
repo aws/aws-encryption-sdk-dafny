@@ -51,6 +51,7 @@ structure KeyStoreConfig {
   ddbTableName: TableName,
   @required
   kmsKeyArn: KmsKeyArn,
+  grantTokens: GrantTokenList,
   ddbClient: DdbClientReference,
   kmsClient: KmsClientReference,
 }
@@ -73,12 +74,7 @@ structure CreateKeyStoreOutput {
 // The second is a beacon key that is used as a root key to
 // derive different beacon keys per beacon.
 operation CreateKey {
-  input: CreateKeyInput,
   output: CreateKeyOutput
-}
-
-structure CreateKeyInput {
-  grantTokens: GrantTokenList
 }
 
 structure CreateKeyOutput {
@@ -96,9 +92,7 @@ operation VersionKey {
 
 structure VersionKeyInput {
   @required
-  branchKeyIdentifier: String,
-  
-  grantTokens: GrantTokenList
+  branchKeyIdentifier: String
 }
 
 operation GetActiveBranchKey {
@@ -108,9 +102,7 @@ operation GetActiveBranchKey {
 
 structure GetActiveBranchKeyInput {
   @required
-  branchKeyIdentifier: String,
-  
-  grantTokens: GrantTokenList
+  branchKeyIdentifier: String
 }
 
 structure GetActiveBranchKeyOutput {
@@ -131,9 +123,7 @@ structure GetBranchKeyVersionInput {
   branchKeyIdentifier: String,
 
   @required
-  branchKeyVersion: String,
-  
-  grantTokens: GrantTokenList
+  branchKeyVersion: String
 }
 
 structure GetBranchKeyVersionOutput {
@@ -151,9 +141,7 @@ operation GetBeaconKey {
 
 structure GetBeaconKeyInput {
   @required
-  branchKeyIdentifier: String,
-
-  grantTokens: GrantTokenList
+  branchKeyIdentifier: String
 }
 
 structure GetBeaconKeyOutput {
@@ -170,9 +158,7 @@ operation BranchKeyStatusResolution {
 
 structure BranchKeyStatusResolutionInput {
   @required
-  branchKeyIdentifier: String,
-  
-  grantTokens: GrantTokenList
+  branchKeyIdentifier: String
 }
 
 string KmsKeyArn

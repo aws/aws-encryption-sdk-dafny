@@ -22,6 +22,7 @@ module TestCreateKeys {
     var keyStoreConfig := Types.KeyStoreConfig(
       id := None,
       kmsKeyArn := keyArn,
+      grantTokens := None,
       ddbTableName := branchKeyStoreName,
       ddbClient := Some(ddbClient),
       kmsClient := Some(kmsClient)
@@ -29,18 +30,14 @@ module TestCreateKeys {
     
     var keyStore :- expect KeyStore.KeyStore(keyStoreConfig);
 
-    var branchKeyId :- expect keyStore.CreateKey(Types.CreateKeyInput(
-      grantTokens := None
-    ));
+    var branchKeyId :- expect keyStore.CreateKey();
 
     var beaconKeyResult :- expect keyStore.GetBeaconKey(Types.GetBeaconKeyInput(
-      branchKeyIdentifier := branchKeyId.branchKeyIdentifier,
-      grantTokens := None
+      branchKeyIdentifier := branchKeyId.branchKeyIdentifier
     ));
     
     var activeResult :- expect keyStore.GetActiveBranchKey(Types.GetActiveBranchKeyInput(
-      branchKeyIdentifier := branchKeyId.branchKeyIdentifier,
-      grantTokens := None
+      branchKeyIdentifier := branchKeyId.branchKeyIdentifier
     ));
     
     expect |beaconKeyResult.beaconKey| == 32;

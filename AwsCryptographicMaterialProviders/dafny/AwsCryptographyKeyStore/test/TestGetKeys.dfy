@@ -24,6 +24,7 @@ module TestGetKeys {
     var keyStoreConfig := Types.KeyStoreConfig(
       id := None,
       kmsKeyArn := keyArn,
+      grantTokens := None,
       ddbTableName := branchKeyStoreName,
       ddbClient := Some(ddbClient),
       kmsClient := Some(kmsClient)
@@ -32,8 +33,7 @@ module TestGetKeys {
     var keyStore :- expect KeyStore.KeyStore(keyStoreConfig);
 
     var beaconKeyResult :- expect keyStore.GetBeaconKey(Types.GetBeaconKeyInput(
-      branchKeyIdentifier := branchKeyId,
-      grantTokens := None
+      branchKeyIdentifier := branchKeyId
     ));
     expect |beaconKeyResult.beaconKey| == 32;
   }
@@ -45,6 +45,7 @@ module TestGetKeys {
     var keyStoreConfig := Types.KeyStoreConfig(
       id := None,
       kmsKeyArn := keyArn,
+      grantTokens := None,
       ddbTableName := branchKeyStoreName,
       ddbClient := Some(ddbClient),
       kmsClient := Some(kmsClient)
@@ -53,8 +54,7 @@ module TestGetKeys {
     var keyStore :- expect KeyStore.KeyStore(keyStoreConfig);
 
     var activeResult :- expect keyStore.GetActiveBranchKey(Types.GetActiveBranchKeyInput(
-      branchKeyIdentifier := branchKeyId,
-      grantTokens := None
+      branchKeyIdentifier := branchKeyId
     ));
     
     expect |activeResult.branchKey| == 32;
@@ -66,6 +66,7 @@ module TestGetKeys {
     var keyStoreConfig := Types.KeyStoreConfig(
       id := None,
       kmsKeyArn := mkrKeyArn,
+      grantTokens := None,
       ddbTableName := branchKeyStoreName,
       ddbClient := Some(ddbClient),
       kmsClient := Some(kmsClient)
@@ -74,8 +75,7 @@ module TestGetKeys {
     var keyStore :- expect KeyStore.KeyStore(keyStoreConfig);
 
     var activeResult := keyStore.GetActiveBranchKey(Types.GetActiveBranchKeyInput(
-      branchKeyIdentifier := branchKeyId,
-      grantTokens := None
+      branchKeyIdentifier := branchKeyId
     ));
 
     expect activeResult.Failure?;
