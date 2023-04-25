@@ -41,9 +41,7 @@ public class HMac extends _ExternBase_HMac {
   public HMac(DigestAlgorithm digest) throws NoSuchAlgorithmException
   {
 
-    if (digest.is_SHA__1()) {
-      algorithm = "HmacSHA1";
-    } else if (digest.is_SHA__256()) {
+    if (digest.is_SHA__256()) {
       algorithm = "HmacSHA256";
     } else if (digest.is_SHA__384()) {
       algorithm = "HmacSHA384";

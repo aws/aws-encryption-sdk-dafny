@@ -77,14 +77,12 @@ using System.Linq; using System; namespace AWS.Cryptography.Primitives {
  if (value.is_SHA__512) return AWS.Cryptography.Primitives.DigestAlgorithm.SHA_512;
  if (value.is_SHA__384) return AWS.Cryptography.Primitives.DigestAlgorithm.SHA_384;
  if (value.is_SHA__256) return AWS.Cryptography.Primitives.DigestAlgorithm.SHA_256;
- if (value.is_SHA__1) return AWS.Cryptography.Primitives.DigestAlgorithm.SHA_1;
 throw new System.ArgumentException("Invalid AWS.Cryptography.Primitives.DigestAlgorithm value");
 }
  internal static Dafny.Aws.Cryptography.Primitives.Types._IDigestAlgorithm ToDafny_N3_aws__N12_cryptography__N10_primitives__S15_DigestAlgorithm (AWS.Cryptography.Primitives.DigestAlgorithm value) {
  if (AWS.Cryptography.Primitives.DigestAlgorithm.SHA_512.Equals(value)) return Dafny.Aws.Cryptography.Primitives.Types.DigestAlgorithm.create_SHA__512();
  if (AWS.Cryptography.Primitives.DigestAlgorithm.SHA_384.Equals(value)) return Dafny.Aws.Cryptography.Primitives.Types.DigestAlgorithm.create_SHA__384();
  if (AWS.Cryptography.Primitives.DigestAlgorithm.SHA_256.Equals(value)) return Dafny.Aws.Cryptography.Primitives.Types.DigestAlgorithm.create_SHA__256();
- if (AWS.Cryptography.Primitives.DigestAlgorithm.SHA_1.Equals(value)) return Dafny.Aws.Cryptography.Primitives.Types.DigestAlgorithm.create_SHA__1();
 throw new System.ArgumentException("Invalid AWS.Cryptography.Primitives.DigestAlgorithm value");
 }
  internal static AWS.Cryptography.Primitives.DigestInput FromDafny_N3_aws__N12_cryptography__N10_primitives__S11_DigestInput (Dafny.Aws.Cryptography.Primitives.Types._IDigestInput value) {

@@ -11,10 +11,8 @@ using System;
  public static readonly DigestAlgorithm SHA_384 = new DigestAlgorithm ("SHA_384");
  
  public static readonly DigestAlgorithm SHA_256 = new DigestAlgorithm ("SHA_256");
- 
- public static readonly DigestAlgorithm SHA_1 = new DigestAlgorithm ("SHA_1");
  public static readonly  DigestAlgorithm [] Values =  {
- SHA_1 , SHA_256 , SHA_384 , SHA_512
+ SHA_256 , SHA_384 , SHA_512
 } ;
  public DigestAlgorithm (string value) : base(value) {}
 }

@@ -412,9 +412,6 @@ public class ToNative {
     if (dafnyValue.is_SHA__256()) {
       return DigestAlgorithm.SHA_256;
     }
-    if (dafnyValue.is_SHA__1()) {
-      return DigestAlgorithm.SHA_1;
-    }
     throw new IllegalArgumentException("No entry of software.amazon.cryptography.primitives.model.DigestAlgorithm matches the input : " + dafnyValue);
   }
 }

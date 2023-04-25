@@ -22,8 +22,6 @@ namespace ExternDigest {
                     hashAlgorithm = System.Security.Cryptography.SHA384.Create();
                 } else if (alg.is_SHA__256) {
                     hashAlgorithm = System.Security.Cryptography.SHA256.Create();
-                } else if (alg.is_SHA__1) {
-                    hashAlgorithm = System.Security.Cryptography.SHA1.Create();
                 } else {
                     return Result<ibyteseq, _IError>
                         .create_Failure(new Error_AwsCryptographicPrimitivesError(

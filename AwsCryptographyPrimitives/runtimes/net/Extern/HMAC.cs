@@ -49,9 +49,7 @@ namespace HMAC {
 
         public HMac(_IDigestAlgorithm digest) {
             Org.BouncyCastle.Crypto.IDigest bouncyCastleDigest;
-            if (digest.is_SHA__1) {
-                bouncyCastleDigest = new Org.BouncyCastle.Crypto.Digests.Sha1Digest();
-            } else if(digest.is_SHA__256) {
+            if(digest.is_SHA__256) {
                 bouncyCastleDigest = new Org.BouncyCastle.Crypto.Digests.Sha256Digest();
             } else if(digest.is_SHA__384) {
                 bouncyCastleDigest = new Org.BouncyCastle.Crypto.Digests.Sha384Digest();
