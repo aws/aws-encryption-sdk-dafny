@@ -48,9 +48,7 @@ public class ExternDigest {
     }
 
     private static MessageDigest getHash(DigestAlgorithm digestAlgorithm) throws NoSuchAlgorithmException {
-      if (digestAlgorithm.is_SHA__1()) {
-        return MessageDigest.getInstance("SHA-1");
-      } else if (digestAlgorithm.is_SHA__256()) {
+      if (digestAlgorithm.is_SHA__256()) {
         return MessageDigest.getInstance("SHA-256");
       } else if (digestAlgorithm.is_SHA__384()) {
         return MessageDigest.getInstance("SHA-384");

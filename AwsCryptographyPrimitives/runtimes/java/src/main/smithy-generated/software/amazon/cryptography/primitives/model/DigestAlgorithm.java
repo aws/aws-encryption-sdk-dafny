@@ -8,9 +8,7 @@ public enum DigestAlgorithm {
 
   SHA_384("SHA_384"),
 
-  SHA_256("SHA_256"),
-
-  SHA_1("SHA_1");
+  SHA_256("SHA_256");
 
   private final String value;
 

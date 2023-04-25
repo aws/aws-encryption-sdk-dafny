@@ -198,6 +198,7 @@ _polymorph:
 	./../gradlew run --args="\
 	$(OUTPUT_DAFNY) \
 	$(OUTPUT_JAVA) \
+	$(OUTPUT_DOTNET) \
 	--model $(if $(DIR_STRUCTURE_V2), $(LIBRARY_ROOT)/dafny/$(SERVICE)/Model, $(SMITHY_MODEL_ROOT)) \
 	--dependent-model $(PROJECT_ROOT)/$(SMITHY_DEPS) \
 	$(patsubst %, --dependent-model $(PROJECT_ROOT)/%/Model, $($(service_deps_var))) \

@@ -229,7 +229,7 @@ module RawAESKeyring {
     //# OnDecrypt MUST take [decryption materials](structures.md#decryption-
     //# materials) and a list of [encrypted data keys]
     //# (structures.md#encrypted-data-key) as input.
-    method OnDecrypt'(input: Types.OnDecryptInput)
+    method {:vcs_split_on_every_assert} OnDecrypt'(input: Types.OnDecryptInput)
       returns (output: Result<Types.OnDecryptOutput, Types.Error>)
       requires ValidState()
       modifies Modifies - {History}

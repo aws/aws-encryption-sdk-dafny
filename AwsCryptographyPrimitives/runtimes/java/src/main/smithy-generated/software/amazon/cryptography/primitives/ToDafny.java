@@ -488,9 +488,6 @@ public class ToDafny {
       case SHA_256: {
         return DigestAlgorithm.create_SHA__256();
       }
-      case SHA_1: {
-        return DigestAlgorithm.create_SHA__1();
-      }
       default: {
         throw new RuntimeException("Cannot convert " + nativeValue + " to Dafny.Aws.Cryptography.Primitives.Types.DigestAlgorithm.");
       }

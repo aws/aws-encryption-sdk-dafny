@@ -13,10 +13,6 @@ namespace aws.cryptography.primitives
     name: "SHA_256",
     value: "SHA_256",
   },
-  {
-    name: "SHA_1",
-    value: "SHA_1",
-  },
 ])
 string DigestAlgorithm
 

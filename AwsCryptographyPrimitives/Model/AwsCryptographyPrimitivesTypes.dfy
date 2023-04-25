@@ -355,7 +355,6 @@ include "../../StandardLibrary/src/Index.dfy"
 	| SHA_512
 	| SHA_384
 	| SHA_256
-	| SHA_1
  datatype DigestInput = | DigestInput (
  nameonly digestAlgorithm: DigestAlgorithm ,
  nameonly message: seq<uint8>
