@@ -533,9 +533,6 @@ module CreateKeys {
         DestinationEncryptionContext := Some(decryptOnlyEncryptionContext),
         SourceEncryptionAlgorithm := None,
         DestinationEncryptionAlgorithm := None,
-        //= aws-encryption-sdk-specification/framework/branch-key-store.md#aws-kms-branch-key-reencryption
-        //= type=implication
-        //# - `GrantTokens` MUST be the [grant tokens](https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#grant_token)
         GrantTokens := Some(grantTokens)
       ) == kmsOperationInput
       && kmsOperationOutput.value.CiphertextBlob.Some?
