@@ -372,7 +372,7 @@ module GetKeys {
         //# - `EncryptionContext` MUST be the branch key encryption context map.
         EncryptionContext := Some(encCtxMap),
         //= aws-encryption-sdk-specification/framework/branch-key-store.md#aws-kms-branch-key-decryption
-        //# - `GrantTokens` MUST be the [grant tokens](https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#grant_token) 
+        //# - `GrantTokens` MUST be this keysotre's [grant tokens](https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#grant_token).
         GrantTokens := Some(grantTokens),
         EncryptionAlgorithm := None
       );
