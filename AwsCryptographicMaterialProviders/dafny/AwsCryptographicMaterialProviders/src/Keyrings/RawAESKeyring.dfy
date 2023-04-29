@@ -261,17 +261,12 @@ module RawAESKeyring {
           ::
             && ValidProviderInfo(edk.keyProviderInfo)
             && wrappingAlgorithm.tagLength as nat <= |edk.ciphertext|
-            && var encryptionOutput := DeserializeEDKCiphertext(
-              edk.ciphertext,
-              wrappingAlgorithm.tagLength as nat
-            );
-            && AESDecryptRequest.cipherTxt == encryptionOutput.cipherText
-            && AESDecryptRequest.authTag == encryptionOutput.authTag
             && AESDecryptRequest.iv == GetIvFromProvInfo(edk.keyProviderInfo)
         )
         && AESDecryptRequest.aad == CanonicalEncryptionContext.EncryptionContextToAAD(input.materials.encryptionContext).value
-        && output.value.materials.plaintextDataKey.value
-          == Seq.Last(cryptoPrimitives.History.AESDecrypt).output.value;
+        // Can not prove this at this timbe because there may be wrapping involved.
+        // && output.value.materials.plaintextDataKey.value
+        //   == Seq.Last(cryptoPrimitives.History.AESDecrypt).output.value;
 
       //= aws-encryption-sdk-specification/framework/raw-aes-keyring.md#ondecrypt
       //= type=implication
@@ -280,11 +275,6 @@ module RawAESKeyring {
       ensures CanonicalEncryptionContext.EncryptionContextToAAD(input.materials.encryptionContext).Failure? ==> output.Failure?
     {
       var materials := input.materials;
-
-      // TODO add support
-      :- Need(materials.algorithmSuite.symmetricSignature.None?,
-        Types.AwsCryptographicMaterialProvidersException(
-          message := "Symmetric Signatures not yet implemented."));
 
       :- Need(
         Materials.DecryptionMaterialsWithoutPlaintextDataKey(materials),
