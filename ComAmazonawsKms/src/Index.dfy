@@ -28,4 +28,10 @@ module {:extern "Dafny.Com.Amazonaws.Kms"} Com.Amazonaws.Kms refines AbstractCom
     && fresh(res.value.History)
     && res.value.ValidState()
 
+  function method DafnyUserAgentSuffix(runtime: string): string
+  {
+    var semver := "4.0.0";
+    "AwsCryptographicMPL/" + runtime + "/" + semver
+  }
+
 }
