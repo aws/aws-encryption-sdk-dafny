@@ -118,7 +118,6 @@ dafny-reportgenerator:
 # Dafny helper targets
 
 # Transpile the entire project's impl
-_transpile_implementation_all: TRANSPILE_TARGETS=$(if ${DIR_STRUCTURE_V2}, $(patsubst %, ./dafny/%/src/Index.dfy, $(PROJECT_SERVICES)), src/Index.dfy)
 _transpile_implementation_all: TRANSPILE_DEPENDENCIES=$(patsubst %, -library:$(PROJECT_ROOT)/%, $(PROJECT_INDEX))
 _transpile_implementation_all: transpile_implementation
 
@@ -136,8 +135,17 @@ _transpile_implementation_all: transpile_implementation
 # and can be the same for all such runtimes.
 # Since such targets are all shared,
 # this is tractable.
+
+# At this time is is *significatly* faster
+# to give Dafny a single file
+# that includes everything
+# than it is to pass each file to the CLI.
+# ~2m vs ~10s for our large projects.
+# Also the expectation is that verification happens in the `verify` target
 transpile_implementation:
-	dafny \
+	find ./dafny/**/src ./src -name 'Index.dfy' | sed -e 's/^/include "/' -e 's/$$/"/' | dafny \
+		-stdin \
+		-noVerify \
 		-vcsCores:$(CORES) \
 		-compileTarget:$(TARGET) \
 		-spillTargetCode:3 \
@@ -148,17 +156,17 @@ transpile_implementation:
 		-functionSyntax:3 \
 		-useRuntimeLib \
 		-out $(OUT) \
-		$(TRANSPILE_TARGETS) \
 		$(if $(strip $(STD_LIBRARY)) , -library:$(PROJECT_ROOT)/$(STD_LIBRARY)/src/Index.dfy, ) \
 		$(TRANSPILE_DEPENDENCIES)
 
 # Transpile the entire project's tests
-_transpile_test_all: TRANSPILE_TARGETS=$(if ${DIR_STRUCTURE_V2}, $(patsubst %, `find ./dafny/%/test -name '*.dfy'`, $(PROJECT_SERVICES)), `find ./test -name '*.dfy'`)
 _transpile_test_all: TRANSPILE_DEPENDENCIES=$(if ${DIR_STRUCTURE_V2}, $(patsubst %, -library:dafny/%/src/Index.dfy, $(PROJECT_SERVICES)), -library:src/Index.dfy)
 _transpile_test_all: transpile_test
 
 transpile_test:
-	dafny \
+	find ./dafny/**/test ./test -name "*.dfy" -name '*.dfy' | sed -e 's/^/include "/' -e 's/$$/"/' | dafny \
+		-stdin \
+		-noVerify \
 		-vcsCores:$(CORES) \
 		-compileTarget:$(TARGET) \
 		-spillTargetCode:3 \
@@ -170,7 +178,6 @@ transpile_test:
 		-functionSyntax:3 \
 		-useRuntimeLib \
 		-out $(OUT) \
-		$(TRANSPILE_TARGETS) \
 		$(if $(strip $(STD_LIBRARY)) , -library:$(PROJECT_ROOT)/$(STD_LIBRARY)/src/Index.dfy, ) \
 		$(TRANSPILE_DEPENDENCIES)
 
