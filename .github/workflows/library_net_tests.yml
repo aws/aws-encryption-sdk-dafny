@@ -12,12 +12,12 @@ jobs:
     strategy:
       matrix:
         library: [
+          StandardLibrary,
           AwsCryptographyPrimitives,
           ComAmazonawsKms,
-          # Commented out until we fix net local service generation
-          # AwsCryptographicMaterialProviders,
-          # TestVectorsAwsCryptographicMaterialProviders,
-          StandardLibrary,
+          ComAmazonawsDynamodb,
+          AwsCryptographicMaterialProviders,
+          TestVectorsAwsCryptographicMaterialProviders,
         ]
         dotnet-version: [ '6.0.x' ]
         os: [

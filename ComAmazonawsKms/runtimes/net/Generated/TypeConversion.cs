@@ -3760,5 +3760,187 @@ return Dafny.Sequence<char>.FromString(timestampString);
  internal static Dafny.ISequence<char> ToDafny_N6_smithy__N3_api__S6_String (string value) {
  return Dafny.Sequence<char>.FromString(value);
 }
+ public static System.Exception FromDafny_CommonError(Dafny.Com.Amazonaws.Kms.Types._IError value) {
+ switch(value)
+ {
+ case Dafny.Com.Amazonaws.Kms.Types.Error_AlreadyExistsException dafnyVal:
+return FromDafny_N3_com__N9_amazonaws__N3_kms__S22_AlreadyExistsException(dafnyVal);
+ case Dafny.Com.Amazonaws.Kms.Types.Error_CloudHsmClusterInUseException dafnyVal:
+return FromDafny_N3_com__N9_amazonaws__N3_kms__S29_CloudHsmClusterInUseException(dafnyVal);
+ case Dafny.Com.Amazonaws.Kms.Types.Error_CloudHsmClusterInvalidConfigurationException dafnyVal:
+return FromDafny_N3_com__N9_amazonaws__N3_kms__S44_CloudHsmClusterInvalidConfigurationException(dafnyVal);
+ case Dafny.Com.Amazonaws.Kms.Types.Error_CloudHsmClusterNotActiveException dafnyVal:
+return FromDafny_N3_com__N9_amazonaws__N3_kms__S33_CloudHsmClusterNotActiveException(dafnyVal);
+ case Dafny.Com.Amazonaws.Kms.Types.Error_CloudHsmClusterNotFoundException dafnyVal:
+return FromDafny_N3_com__N9_amazonaws__N3_kms__S32_CloudHsmClusterNotFoundException(dafnyVal);
+ case Dafny.Com.Amazonaws.Kms.Types.Error_CloudHsmClusterNotRelatedException dafnyVal:
+return FromDafny_N3_com__N9_amazonaws__N3_kms__S34_CloudHsmClusterNotRelatedException(dafnyVal);
+ case Dafny.Com.Amazonaws.Kms.Types.Error_CustomKeyStoreHasCMKsException dafnyVal:
+return FromDafny_N3_com__N9_amazonaws__N3_kms__S30_CustomKeyStoreHasCMKsException(dafnyVal);
+ case Dafny.Com.Amazonaws.Kms.Types.Error_CustomKeyStoreInvalidStateException dafnyVal:
+return FromDafny_N3_com__N9_amazonaws__N3_kms__S35_CustomKeyStoreInvalidStateException(dafnyVal);
+ case Dafny.Com.Amazonaws.Kms.Types.Error_CustomKeyStoreNameInUseException dafnyVal:
+return FromDafny_N3_com__N9_amazonaws__N3_kms__S32_CustomKeyStoreNameInUseException(dafnyVal);
+ case Dafny.Com.Amazonaws.Kms.Types.Error_CustomKeyStoreNotFoundException dafnyVal:
+return FromDafny_N3_com__N9_amazonaws__N3_kms__S31_CustomKeyStoreNotFoundException(dafnyVal);
+ case Dafny.Com.Amazonaws.Kms.Types.Error_DependencyTimeoutException dafnyVal:
+return FromDafny_N3_com__N9_amazonaws__N3_kms__S26_DependencyTimeoutException(dafnyVal);
+ case Dafny.Com.Amazonaws.Kms.Types.Error_DisabledException dafnyVal:
+return FromDafny_N3_com__N9_amazonaws__N3_kms__S17_DisabledException(dafnyVal);
+ case Dafny.Com.Amazonaws.Kms.Types.Error_ExpiredImportTokenException dafnyVal:
+return FromDafny_N3_com__N9_amazonaws__N3_kms__S27_ExpiredImportTokenException(dafnyVal);
+ case Dafny.Com.Amazonaws.Kms.Types.Error_IncorrectKeyException dafnyVal:
+return FromDafny_N3_com__N9_amazonaws__N3_kms__S21_IncorrectKeyException(dafnyVal);
+ case Dafny.Com.Amazonaws.Kms.Types.Error_IncorrectKeyMaterialException dafnyVal:
+return FromDafny_N3_com__N9_amazonaws__N3_kms__S29_IncorrectKeyMaterialException(dafnyVal);
+ case Dafny.Com.Amazonaws.Kms.Types.Error_IncorrectTrustAnchorException dafnyVal:
+return FromDafny_N3_com__N9_amazonaws__N3_kms__S29_IncorrectTrustAnchorException(dafnyVal);
+ case Dafny.Com.Amazonaws.Kms.Types.Error_InvalidAliasNameException dafnyVal:
+return FromDafny_N3_com__N9_amazonaws__N3_kms__S25_InvalidAliasNameException(dafnyVal);
+ case Dafny.Com.Amazonaws.Kms.Types.Error_InvalidArnException dafnyVal:
+return FromDafny_N3_com__N9_amazonaws__N3_kms__S19_InvalidArnException(dafnyVal);
+ case Dafny.Com.Amazonaws.Kms.Types.Error_InvalidCiphertextException dafnyVal:
+return FromDafny_N3_com__N9_amazonaws__N3_kms__S26_InvalidCiphertextException(dafnyVal);
+ case Dafny.Com.Amazonaws.Kms.Types.Error_InvalidGrantIdException dafnyVal:
+return FromDafny_N3_com__N9_amazonaws__N3_kms__S23_InvalidGrantIdException(dafnyVal);
+ case Dafny.Com.Amazonaws.Kms.Types.Error_InvalidGrantTokenException dafnyVal:
+return FromDafny_N3_com__N9_amazonaws__N3_kms__S26_InvalidGrantTokenException(dafnyVal);
+ case Dafny.Com.Amazonaws.Kms.Types.Error_InvalidImportTokenException dafnyVal:
+return FromDafny_N3_com__N9_amazonaws__N3_kms__S27_InvalidImportTokenException(dafnyVal);
+ case Dafny.Com.Amazonaws.Kms.Types.Error_InvalidKeyUsageException dafnyVal:
+return FromDafny_N3_com__N9_amazonaws__N3_kms__S24_InvalidKeyUsageException(dafnyVal);
+ case Dafny.Com.Amazonaws.Kms.Types.Error_InvalidMarkerException dafnyVal:
+return FromDafny_N3_com__N9_amazonaws__N3_kms__S22_InvalidMarkerException(dafnyVal);
+ case Dafny.Com.Amazonaws.Kms.Types.Error_KeyUnavailableException dafnyVal:
+return FromDafny_N3_com__N9_amazonaws__N3_kms__S23_KeyUnavailableException(dafnyVal);
+ case Dafny.Com.Amazonaws.Kms.Types.Error_KMSInternalException dafnyVal:
+return FromDafny_N3_com__N9_amazonaws__N3_kms__S20_KMSInternalException(dafnyVal);
+ case Dafny.Com.Amazonaws.Kms.Types.Error_KMSInvalidSignatureException dafnyVal:
+return FromDafny_N3_com__N9_amazonaws__N3_kms__S28_KMSInvalidSignatureException(dafnyVal);
+ case Dafny.Com.Amazonaws.Kms.Types.Error_KMSInvalidStateException dafnyVal:
+return FromDafny_N3_com__N9_amazonaws__N3_kms__S24_KMSInvalidStateException(dafnyVal);
+ case Dafny.Com.Amazonaws.Kms.Types.Error_LimitExceededException dafnyVal:
+return FromDafny_N3_com__N9_amazonaws__N3_kms__S22_LimitExceededException(dafnyVal);
+ case Dafny.Com.Amazonaws.Kms.Types.Error_MalformedPolicyDocumentException dafnyVal:
+return FromDafny_N3_com__N9_amazonaws__N3_kms__S32_MalformedPolicyDocumentException(dafnyVal);
+ case Dafny.Com.Amazonaws.Kms.Types.Error_NotFoundException dafnyVal:
+return FromDafny_N3_com__N9_amazonaws__N3_kms__S17_NotFoundException(dafnyVal);
+ case Dafny.Com.Amazonaws.Kms.Types.Error_TagException dafnyVal:
+return FromDafny_N3_com__N9_amazonaws__N3_kms__S12_TagException(dafnyVal);
+ case Dafny.Com.Amazonaws.Kms.Types.Error_UnsupportedOperationException dafnyVal:
+return FromDafny_N3_com__N9_amazonaws__N3_kms__S29_UnsupportedOperationException(dafnyVal);
+ case Dafny.Com.Amazonaws.Kms.Types.Error_Opaque dafnyVal:
+ return new SystemException(dafnyVal._obj.ToString());
+ default:
+ // The switch MUST be complete for _IError, so `value` MUST NOT be an _IError. (How did you get here?)
+ return new SystemException();;
+}
+}
+ public static Dafny.Com.Amazonaws.Kms.Types._IError ToDafny_CommonError(System.Exception value) {
+ switch (value) {
+ case Amazon.KeyManagementService.Model.AlreadyExistsException e:
+    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S22_AlreadyExistsException(e);
+
+ case Amazon.KeyManagementService.Model.CloudHsmClusterInUseException e:
+    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S29_CloudHsmClusterInUseException(e);
+
+ case Amazon.KeyManagementService.Model.CloudHsmClusterInvalidConfigurationException e:
+    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S44_CloudHsmClusterInvalidConfigurationException(e);
+
+ case Amazon.KeyManagementService.Model.CloudHsmClusterNotActiveException e:
+    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S33_CloudHsmClusterNotActiveException(e);
+
+ case Amazon.KeyManagementService.Model.CloudHsmClusterNotFoundException e:
+    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S32_CloudHsmClusterNotFoundException(e);
+
+ case Amazon.KeyManagementService.Model.CloudHsmClusterNotRelatedException e:
+    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S34_CloudHsmClusterNotRelatedException(e);
+
+ case Amazon.KeyManagementService.Model.CustomKeyStoreHasCMKsException e:
+    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S30_CustomKeyStoreHasCMKsException(e);
+
+ case Amazon.KeyManagementService.Model.CustomKeyStoreInvalidStateException e:
+    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S35_CustomKeyStoreInvalidStateException(e);
+
+ case Amazon.KeyManagementService.Model.CustomKeyStoreNameInUseException e:
+    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S32_CustomKeyStoreNameInUseException(e);
+
+ case Amazon.KeyManagementService.Model.CustomKeyStoreNotFoundException e:
+    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S31_CustomKeyStoreNotFoundException(e);
+
+ case Amazon.KeyManagementService.Model.DependencyTimeoutException e:
+    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S26_DependencyTimeoutException(e);
+
+ case Amazon.KeyManagementService.Model.DisabledException e:
+    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S17_DisabledException(e);
+
+ case Amazon.KeyManagementService.Model.ExpiredImportTokenException e:
+    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S27_ExpiredImportTokenException(e);
+
+ case Amazon.KeyManagementService.Model.IncorrectKeyException e:
+    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S21_IncorrectKeyException(e);
+
+ case Amazon.KeyManagementService.Model.IncorrectKeyMaterialException e:
+    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S29_IncorrectKeyMaterialException(e);
+
+ case Amazon.KeyManagementService.Model.IncorrectTrustAnchorException e:
+    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S29_IncorrectTrustAnchorException(e);
+
+ case Amazon.KeyManagementService.Model.InvalidAliasNameException e:
+    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S25_InvalidAliasNameException(e);
+
+ case Amazon.KeyManagementService.Model.InvalidArnException e:
+    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S19_InvalidArnException(e);
+
+ case Amazon.KeyManagementService.Model.InvalidCiphertextException e:
+    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S26_InvalidCiphertextException(e);
+
+ case Amazon.KeyManagementService.Model.InvalidGrantIdException e:
+    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S23_InvalidGrantIdException(e);
+
+ case Amazon.KeyManagementService.Model.InvalidGrantTokenException e:
+    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S26_InvalidGrantTokenException(e);
+
+ case Amazon.KeyManagementService.Model.InvalidImportTokenException e:
+    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S27_InvalidImportTokenException(e);
+
+ case Amazon.KeyManagementService.Model.InvalidKeyUsageException e:
+    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S24_InvalidKeyUsageException(e);
+
+ case Amazon.KeyManagementService.Model.InvalidMarkerException e:
+    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S22_InvalidMarkerException(e);
+
+ case Amazon.KeyManagementService.Model.KeyUnavailableException e:
+    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S23_KeyUnavailableException(e);
+
+ case Amazon.KeyManagementService.Model.KMSInternalException e:
+    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S20_KMSInternalException(e);
+
+ case Amazon.KeyManagementService.Model.KMSInvalidSignatureException e:
+    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S28_KMSInvalidSignatureException(e);
+
+ case Amazon.KeyManagementService.Model.KMSInvalidStateException e:
+    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S24_KMSInvalidStateException(e);
+
+ case Amazon.KeyManagementService.Model.LimitExceededException e:
+    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S22_LimitExceededException(e);
+
+ case Amazon.KeyManagementService.Model.MalformedPolicyDocumentException e:
+    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S32_MalformedPolicyDocumentException(e);
+
+ case Amazon.KeyManagementService.Model.NotFoundException e:
+    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S17_NotFoundException(e);
+
+ case Amazon.KeyManagementService.Model.TagException e:
+    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S12_TagException(e);
+
+ case Amazon.KeyManagementService.Model.UnsupportedOperationException e:
+    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S29_UnsupportedOperationException(e);
+
+ default:
+    return new Dafny.Com.Amazonaws.Kms.Types.Error_Opaque(value);
+
+}
+}
 }
 }

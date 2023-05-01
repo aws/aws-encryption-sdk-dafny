@@ -8,6 +8,12 @@ using System;
  using Dafny.Aws.Cryptography.KeyStore.Types; namespace AWS.Cryptography.KeyStore {
  public class KeyStore {
  private readonly Dafny.Aws.Cryptography.KeyStore.Types.IKeyStoreClient _impl;
+ public KeyStore(Dafny.Aws.Cryptography.KeyStore.Types.IKeyStoreClient impl) {
+    this._impl = impl;
+}
+ public Dafny.Aws.Cryptography.KeyStore.Types.IKeyStoreClient impl() {
+    return this._impl;
+}
  public KeyStore(AWS.Cryptography.KeyStore.KeyStoreConfig input)
  {
  Dafny.Aws.Cryptography.KeyStore.Types._IKeyStoreConfig internalInput = TypeConversion.ToDafny_N3_aws__N12_cryptography__N8_keyStore__S14_KeyStoreConfig(input);
@@ -21,9 +27,9 @@ using System;
  if (result.is_Failure) throw TypeConversion.FromDafny_CommonError(result.dtor_error);
  return TypeConversion.FromDafny_N3_aws__N12_cryptography__N8_keyStore__S20_CreateKeyStoreOutput(result.dtor_value);
 }
- public AWS.Cryptography.KeyStore.CreateKeyOutput CreateKey(AWS.Cryptography.KeyStore.CreateKeyInput input) {
- Dafny.Aws.Cryptography.KeyStore.Types._ICreateKeyInput internalInput = TypeConversion.ToDafny_N3_aws__N12_cryptography__N8_keyStore__S14_CreateKeyInput(input);
- Wrappers_Compile._IResult<Dafny.Aws.Cryptography.KeyStore.Types._ICreateKeyOutput, Dafny.Aws.Cryptography.KeyStore.Types._IError> result = _impl.CreateKey(internalInput);
+ public AWS.Cryptography.KeyStore.CreateKeyOutput CreateKey() {
+
+ Wrappers_Compile._IResult<Dafny.Aws.Cryptography.KeyStore.Types._ICreateKeyOutput, Dafny.Aws.Cryptography.KeyStore.Types._IError> result = _impl.CreateKey();
  if (result.is_Failure) throw TypeConversion.FromDafny_CommonError(result.dtor_error);
  return TypeConversion.FromDafny_N3_aws__N12_cryptography__N8_keyStore__S15_CreateKeyOutput(result.dtor_value);
 }
@@ -50,6 +56,12 @@ using System;
  Wrappers_Compile._IResult<Dafny.Aws.Cryptography.KeyStore.Types._IGetBeaconKeyOutput, Dafny.Aws.Cryptography.KeyStore.Types._IError> result = _impl.GetBeaconKey(internalInput);
  if (result.is_Failure) throw TypeConversion.FromDafny_CommonError(result.dtor_error);
  return TypeConversion.FromDafny_N3_aws__N12_cryptography__N8_keyStore__S18_GetBeaconKeyOutput(result.dtor_value);
+}
+ public void BranchKeyStatusResolution(AWS.Cryptography.KeyStore.BranchKeyStatusResolutionInput input) {
+ Dafny.Aws.Cryptography.KeyStore.Types._IBranchKeyStatusResolutionInput internalInput = TypeConversion.ToDafny_N3_aws__N12_cryptography__N8_keyStore__S30_BranchKeyStatusResolutionInput(input);
+ Wrappers_Compile._IResult<_System._ITuple0, Dafny.Aws.Cryptography.KeyStore.Types._IError> result = _impl.BranchKeyStatusResolution(internalInput);
+ if (result.is_Failure) throw TypeConversion.FromDafny_CommonError(result.dtor_error);
+ 
 }
 }
 }

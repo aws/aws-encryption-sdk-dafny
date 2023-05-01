@@ -15,7 +15,7 @@ using System;
  this._impl.BatchExecuteStatementAsync(sdkRequest).Result;
  return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IBatchExecuteStatementOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Success(TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S27_BatchExecuteStatementOutput(sdkResponse));
 } catch (System.AggregateException aggregate) when (aggregate.InnerException is Amazon.DynamoDBv2.AmazonDynamoDBException ex) {
-    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IBatchExecuteStatementOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IBatchExecuteStatementOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(TypeConversion.ToDafny_CommonError(ex));
 }
 
 }
@@ -25,7 +25,7 @@ using System;
  this._impl.BatchGetItemAsync(sdkRequest).Result;
  return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IBatchGetItemOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Success(TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S18_BatchGetItemOutput(sdkResponse));
 } catch (System.AggregateException aggregate) when (aggregate.InnerException is Amazon.DynamoDBv2.AmazonDynamoDBException ex) {
-    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IBatchGetItemOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IBatchGetItemOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(TypeConversion.ToDafny_CommonError(ex));
 }
 
 }
@@ -35,7 +35,7 @@ using System;
  this._impl.BatchWriteItemAsync(sdkRequest).Result;
  return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IBatchWriteItemOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Success(TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S20_BatchWriteItemOutput(sdkResponse));
 } catch (System.AggregateException aggregate) when (aggregate.InnerException is Amazon.DynamoDBv2.AmazonDynamoDBException ex) {
-    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IBatchWriteItemOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IBatchWriteItemOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(TypeConversion.ToDafny_CommonError(ex));
 }
 
 }
@@ -45,7 +45,7 @@ using System;
  this._impl.CreateBackupAsync(sdkRequest).Result;
  return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._ICreateBackupOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Success(TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S18_CreateBackupOutput(sdkResponse));
 } catch (System.AggregateException aggregate) when (aggregate.InnerException is Amazon.DynamoDBv2.AmazonDynamoDBException ex) {
-    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._ICreateBackupOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._ICreateBackupOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(TypeConversion.ToDafny_CommonError(ex));
 }
 
 }
@@ -55,7 +55,7 @@ using System;
  this._impl.CreateGlobalTableAsync(sdkRequest).Result;
  return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._ICreateGlobalTableOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Success(TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S23_CreateGlobalTableOutput(sdkResponse));
 } catch (System.AggregateException aggregate) when (aggregate.InnerException is Amazon.DynamoDBv2.AmazonDynamoDBException ex) {
-    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._ICreateGlobalTableOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._ICreateGlobalTableOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(TypeConversion.ToDafny_CommonError(ex));
 }
 
 }
@@ -65,7 +65,7 @@ using System;
  this._impl.CreateTableAsync(sdkRequest).Result;
  return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._ICreateTableOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Success(TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S17_CreateTableOutput(sdkResponse));
 } catch (System.AggregateException aggregate) when (aggregate.InnerException is Amazon.DynamoDBv2.AmazonDynamoDBException ex) {
-    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._ICreateTableOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._ICreateTableOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(TypeConversion.ToDafny_CommonError(ex));
 }
 
 }
@@ -75,7 +75,7 @@ using System;
  this._impl.DeleteBackupAsync(sdkRequest).Result;
  return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IDeleteBackupOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Success(TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S18_DeleteBackupOutput(sdkResponse));
 } catch (System.AggregateException aggregate) when (aggregate.InnerException is Amazon.DynamoDBv2.AmazonDynamoDBException ex) {
-    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IDeleteBackupOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IDeleteBackupOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(TypeConversion.ToDafny_CommonError(ex));
 }
 
 }
@@ -85,7 +85,7 @@ using System;
  this._impl.DeleteItemAsync(sdkRequest).Result;
  return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IDeleteItemOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Success(TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_DeleteItemOutput(sdkResponse));
 } catch (System.AggregateException aggregate) when (aggregate.InnerException is Amazon.DynamoDBv2.AmazonDynamoDBException ex) {
-    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IDeleteItemOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IDeleteItemOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(TypeConversion.ToDafny_CommonError(ex));
 }
 
 }
@@ -95,7 +95,7 @@ using System;
  this._impl.DeleteTableAsync(sdkRequest).Result;
  return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IDeleteTableOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Success(TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S17_DeleteTableOutput(sdkResponse));
 } catch (System.AggregateException aggregate) when (aggregate.InnerException is Amazon.DynamoDBv2.AmazonDynamoDBException ex) {
-    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IDeleteTableOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IDeleteTableOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(TypeConversion.ToDafny_CommonError(ex));
 }
 
 }
@@ -105,7 +105,7 @@ using System;
  this._impl.DescribeBackupAsync(sdkRequest).Result;
  return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IDescribeBackupOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Success(TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S20_DescribeBackupOutput(sdkResponse));
 } catch (System.AggregateException aggregate) when (aggregate.InnerException is Amazon.DynamoDBv2.AmazonDynamoDBException ex) {
-    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IDescribeBackupOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IDescribeBackupOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(TypeConversion.ToDafny_CommonError(ex));
 }
 
 }
@@ -115,7 +115,7 @@ using System;
  this._impl.DescribeContinuousBackupsAsync(sdkRequest).Result;
  return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IDescribeContinuousBackupsOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Success(TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S31_DescribeContinuousBackupsOutput(sdkResponse));
 } catch (System.AggregateException aggregate) when (aggregate.InnerException is Amazon.DynamoDBv2.AmazonDynamoDBException ex) {
-    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IDescribeContinuousBackupsOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IDescribeContinuousBackupsOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(TypeConversion.ToDafny_CommonError(ex));
 }
 
 }
@@ -125,7 +125,7 @@ using System;
  this._impl.DescribeContributorInsightsAsync(sdkRequest).Result;
  return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IDescribeContributorInsightsOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Success(TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S33_DescribeContributorInsightsOutput(sdkResponse));
 } catch (System.AggregateException aggregate) when (aggregate.InnerException is Amazon.DynamoDBv2.AmazonDynamoDBException ex) {
-    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IDescribeContributorInsightsOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IDescribeContributorInsightsOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(TypeConversion.ToDafny_CommonError(ex));
 }
 
 }
@@ -135,7 +135,7 @@ using System;
  this._impl.DescribeEndpointsAsync(sdkRequest).Result;
  return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IDescribeEndpointsResponse, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Success(TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S25_DescribeEndpointsResponse(sdkResponse));
 } catch (System.AggregateException aggregate) when (aggregate.InnerException is Amazon.DynamoDBv2.AmazonDynamoDBException ex) {
-    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IDescribeEndpointsResponse, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IDescribeEndpointsResponse, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(TypeConversion.ToDafny_CommonError(ex));
 }
 
 }
@@ -145,7 +145,7 @@ using System;
  this._impl.DescribeExportAsync(sdkRequest).Result;
  return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IDescribeExportOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Success(TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S20_DescribeExportOutput(sdkResponse));
 } catch (System.AggregateException aggregate) when (aggregate.InnerException is Amazon.DynamoDBv2.AmazonDynamoDBException ex) {
-    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IDescribeExportOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IDescribeExportOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(TypeConversion.ToDafny_CommonError(ex));
 }
 
 }
@@ -155,7 +155,7 @@ using System;
  this._impl.DescribeGlobalTableAsync(sdkRequest).Result;
  return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IDescribeGlobalTableOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Success(TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S25_DescribeGlobalTableOutput(sdkResponse));
 } catch (System.AggregateException aggregate) when (aggregate.InnerException is Amazon.DynamoDBv2.AmazonDynamoDBException ex) {
-    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IDescribeGlobalTableOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IDescribeGlobalTableOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(TypeConversion.ToDafny_CommonError(ex));
 }
 
 }
@@ -165,7 +165,7 @@ using System;
  this._impl.DescribeGlobalTableSettingsAsync(sdkRequest).Result;
  return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IDescribeGlobalTableSettingsOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Success(TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S33_DescribeGlobalTableSettingsOutput(sdkResponse));
 } catch (System.AggregateException aggregate) when (aggregate.InnerException is Amazon.DynamoDBv2.AmazonDynamoDBException ex) {
-    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IDescribeGlobalTableSettingsOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IDescribeGlobalTableSettingsOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(TypeConversion.ToDafny_CommonError(ex));
 }
 
 }
@@ -175,7 +175,7 @@ using System;
  this._impl.DescribeImportAsync(sdkRequest).Result;
  return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IDescribeImportOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Success(TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S20_DescribeImportOutput(sdkResponse));
 } catch (System.AggregateException aggregate) when (aggregate.InnerException is Amazon.DynamoDBv2.AmazonDynamoDBException ex) {
-    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IDescribeImportOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IDescribeImportOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(TypeConversion.ToDafny_CommonError(ex));
 }
 
 }
@@ -185,7 +185,7 @@ using System;
  this._impl.DescribeKinesisStreamingDestinationAsync(sdkRequest).Result;
  return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IDescribeKinesisStreamingDestinationOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Success(TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S41_DescribeKinesisStreamingDestinationOutput(sdkResponse));
 } catch (System.AggregateException aggregate) when (aggregate.InnerException is Amazon.DynamoDBv2.AmazonDynamoDBException ex) {
-    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IDescribeKinesisStreamingDestinationOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IDescribeKinesisStreamingDestinationOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(TypeConversion.ToDafny_CommonError(ex));
 }
 
 }
@@ -195,7 +195,7 @@ using System;
  this._impl.DescribeLimitsAsync(sdkRequest).Result;
  return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IDescribeLimitsOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Success(TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S20_DescribeLimitsOutput(sdkResponse));
 } catch (System.AggregateException aggregate) when (aggregate.InnerException is Amazon.DynamoDBv2.AmazonDynamoDBException ex) {
-    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IDescribeLimitsOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IDescribeLimitsOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(TypeConversion.ToDafny_CommonError(ex));
 }
 
 }
@@ -205,7 +205,7 @@ using System;
  this._impl.DescribeTableAsync(sdkRequest).Result;
  return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IDescribeTableOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Success(TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S19_DescribeTableOutput(sdkResponse));
 } catch (System.AggregateException aggregate) when (aggregate.InnerException is Amazon.DynamoDBv2.AmazonDynamoDBException ex) {
-    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IDescribeTableOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IDescribeTableOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(TypeConversion.ToDafny_CommonError(ex));
 }
 
 }
@@ -215,7 +215,7 @@ using System;
  this._impl.DescribeTableReplicaAutoScalingAsync(sdkRequest).Result;
  return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IDescribeTableReplicaAutoScalingOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Success(TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S37_DescribeTableReplicaAutoScalingOutput(sdkResponse));
 } catch (System.AggregateException aggregate) when (aggregate.InnerException is Amazon.DynamoDBv2.AmazonDynamoDBException ex) {
-    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IDescribeTableReplicaAutoScalingOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IDescribeTableReplicaAutoScalingOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(TypeConversion.ToDafny_CommonError(ex));
 }
 
 }
@@ -225,7 +225,7 @@ using System;
  this._impl.DescribeTimeToLiveAsync(sdkRequest).Result;
  return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IDescribeTimeToLiveOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Success(TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S24_DescribeTimeToLiveOutput(sdkResponse));
 } catch (System.AggregateException aggregate) when (aggregate.InnerException is Amazon.DynamoDBv2.AmazonDynamoDBException ex) {
-    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IDescribeTimeToLiveOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IDescribeTimeToLiveOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(TypeConversion.ToDafny_CommonError(ex));
 }
 
 }
@@ -235,7 +235,7 @@ using System;
  this._impl.DisableKinesisStreamingDestinationAsync(sdkRequest).Result;
  return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IDisableKinesisStreamingDestinationOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Success(TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S40_DisableKinesisStreamingDestinationOutput(sdkResponse));
 } catch (System.AggregateException aggregate) when (aggregate.InnerException is Amazon.DynamoDBv2.AmazonDynamoDBException ex) {
-    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IDisableKinesisStreamingDestinationOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IDisableKinesisStreamingDestinationOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(TypeConversion.ToDafny_CommonError(ex));
 }
 
 }
@@ -245,7 +245,7 @@ using System;
  this._impl.EnableKinesisStreamingDestinationAsync(sdkRequest).Result;
  return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IEnableKinesisStreamingDestinationOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Success(TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S39_EnableKinesisStreamingDestinationOutput(sdkResponse));
 } catch (System.AggregateException aggregate) when (aggregate.InnerException is Amazon.DynamoDBv2.AmazonDynamoDBException ex) {
-    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IEnableKinesisStreamingDestinationOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IEnableKinesisStreamingDestinationOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(TypeConversion.ToDafny_CommonError(ex));
 }
 
 }
@@ -255,7 +255,7 @@ using System;
  this._impl.ExecuteStatementAsync(sdkRequest).Result;
  return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IExecuteStatementOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Success(TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S22_ExecuteStatementOutput(sdkResponse));
 } catch (System.AggregateException aggregate) when (aggregate.InnerException is Amazon.DynamoDBv2.AmazonDynamoDBException ex) {
-    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IExecuteStatementOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IExecuteStatementOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(TypeConversion.ToDafny_CommonError(ex));
 }
 
 }
@@ -265,7 +265,7 @@ using System;
  this._impl.ExecuteTransactionAsync(sdkRequest).Result;
  return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IExecuteTransactionOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Success(TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S24_ExecuteTransactionOutput(sdkResponse));
 } catch (System.AggregateException aggregate) when (aggregate.InnerException is Amazon.DynamoDBv2.AmazonDynamoDBException ex) {
-    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IExecuteTransactionOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IExecuteTransactionOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(TypeConversion.ToDafny_CommonError(ex));
 }
 
 }
@@ -275,7 +275,7 @@ using System;
  this._impl.ExportTableToPointInTimeAsync(sdkRequest).Result;
  return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IExportTableToPointInTimeOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Success(TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S30_ExportTableToPointInTimeOutput(sdkResponse));
 } catch (System.AggregateException aggregate) when (aggregate.InnerException is Amazon.DynamoDBv2.AmazonDynamoDBException ex) {
-    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IExportTableToPointInTimeOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IExportTableToPointInTimeOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(TypeConversion.ToDafny_CommonError(ex));
 }
 
 }
@@ -285,7 +285,7 @@ using System;
  this._impl.GetItemAsync(sdkRequest).Result;
  return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IGetItemOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Success(TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S13_GetItemOutput(sdkResponse));
 } catch (System.AggregateException aggregate) when (aggregate.InnerException is Amazon.DynamoDBv2.AmazonDynamoDBException ex) {
-    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IGetItemOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IGetItemOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(TypeConversion.ToDafny_CommonError(ex));
 }
 
 }
@@ -295,7 +295,7 @@ using System;
  this._impl.ImportTableAsync(sdkRequest).Result;
  return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IImportTableOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Success(TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S17_ImportTableOutput(sdkResponse));
 } catch (System.AggregateException aggregate) when (aggregate.InnerException is Amazon.DynamoDBv2.AmazonDynamoDBException ex) {
-    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IImportTableOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IImportTableOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(TypeConversion.ToDafny_CommonError(ex));
 }
 
 }
@@ -305,7 +305,7 @@ using System;
  this._impl.ListBackupsAsync(sdkRequest).Result;
  return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IListBackupsOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Success(TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S17_ListBackupsOutput(sdkResponse));
 } catch (System.AggregateException aggregate) when (aggregate.InnerException is Amazon.DynamoDBv2.AmazonDynamoDBException ex) {
-    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IListBackupsOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IListBackupsOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(TypeConversion.ToDafny_CommonError(ex));
 }
 
 }
@@ -315,7 +315,7 @@ using System;
  this._impl.ListContributorInsightsAsync(sdkRequest).Result;
  return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IListContributorInsightsOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Success(TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S29_ListContributorInsightsOutput(sdkResponse));
 } catch (System.AggregateException aggregate) when (aggregate.InnerException is Amazon.DynamoDBv2.AmazonDynamoDBException ex) {
-    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IListContributorInsightsOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IListContributorInsightsOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(TypeConversion.ToDafny_CommonError(ex));
 }
 
 }
@@ -325,7 +325,7 @@ using System;
  this._impl.ListExportsAsync(sdkRequest).Result;
  return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IListExportsOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Success(TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S17_ListExportsOutput(sdkResponse));
 } catch (System.AggregateException aggregate) when (aggregate.InnerException is Amazon.DynamoDBv2.AmazonDynamoDBException ex) {
-    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IListExportsOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IListExportsOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(TypeConversion.ToDafny_CommonError(ex));
 }
 
 }
@@ -335,7 +335,7 @@ using System;
  this._impl.ListGlobalTablesAsync(sdkRequest).Result;
  return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IListGlobalTablesOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Success(TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S22_ListGlobalTablesOutput(sdkResponse));
 } catch (System.AggregateException aggregate) when (aggregate.InnerException is Amazon.DynamoDBv2.AmazonDynamoDBException ex) {
-    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IListGlobalTablesOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IListGlobalTablesOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(TypeConversion.ToDafny_CommonError(ex));
 }
 
 }
@@ -345,7 +345,7 @@ using System;
  this._impl.ListImportsAsync(sdkRequest).Result;
  return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IListImportsOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Success(TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S17_ListImportsOutput(sdkResponse));
 } catch (System.AggregateException aggregate) when (aggregate.InnerException is Amazon.DynamoDBv2.AmazonDynamoDBException ex) {
-    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IListImportsOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IListImportsOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(TypeConversion.ToDafny_CommonError(ex));
 }
 
 }
@@ -355,7 +355,7 @@ using System;
  this._impl.ListTablesAsync(sdkRequest).Result;
  return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IListTablesOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Success(TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_ListTablesOutput(sdkResponse));
 } catch (System.AggregateException aggregate) when (aggregate.InnerException is Amazon.DynamoDBv2.AmazonDynamoDBException ex) {
-    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IListTablesOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IListTablesOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(TypeConversion.ToDafny_CommonError(ex));
 }
 
 }
@@ -365,7 +365,7 @@ using System;
  this._impl.ListTagsOfResourceAsync(sdkRequest).Result;
  return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IListTagsOfResourceOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Success(TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S24_ListTagsOfResourceOutput(sdkResponse));
 } catch (System.AggregateException aggregate) when (aggregate.InnerException is Amazon.DynamoDBv2.AmazonDynamoDBException ex) {
-    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IListTagsOfResourceOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IListTagsOfResourceOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(TypeConversion.ToDafny_CommonError(ex));
 }
 
 }
@@ -375,7 +375,7 @@ using System;
  this._impl.PutItemAsync(sdkRequest).Result;
  return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IPutItemOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Success(TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S13_PutItemOutput(sdkResponse));
 } catch (System.AggregateException aggregate) when (aggregate.InnerException is Amazon.DynamoDBv2.AmazonDynamoDBException ex) {
-    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IPutItemOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IPutItemOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(TypeConversion.ToDafny_CommonError(ex));
 }
 
 }
@@ -385,7 +385,7 @@ using System;
  this._impl.QueryAsync(sdkRequest).Result;
  return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IQueryOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Success(TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S11_QueryOutput(sdkResponse));
 } catch (System.AggregateException aggregate) when (aggregate.InnerException is Amazon.DynamoDBv2.AmazonDynamoDBException ex) {
-    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IQueryOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IQueryOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(TypeConversion.ToDafny_CommonError(ex));
 }
 
 }
@@ -395,7 +395,7 @@ using System;
  this._impl.RestoreTableFromBackupAsync(sdkRequest).Result;
  return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IRestoreTableFromBackupOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Success(TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S28_RestoreTableFromBackupOutput(sdkResponse));
 } catch (System.AggregateException aggregate) when (aggregate.InnerException is Amazon.DynamoDBv2.AmazonDynamoDBException ex) {
-    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IRestoreTableFromBackupOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IRestoreTableFromBackupOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(TypeConversion.ToDafny_CommonError(ex));
 }
 
 }
@@ -405,7 +405,7 @@ using System;
  this._impl.RestoreTableToPointInTimeAsync(sdkRequest).Result;
  return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IRestoreTableToPointInTimeOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Success(TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S31_RestoreTableToPointInTimeOutput(sdkResponse));
 } catch (System.AggregateException aggregate) when (aggregate.InnerException is Amazon.DynamoDBv2.AmazonDynamoDBException ex) {
-    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IRestoreTableToPointInTimeOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IRestoreTableToPointInTimeOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(TypeConversion.ToDafny_CommonError(ex));
 }
 
 }
@@ -415,7 +415,7 @@ using System;
  this._impl.ScanAsync(sdkRequest).Result;
  return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IScanOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Success(TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S10_ScanOutput(sdkResponse));
 } catch (System.AggregateException aggregate) when (aggregate.InnerException is Amazon.DynamoDBv2.AmazonDynamoDBException ex) {
-    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IScanOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IScanOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(TypeConversion.ToDafny_CommonError(ex));
 }
 
 }
@@ -425,7 +425,7 @@ using System;
  this._impl.TagResourceAsync(sdkRequest).Wait();
  return Wrappers_Compile.Result<_System._ITuple0, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Success(_System.Tuple0.Default());
 } catch (System.AggregateException aggregate) when (aggregate.InnerException is Amazon.DynamoDBv2.AmazonDynamoDBException ex) {
-    return Wrappers_Compile.Result<_System._ITuple0, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<_System._ITuple0, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(TypeConversion.ToDafny_CommonError(ex));
 }
 
 }
@@ -435,7 +435,7 @@ using System;
  this._impl.TransactGetItemsAsync(sdkRequest).Result;
  return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._ITransactGetItemsOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Success(TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S22_TransactGetItemsOutput(sdkResponse));
 } catch (System.AggregateException aggregate) when (aggregate.InnerException is Amazon.DynamoDBv2.AmazonDynamoDBException ex) {
-    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._ITransactGetItemsOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._ITransactGetItemsOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(TypeConversion.ToDafny_CommonError(ex));
 }
 
 }
@@ -445,7 +445,7 @@ using System;
  this._impl.TransactWriteItemsAsync(sdkRequest).Result;
  return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._ITransactWriteItemsOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Success(TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S24_TransactWriteItemsOutput(sdkResponse));
 } catch (System.AggregateException aggregate) when (aggregate.InnerException is Amazon.DynamoDBv2.AmazonDynamoDBException ex) {
-    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._ITransactWriteItemsOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._ITransactWriteItemsOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(TypeConversion.ToDafny_CommonError(ex));
 }
 
 }
@@ -455,7 +455,7 @@ using System;
  this._impl.UntagResourceAsync(sdkRequest).Wait();
  return Wrappers_Compile.Result<_System._ITuple0, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Success(_System.Tuple0.Default());
 } catch (System.AggregateException aggregate) when (aggregate.InnerException is Amazon.DynamoDBv2.AmazonDynamoDBException ex) {
-    return Wrappers_Compile.Result<_System._ITuple0, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<_System._ITuple0, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(TypeConversion.ToDafny_CommonError(ex));
 }
 
 }
@@ -465,7 +465,7 @@ using System;
  this._impl.UpdateContinuousBackupsAsync(sdkRequest).Result;
  return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IUpdateContinuousBackupsOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Success(TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S29_UpdateContinuousBackupsOutput(sdkResponse));
 } catch (System.AggregateException aggregate) when (aggregate.InnerException is Amazon.DynamoDBv2.AmazonDynamoDBException ex) {
-    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IUpdateContinuousBackupsOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IUpdateContinuousBackupsOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(TypeConversion.ToDafny_CommonError(ex));
 }
 
 }
@@ -475,7 +475,7 @@ using System;
  this._impl.UpdateContributorInsightsAsync(sdkRequest).Result;
  return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IUpdateContributorInsightsOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Success(TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S31_UpdateContributorInsightsOutput(sdkResponse));
 } catch (System.AggregateException aggregate) when (aggregate.InnerException is Amazon.DynamoDBv2.AmazonDynamoDBException ex) {
-    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IUpdateContributorInsightsOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IUpdateContributorInsightsOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(TypeConversion.ToDafny_CommonError(ex));
 }
 
 }
@@ -485,7 +485,7 @@ using System;
  this._impl.UpdateGlobalTableAsync(sdkRequest).Result;
  return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IUpdateGlobalTableOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Success(TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S23_UpdateGlobalTableOutput(sdkResponse));
 } catch (System.AggregateException aggregate) when (aggregate.InnerException is Amazon.DynamoDBv2.AmazonDynamoDBException ex) {
-    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IUpdateGlobalTableOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IUpdateGlobalTableOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(TypeConversion.ToDafny_CommonError(ex));
 }
 
 }
@@ -495,7 +495,7 @@ using System;
  this._impl.UpdateGlobalTableSettingsAsync(sdkRequest).Result;
  return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IUpdateGlobalTableSettingsOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Success(TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S31_UpdateGlobalTableSettingsOutput(sdkResponse));
 } catch (System.AggregateException aggregate) when (aggregate.InnerException is Amazon.DynamoDBv2.AmazonDynamoDBException ex) {
-    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IUpdateGlobalTableSettingsOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IUpdateGlobalTableSettingsOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(TypeConversion.ToDafny_CommonError(ex));
 }
 
 }
@@ -505,7 +505,7 @@ using System;
  this._impl.UpdateItemAsync(sdkRequest).Result;
  return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IUpdateItemOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Success(TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S16_UpdateItemOutput(sdkResponse));
 } catch (System.AggregateException aggregate) when (aggregate.InnerException is Amazon.DynamoDBv2.AmazonDynamoDBException ex) {
-    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IUpdateItemOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IUpdateItemOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(TypeConversion.ToDafny_CommonError(ex));
 }
 
 }
@@ -515,7 +515,7 @@ using System;
  this._impl.UpdateTableAsync(sdkRequest).Result;
  return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IUpdateTableOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Success(TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S17_UpdateTableOutput(sdkResponse));
 } catch (System.AggregateException aggregate) when (aggregate.InnerException is Amazon.DynamoDBv2.AmazonDynamoDBException ex) {
-    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IUpdateTableOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IUpdateTableOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(TypeConversion.ToDafny_CommonError(ex));
 }
 
 }
@@ -525,7 +525,7 @@ using System;
  this._impl.UpdateTableReplicaAutoScalingAsync(sdkRequest).Result;
  return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IUpdateTableReplicaAutoScalingOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Success(TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S35_UpdateTableReplicaAutoScalingOutput(sdkResponse));
 } catch (System.AggregateException aggregate) when (aggregate.InnerException is Amazon.DynamoDBv2.AmazonDynamoDBException ex) {
-    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IUpdateTableReplicaAutoScalingOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IUpdateTableReplicaAutoScalingOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(TypeConversion.ToDafny_CommonError(ex));
 }
 
 }
@@ -535,110 +535,9 @@ using System;
  this._impl.UpdateTimeToLiveAsync(sdkRequest).Result;
  return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IUpdateTimeToLiveOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Success(TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S22_UpdateTimeToLiveOutput(sdkResponse));
 } catch (System.AggregateException aggregate) when (aggregate.InnerException is Amazon.DynamoDBv2.AmazonDynamoDBException ex) {
-    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IUpdateTimeToLiveOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Dynamodb.Types._IUpdateTimeToLiveOutput, Dafny.Com.Amazonaws.Dynamodb.Types._IError>.create_Failure(TypeConversion.ToDafny_CommonError(ex));
 }
 
-}
- private Dafny.Com.Amazonaws.Dynamodb.Types._IError ConvertError(Amazon.DynamoDBv2.AmazonDynamoDBException error) {
- switch (error) {
- case Amazon.DynamoDBv2.Model.BackupInUseException e:
-    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S20_BackupInUseException(e);
-
- case Amazon.DynamoDBv2.Model.BackupNotFoundException e:
-    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S23_BackupNotFoundException(e);
-
- case Amazon.DynamoDBv2.Model.ConditionalCheckFailedException e:
-    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S31_ConditionalCheckFailedException(e);
-
- case Amazon.DynamoDBv2.Model.ContinuousBackupsUnavailableException e:
-    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S37_ContinuousBackupsUnavailableException(e);
-
- case Amazon.DynamoDBv2.Model.DuplicateItemException e:
-    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S22_DuplicateItemException(e);
-
- case Amazon.DynamoDBv2.Model.ExportConflictException e:
-    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S23_ExportConflictException(e);
-
- case Amazon.DynamoDBv2.Model.ExportNotFoundException e:
-    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S23_ExportNotFoundException(e);
-
- case Amazon.DynamoDBv2.Model.GlobalTableAlreadyExistsException e:
-    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S33_GlobalTableAlreadyExistsException(e);
-
- case Amazon.DynamoDBv2.Model.GlobalTableNotFoundException e:
-    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S28_GlobalTableNotFoundException(e);
-
- case Amazon.DynamoDBv2.Model.IdempotentParameterMismatchException e:
-    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S36_IdempotentParameterMismatchException(e);
-
- case Amazon.DynamoDBv2.Model.ImportConflictException e:
-    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S23_ImportConflictException(e);
-
- case Amazon.DynamoDBv2.Model.ImportNotFoundException e:
-    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S23_ImportNotFoundException(e);
-
- case Amazon.DynamoDBv2.Model.IndexNotFoundException e:
-    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S22_IndexNotFoundException(e);
-
- case Amazon.DynamoDBv2.Model.InternalServerErrorException e:
-    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S19_InternalServerError(e);
-
- 
- case Amazon.DynamoDBv2.Model.InvalidExportTimeException e:
-    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S26_InvalidExportTimeException(e);
-
- case Amazon.DynamoDBv2.Model.InvalidRestoreTimeException e:
-    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S27_InvalidRestoreTimeException(e);
-
- case Amazon.DynamoDBv2.Model.ItemCollectionSizeLimitExceededException e:
-    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S40_ItemCollectionSizeLimitExceededException(e);
-
- case Amazon.DynamoDBv2.Model.LimitExceededException e:
-    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S22_LimitExceededException(e);
-
- case Amazon.DynamoDBv2.Model.PointInTimeRecoveryUnavailableException e:
-    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S39_PointInTimeRecoveryUnavailableException(e);
-
- case Amazon.DynamoDBv2.Model.ProvisionedThroughputExceededException e:
-    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S38_ProvisionedThroughputExceededException(e);
-
- case Amazon.DynamoDBv2.Model.ReplicaAlreadyExistsException e:
-    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S29_ReplicaAlreadyExistsException(e);
-
- case Amazon.DynamoDBv2.Model.ReplicaNotFoundException e:
-    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S24_ReplicaNotFoundException(e);
-
- case Amazon.DynamoDBv2.Model.RequestLimitExceededException e:
-    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S20_RequestLimitExceeded(e);
-
- case Amazon.DynamoDBv2.Model.ResourceInUseException e:
-    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S22_ResourceInUseException(e);
-
- case Amazon.DynamoDBv2.Model.ResourceNotFoundException e:
-    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S25_ResourceNotFoundException(e);
-
- case Amazon.DynamoDBv2.Model.TableAlreadyExistsException e:
-    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S27_TableAlreadyExistsException(e);
-
- case Amazon.DynamoDBv2.Model.TableInUseException e:
-    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S19_TableInUseException(e);
-
- case Amazon.DynamoDBv2.Model.TableNotFoundException e:
-    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S22_TableNotFoundException(e);
-
- case Amazon.DynamoDBv2.Model.TransactionCanceledException e:
-    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S28_TransactionCanceledException(e);
-
- case Amazon.DynamoDBv2.Model.TransactionConflictException e:
-    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S28_TransactionConflictException(e);
-
- case Amazon.DynamoDBv2.Model.TransactionInProgressException e:
-    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S30_TransactionInProgressException(e);
-
- default:
-    return new Dafny.Com.Amazonaws.Dynamodb.Types.Error_Opaque(error);
-
-}
 }
 }
 }

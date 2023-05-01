@@ -9445,5 +9445,179 @@ return Dafny.Sequence<char>.FromString(timestampString);
  internal static Dafny.ISequence<char> ToDafny_N6_smithy__N3_api__S6_String (string value) {
  return Dafny.Sequence<char>.FromString(value);
 }
+ public static System.Exception FromDafny_CommonError(Dafny.Com.Amazonaws.Dynamodb.Types._IError value) {
+ switch(value)
+ {
+ case Dafny.Com.Amazonaws.Dynamodb.Types.Error_BackupInUseException dafnyVal:
+return FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S20_BackupInUseException(dafnyVal);
+ case Dafny.Com.Amazonaws.Dynamodb.Types.Error_BackupNotFoundException dafnyVal:
+return FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S23_BackupNotFoundException(dafnyVal);
+ case Dafny.Com.Amazonaws.Dynamodb.Types.Error_ConditionalCheckFailedException dafnyVal:
+return FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S31_ConditionalCheckFailedException(dafnyVal);
+ case Dafny.Com.Amazonaws.Dynamodb.Types.Error_ContinuousBackupsUnavailableException dafnyVal:
+return FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S37_ContinuousBackupsUnavailableException(dafnyVal);
+ case Dafny.Com.Amazonaws.Dynamodb.Types.Error_DuplicateItemException dafnyVal:
+return FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S22_DuplicateItemException(dafnyVal);
+ case Dafny.Com.Amazonaws.Dynamodb.Types.Error_ExportConflictException dafnyVal:
+return FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S23_ExportConflictException(dafnyVal);
+ case Dafny.Com.Amazonaws.Dynamodb.Types.Error_ExportNotFoundException dafnyVal:
+return FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S23_ExportNotFoundException(dafnyVal);
+ case Dafny.Com.Amazonaws.Dynamodb.Types.Error_GlobalTableAlreadyExistsException dafnyVal:
+return FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S33_GlobalTableAlreadyExistsException(dafnyVal);
+ case Dafny.Com.Amazonaws.Dynamodb.Types.Error_GlobalTableNotFoundException dafnyVal:
+return FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S28_GlobalTableNotFoundException(dafnyVal);
+ case Dafny.Com.Amazonaws.Dynamodb.Types.Error_IdempotentParameterMismatchException dafnyVal:
+return FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S36_IdempotentParameterMismatchException(dafnyVal);
+ case Dafny.Com.Amazonaws.Dynamodb.Types.Error_ImportConflictException dafnyVal:
+return FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S23_ImportConflictException(dafnyVal);
+ case Dafny.Com.Amazonaws.Dynamodb.Types.Error_ImportNotFoundException dafnyVal:
+return FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S23_ImportNotFoundException(dafnyVal);
+ case Dafny.Com.Amazonaws.Dynamodb.Types.Error_IndexNotFoundException dafnyVal:
+return FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S22_IndexNotFoundException(dafnyVal);
+ case Dafny.Com.Amazonaws.Dynamodb.Types.Error_InternalServerError dafnyVal:
+return FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S19_InternalServerError(dafnyVal);
+ 
+ case Dafny.Com.Amazonaws.Dynamodb.Types.Error_InvalidExportTimeException dafnyVal:
+return FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S26_InvalidExportTimeException(dafnyVal);
+ case Dafny.Com.Amazonaws.Dynamodb.Types.Error_InvalidRestoreTimeException dafnyVal:
+return FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S27_InvalidRestoreTimeException(dafnyVal);
+ case Dafny.Com.Amazonaws.Dynamodb.Types.Error_ItemCollectionSizeLimitExceededException dafnyVal:
+return FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S40_ItemCollectionSizeLimitExceededException(dafnyVal);
+ case Dafny.Com.Amazonaws.Dynamodb.Types.Error_LimitExceededException dafnyVal:
+return FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S22_LimitExceededException(dafnyVal);
+ case Dafny.Com.Amazonaws.Dynamodb.Types.Error_PointInTimeRecoveryUnavailableException dafnyVal:
+return FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S39_PointInTimeRecoveryUnavailableException(dafnyVal);
+ case Dafny.Com.Amazonaws.Dynamodb.Types.Error_ProvisionedThroughputExceededException dafnyVal:
+return FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S38_ProvisionedThroughputExceededException(dafnyVal);
+ case Dafny.Com.Amazonaws.Dynamodb.Types.Error_ReplicaAlreadyExistsException dafnyVal:
+return FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S29_ReplicaAlreadyExistsException(dafnyVal);
+ case Dafny.Com.Amazonaws.Dynamodb.Types.Error_ReplicaNotFoundException dafnyVal:
+return FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S24_ReplicaNotFoundException(dafnyVal);
+ case Dafny.Com.Amazonaws.Dynamodb.Types.Error_RequestLimitExceeded dafnyVal:
+return FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S20_RequestLimitExceeded(dafnyVal);
+ case Dafny.Com.Amazonaws.Dynamodb.Types.Error_ResourceInUseException dafnyVal:
+return FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S22_ResourceInUseException(dafnyVal);
+ case Dafny.Com.Amazonaws.Dynamodb.Types.Error_ResourceNotFoundException dafnyVal:
+return FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S25_ResourceNotFoundException(dafnyVal);
+ case Dafny.Com.Amazonaws.Dynamodb.Types.Error_TableAlreadyExistsException dafnyVal:
+return FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S27_TableAlreadyExistsException(dafnyVal);
+ case Dafny.Com.Amazonaws.Dynamodb.Types.Error_TableInUseException dafnyVal:
+return FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S19_TableInUseException(dafnyVal);
+ case Dafny.Com.Amazonaws.Dynamodb.Types.Error_TableNotFoundException dafnyVal:
+return FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S22_TableNotFoundException(dafnyVal);
+ case Dafny.Com.Amazonaws.Dynamodb.Types.Error_TransactionCanceledException dafnyVal:
+return FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S28_TransactionCanceledException(dafnyVal);
+ case Dafny.Com.Amazonaws.Dynamodb.Types.Error_TransactionConflictException dafnyVal:
+return FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S28_TransactionConflictException(dafnyVal);
+ case Dafny.Com.Amazonaws.Dynamodb.Types.Error_TransactionInProgressException dafnyVal:
+return FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S30_TransactionInProgressException(dafnyVal);
+ case Dafny.Com.Amazonaws.Dynamodb.Types.Error_Opaque dafnyVal:
+ return new SystemException(dafnyVal._obj.ToString());
+ default:
+ // The switch MUST be complete for _IError, so `value` MUST NOT be an _IError. (How did you get here?)
+ return new SystemException();;
+}
+}
+ public static Dafny.Com.Amazonaws.Dynamodb.Types._IError ToDafny_CommonError(System.Exception value) {
+ switch (value) {
+ case Amazon.DynamoDBv2.Model.BackupInUseException e:
+    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S20_BackupInUseException(e);
+
+ case Amazon.DynamoDBv2.Model.BackupNotFoundException e:
+    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S23_BackupNotFoundException(e);
+
+ case Amazon.DynamoDBv2.Model.ConditionalCheckFailedException e:
+    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S31_ConditionalCheckFailedException(e);
+
+ case Amazon.DynamoDBv2.Model.ContinuousBackupsUnavailableException e:
+    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S37_ContinuousBackupsUnavailableException(e);
+
+ case Amazon.DynamoDBv2.Model.DuplicateItemException e:
+    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S22_DuplicateItemException(e);
+
+ case Amazon.DynamoDBv2.Model.ExportConflictException e:
+    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S23_ExportConflictException(e);
+
+ case Amazon.DynamoDBv2.Model.ExportNotFoundException e:
+    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S23_ExportNotFoundException(e);
+
+ case Amazon.DynamoDBv2.Model.GlobalTableAlreadyExistsException e:
+    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S33_GlobalTableAlreadyExistsException(e);
+
+ case Amazon.DynamoDBv2.Model.GlobalTableNotFoundException e:
+    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S28_GlobalTableNotFoundException(e);
+
+ case Amazon.DynamoDBv2.Model.IdempotentParameterMismatchException e:
+    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S36_IdempotentParameterMismatchException(e);
+
+ case Amazon.DynamoDBv2.Model.ImportConflictException e:
+    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S23_ImportConflictException(e);
+
+ case Amazon.DynamoDBv2.Model.ImportNotFoundException e:
+    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S23_ImportNotFoundException(e);
+
+ case Amazon.DynamoDBv2.Model.IndexNotFoundException e:
+    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S22_IndexNotFoundException(e);
+
+ case Amazon.DynamoDBv2.Model.InternalServerErrorException e:
+    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S19_InternalServerError(e);
+
+ 
+ case Amazon.DynamoDBv2.Model.InvalidExportTimeException e:
+    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S26_InvalidExportTimeException(e);
+
+ case Amazon.DynamoDBv2.Model.InvalidRestoreTimeException e:
+    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S27_InvalidRestoreTimeException(e);
+
+ case Amazon.DynamoDBv2.Model.ItemCollectionSizeLimitExceededException e:
+    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S40_ItemCollectionSizeLimitExceededException(e);
+
+ case Amazon.DynamoDBv2.Model.LimitExceededException e:
+    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S22_LimitExceededException(e);
+
+ case Amazon.DynamoDBv2.Model.PointInTimeRecoveryUnavailableException e:
+    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S39_PointInTimeRecoveryUnavailableException(e);
+
+ case Amazon.DynamoDBv2.Model.ProvisionedThroughputExceededException e:
+    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S38_ProvisionedThroughputExceededException(e);
+
+ case Amazon.DynamoDBv2.Model.ReplicaAlreadyExistsException e:
+    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S29_ReplicaAlreadyExistsException(e);
+
+ case Amazon.DynamoDBv2.Model.ReplicaNotFoundException e:
+    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S24_ReplicaNotFoundException(e);
+
+ case Amazon.DynamoDBv2.Model.RequestLimitExceededException e:
+    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S20_RequestLimitExceeded(e);
+
+ case Amazon.DynamoDBv2.Model.ResourceInUseException e:
+    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S22_ResourceInUseException(e);
+
+ case Amazon.DynamoDBv2.Model.ResourceNotFoundException e:
+    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S25_ResourceNotFoundException(e);
+
+ case Amazon.DynamoDBv2.Model.TableAlreadyExistsException e:
+    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S27_TableAlreadyExistsException(e);
+
+ case Amazon.DynamoDBv2.Model.TableInUseException e:
+    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S19_TableInUseException(e);
+
+ case Amazon.DynamoDBv2.Model.TableNotFoundException e:
+    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S22_TableNotFoundException(e);
+
+ case Amazon.DynamoDBv2.Model.TransactionCanceledException e:
+    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S28_TransactionCanceledException(e);
+
+ case Amazon.DynamoDBv2.Model.TransactionConflictException e:
+    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S28_TransactionConflictException(e);
+
+ case Amazon.DynamoDBv2.Model.TransactionInProgressException e:
+    return TypeConversion.ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S30_TransactionInProgressException(e);
+
+ default:
+    return new Dafny.Com.Amazonaws.Dynamodb.Types.Error_Opaque(value);
+
+}
+}
 }
 }

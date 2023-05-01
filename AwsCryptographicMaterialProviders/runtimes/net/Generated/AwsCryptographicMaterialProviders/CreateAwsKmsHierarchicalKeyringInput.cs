@@ -6,13 +6,9 @@ using System;
  public class CreateAwsKmsHierarchicalKeyringInput {
  private string _branchKeyId ;
  private AWS.Cryptography.MaterialProviders.IBranchKeyIdSupplier _branchKeyIdSupplier ;
- private string _kmsKeyId ;
- private Amazon.KeyManagementService.IAmazonKeyManagementService _kmsClient ;
- private Amazon.DynamoDBv2.IAmazonDynamoDB _ddbClient ;
- private string _branchKeyStoreArn ;
+ private AWS.Cryptography.KeyStore.KeyStore _keyStore ;
  private long? _ttlSeconds ;
  private int? _maxCacheSize ;
- private System.Collections.Generic.List<string> _grantTokens ;
  public string BranchKeyId {
  get { return this._branchKeyId; }
  set { this._branchKeyId = value; }
@@ -27,33 +23,12 @@ using System;
  public bool IsSetBranchKeyIdSupplier () {
  return this._branchKeyIdSupplier != null;
 }
- public string KmsKeyId {
- get { return this._kmsKeyId; }
- set { this._kmsKeyId = value; }
+ public AWS.Cryptography.KeyStore.KeyStore KeyStore {
+ get { return this._keyStore; }
+ set { this._keyStore = value; }
 }
- public bool IsSetKmsKeyId () {
- return this._kmsKeyId != null;
-}
- public Amazon.KeyManagementService.IAmazonKeyManagementService KmsClient {
- get { return this._kmsClient; }
- set { this._kmsClient = value; }
-}
- public bool IsSetKmsClient () {
- return this._kmsClient != null;
-}
- public Amazon.DynamoDBv2.IAmazonDynamoDB DdbClient {
- get { return this._ddbClient; }
- set { this._ddbClient = value; }
-}
- public bool IsSetDdbClient () {
- return this._ddbClient != null;
-}
- public string BranchKeyStoreArn {
- get { return this._branchKeyStoreArn; }
- set { this._branchKeyStoreArn = value; }
-}
- public bool IsSetBranchKeyStoreArn () {
- return this._branchKeyStoreArn != null;
+ public bool IsSetKeyStore () {
+ return this._keyStore != null;
 }
  public long TtlSeconds {
  get { return this._ttlSeconds.GetValueOrDefault(); }
@@ -69,18 +44,8 @@ using System;
  public bool IsSetMaxCacheSize () {
  return this._maxCacheSize.HasValue;
 }
- public System.Collections.Generic.List<string> GrantTokens {
- get { return this._grantTokens; }
- set { this._grantTokens = value; }
-}
- public bool IsSetGrantTokens () {
- return this._grantTokens != null;
-}
  public void Validate() {
- if (!IsSetKmsKeyId()) throw new System.ArgumentException("Missing value for required property 'KmsKeyId'");
- if (!IsSetKmsClient()) throw new System.ArgumentException("Missing value for required property 'KmsClient'");
- if (!IsSetDdbClient()) throw new System.ArgumentException("Missing value for required property 'DdbClient'");
- if (!IsSetBranchKeyStoreArn()) throw new System.ArgumentException("Missing value for required property 'BranchKeyStoreArn'");
+ if (!IsSetKeyStore()) throw new System.ArgumentException("Missing value for required property 'KeyStore'");
  if (!IsSetTtlSeconds()) throw new System.ArgumentException("Missing value for required property 'TtlSeconds'");
 
 }
