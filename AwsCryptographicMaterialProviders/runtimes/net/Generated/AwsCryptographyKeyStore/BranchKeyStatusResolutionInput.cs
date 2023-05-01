@@ -3,7 +3,7 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 using System;
  using AWS.Cryptography.KeyStore; namespace AWS.Cryptography.KeyStore {
- public class GetBeaconKeyInput {
+ public class BranchKeyStatusResolutionInput {
  private string _branchKeyIdentifier ;
  public string BranchKeyIdentifier {
  get { return this._branchKeyIdentifier; }

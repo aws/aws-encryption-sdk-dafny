@@ -6,7 +6,7 @@ using System;
  public class BeaconKeyMaterials {
  private string _beaconKeyIdentifier ;
  private System.IO.MemoryStream _beaconKey ;
- private System.Collections.Generic.List<System.IO.MemoryStream> _hmacKeys ;
+ private System.Collections.Generic.Dictionary<string, System.IO.MemoryStream> _hmacKeys ;
  public string BeaconKeyIdentifier {
  get { return this._beaconKeyIdentifier; }
  set { this._beaconKeyIdentifier = value; }
@@ -21,7 +21,7 @@ using System;
  public bool IsSetBeaconKey () {
  return this._beaconKey != null;
 }
- public System.Collections.Generic.List<System.IO.MemoryStream> HmacKeys {
+ public System.Collections.Generic.Dictionary<string, System.IO.MemoryStream> HmacKeys {
  get { return this._hmacKeys; }
  set { this._hmacKeys = value; }
 }

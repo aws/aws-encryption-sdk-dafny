@@ -4,16 +4,25 @@
 using System;
  using AWS.Cryptography.KeyStore; namespace AWS.Cryptography.KeyStore {
  public class GetBeaconKeyOutput {
- private AWS.Cryptography.MaterialProviders.BeaconKeyMaterials _beaconKeyMaterials ;
- public AWS.Cryptography.MaterialProviders.BeaconKeyMaterials BeaconKeyMaterials {
- get { return this._beaconKeyMaterials; }
- set { this._beaconKeyMaterials = value; }
+ private string _beaconKeyIdentifier ;
+ private System.IO.MemoryStream _beaconKey ;
+ public string BeaconKeyIdentifier {
+ get { return this._beaconKeyIdentifier; }
+ set { this._beaconKeyIdentifier = value; }
 }
- public bool IsSetBeaconKeyMaterials () {
- return this._beaconKeyMaterials != null;
+ public bool IsSetBeaconKeyIdentifier () {
+ return this._beaconKeyIdentifier != null;
+}
+ public System.IO.MemoryStream BeaconKey {
+ get { return this._beaconKey; }
+ set { this._beaconKey = value; }
+}
+ public bool IsSetBeaconKey () {
+ return this._beaconKey != null;
 }
  public void Validate() {
- if (!IsSetBeaconKeyMaterials()) throw new System.ArgumentException("Missing value for required property 'BeaconKeyMaterials'");
+ if (!IsSetBeaconKeyIdentifier()) throw new System.ArgumentException("Missing value for required property 'BeaconKeyIdentifier'");
+ if (!IsSetBeaconKey()) throw new System.ArgumentException("Missing value for required property 'BeaconKey'");
 
 }
 }
