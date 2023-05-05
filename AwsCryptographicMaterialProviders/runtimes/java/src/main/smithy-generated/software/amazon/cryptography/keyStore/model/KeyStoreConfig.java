@@ -9,11 +9,13 @@ import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.kms.KmsClient;
 
 public class KeyStoreConfig {
-  private final String id;
-
   private final String ddbTableName;
 
-  private final String kmsKeyArn;
+  private final KMSConfiguration kmsConfiguration;
+
+  private final String logicalKeyStoreName;
+
+  private final String id;
 
   private final List<String> grantTokens;
 
@@ -22,24 +24,29 @@ public class KeyStoreConfig {
   private final KmsClient kmsClient;
 
   protected KeyStoreConfig(BuilderImpl builder) {
-    this.id = builder.id();
     this.ddbTableName = builder.ddbTableName();
-    this.kmsKeyArn = builder.kmsKeyArn();
+    this.kmsConfiguration = builder.kmsConfiguration();
+    this.logicalKeyStoreName = builder.logicalKeyStoreName();
+    this.id = builder.id();
     this.grantTokens = builder.grantTokens();
     this.ddbClient = builder.ddbClient();
     this.kmsClient = builder.kmsClient();
-  }
-
-  public String id() {
-    return this.id;
   }
 
   public String ddbTableName() {
     return this.ddbTableName;
   }
 
-  public String kmsKeyArn() {
-    return this.kmsKeyArn;
+  public KMSConfiguration kmsConfiguration() {
+    return this.kmsConfiguration;
+  }
+
+  public String logicalKeyStoreName() {
+    return this.logicalKeyStoreName;
+  }
+
+  public String id() {
+    return this.id;
   }
 
   public List<String> grantTokens() {
@@ -63,17 +70,21 @@ public class KeyStoreConfig {
   }
 
   public interface Builder {
-    Builder id(String id);
-
-    String id();
-
     Builder ddbTableName(String ddbTableName);
 
     String ddbTableName();
 
-    Builder kmsKeyArn(String kmsKeyArn);
+    Builder kmsConfiguration(KMSConfiguration kmsConfiguration);
 
-    String kmsKeyArn();
+    KMSConfiguration kmsConfiguration();
+
+    Builder logicalKeyStoreName(String logicalKeyStoreName);
+
+    String logicalKeyStoreName();
+
+    Builder id(String id);
+
+    String id();
 
     Builder grantTokens(List<String> grantTokens);
 
@@ -91,11 +102,13 @@ public class KeyStoreConfig {
   }
 
   static class BuilderImpl implements Builder {
-    protected String id;
-
     protected String ddbTableName;
 
-    protected String kmsKeyArn;
+    protected KMSConfiguration kmsConfiguration;
+
+    protected String logicalKeyStoreName;
+
+    protected String id;
 
     protected List<String> grantTokens;
 
@@ -107,21 +120,13 @@ public class KeyStoreConfig {
     }
 
     protected BuilderImpl(KeyStoreConfig model) {
-      this.id = model.id();
       this.ddbTableName = model.ddbTableName();
-      this.kmsKeyArn = model.kmsKeyArn();
+      this.kmsConfiguration = model.kmsConfiguration();
+      this.logicalKeyStoreName = model.logicalKeyStoreName();
+      this.id = model.id();
       this.grantTokens = model.grantTokens();
       this.ddbClient = model.ddbClient();
       this.kmsClient = model.kmsClient();
-    }
-
-    public Builder id(String id) {
-      this.id = id;
-      return this;
-    }
-
-    public String id() {
-      return this.id;
     }
 
     public Builder ddbTableName(String ddbTableName) {
@@ -133,13 +138,31 @@ public class KeyStoreConfig {
       return this.ddbTableName;
     }
 
-    public Builder kmsKeyArn(String kmsKeyArn) {
-      this.kmsKeyArn = kmsKeyArn;
+    public Builder kmsConfiguration(KMSConfiguration kmsConfiguration) {
+      this.kmsConfiguration = kmsConfiguration;
       return this;
     }
 
-    public String kmsKeyArn() {
-      return this.kmsKeyArn;
+    public KMSConfiguration kmsConfiguration() {
+      return this.kmsConfiguration;
+    }
+
+    public Builder logicalKeyStoreName(String logicalKeyStoreName) {
+      this.logicalKeyStoreName = logicalKeyStoreName;
+      return this;
+    }
+
+    public String logicalKeyStoreName() {
+      return this.logicalKeyStoreName;
+    }
+
+    public Builder id(String id) {
+      this.id = id;
+      return this;
+    }
+
+    public String id() {
+      return this.id;
     }
 
     public Builder grantTokens(List<String> grantTokens) {
@@ -179,8 +202,11 @@ public class KeyStoreConfig {
       if (Objects.nonNull(this.ddbTableName()) && this.ddbTableName().length() > 255) {
         throw new IllegalArgumentException("The size of `ddbTableName` must be less than or equal to 255");
       }
-      if (Objects.isNull(this.kmsKeyArn()))  {
-        throw new IllegalArgumentException("Missing value for required field `kmsKeyArn`");
+      if (Objects.isNull(this.kmsConfiguration()))  {
+        throw new IllegalArgumentException("Missing value for required field `kmsConfiguration`");
+      }
+      if (Objects.isNull(this.logicalKeyStoreName()))  {
+        throw new IllegalArgumentException("Missing value for required field `logicalKeyStoreName`");
       }
       return new KeyStoreConfig(this);
     }

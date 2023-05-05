@@ -8,12 +8,6 @@ using System;
  using Dafny.Aws.Cryptography.MaterialProviders.Types; namespace AWS.Cryptography.MaterialProviders {
  public class MaterialProviders {
  private readonly Dafny.Aws.Cryptography.MaterialProviders.Types.IAwsCryptographicMaterialProvidersClient _impl;
- public MaterialProviders(Dafny.Aws.Cryptography.MaterialProviders.Types.IAwsCryptographicMaterialProvidersClient impl) {
-    this._impl = impl;
-}
- public Dafny.Aws.Cryptography.MaterialProviders.Types.IAwsCryptographicMaterialProvidersClient impl() {
-    return this._impl;
-}
  public MaterialProviders(AWS.Cryptography.MaterialProviders.MaterialProvidersConfig input)
  {
  Dafny.Aws.Cryptography.MaterialProviders.Types._IMaterialProvidersConfig internalInput = TypeConversion.ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S23_MaterialProvidersConfig(input);

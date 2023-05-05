@@ -34,6 +34,7 @@ structure DdbClientReference {}
 service KeyStore {
   version: "2023-04-01",
   operations: [
+    GetKeyStoreInfo,
     CreateKeyStore,
     CreateKey,
     VersionKey,
@@ -46,14 +47,38 @@ service KeyStore {
 }
 
 structure KeyStoreConfig {
-  id: String,
   @required
   ddbTableName: TableName,
   @required
-  kmsKeyArn: KmsKeyArn,
+  kmsConfiguration: KMSConfiguration,
+  @required
+  logicalKeyStoreName: String,
+  
+  id: String,
   grantTokens: GrantTokenList,
   ddbClient: DdbClientReference,
   kmsClient: KmsClientReference,
+}
+
+union KMSConfiguration {
+  kmsKeyArn: KmsKeyArn
+}
+
+operation GetKeyStoreInfo {
+  output: GetKeyStoreInfoOutput
+}
+
+structure GetKeyStoreInfoOutput {
+  @required
+  keyStoreId: String,
+  @required
+  keyStoreName: TableName,
+  @required
+  logicalKeyStoreName: String,
+  @required
+  grantTokens: GrantTokenList,
+  @required
+  kmsConfiguration: KMSConfiguration
 }
 
 operation CreateKeyStore {

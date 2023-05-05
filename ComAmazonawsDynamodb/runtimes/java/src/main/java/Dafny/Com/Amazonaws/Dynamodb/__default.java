@@ -32,4 +32,23 @@ public class __default extends Dafny.Com.Amazonaws.Dynamodb._ExternBase___defaul
             return Result.create_Failure(dafny_error);
         }
     }
+
+    public static Result<IDynamoDBClient, Error> DDBClientForRegion(
+            final DafnySequence<? extends Character> region
+    ) {
+        try {
+            final String regionString = new String((char[]) region.toArray().unwrap());
+            final DynamoDbClient ddbClient = DynamoDbClient.builder()
+                    .region(Region.of(regionString))
+                    .build();
+
+            IDynamoDBClient shim = new Shim(ddbClient, regionString);
+            return Result.create_Success(shim);
+        } catch (Exception e) {
+            Error dafny_error = Error.create_InternalServerError(
+                    Option.create_Some(CharacterSequence(e.getMessage())));
+            return Result.create_Failure(dafny_error);
+        }
+    }
+
 }

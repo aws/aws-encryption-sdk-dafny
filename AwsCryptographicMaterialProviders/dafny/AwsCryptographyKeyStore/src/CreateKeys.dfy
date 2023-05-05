@@ -86,6 +86,7 @@ module CreateKeys {
 
   method CreateBranchAndBeaconKeys(
     ddbTableName: DDB.TableName,
+    logicalKeyStoreName: string,
     kmsKeyArn: Types.KmsKeyArn,
     grantTokens: KMS.GrantTokenList,
     kmsClient: KMS.IKMSClient,
@@ -121,7 +122,7 @@ module CreateKeys {
       Types.KeyStoreException(message := "Failed to generate UUID for Key ID or Key Version.")
     );
     
-    var activeBranchKeyEncryptionContext: BranchKeyContext := activeBranchKeyEncryptionContext(branchKeyId, branchKeyVersion, timestamp, ddbTableName, kmsKeyArn);
+    var activeBranchKeyEncryptionContext: BranchKeyContext := activeBranchKeyEncryptionContext(branchKeyId, branchKeyVersion, timestamp, logicalKeyStoreName, kmsKeyArn);
 
     //= aws-encryption-sdk-specification/framework/branch-key-store.md#branch-key-and-beacon-key-creation
     //# The operation MUST call [AWS KMS API GenerateDataKeyWithoutPlaintext]
@@ -136,7 +137,7 @@ module CreateKeys {
     );
 
     // Beacon Key Creation
-    var beaconKeyEncryptionContext: BranchKeyContext := beaconKeyEncryptionContext(branchKeyId, timestamp, ddbTableName, kmsKeyArn);
+    var beaconKeyEncryptionContext: BranchKeyContext := beaconKeyEncryptionContext(branchKeyId, timestamp, logicalKeyStoreName, kmsKeyArn);
 
     //= aws-encryption-sdk-specification/framework/branch-key-store.md#branch-key-and-beacon-key-creation
     //# The operation MUST call [AWS KMS API GenerateDataKeyWithoutPlaintext]
@@ -354,6 +355,7 @@ module CreateKeys {
   method VersionActiveBranchKey(
     input: Types.VersionKeyInput,
     ddbTableName: DDB.TableName,
+    logicalKeyStoreName: string,
     kmsKeyArn: Types.KmsKeyArn,
     grantTokens: KMS.GrantTokenList,
     kmsClient: KMS.IKMSClient,
@@ -410,7 +412,7 @@ module CreateKeys {
       item[BRANCH_KEY_IDENTIFIER_FIELD].S,
       item[TYPE_FIELD].S[|BRANCH_KEY_TYPE_PREFIX|..],
       item[KEY_CREATE_TIME].S,
-      ddbTableName,
+      logicalKeyStoreName,
       item[KMS_FIELD].S
     );
     
@@ -422,7 +424,7 @@ module CreateKeys {
       item[BRANCH_KEY_IDENTIFIER_FIELD].S,
       item[TYPE_FIELD].S[|BRANCH_KEY_TYPE_PREFIX|..],
       item[KEY_CREATE_TIME].S,
-      ddbTableName,
+      logicalKeyStoreName,
       item[KMS_FIELD].S
     );
 
@@ -455,7 +457,7 @@ module CreateKeys {
       item[BRANCH_KEY_IDENTIFIER_FIELD].S,
       branchKeyVersion,
       timestamp,
-      ddbTableName,
+      logicalKeyStoreName,
       kmsKeyArn 
     );
 
