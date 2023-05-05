@@ -6,9 +6,27 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
+    # Manual trigger for this workflow, either the normal version
+    # or the nightly build that uses the latest Dafny prerelease
+    # (accordingly to the "nightly" parameter).
+    inputs:
+      nightly:
+        description: 'Run the nightly build'
+        required: false
+        type: boolean
+  schedule:
+    # Nightly build against Dafny's nightly prereleases,
+    # for early warning of verification issues or regressions.
+    # Timing chosen to be adequately after Dafny's own nightly build,
+    # but this might need to be tweaked:
+    # https://github.com/dafny-lang/dafny/blob/master/.github/workflows/deep-tests.yml#L16
+    - cron: "30 16 * * *"
 
 jobs:
   verification:
+    # Don't run the nightly build on forks
+    if: github.event_name != 'schedule' || github.repository_owner == 'aws'
     strategy:
       matrix:
         library: [
@@ -38,7 +56,9 @@ jobs:
       - name: Setup Dafny
         uses: dafny-lang/setup-dafny-action@v1.6.1
         with:
-          dafny-version: "nightly-2023-04-12-f4836e9"
+          # A && B || C is the closest thing to an if .. then ... else ... or ?: expression the GitHub Actions syntax supports.
+          dafny-version: ${{ (github.event_name == 'schedule' || inputs.nightly) && 'nightly-latest' || 'nightly-2023-04-12-f4836e9' }}
+
 
       - name: Verify ${{ matrix.library }} Dafny code
         shell: bash
