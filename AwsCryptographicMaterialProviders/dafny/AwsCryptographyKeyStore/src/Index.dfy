@@ -11,7 +11,8 @@ module {:extern "Dafny.Aws.Cryptography.KeyStore"}
   import opened AwsArnParsing
   import opened AwsKmsUtils
   import Operations = AwsCryptographyKeyStoreOperations
-  import Com.Amazonaws.Kms
+  import KMSOperations = Com.Amazonaws.Kms
+  import DDBOperations =  Com.Amazonaws.Dynamodb
   import KMS = ComAmazonawsKmsTypes
   import DDB = ComAmazonawsDynamodbTypes
   import UUID
@@ -22,9 +23,10 @@ module {:extern "Dafny.Aws.Cryptography.KeyStore"}
   function method DefaultKeyStoreConfig(): KeyStoreConfig
   {
     KeyStoreConfig(
-      id := None,
       ddbTableName := "None",
-      kmsKeyArn := "",
+      kmsConfiguration := KMSConfiguration.kmsKeyArn(""),
+      logicalKeyStoreName := "None",
+      id := None,
       grantTokens := None,
       kmsClient := None,
       ddbClient := None
@@ -34,43 +36,27 @@ module {:extern "Dafny.Aws.Cryptography.KeyStore"}
   method KeyStore(config: KeyStoreConfig)
     returns (res: Result<KeyStoreClient, Error>)
     ensures res.Success? ==>
-      && KMS.IsValid_KeyIdType(res.value.config.kmsKeyArn)
+      && KMS.IsValid_KeyIdType(res.value.config.kmsConfiguration.kmsKeyArn)
       && DDB.IsValid_TableName(config.ddbTableName)
       && GetValidGrantTokens(config.grantTokens).Success?
-      && config.kmsClient.Some?
-      && config.ddbClient.Some?
-      && res.value.config.kmsClient == config.kmsClient.value
-      && res.value.config.ddbClient == config.ddbClient.value
+      && config.kmsClient.Some? ==> res.value.config.kmsClient == config.kmsClient.value
+      && config.ddbClient.Some? ==> res.value.config.ddbClient == config.ddbClient.value
+      && res.value.config.kmsClient.ValidState()
+      && res.value.config.ddbClient.ValidState()
     ensures
-        && config.kmsClient.None?
-        && config.ddbClient.None?
         && !DDB.IsValid_TableName(config.ddbTableName)
-        && !KMS.IsValid_KeyIdType(config.kmsKeyArn)
-        && ParseAwsKmsArn(config.kmsKeyArn).Failure?
+        && !KMS.IsValid_KeyIdType(config.kmsConfiguration.kmsKeyArn)
+        && ParseAwsKmsArn(config.kmsConfiguration.kmsKeyArn).Failure?
       ==>
         res.Failure?
   {
-    //= aws-encryption-sdk-specification/framework/branch-key-store.md#initialization
-    //# The following inputs MUST be specified to create a KeyStore:
     :- Need(
-      && config.kmsClient.Some?
-      && config.ddbClient.Some?,
-      Types.KeyStoreException(
-        message := "MUST supply AWS KMS Client, and Amazon DynamoDB Client")
-    );
-    :- Need(
-      DDB.IsValid_TableName(config.ddbTableName),
-      Types.KeyStoreException(
-        message := "Invalid Amazon DynamoDB Table Name")
-    );
-    
-    :- Need(
-      && KMS.IsValid_KeyIdType(config.kmsKeyArn)
-      && ParseAwsKmsArn(config.kmsKeyArn).Success?,
+      && KMS.IsValid_KeyIdType(config.kmsConfiguration.kmsKeyArn)
+      && ParseAwsKmsArn(config.kmsConfiguration.kmsKeyArn).Success?,
       Types.KeyStoreException(
         message := "Invalid AWS KMS Key Arn")
     );
-    
+
     //= aws-encryption-sdk-specification/framework/branch-key-store.md#initialization
     //# The following inputs MAY be specified to create a KeyStore:
     var grantTokens := GetValidGrantTokens(config.grantTokens);
@@ -93,14 +79,47 @@ module {:extern "Dafny.Aws.Cryptography.KeyStore"}
       keyStoreId := uuid;
     }
 
+    var kmsClient: KMS.IKMSClient;
+    var ddbClient: DDB.IDynamoDBClient;
+
+    var keyArn := ParseAwsKmsIdentifier(config.kmsConfiguration.kmsKeyArn);
+    var kmsRegion := GetRegion(keyArn.value);
+    
+    if config.kmsClient.None? {
+      var maybeKmsClient := KMSOperations.KMSClientForRegion(kmsRegion.value);
+      var extractedClient :- maybeKmsClient
+        .MapFailure(e => Types.ComAmazonawsKms(ComAmazonawsKms := e));
+      kmsClient := extractedClient;
+    } else {
+      kmsClient := config.kmsClient.value;
+    }
+    
+    if config.ddbClient.None? {
+      var maybeDdbClient := DDBOperations.DDBClientForRegion(kmsRegion.value);
+      var extractedClient :- maybeDdbClient
+        .MapFailure(e => Types.ComAmazonawsDynamodb(ComAmazonawsDynamodb := e));
+      ddbClient := extractedClient;
+    } else {
+      ddbClient := config.ddbClient.value;
+    }
+
+    //= aws-encryption-sdk-specification/framework/branch-key-store.md#initialization
+    //# The following inputs MUST be specified to create a KeyStore:
+    :- Need(
+      DDB.IsValid_TableName(config.ddbTableName),
+      Types.KeyStoreException(
+        message := "Invalid Amazon DynamoDB Table Name")
+    );
+
     var client := new KeyStoreClient(
       Operations.Config(
         id := keyStoreId,
         ddbTableName := config.ddbTableName,
-        kmsKeyArn := config.kmsKeyArn,
+        logicalKeyStoreName := config.logicalKeyStoreName,
+        kmsConfiguration := config.kmsConfiguration,
         grantTokens := grantTokens.value,
-        kmsClient := config.kmsClient.value,
-        ddbClient := config.ddbClient.value
+        kmsClient := kmsClient,
+        ddbClient := ddbClient
       )
     );
     return Success(client);

@@ -15,6 +15,7 @@ module TestVersionKey {
   import opened AwsKmsUtils
 
   const branchKeyStoreName := "KeyStoreTestTable";
+  const logicalKeyStoreName := branchKeyStoreName;
   // THESE ARE TESTING RESOURCES DO NOT USE IN A PRODUCTION ENVIRONMENT
   const keyArn := "arn:aws:kms:us-west-2:370957321024:key/9d989aa2-2f9c-438c-a745-cc57d3ad0126";
   
@@ -22,9 +23,12 @@ module TestVersionKey {
   {
     var kmsClient :- expect KMS.KMSClient();
     var ddbClient :- expect DDB.DynamoDBClient();
+    var kmsConfig := Types.KMSConfiguration.kmsKeyArn(keyArn);
+    
     var keyStoreConfig := Types.KeyStoreConfig(
       id := None,
-      kmsKeyArn := keyArn,
+      kmsConfiguration := kmsConfig,
+      logicalKeyStoreName := logicalKeyStoreName,
       grantTokens := None,
       ddbTableName := branchKeyStoreName,
       ddbClient := Some(ddbClient),
@@ -75,9 +79,12 @@ module TestVersionKey {
 
     var kmsClient :- expect KMS.KMSClient();
     var ddbClient :- expect DDB.DynamoDBClient();
+    var kmsConfig := Types.KMSConfiguration.kmsKeyArn(keyArn);
+    
     var keyStoreConfig := Types.KeyStoreConfig(
       id := None,
-      kmsKeyArn := keyArn,
+      kmsConfiguration := kmsConfig,
+      logicalKeyStoreName := logicalKeyStoreName,
       grantTokens := None,
       ddbTableName := branchKeyStoreName,
       ddbClient := Some(ddbClient),

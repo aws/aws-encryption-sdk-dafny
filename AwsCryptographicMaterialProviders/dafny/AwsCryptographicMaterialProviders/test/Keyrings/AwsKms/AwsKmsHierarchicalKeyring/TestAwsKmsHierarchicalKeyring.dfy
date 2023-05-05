@@ -29,6 +29,7 @@ module TestAwsKmsHierarchicalKeyring {
   // THIS IS A TESTING RESOURCE DO NOT USE IN A PRODUCTION ENVIRONMENT
   const keyArn := "arn:aws:kms:us-west-2:370957321024:key/9d989aa2-2f9c-438c-a745-cc57d3ad0126";
   const branchKeyStoreName: DDBTypes.TableName := "KeyStoreTestTable";
+  const logicalKeyStoreName := branchKeyStoreName;
 
   // These tests require a keystore populated with these keys
   const BRANCH_KEY_ID := "71c83ce3-aad6-4aab-a4c4-d02bb9273305";
@@ -65,17 +66,20 @@ module TestAwsKmsHierarchicalKeyring {
   {
     var branchKeyId := BRANCH_KEY_ID;
     var ttl : Types.PositiveLong := (1 * 60000) * 10;
-    var kmsClient :- expect KMS.KMSClient();
     var mpl :- expect MaterialProviders.MaterialProviders();
-    var dynamodbClient :- expect DDB.DynamoDBClient();
 
+    var kmsClient :- expect KMS.KMSClient();
+    var ddbClient :- expect DDB.DynamoDBClient();
+    var kmsConfig := KeyStoreTypes.KMSConfiguration.kmsKeyArn(keyArn);
+    
     var keyStoreConfig := KeyStoreTypes.KeyStoreConfig(
       id := None,
-      kmsKeyArn := keyArn,
+      kmsConfiguration := kmsConfig,
+      logicalKeyStoreName := logicalKeyStoreName,
       grantTokens := None,
       ddbTableName := branchKeyStoreName,
-      kmsClient := Some(kmsClient),
-      ddbClient := Some(dynamodbClient)
+      ddbClient := Some(ddbClient),
+      kmsClient := Some(kmsClient)
     );
 
     var keyStore :- expect KeyStore.KeyStore(keyStoreConfig);
@@ -108,16 +112,20 @@ module TestAwsKmsHierarchicalKeyring {
     // branch key since this timestamp is more recent.
     var branchKeyId := ACTIVE_ACTIVE_BRANCH_KEY_ID;
     var ttl : Types.PositiveLong := (1 * 60000) * 10;
-    var kmsClient :- expect KMS.KMSClient();
     var mpl :- expect MaterialProviders.MaterialProviders();
-    var dynamodbClient :- expect DDB.DynamoDBClient();
+    
+    var kmsClient :- expect KMS.KMSClient();
+    var ddbClient :- expect DDB.DynamoDBClient();
+    var kmsConfig := KeyStoreTypes.KMSConfiguration.kmsKeyArn(keyArn);
+    
     var keyStoreConfig := KeyStoreTypes.KeyStoreConfig(
       id := None,
-      kmsKeyArn := keyArn,
+      kmsConfiguration := kmsConfig,
+      logicalKeyStoreName := logicalKeyStoreName,
       grantTokens := None,
       ddbTableName := branchKeyStoreName,
-      kmsClient := Some(kmsClient),
-      ddbClient := Some(dynamodbClient)
+      ddbClient := Some(ddbClient),
+      kmsClient := Some(kmsClient)
     );
 
     var keyStore :- expect KeyStore.KeyStore(keyStoreConfig);
@@ -145,16 +153,20 @@ module TestAwsKmsHierarchicalKeyring {
   method {:test} TestHierarchyClientDBESuite() {
     var branchKeyId := BRANCH_KEY_ID;
     var ttl : Types.PositiveLong := (1 * 60000) * 10;
-    var kmsClient :- expect KMS.KMSClient();
     var mpl :- expect MaterialProviders.MaterialProviders();
-    var dynamodbClient :- expect DDB.DynamoDBClient();
+    
+    var kmsClient :- expect KMS.KMSClient();
+    var ddbClient :- expect DDB.DynamoDBClient();
+    var kmsConfig := KeyStoreTypes.KMSConfiguration.kmsKeyArn(keyArn);
+    
     var keyStoreConfig := KeyStoreTypes.KeyStoreConfig(
       id := None,
-      kmsKeyArn := keyArn,
+      kmsConfiguration := kmsConfig,
+      logicalKeyStoreName := logicalKeyStoreName,
       grantTokens := None,
       ddbTableName := branchKeyStoreName,
-      kmsClient := Some(kmsClient),
-      ddbClient := Some(dynamodbClient)
+      ddbClient := Some(ddbClient),
+      kmsClient := Some(kmsClient)
     );
 
     var keyStore :- expect KeyStore.KeyStore(keyStoreConfig);
@@ -187,16 +199,20 @@ module TestAwsKmsHierarchicalKeyring {
     // branch key since this timestamp is more recent.
     var branchKeyId := ACTIVE_ACTIVE_BRANCH_KEY_ID;
     var ttl : Types.PositiveLong := (1 * 60000) * 10;
-    var kmsClient :- expect KMS.KMSClient();
     var mpl :- expect MaterialProviders.MaterialProviders();
-    var dynamodbClient :- expect DDB.DynamoDBClient();
+    
+    var kmsClient :- expect KMS.KMSClient();
+    var ddbClient :- expect DDB.DynamoDBClient();
+    var kmsConfig := KeyStoreTypes.KMSConfiguration.kmsKeyArn(keyArn);
+    
     var keyStoreConfig := KeyStoreTypes.KeyStoreConfig(
       id := None,
-      kmsKeyArn := keyArn,
+      kmsConfiguration := kmsConfig,
+      logicalKeyStoreName := logicalKeyStoreName,
       grantTokens := None,
       ddbTableName := branchKeyStoreName,
-      kmsClient := Some(kmsClient),
-      ddbClient := Some(dynamodbClient)
+      ddbClient := Some(ddbClient),
+      kmsClient := Some(kmsClient)
     );
 
     var keyStore :- expect KeyStore.KeyStore(keyStoreConfig);
@@ -227,15 +243,19 @@ module TestAwsKmsHierarchicalKeyring {
     var branchKeyIdSupplier: Types.IBranchKeyIdSupplier := new DummyBranchKeyIdSupplier(); 
     var ttl : int64 := (1 * 60000) * 10;
     var mpl :- expect MaterialProviders.MaterialProviders();
+    
     var kmsClient :- expect KMS.KMSClient();
-    var dynamodbClient :- expect DDB.DynamoDBClient();
+    var ddbClient :- expect DDB.DynamoDBClient();
+    var kmsConfig := KeyStoreTypes.KMSConfiguration.kmsKeyArn(keyArn);
+    
     var keyStoreConfig := KeyStoreTypes.KeyStoreConfig(
       id := None,
-      kmsKeyArn := keyArn,
+      kmsConfiguration := kmsConfig,
+      logicalKeyStoreName := logicalKeyStoreName,
       grantTokens := None,
       ddbTableName := branchKeyStoreName,
-      kmsClient := Some(kmsClient),
-      ddbClient := Some(dynamodbClient)
+      ddbClient := Some(ddbClient),
+      kmsClient := Some(kmsClient)
     );
 
     var keyStore :- expect KeyStore.KeyStore(keyStoreConfig);

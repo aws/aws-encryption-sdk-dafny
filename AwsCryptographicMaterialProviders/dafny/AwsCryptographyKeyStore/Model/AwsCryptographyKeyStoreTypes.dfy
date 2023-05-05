@@ -50,9 +50,17 @@ include "../../../../StandardLibrary/src/Index.dfy"
  nameonly branchKeyVersion: Utf8Bytes ,
  nameonly branchKey: Secret
  )
+ datatype GetKeyStoreInfoOutput = | GetKeyStoreInfoOutput (
+ nameonly keyStoreId: string ,
+ nameonly keyStoreName: ComAmazonawsDynamodbTypes.TableName ,
+ nameonly logicalKeyStoreName: string ,
+ nameonly grantTokens: GrantTokenList ,
+ nameonly kmsConfiguration: KMSConfiguration
+ )
  type GrantTokenList = seq<string>
  class IKeyStoreClientCallHistory {
  ghost constructor() {
+ GetKeyStoreInfo := [];
  CreateKeyStore := [];
  CreateKey := [];
  VersionKey := [];
@@ -61,6 +69,7 @@ include "../../../../StandardLibrary/src/Index.dfy"
  GetBeaconKey := [];
  BranchKeyStatusResolution := [];
 }
+ ghost var GetKeyStoreInfo: seq<DafnyCallEvent<(), Result<GetKeyStoreInfoOutput, Error>>>
  ghost var CreateKeyStore: seq<DafnyCallEvent<CreateKeyStoreInput, Result<CreateKeyStoreOutput, Error>>>
  ghost var CreateKey: seq<DafnyCallEvent<(), Result<CreateKeyOutput, Error>>>
  ghost var VersionKey: seq<DafnyCallEvent<VersionKeyInput, Result<(), Error>>>
@@ -96,6 +105,21 @@ include "../../../../StandardLibrary/src/Index.dfy"
  predicate ValidState()
  ensures ValidState() ==> History in Modifies
   ghost const History: IKeyStoreClientCallHistory
+ predicate GetKeyStoreInfoEnsuresPublicly(output: Result<GetKeyStoreInfoOutput, Error>)
+ // The public method to be called by library consumers
+ method GetKeyStoreInfo (  )
+ returns (output: Result<GetKeyStoreInfoOutput, Error>)
+ requires
+ && ValidState()
+ modifies Modifies - {History} ,
+ History`GetKeyStoreInfo
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases Modifies - {History}
+ ensures
+ && ValidState()
+ ensures GetKeyStoreInfoEnsuresPublicly(output)
+ ensures History.GetKeyStoreInfo == old(History.GetKeyStoreInfo) + [DafnyCallEvent((), output)]
+ 
  predicate CreateKeyStoreEnsuresPublicly(input: CreateKeyStoreInput , output: Result<CreateKeyStoreOutput, Error>)
  // The public method to be called by library consumers
  method CreateKeyStore ( input: CreateKeyStoreInput )
@@ -203,13 +227,16 @@ include "../../../../StandardLibrary/src/Index.dfy"
  
 }
  datatype KeyStoreConfig = | KeyStoreConfig (
- nameonly id: Option<string> ,
  nameonly ddbTableName: ComAmazonawsDynamodbTypes.TableName ,
- nameonly kmsKeyArn: KmsKeyArn ,
+ nameonly kmsConfiguration: KMSConfiguration ,
+ nameonly logicalKeyStoreName: string ,
+ nameonly id: Option<string> ,
  nameonly grantTokens: Option<GrantTokenList> ,
  nameonly ddbClient: Option<ComAmazonawsDynamodbTypes.IDynamoDBClient> ,
  nameonly kmsClient: Option<ComAmazonawsKmsTypes.IKMSClient>
  )
+ datatype KMSConfiguration =
+ | kmsKeyArn(kmsKeyArn: KmsKeyArn)
  type KmsKeyArn = string
  type Secret = seq<uint8>
  type Utf8Bytes = ValidUTF8Bytes
@@ -303,6 +330,26 @@ include "../../../../StandardLibrary/src/Index.dfy"
  && Operations.ValidInternalConfig?(config)
  && History !in Operations.ModifiesInternalConfig(config)
  && Modifies == Operations.ModifiesInternalConfig(config) + {History}
+ predicate GetKeyStoreInfoEnsuresPublicly(output: Result<GetKeyStoreInfoOutput, Error>)
+ {Operations.GetKeyStoreInfoEnsuresPublicly(output)}
+ // The public method to be called by library consumers
+ method GetKeyStoreInfo (  )
+ returns (output: Result<GetKeyStoreInfoOutput, Error>)
+ requires
+ && ValidState()
+ modifies Modifies - {History} ,
+ History`GetKeyStoreInfo
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases Modifies - {History}
+ ensures
+ && ValidState()
+ ensures GetKeyStoreInfoEnsuresPublicly(output)
+ ensures History.GetKeyStoreInfo == old(History.GetKeyStoreInfo) + [DafnyCallEvent((), output)]
+ {
+ output := Operations.GetKeyStoreInfo(config);
+ History.GetKeyStoreInfo := History.GetKeyStoreInfo + [DafnyCallEvent((), output)];
+}
+ 
  predicate CreateKeyStoreEnsuresPublicly(input: CreateKeyStoreInput , output: Result<CreateKeyStoreOutput, Error>)
  {Operations.CreateKeyStoreEnsuresPublicly(input, output)}
  // The public method to be called by library consumers
@@ -453,6 +500,22 @@ include "../../../../StandardLibrary/src/Index.dfy"
  type InternalConfig
  predicate ValidInternalConfig?(config: InternalConfig)
  function ModifiesInternalConfig(config: InternalConfig): set<object>
+ predicate GetKeyStoreInfoEnsuresPublicly(output: Result<GetKeyStoreInfoOutput, Error>)
+ // The private method to be refined by the library developer
+
+
+ method GetKeyStoreInfo ( config: InternalConfig )
+ returns (output: Result<GetKeyStoreInfoOutput, Error>)
+ requires
+ && ValidInternalConfig?(config)
+ modifies ModifiesInternalConfig(config)
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases ModifiesInternalConfig(config)
+ ensures
+ && ValidInternalConfig?(config)
+ ensures GetKeyStoreInfoEnsuresPublicly(output)
+
+
  predicate CreateKeyStoreEnsuresPublicly(input: CreateKeyStoreInput , output: Result<CreateKeyStoreOutput, Error>)
  // The private method to be refined by the library developer
 

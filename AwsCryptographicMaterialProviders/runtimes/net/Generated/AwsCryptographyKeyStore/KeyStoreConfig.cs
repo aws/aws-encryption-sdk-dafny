@@ -4,19 +4,13 @@
 using System;
  using AWS.Cryptography.KeyStore; namespace AWS.Cryptography.KeyStore {
  public class KeyStoreConfig {
- private string _id ;
  private string _ddbTableName ;
- private string _kmsKeyArn ;
+ private AWS.Cryptography.KeyStore.KMSConfiguration _kmsConfiguration ;
+ private string _logicalKeyStoreName ;
+ private string _id ;
  private System.Collections.Generic.List<string> _grantTokens ;
  private Amazon.DynamoDBv2.IAmazonDynamoDB _ddbClient ;
  private Amazon.KeyManagementService.IAmazonKeyManagementService _kmsClient ;
- public string Id {
- get { return this._id; }
- set { this._id = value; }
-}
- public bool IsSetId () {
- return this._id != null;
-}
  public string DdbTableName {
  get { return this._ddbTableName; }
  set { this._ddbTableName = value; }
@@ -24,12 +18,26 @@ using System;
  public bool IsSetDdbTableName () {
  return this._ddbTableName != null;
 }
- public string KmsKeyArn {
- get { return this._kmsKeyArn; }
- set { this._kmsKeyArn = value; }
+ public AWS.Cryptography.KeyStore.KMSConfiguration KmsConfiguration {
+ get { return this._kmsConfiguration; }
+ set { this._kmsConfiguration = value; }
 }
- public bool IsSetKmsKeyArn () {
- return this._kmsKeyArn != null;
+ public bool IsSetKmsConfiguration () {
+ return this._kmsConfiguration != null;
+}
+ public string LogicalKeyStoreName {
+ get { return this._logicalKeyStoreName; }
+ set { this._logicalKeyStoreName = value; }
+}
+ public bool IsSetLogicalKeyStoreName () {
+ return this._logicalKeyStoreName != null;
+}
+ public string Id {
+ get { return this._id; }
+ set { this._id = value; }
+}
+ public bool IsSetId () {
+ return this._id != null;
 }
  public System.Collections.Generic.List<string> GrantTokens {
  get { return this._grantTokens; }
@@ -54,7 +62,8 @@ using System;
 }
  public void Validate() {
  if (!IsSetDdbTableName()) throw new System.ArgumentException("Missing value for required property 'DdbTableName'");
- if (!IsSetKmsKeyArn()) throw new System.ArgumentException("Missing value for required property 'KmsKeyArn'");
+ if (!IsSetKmsConfiguration()) throw new System.ArgumentException("Missing value for required property 'KmsConfiguration'");
+ if (!IsSetLogicalKeyStoreName()) throw new System.ArgumentException("Missing value for required property 'LogicalKeyStoreName'");
 
 }
 }

@@ -9,4 +9,11 @@ module {:extern "Dafny.Com.Amazonaws.Dynamodb"} Com.Amazonaws.Dynamodb refines A
     DynamoDBClientConfigType
   }
 
+  method {:extern} DDBClientForRegion(region: string)
+    returns (res: Result<IDynamoDBClient, Error>)
+    ensures res.Success? ==>
+      && fresh(res.value)
+      && fresh(res.value.Modifies)
+      && fresh(res.value.History)
+      && res.value.ValidState()
 }

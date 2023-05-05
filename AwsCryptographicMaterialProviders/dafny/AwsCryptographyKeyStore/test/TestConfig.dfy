@@ -12,6 +12,7 @@ module TestConfig {
   import opened Wrappers
 
   const branchKeyStoreName := "KeyStoreTestTable";
+  const logicalKeyStoreName := "KeyStoreTestTable";
   // THIS IS A TESTING RESOURCE DO NOT USE IN A PRODUCTION ENVIRONMENT
   const keyArn := "arn:aws:kms:us-west-2:370957321024:key/9d989aa2-2f9c-438c-a745-cc57d3ad0126";
   const keyId := "9d989aa2-2f9c-438c-a745-cc57d3ad0126";
@@ -19,9 +20,12 @@ module TestConfig {
   method {:test} TestInvalidKmsKeyArnConfig() {
     var kmsClient :- expect KMS.KMSClient();
     var ddbClient :- expect DDB.DynamoDBClient();
+    var kmsConfig := Types.KMSConfiguration.kmsKeyArn(keyId);
+
     var keyStoreConfig := Types.KeyStoreConfig(
       id := None,
-      kmsKeyArn := keyId,
+      kmsConfiguration := kmsConfig,
+      logicalKeyStoreName := logicalKeyStoreName,
       grantTokens := None,
       ddbTableName := branchKeyStoreName,
       ddbClient := Some(ddbClient),
@@ -36,9 +40,12 @@ module TestConfig {
   method {:test} TestValidConfig() {
     var kmsClient :- expect KMS.KMSClient();
     var ddbClient :- expect DDB.DynamoDBClient();
+    var kmsConfig := Types.KMSConfiguration.kmsKeyArn(keyArn);
+    
     var keyStoreConfig := Types.KeyStoreConfig(
       id := None,
-      kmsKeyArn := keyArn,
+      kmsConfiguration := kmsConfig,
+      logicalKeyStoreName := logicalKeyStoreName,
       grantTokens := None,
       ddbTableName := branchKeyStoreName,
       ddbClient := Some(ddbClient),
@@ -46,6 +53,51 @@ module TestConfig {
     );
     
     var keyStore := KeyStore.KeyStore(keyStoreConfig);
+    expect keyStore.Success?;
+  }
+
+  method {:test} TestValidConfigNoClients() {
+    var kmsClient :- expect KMS.KMSClient();
+    var ddbClient :- expect DDB.DynamoDBClient();
+    var kmsConfig := Types.KMSConfiguration.kmsKeyArn(keyArn);
+    
+    // Test with no kms client supplied
+    var keyStoreConfig := Types.KeyStoreConfig(
+      id := None,
+      kmsConfiguration := kmsConfig,
+      logicalKeyStoreName := logicalKeyStoreName,
+      grantTokens := None,
+      ddbTableName := branchKeyStoreName,
+      ddbClient := Some(ddbClient),
+      kmsClient := None
+    );
+    var keyStore := KeyStore.KeyStore(keyStoreConfig);
+    expect keyStore.Success?;
+
+    // Test with no ddb client supplied
+    keyStoreConfig := Types.KeyStoreConfig(
+      id := None,
+      kmsConfiguration := kmsConfig,
+      logicalKeyStoreName := logicalKeyStoreName,
+      grantTokens := None,
+      ddbTableName := branchKeyStoreName,
+      ddbClient := None,
+      kmsClient := Some(kmsClient)
+    );
+    keyStore := KeyStore.KeyStore(keyStoreConfig);
+    expect keyStore.Success?;
+    
+    // Test with no clients supplied
+    keyStoreConfig := Types.KeyStoreConfig(
+      id := None,
+      kmsConfiguration := kmsConfig,
+      logicalKeyStoreName := logicalKeyStoreName,
+      grantTokens := None,
+      ddbTableName := branchKeyStoreName,
+      ddbClient := None,
+      kmsClient := None
+    );
+    keyStore := KeyStore.KeyStore(keyStoreConfig);
     expect keyStore.Success?;
   }
 }

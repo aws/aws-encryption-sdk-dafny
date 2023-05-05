@@ -124,14 +124,35 @@ public class ToNative {
     return nativeBuilder.build();
   }
 
-  public static InvalidAlgorithmSuiteInfo Error(Error_InvalidAlgorithmSuiteInfo dafnyValue) {
-    InvalidAlgorithmSuiteInfo.Builder nativeBuilder = InvalidAlgorithmSuiteInfo.builder();
+  public static EntryAlreadyExists Error(Error_EntryAlreadyExists dafnyValue) {
+    EntryAlreadyExists.Builder nativeBuilder = EntryAlreadyExists.builder();
     nativeBuilder.message(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_message()));
     return nativeBuilder.build();
   }
 
-  public static InvalidDecryptionMaterials Error(Error_InvalidDecryptionMaterials dafnyValue) {
-    InvalidDecryptionMaterials.Builder nativeBuilder = InvalidDecryptionMaterials.builder();
+  public static InvalidEncryptionMaterialsTransition Error(
+      Error_InvalidEncryptionMaterialsTransition dafnyValue) {
+    InvalidEncryptionMaterialsTransition.Builder nativeBuilder = InvalidEncryptionMaterialsTransition.builder();
+    nativeBuilder.message(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_message()));
+    return nativeBuilder.build();
+  }
+
+  public static InvalidAlgorithmSuiteInfoOnDecrypt Error(
+      Error_InvalidAlgorithmSuiteInfoOnDecrypt dafnyValue) {
+    InvalidAlgorithmSuiteInfoOnDecrypt.Builder nativeBuilder = InvalidAlgorithmSuiteInfoOnDecrypt.builder();
+    nativeBuilder.message(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_message()));
+    return nativeBuilder.build();
+  }
+
+  public static InvalidDecryptionMaterialsTransition Error(
+      Error_InvalidDecryptionMaterialsTransition dafnyValue) {
+    InvalidDecryptionMaterialsTransition.Builder nativeBuilder = InvalidDecryptionMaterialsTransition.builder();
+    nativeBuilder.message(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_message()));
+    return nativeBuilder.build();
+  }
+
+  public static InvalidEncryptionMaterials Error(Error_InvalidEncryptionMaterials dafnyValue) {
+    InvalidEncryptionMaterials.Builder nativeBuilder = InvalidEncryptionMaterials.builder();
     nativeBuilder.message(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_message()));
     return nativeBuilder.build();
   }
@@ -156,45 +177,33 @@ public class ToNative {
     return nativeBuilder.build();
   }
 
-  public static InvalidEncryptionMaterials Error(Error_InvalidEncryptionMaterials dafnyValue) {
-    InvalidEncryptionMaterials.Builder nativeBuilder = InvalidEncryptionMaterials.builder();
+  public static InvalidAlgorithmSuiteInfo Error(Error_InvalidAlgorithmSuiteInfo dafnyValue) {
+    InvalidAlgorithmSuiteInfo.Builder nativeBuilder = InvalidAlgorithmSuiteInfo.builder();
     nativeBuilder.message(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_message()));
     return nativeBuilder.build();
   }
 
-  public static EntryAlreadyExists Error(Error_EntryAlreadyExists dafnyValue) {
-    EntryAlreadyExists.Builder nativeBuilder = EntryAlreadyExists.builder();
-    nativeBuilder.message(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_message()));
-    return nativeBuilder.build();
-  }
-
-  public static InvalidAlgorithmSuiteInfoOnDecrypt Error(
-      Error_InvalidAlgorithmSuiteInfoOnDecrypt dafnyValue) {
-    InvalidAlgorithmSuiteInfoOnDecrypt.Builder nativeBuilder = InvalidAlgorithmSuiteInfoOnDecrypt.builder();
-    nativeBuilder.message(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_message()));
-    return nativeBuilder.build();
-  }
-
-  public static InvalidEncryptionMaterialsTransition Error(
-      Error_InvalidEncryptionMaterialsTransition dafnyValue) {
-    InvalidEncryptionMaterialsTransition.Builder nativeBuilder = InvalidEncryptionMaterialsTransition.builder();
-    nativeBuilder.message(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_message()));
-    return nativeBuilder.build();
-  }
-
-  public static InvalidDecryptionMaterialsTransition Error(
-      Error_InvalidDecryptionMaterialsTransition dafnyValue) {
-    InvalidDecryptionMaterialsTransition.Builder nativeBuilder = InvalidDecryptionMaterialsTransition.builder();
+  public static InvalidDecryptionMaterials Error(Error_InvalidDecryptionMaterials dafnyValue) {
+    InvalidDecryptionMaterials.Builder nativeBuilder = InvalidDecryptionMaterials.builder();
     nativeBuilder.message(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_message()));
     return nativeBuilder.build();
   }
 
   public static RuntimeException Error(Error dafnyValue) {
-    if (dafnyValue.is_InvalidAlgorithmSuiteInfo()) {
-      return ToNative.Error((Error_InvalidAlgorithmSuiteInfo) dafnyValue);
+    if (dafnyValue.is_EntryAlreadyExists()) {
+      return ToNative.Error((Error_EntryAlreadyExists) dafnyValue);
     }
-    if (dafnyValue.is_InvalidDecryptionMaterials()) {
-      return ToNative.Error((Error_InvalidDecryptionMaterials) dafnyValue);
+    if (dafnyValue.is_InvalidEncryptionMaterialsTransition()) {
+      return ToNative.Error((Error_InvalidEncryptionMaterialsTransition) dafnyValue);
+    }
+    if (dafnyValue.is_InvalidAlgorithmSuiteInfoOnDecrypt()) {
+      return ToNative.Error((Error_InvalidAlgorithmSuiteInfoOnDecrypt) dafnyValue);
+    }
+    if (dafnyValue.is_InvalidDecryptionMaterialsTransition()) {
+      return ToNative.Error((Error_InvalidDecryptionMaterialsTransition) dafnyValue);
+    }
+    if (dafnyValue.is_InvalidEncryptionMaterials()) {
+      return ToNative.Error((Error_InvalidEncryptionMaterials) dafnyValue);
     }
     if (dafnyValue.is_AwsCryptographicMaterialProvidersException()) {
       return ToNative.Error((Error_AwsCryptographicMaterialProvidersException) dafnyValue);
@@ -205,35 +214,12 @@ public class ToNative {
     if (dafnyValue.is_EntryDoesNotExist()) {
       return ToNative.Error((Error_EntryDoesNotExist) dafnyValue);
     }
-    if (dafnyValue.is_InvalidEncryptionMaterials()) {
-      return ToNative.Error((Error_InvalidEncryptionMaterials) dafnyValue);
+    if (dafnyValue.is_InvalidAlgorithmSuiteInfo()) {
+      return ToNative.Error((Error_InvalidAlgorithmSuiteInfo) dafnyValue);
     }
-    if (dafnyValue.is_EntryAlreadyExists()) {
-      return ToNative.Error((Error_EntryAlreadyExists) dafnyValue);
+    if (dafnyValue.is_InvalidDecryptionMaterials()) {
+      return ToNative.Error((Error_InvalidDecryptionMaterials) dafnyValue);
     }
-    if (dafnyValue.is_InvalidAlgorithmSuiteInfoOnDecrypt()) {
-      return ToNative.Error((Error_InvalidAlgorithmSuiteInfoOnDecrypt) dafnyValue);
-    }
-    if (dafnyValue.is_InvalidEncryptionMaterialsTransition()) {
-      return ToNative.Error((Error_InvalidEncryptionMaterialsTransition) dafnyValue);
-    }
-    if (dafnyValue.is_InvalidDecryptionMaterialsTransition()) {
-      return ToNative.Error((Error_InvalidDecryptionMaterialsTransition) dafnyValue);
-    }
-    // BEGIN MANUAL EDIT
-    if (dafnyValue.is_AwsCryptographyKeyStore()) {
-      return software.amazon.cryptography.keyStore.ToNative.Error(dafnyValue.dtor_AwsCryptographyKeyStore());
-    }
-    if (dafnyValue.is_AwsCryptographyPrimitives()) {
-      return software.amazon.cryptography.primitives.ToNative.Error(dafnyValue.dtor_AwsCryptographyPrimitives());
-    }
-    if (dafnyValue.is_ComAmazonawsKms()) {
-      return Dafny.Com.Amazonaws.Kms.ToNative.Error(dafnyValue.dtor_ComAmazonawsKms());
-    }
-    if (dafnyValue.is_ComAmazonawsDynamodb()) {
-      return Dafny.Com.Amazonaws.Dynamodb.ToNative.Error(dafnyValue.dtor_ComAmazonawsDynamodb());
-    }
-    // END MANUAL EDIT
     if (dafnyValue.is_Opaque()) {
       return ToNative.Error((Error_Opaque) dafnyValue);
     }
@@ -245,219 +231,27 @@ public class ToNative {
     return nativeBuilder.build();
   }
 
-  public static ValidateCommitmentPolicyOnDecryptInput ValidateCommitmentPolicyOnDecryptInput(
-      Dafny.Aws.Cryptography.MaterialProviders.Types.ValidateCommitmentPolicyOnDecryptInput dafnyValue) {
-    ValidateCommitmentPolicyOnDecryptInput.Builder nativeBuilder = ValidateCommitmentPolicyOnDecryptInput.builder();
-    nativeBuilder.algorithm(ToNative.AlgorithmSuiteId(dafnyValue.dtor_algorithm()));
-    nativeBuilder.commitmentPolicy(ToNative.CommitmentPolicy(dafnyValue.dtor_commitmentPolicy()));
-    return nativeBuilder.build();
-  }
-
-  public static OnEncryptOutput OnEncryptOutput(
-      Dafny.Aws.Cryptography.MaterialProviders.Types.OnEncryptOutput dafnyValue) {
-    OnEncryptOutput.Builder nativeBuilder = OnEncryptOutput.builder();
-    nativeBuilder.materials(ToNative.EncryptionMaterials(dafnyValue.dtor_materials()));
-    return nativeBuilder.build();
-  }
-
-  public static CreateAwsKmsMrkKeyringInput CreateAwsKmsMrkKeyringInput(
-      Dafny.Aws.Cryptography.MaterialProviders.Types.CreateAwsKmsMrkKeyringInput dafnyValue) {
-    CreateAwsKmsMrkKeyringInput.Builder nativeBuilder = CreateAwsKmsMrkKeyringInput.builder();
-    nativeBuilder.kmsKeyId(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_kmsKeyId()));
-    nativeBuilder.kmsClient(Dafny.Com.Amazonaws.Kms.ToNative.TrentService(dafnyValue.dtor_kmsClient()));
-    if (dafnyValue.dtor_grantTokens().is_Some()) {
-      nativeBuilder.grantTokens(ToNative.GrantTokenList(dafnyValue.dtor_grantTokens().dtor_value()));
+  public static BeaconKeyMaterials BeaconKeyMaterials(
+      Dafny.Aws.Cryptography.MaterialProviders.Types.BeaconKeyMaterials dafnyValue) {
+    BeaconKeyMaterials.Builder nativeBuilder = BeaconKeyMaterials.builder();
+    nativeBuilder.beaconKeyIdentifier(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_beaconKeyIdentifier()));
+    if (dafnyValue.dtor_beaconKey().is_Some()) {
+      nativeBuilder.beaconKey(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_beaconKey().dtor_value()));
+    }
+    if (dafnyValue.dtor_hmacKeys().is_Some()) {
+      nativeBuilder.hmacKeys(ToNative.HmacKeyMap(dafnyValue.dtor_hmacKeys().dtor_value()));
     }
     return nativeBuilder.build();
   }
 
-  public static ValidEncryptionMaterialsTransitionInput ValidEncryptionMaterialsTransitionInput(
-      Dafny.Aws.Cryptography.MaterialProviders.Types.ValidEncryptionMaterialsTransitionInput dafnyValue) {
-    ValidEncryptionMaterialsTransitionInput.Builder nativeBuilder = ValidEncryptionMaterialsTransitionInput.builder();
-    nativeBuilder.start(ToNative.EncryptionMaterials(dafnyValue.dtor_start()));
-    nativeBuilder.stop(ToNative.EncryptionMaterials(dafnyValue.dtor_stop()));
-    return nativeBuilder.build();
-  }
-
-  public static OnDecryptOutput OnDecryptOutput(
-      Dafny.Aws.Cryptography.MaterialProviders.Types.OnDecryptOutput dafnyValue) {
-    OnDecryptOutput.Builder nativeBuilder = OnDecryptOutput.builder();
-    nativeBuilder.materials(ToNative.DecryptionMaterials(dafnyValue.dtor_materials()));
-    return nativeBuilder.build();
-  }
-
-  public static BranchKeyMaterials BranchKeyMaterials(
-      Dafny.Aws.Cryptography.MaterialProviders.Types.BranchKeyMaterials dafnyValue) {
-    BranchKeyMaterials.Builder nativeBuilder = BranchKeyMaterials.builder();
-    nativeBuilder.branchKeyVersion(software.amazon.dafny.conversion.ToNative.Simple.DafnyUtf8Bytes(dafnyValue.dtor_branchKeyVersion()));
-    nativeBuilder.branchKey(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_branchKey()));
-    return nativeBuilder.build();
-  }
-
-  public static GetEncryptionMaterialsInput GetEncryptionMaterialsInput(
-      Dafny.Aws.Cryptography.MaterialProviders.Types.GetEncryptionMaterialsInput dafnyValue) {
-    GetEncryptionMaterialsInput.Builder nativeBuilder = GetEncryptionMaterialsInput.builder();
-    nativeBuilder.encryptionContext(ToNative.EncryptionContext(dafnyValue.dtor_encryptionContext()));
-    nativeBuilder.commitmentPolicy(ToNative.CommitmentPolicy(dafnyValue.dtor_commitmentPolicy()));
-    if (dafnyValue.dtor_algorithmSuiteId().is_Some()) {
-      nativeBuilder.algorithmSuiteId(ToNative.AlgorithmSuiteId(dafnyValue.dtor_algorithmSuiteId().dtor_value()));
-    }
-    if (dafnyValue.dtor_maxPlaintextLength().is_Some()) {
-      nativeBuilder.maxPlaintextLength((dafnyValue.dtor_maxPlaintextLength().dtor_value()));
-    }
-    if (dafnyValue.dtor_requiredEncryptionContextKeys().is_Some()) {
-      nativeBuilder.requiredEncryptionContextKeys(ToNative.EncryptionContextKeys(dafnyValue.dtor_requiredEncryptionContextKeys().dtor_value()));
-    }
-    return nativeBuilder.build();
-  }
-
-  public static CreateAwsKmsHierarchicalKeyringInput CreateAwsKmsHierarchicalKeyringInput(
-      Dafny.Aws.Cryptography.MaterialProviders.Types.CreateAwsKmsHierarchicalKeyringInput dafnyValue) {
-    CreateAwsKmsHierarchicalKeyringInput.Builder nativeBuilder = CreateAwsKmsHierarchicalKeyringInput.builder();
-    if (dafnyValue.dtor_branchKeyId().is_Some()) {
-      nativeBuilder.branchKeyId(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_branchKeyId().dtor_value()));
-    }
-    if (dafnyValue.dtor_branchKeyIdSupplier().is_Some()) {
-      nativeBuilder.branchKeyIdSupplier(ToNative.BranchKeyIdSupplier(dafnyValue.dtor_branchKeyIdSupplier().dtor_value()));
-    }
-    nativeBuilder.keyStore(software.amazon.cryptography.keyStore.ToNative.KeyStore(dafnyValue.dtor_keyStore()));
-    nativeBuilder.ttlSeconds((dafnyValue.dtor_ttlSeconds()));
-    if (dafnyValue.dtor_maxCacheSize().is_Some()) {
-      nativeBuilder.maxCacheSize((dafnyValue.dtor_maxCacheSize().dtor_value()));
-    }
-    return nativeBuilder.build();
-  }
-
-  public static DeleteCacheEntryInput DeleteCacheEntryInput(
-      Dafny.Aws.Cryptography.MaterialProviders.Types.DeleteCacheEntryInput dafnyValue) {
-    DeleteCacheEntryInput.Builder nativeBuilder = DeleteCacheEntryInput.builder();
-    nativeBuilder.identifier(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_identifier()));
-    return nativeBuilder.build();
-  }
-
-  public static HKDF HKDF(Dafny.Aws.Cryptography.MaterialProviders.Types.HKDF dafnyValue) {
-    HKDF.Builder nativeBuilder = HKDF.builder();
-    nativeBuilder.hmac(software.amazon.cryptography.primitives.ToNative.DigestAlgorithm(dafnyValue.dtor_hmac()));
-    nativeBuilder.saltLength((dafnyValue.dtor_saltLength()));
-    nativeBuilder.inputKeyLength((dafnyValue.dtor_inputKeyLength()));
-    nativeBuilder.outputKeyLength((dafnyValue.dtor_outputKeyLength()));
-    return nativeBuilder.build();
-  }
-
-  public static GetEncryptionMaterialsOutput GetEncryptionMaterialsOutput(
-      Dafny.Aws.Cryptography.MaterialProviders.Types.GetEncryptionMaterialsOutput dafnyValue) {
-    GetEncryptionMaterialsOutput.Builder nativeBuilder = GetEncryptionMaterialsOutput.builder();
-    nativeBuilder.encryptionMaterials(ToNative.EncryptionMaterials(dafnyValue.dtor_encryptionMaterials()));
-    return nativeBuilder.build();
-  }
-
-  public static UpdaterUsageMetadataInput UpdaterUsageMetadataInput(
-      Dafny.Aws.Cryptography.MaterialProviders.Types.UpdaterUsageMetadataInput dafnyValue) {
-    UpdaterUsageMetadataInput.Builder nativeBuilder = UpdaterUsageMetadataInput.builder();
-    nativeBuilder.identifier(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_identifier()));
+  public static GetCacheEntryOutput GetCacheEntryOutput(
+      Dafny.Aws.Cryptography.MaterialProviders.Types.GetCacheEntryOutput dafnyValue) {
+    GetCacheEntryOutput.Builder nativeBuilder = GetCacheEntryOutput.builder();
+    nativeBuilder.materials(ToNative.Materials(dafnyValue.dtor_materials()));
+    nativeBuilder.creationTime((dafnyValue.dtor_creationTime()));
+    nativeBuilder.expiryTime((dafnyValue.dtor_expiryTime()));
+    nativeBuilder.messagesUsed((dafnyValue.dtor_messagesUsed()));
     nativeBuilder.bytesUsed((dafnyValue.dtor_bytesUsed()));
-    return nativeBuilder.build();
-  }
-
-  public static CreateDefaultClientSupplierInput CreateDefaultClientSupplierInput(
-      Dafny.Aws.Cryptography.MaterialProviders.Types.CreateDefaultClientSupplierInput dafnyValue) {
-    CreateDefaultClientSupplierInput.Builder nativeBuilder = CreateDefaultClientSupplierInput.builder();
-    return nativeBuilder.build();
-  }
-
-  public static GetBranchKeyIdInput GetBranchKeyIdInput(
-      Dafny.Aws.Cryptography.MaterialProviders.Types.GetBranchKeyIdInput dafnyValue) {
-    GetBranchKeyIdInput.Builder nativeBuilder = GetBranchKeyIdInput.builder();
-    nativeBuilder.encryptionContext(ToNative.EncryptionContext(dafnyValue.dtor_encryptionContext()));
-    return nativeBuilder.build();
-  }
-
-  public static CreateAwsKmsRsaKeyringInput CreateAwsKmsRsaKeyringInput(
-      Dafny.Aws.Cryptography.MaterialProviders.Types.CreateAwsKmsRsaKeyringInput dafnyValue) {
-    CreateAwsKmsRsaKeyringInput.Builder nativeBuilder = CreateAwsKmsRsaKeyringInput.builder();
-    if (dafnyValue.dtor_publicKey().is_Some()) {
-      nativeBuilder.publicKey(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_publicKey().dtor_value()));
-    }
-    nativeBuilder.kmsKeyId(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_kmsKeyId()));
-    nativeBuilder.encryptionAlgorithm(Dafny.Com.Amazonaws.Kms.ToNative.EncryptionAlgorithmSpec(dafnyValue.dtor_encryptionAlgorithm()));
-    if (dafnyValue.dtor_kmsClient().is_Some()) {
-      nativeBuilder.kmsClient(Dafny.Com.Amazonaws.Kms.ToNative.TrentService(dafnyValue.dtor_kmsClient().dtor_value()));
-    }
-    if (dafnyValue.dtor_grantTokens().is_Some()) {
-      nativeBuilder.grantTokens(ToNative.GrantTokenList(dafnyValue.dtor_grantTokens().dtor_value()));
-    }
-    return nativeBuilder.build();
-  }
-
-  public static CreateAwsKmsMrkDiscoveryMultiKeyringInput CreateAwsKmsMrkDiscoveryMultiKeyringInput(
-      Dafny.Aws.Cryptography.MaterialProviders.Types.CreateAwsKmsMrkDiscoveryMultiKeyringInput dafnyValue) {
-    CreateAwsKmsMrkDiscoveryMultiKeyringInput.Builder nativeBuilder = CreateAwsKmsMrkDiscoveryMultiKeyringInput.builder();
-    nativeBuilder.regions(ToNative.RegionList(dafnyValue.dtor_regions()));
-    if (dafnyValue.dtor_discoveryFilter().is_Some()) {
-      nativeBuilder.discoveryFilter(ToNative.DiscoveryFilter(dafnyValue.dtor_discoveryFilter().dtor_value()));
-    }
-    if (dafnyValue.dtor_clientSupplier().is_Some()) {
-      nativeBuilder.clientSupplier(ToNative.ClientSupplier(dafnyValue.dtor_clientSupplier().dtor_value()));
-    }
-    if (dafnyValue.dtor_grantTokens().is_Some()) {
-      nativeBuilder.grantTokens(ToNative.GrantTokenList(dafnyValue.dtor_grantTokens().dtor_value()));
-    }
-    return nativeBuilder.build();
-  }
-
-  public static ValidDecryptionMaterialsTransitionInput ValidDecryptionMaterialsTransitionInput(
-      Dafny.Aws.Cryptography.MaterialProviders.Types.ValidDecryptionMaterialsTransitionInput dafnyValue) {
-    ValidDecryptionMaterialsTransitionInput.Builder nativeBuilder = ValidDecryptionMaterialsTransitionInput.builder();
-    nativeBuilder.start(ToNative.DecryptionMaterials(dafnyValue.dtor_start()));
-    nativeBuilder.stop(ToNative.DecryptionMaterials(dafnyValue.dtor_stop()));
-    return nativeBuilder.build();
-  }
-
-  public static CreateRawAesKeyringInput CreateRawAesKeyringInput(
-      Dafny.Aws.Cryptography.MaterialProviders.Types.CreateRawAesKeyringInput dafnyValue) {
-    CreateRawAesKeyringInput.Builder nativeBuilder = CreateRawAesKeyringInput.builder();
-    nativeBuilder.keyNamespace(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_keyNamespace()));
-    nativeBuilder.keyName(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_keyName()));
-    nativeBuilder.wrappingKey(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_wrappingKey()));
-    nativeBuilder.wrappingAlg(ToNative.AesWrappingAlg(dafnyValue.dtor_wrappingAlg()));
-    return nativeBuilder.build();
-  }
-
-  public static CreateMultiKeyringInput CreateMultiKeyringInput(
-      Dafny.Aws.Cryptography.MaterialProviders.Types.CreateMultiKeyringInput dafnyValue) {
-    CreateMultiKeyringInput.Builder nativeBuilder = CreateMultiKeyringInput.builder();
-    if (dafnyValue.dtor_generator().is_Some()) {
-      nativeBuilder.generator(ToNative.Keyring(dafnyValue.dtor_generator().dtor_value()));
-    }
-    nativeBuilder.childKeyrings(ToNative.KeyringList(dafnyValue.dtor_childKeyrings()));
-    return nativeBuilder.build();
-  }
-
-  public static IDENTITY IDENTITY(
-      Dafny.Aws.Cryptography.MaterialProviders.Types.IDENTITY dafnyValue) {
-    IDENTITY.Builder nativeBuilder = IDENTITY.builder();
-    return nativeBuilder.build();
-  }
-
-  public static ByteBuffer GetAlgorithmSuiteInfoInput(DafnySequence<? extends Byte> dafnyValue) {
-    return software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue);
-  }
-
-  public static DecryptionMaterials DecryptionMaterials(
-      Dafny.Aws.Cryptography.MaterialProviders.Types.DecryptionMaterials dafnyValue) {
-    DecryptionMaterials.Builder nativeBuilder = DecryptionMaterials.builder();
-    nativeBuilder.algorithmSuite(ToNative.AlgorithmSuiteInfo(dafnyValue.dtor_algorithmSuite()));
-    nativeBuilder.encryptionContext(ToNative.EncryptionContext(dafnyValue.dtor_encryptionContext()));
-    nativeBuilder.requiredEncryptionContextKeys(ToNative.EncryptionContextKeys(dafnyValue.dtor_requiredEncryptionContextKeys()));
-    if (dafnyValue.dtor_plaintextDataKey().is_Some()) {
-      nativeBuilder.plaintextDataKey(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_plaintextDataKey().dtor_value()));
-    }
-    if (dafnyValue.dtor_verificationKey().is_Some()) {
-      nativeBuilder.verificationKey(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_verificationKey().dtor_value()));
-    }
-    if (dafnyValue.dtor_symmetricSigningKey().is_Some()) {
-      nativeBuilder.symmetricSigningKey(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_symmetricSigningKey().dtor_value()));
-    }
     return nativeBuilder.build();
   }
 
@@ -474,87 +268,20 @@ public class ToNative {
     return nativeBuilder.build();
   }
 
-  public static GetCacheEntryOutput GetCacheEntryOutput(
-      Dafny.Aws.Cryptography.MaterialProviders.Types.GetCacheEntryOutput dafnyValue) {
-    GetCacheEntryOutput.Builder nativeBuilder = GetCacheEntryOutput.builder();
-    nativeBuilder.materials(ToNative.Materials(dafnyValue.dtor_materials()));
-    nativeBuilder.creationTime((dafnyValue.dtor_creationTime()));
-    nativeBuilder.expiryTime((dafnyValue.dtor_expiryTime()));
-    nativeBuilder.messagesUsed((dafnyValue.dtor_messagesUsed()));
-    nativeBuilder.bytesUsed((dafnyValue.dtor_bytesUsed()));
+  public static InitializeDecryptionMaterialsInput InitializeDecryptionMaterialsInput(
+      Dafny.Aws.Cryptography.MaterialProviders.Types.InitializeDecryptionMaterialsInput dafnyValue) {
+    InitializeDecryptionMaterialsInput.Builder nativeBuilder = InitializeDecryptionMaterialsInput.builder();
+    nativeBuilder.algorithmSuiteId(ToNative.AlgorithmSuiteId(dafnyValue.dtor_algorithmSuiteId()));
+    nativeBuilder.encryptionContext(ToNative.EncryptionContext(dafnyValue.dtor_encryptionContext()));
+    nativeBuilder.requiredEncryptionContextKeys(ToNative.EncryptionContextKeys(dafnyValue.dtor_requiredEncryptionContextKeys()));
     return nativeBuilder.build();
   }
 
-  public static EncryptedDataKey EncryptedDataKey(
-      Dafny.Aws.Cryptography.MaterialProviders.Types.EncryptedDataKey dafnyValue) {
-    EncryptedDataKey.Builder nativeBuilder = EncryptedDataKey.builder();
-    nativeBuilder.keyProviderId(software.amazon.dafny.conversion.ToNative.Simple.DafnyUtf8Bytes(dafnyValue.dtor_keyProviderId()));
-    nativeBuilder.keyProviderInfo(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_keyProviderInfo()));
-    nativeBuilder.ciphertext(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_ciphertext()));
-    return nativeBuilder.build();
-  }
-
-  public static CreateAwsKmsDiscoveryKeyringInput CreateAwsKmsDiscoveryKeyringInput(
-      Dafny.Aws.Cryptography.MaterialProviders.Types.CreateAwsKmsDiscoveryKeyringInput dafnyValue) {
-    CreateAwsKmsDiscoveryKeyringInput.Builder nativeBuilder = CreateAwsKmsDiscoveryKeyringInput.builder();
-    nativeBuilder.kmsClient(Dafny.Com.Amazonaws.Kms.ToNative.TrentService(dafnyValue.dtor_kmsClient()));
-    if (dafnyValue.dtor_discoveryFilter().is_Some()) {
-      nativeBuilder.discoveryFilter(ToNative.DiscoveryFilter(dafnyValue.dtor_discoveryFilter().dtor_value()));
-    }
-    if (dafnyValue.dtor_grantTokens().is_Some()) {
-      nativeBuilder.grantTokens(ToNative.GrantTokenList(dafnyValue.dtor_grantTokens().dtor_value()));
-    }
-    return nativeBuilder.build();
-  }
-
-  public static OnDecryptInput OnDecryptInput(
-      Dafny.Aws.Cryptography.MaterialProviders.Types.OnDecryptInput dafnyValue) {
-    OnDecryptInput.Builder nativeBuilder = OnDecryptInput.builder();
-    nativeBuilder.materials(ToNative.DecryptionMaterials(dafnyValue.dtor_materials()));
-    nativeBuilder.encryptedDataKeys(ToNative.EncryptedDataKeyList(dafnyValue.dtor_encryptedDataKeys()));
-    return nativeBuilder.build();
-  }
-
-  public static AlgorithmSuiteInfo AlgorithmSuiteInfo(
-      Dafny.Aws.Cryptography.MaterialProviders.Types.AlgorithmSuiteInfo dafnyValue) {
-    AlgorithmSuiteInfo.Builder nativeBuilder = AlgorithmSuiteInfo.builder();
-    nativeBuilder.id(ToNative.AlgorithmSuiteId(dafnyValue.dtor_id()));
-    nativeBuilder.binaryId(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_binaryId()));
-    nativeBuilder.messageVersion((dafnyValue.dtor_messageVersion()));
-    nativeBuilder.encrypt(ToNative.Encrypt(dafnyValue.dtor_encrypt()));
-    nativeBuilder.kdf(ToNative.DerivationAlgorithm(dafnyValue.dtor_kdf()));
-    nativeBuilder.commitment(ToNative.DerivationAlgorithm(dafnyValue.dtor_commitment()));
-    nativeBuilder.signature(ToNative.SignatureAlgorithm(dafnyValue.dtor_signature()));
-    nativeBuilder.symmetricSignature(ToNative.SymmetricSignatureAlgorithm(dafnyValue.dtor_symmetricSignature()));
-    nativeBuilder.edkWrapping(ToNative.EdkWrappingAlgorithm(dafnyValue.dtor_edkWrapping()));
-    return nativeBuilder.build();
-  }
-
-  public static MaterialProvidersConfig MaterialProvidersConfig(
-      Dafny.Aws.Cryptography.MaterialProviders.Types.MaterialProvidersConfig dafnyValue) {
-    MaterialProvidersConfig.Builder nativeBuilder = MaterialProvidersConfig.builder();
-    return nativeBuilder.build();
-  }
-
-  public static GetBranchKeyIdOutput GetBranchKeyIdOutput(
-      Dafny.Aws.Cryptography.MaterialProviders.Types.GetBranchKeyIdOutput dafnyValue) {
-    GetBranchKeyIdOutput.Builder nativeBuilder = GetBranchKeyIdOutput.builder();
-    nativeBuilder.branchKeyId(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_branchKeyId()));
-    return nativeBuilder.build();
-  }
-
-  public static CreateCryptographicMaterialsCacheInput CreateCryptographicMaterialsCacheInput(
-      Dafny.Aws.Cryptography.MaterialProviders.Types.CreateCryptographicMaterialsCacheInput dafnyValue) {
-    CreateCryptographicMaterialsCacheInput.Builder nativeBuilder = CreateCryptographicMaterialsCacheInput.builder();
-    nativeBuilder.entryCapacity((dafnyValue.dtor_entryCapacity()));
-    if (dafnyValue.dtor_entryPruningTailSize().is_Some()) {
-      nativeBuilder.entryPruningTailSize((dafnyValue.dtor_entryPruningTailSize().dtor_value()));
-    }
-    return nativeBuilder.build();
-  }
-
-  public static None None(Dafny.Aws.Cryptography.MaterialProviders.Types.None dafnyValue) {
-    None.Builder nativeBuilder = None.builder();
+  public static ValidDecryptionMaterialsTransitionInput ValidDecryptionMaterialsTransitionInput(
+      Dafny.Aws.Cryptography.MaterialProviders.Types.ValidDecryptionMaterialsTransitionInput dafnyValue) {
+    ValidDecryptionMaterialsTransitionInput.Builder nativeBuilder = ValidDecryptionMaterialsTransitionInput.builder();
+    nativeBuilder.start(ToNative.DecryptionMaterials(dafnyValue.dtor_start()));
+    nativeBuilder.stop(ToNative.DecryptionMaterials(dafnyValue.dtor_stop()));
     return nativeBuilder.build();
   }
 
@@ -576,10 +303,432 @@ public class ToNative {
     return nativeBuilder.build();
   }
 
-  public static CreateDefaultCryptographicMaterialsManagerInput CreateDefaultCryptographicMaterialsManagerInput(
-      Dafny.Aws.Cryptography.MaterialProviders.Types.CreateDefaultCryptographicMaterialsManagerInput dafnyValue) {
-    CreateDefaultCryptographicMaterialsManagerInput.Builder nativeBuilder = CreateDefaultCryptographicMaterialsManagerInput.builder();
-    nativeBuilder.keyring(ToNative.Keyring(dafnyValue.dtor_keyring()));
+  public static MaterialProvidersConfig MaterialProvidersConfig(
+      Dafny.Aws.Cryptography.MaterialProviders.Types.MaterialProvidersConfig dafnyValue) {
+    MaterialProvidersConfig.Builder nativeBuilder = MaterialProvidersConfig.builder();
+    return nativeBuilder.build();
+  }
+
+  public static EncryptionMaterials EncryptionMaterials(
+      Dafny.Aws.Cryptography.MaterialProviders.Types.EncryptionMaterials dafnyValue) {
+    EncryptionMaterials.Builder nativeBuilder = EncryptionMaterials.builder();
+    nativeBuilder.algorithmSuite(ToNative.AlgorithmSuiteInfo(dafnyValue.dtor_algorithmSuite()));
+    nativeBuilder.encryptionContext(ToNative.EncryptionContext(dafnyValue.dtor_encryptionContext()));
+    nativeBuilder.encryptedDataKeys(ToNative.EncryptedDataKeyList(dafnyValue.dtor_encryptedDataKeys()));
+    nativeBuilder.requiredEncryptionContextKeys(ToNative.EncryptionContextKeys(dafnyValue.dtor_requiredEncryptionContextKeys()));
+    if (dafnyValue.dtor_plaintextDataKey().is_Some()) {
+      nativeBuilder.plaintextDataKey(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_plaintextDataKey().dtor_value()));
+    }
+    if (dafnyValue.dtor_signingKey().is_Some()) {
+      nativeBuilder.signingKey(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_signingKey().dtor_value()));
+    }
+    if (dafnyValue.dtor_symmetricSigningKeys().is_Some()) {
+      nativeBuilder.symmetricSigningKeys(ToNative.SymmetricSigningKeyList(dafnyValue.dtor_symmetricSigningKeys().dtor_value()));
+    }
+    return nativeBuilder.build();
+  }
+
+  public static EncryptedDataKey EncryptedDataKey(
+      Dafny.Aws.Cryptography.MaterialProviders.Types.EncryptedDataKey dafnyValue) {
+    EncryptedDataKey.Builder nativeBuilder = EncryptedDataKey.builder();
+    nativeBuilder.keyProviderId(software.amazon.dafny.conversion.ToNative.Simple.DafnyUtf8Bytes(dafnyValue.dtor_keyProviderId()));
+    nativeBuilder.keyProviderInfo(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_keyProviderInfo()));
+    nativeBuilder.ciphertext(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_ciphertext()));
+    return nativeBuilder.build();
+  }
+
+  public static CreateAwsKmsRsaKeyringInput CreateAwsKmsRsaKeyringInput(
+      Dafny.Aws.Cryptography.MaterialProviders.Types.CreateAwsKmsRsaKeyringInput dafnyValue) {
+    CreateAwsKmsRsaKeyringInput.Builder nativeBuilder = CreateAwsKmsRsaKeyringInput.builder();
+    if (dafnyValue.dtor_publicKey().is_Some()) {
+      nativeBuilder.publicKey(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_publicKey().dtor_value()));
+    }
+    nativeBuilder.kmsKeyId(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_kmsKeyId()));
+    nativeBuilder.encryptionAlgorithm(Dafny.Com.Amazonaws.Kms.ToNative.EncryptionAlgorithmSpec(dafnyValue.dtor_encryptionAlgorithm()));
+    if (dafnyValue.dtor_kmsClient().is_Some()) {
+      nativeBuilder.kmsClient(Dafny.Com.Amazonaws.Kms.ToNative.TrentService(dafnyValue.dtor_kmsClient().dtor_value()));
+    }
+    if (dafnyValue.dtor_grantTokens().is_Some()) {
+      nativeBuilder.grantTokens(ToNative.GrantTokenList(dafnyValue.dtor_grantTokens().dtor_value()));
+    }
+    return nativeBuilder.build();
+  }
+
+  public static CreateRawAesKeyringInput CreateRawAesKeyringInput(
+      Dafny.Aws.Cryptography.MaterialProviders.Types.CreateRawAesKeyringInput dafnyValue) {
+    CreateRawAesKeyringInput.Builder nativeBuilder = CreateRawAesKeyringInput.builder();
+    nativeBuilder.keyNamespace(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_keyNamespace()));
+    nativeBuilder.keyName(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_keyName()));
+    nativeBuilder.wrappingKey(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_wrappingKey()));
+    nativeBuilder.wrappingAlg(ToNative.AesWrappingAlg(dafnyValue.dtor_wrappingAlg()));
+    return nativeBuilder.build();
+  }
+
+  public static CreateAwsKmsDiscoveryKeyringInput CreateAwsKmsDiscoveryKeyringInput(
+      Dafny.Aws.Cryptography.MaterialProviders.Types.CreateAwsKmsDiscoveryKeyringInput dafnyValue) {
+    CreateAwsKmsDiscoveryKeyringInput.Builder nativeBuilder = CreateAwsKmsDiscoveryKeyringInput.builder();
+    nativeBuilder.kmsClient(Dafny.Com.Amazonaws.Kms.ToNative.TrentService(dafnyValue.dtor_kmsClient()));
+    if (dafnyValue.dtor_discoveryFilter().is_Some()) {
+      nativeBuilder.discoveryFilter(ToNative.DiscoveryFilter(dafnyValue.dtor_discoveryFilter().dtor_value()));
+    }
+    if (dafnyValue.dtor_grantTokens().is_Some()) {
+      nativeBuilder.grantTokens(ToNative.GrantTokenList(dafnyValue.dtor_grantTokens().dtor_value()));
+    }
+    return nativeBuilder.build();
+  }
+
+  public static DIRECT_KEY_WRAPPING DIRECT_KEY_WRAPPING(DIRECT__KEY__WRAPPING dafnyValue) {
+    DIRECT_KEY_WRAPPING.Builder nativeBuilder = DIRECT_KEY_WRAPPING.builder();
+    return nativeBuilder.build();
+  }
+
+  public static GetEncryptionMaterialsOutput GetEncryptionMaterialsOutput(
+      Dafny.Aws.Cryptography.MaterialProviders.Types.GetEncryptionMaterialsOutput dafnyValue) {
+    GetEncryptionMaterialsOutput.Builder nativeBuilder = GetEncryptionMaterialsOutput.builder();
+    nativeBuilder.encryptionMaterials(ToNative.EncryptionMaterials(dafnyValue.dtor_encryptionMaterials()));
+    return nativeBuilder.build();
+  }
+
+  public static InitializeEncryptionMaterialsInput InitializeEncryptionMaterialsInput(
+      Dafny.Aws.Cryptography.MaterialProviders.Types.InitializeEncryptionMaterialsInput dafnyValue) {
+    InitializeEncryptionMaterialsInput.Builder nativeBuilder = InitializeEncryptionMaterialsInput.builder();
+    nativeBuilder.algorithmSuiteId(ToNative.AlgorithmSuiteId(dafnyValue.dtor_algorithmSuiteId()));
+    nativeBuilder.encryptionContext(ToNative.EncryptionContext(dafnyValue.dtor_encryptionContext()));
+    nativeBuilder.requiredEncryptionContextKeys(ToNative.EncryptionContextKeys(dafnyValue.dtor_requiredEncryptionContextKeys()));
+    if (dafnyValue.dtor_signingKey().is_Some()) {
+      nativeBuilder.signingKey(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_signingKey().dtor_value()));
+    }
+    if (dafnyValue.dtor_verificationKey().is_Some()) {
+      nativeBuilder.verificationKey(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_verificationKey().dtor_value()));
+    }
+    return nativeBuilder.build();
+  }
+
+  public static IntermediateKeyWrapping IntermediateKeyWrapping(
+      Dafny.Aws.Cryptography.MaterialProviders.Types.IntermediateKeyWrapping dafnyValue) {
+    IntermediateKeyWrapping.Builder nativeBuilder = IntermediateKeyWrapping.builder();
+    nativeBuilder.keyEncryptionKeyKdf(ToNative.DerivationAlgorithm(dafnyValue.dtor_keyEncryptionKeyKdf()));
+    nativeBuilder.macKeyKdf(ToNative.DerivationAlgorithm(dafnyValue.dtor_macKeyKdf()));
+    nativeBuilder.pdkEncryptAlgorithm(ToNative.Encrypt(dafnyValue.dtor_pdkEncryptAlgorithm()));
+    return nativeBuilder.build();
+  }
+
+  public static GetEncryptionMaterialsInput GetEncryptionMaterialsInput(
+      Dafny.Aws.Cryptography.MaterialProviders.Types.GetEncryptionMaterialsInput dafnyValue) {
+    GetEncryptionMaterialsInput.Builder nativeBuilder = GetEncryptionMaterialsInput.builder();
+    nativeBuilder.encryptionContext(ToNative.EncryptionContext(dafnyValue.dtor_encryptionContext()));
+    nativeBuilder.commitmentPolicy(ToNative.CommitmentPolicy(dafnyValue.dtor_commitmentPolicy()));
+    if (dafnyValue.dtor_algorithmSuiteId().is_Some()) {
+      nativeBuilder.algorithmSuiteId(ToNative.AlgorithmSuiteId(dafnyValue.dtor_algorithmSuiteId().dtor_value()));
+    }
+    if (dafnyValue.dtor_maxPlaintextLength().is_Some()) {
+      nativeBuilder.maxPlaintextLength((dafnyValue.dtor_maxPlaintextLength().dtor_value()));
+    }
+    if (dafnyValue.dtor_requiredEncryptionContextKeys().is_Some()) {
+      nativeBuilder.requiredEncryptionContextKeys(ToNative.EncryptionContextKeys(dafnyValue.dtor_requiredEncryptionContextKeys().dtor_value()));
+    }
+    return nativeBuilder.build();
+  }
+
+  public static DecryptMaterialsInput DecryptMaterialsInput(
+      Dafny.Aws.Cryptography.MaterialProviders.Types.DecryptMaterialsInput dafnyValue) {
+    DecryptMaterialsInput.Builder nativeBuilder = DecryptMaterialsInput.builder();
+    nativeBuilder.algorithmSuiteId(ToNative.AlgorithmSuiteId(dafnyValue.dtor_algorithmSuiteId()));
+    nativeBuilder.commitmentPolicy(ToNative.CommitmentPolicy(dafnyValue.dtor_commitmentPolicy()));
+    nativeBuilder.encryptedDataKeys(ToNative.EncryptedDataKeyList(dafnyValue.dtor_encryptedDataKeys()));
+    nativeBuilder.encryptionContext(ToNative.EncryptionContext(dafnyValue.dtor_encryptionContext()));
+    if (dafnyValue.dtor_reproducedEncryptionContext().is_Some()) {
+      nativeBuilder.reproducedEncryptionContext(ToNative.EncryptionContext(dafnyValue.dtor_reproducedEncryptionContext().dtor_value()));
+    }
+    return nativeBuilder.build();
+  }
+
+  public static ValidateCommitmentPolicyOnEncryptInput ValidateCommitmentPolicyOnEncryptInput(
+      Dafny.Aws.Cryptography.MaterialProviders.Types.ValidateCommitmentPolicyOnEncryptInput dafnyValue) {
+    ValidateCommitmentPolicyOnEncryptInput.Builder nativeBuilder = ValidateCommitmentPolicyOnEncryptInput.builder();
+    nativeBuilder.algorithm(ToNative.AlgorithmSuiteId(dafnyValue.dtor_algorithm()));
+    nativeBuilder.commitmentPolicy(ToNative.CommitmentPolicy(dafnyValue.dtor_commitmentPolicy()));
+    return nativeBuilder.build();
+  }
+
+  public static ECDSA ECDSA(Dafny.Aws.Cryptography.MaterialProviders.Types.ECDSA dafnyValue) {
+    ECDSA.Builder nativeBuilder = ECDSA.builder();
+    nativeBuilder.curve(software.amazon.cryptography.primitives.ToNative.ECDSASignatureAlgorithm(dafnyValue.dtor_curve()));
+    return nativeBuilder.build();
+  }
+
+  public static OnEncryptInput OnEncryptInput(
+      Dafny.Aws.Cryptography.MaterialProviders.Types.OnEncryptInput dafnyValue) {
+    OnEncryptInput.Builder nativeBuilder = OnEncryptInput.builder();
+    nativeBuilder.materials(ToNative.EncryptionMaterials(dafnyValue.dtor_materials()));
+    return nativeBuilder.build();
+  }
+
+  public static OnDecryptOutput OnDecryptOutput(
+      Dafny.Aws.Cryptography.MaterialProviders.Types.OnDecryptOutput dafnyValue) {
+    OnDecryptOutput.Builder nativeBuilder = OnDecryptOutput.builder();
+    nativeBuilder.materials(ToNative.DecryptionMaterials(dafnyValue.dtor_materials()));
+    return nativeBuilder.build();
+  }
+
+  public static OnDecryptInput OnDecryptInput(
+      Dafny.Aws.Cryptography.MaterialProviders.Types.OnDecryptInput dafnyValue) {
+    OnDecryptInput.Builder nativeBuilder = OnDecryptInput.builder();
+    nativeBuilder.materials(ToNative.DecryptionMaterials(dafnyValue.dtor_materials()));
+    nativeBuilder.encryptedDataKeys(ToNative.EncryptedDataKeyList(dafnyValue.dtor_encryptedDataKeys()));
+    return nativeBuilder.build();
+  }
+
+  public static CreateAwsKmsHierarchicalKeyringInput CreateAwsKmsHierarchicalKeyringInput(
+      Dafny.Aws.Cryptography.MaterialProviders.Types.CreateAwsKmsHierarchicalKeyringInput dafnyValue) {
+    CreateAwsKmsHierarchicalKeyringInput.Builder nativeBuilder = CreateAwsKmsHierarchicalKeyringInput.builder();
+    if (dafnyValue.dtor_branchKeyId().is_Some()) {
+      nativeBuilder.branchKeyId(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_branchKeyId().dtor_value()));
+    }
+    if (dafnyValue.dtor_branchKeyIdSupplier().is_Some()) {
+      nativeBuilder.branchKeyIdSupplier(ToNative.BranchKeyIdSupplier(dafnyValue.dtor_branchKeyIdSupplier().dtor_value()));
+    }
+    nativeBuilder.keyStore(software.amazon.cryptography.keyStore.ToNative.KeyStore(dafnyValue.dtor_keyStore()));
+    nativeBuilder.ttlSeconds((dafnyValue.dtor_ttlSeconds()));
+    if (dafnyValue.dtor_maxCacheSize().is_Some()) {
+      nativeBuilder.maxCacheSize((dafnyValue.dtor_maxCacheSize().dtor_value()));
+    }
+    return nativeBuilder.build();
+  }
+
+  public static AlgorithmSuiteInfo AlgorithmSuiteInfo(
+      Dafny.Aws.Cryptography.MaterialProviders.Types.AlgorithmSuiteInfo dafnyValue) {
+    AlgorithmSuiteInfo.Builder nativeBuilder = AlgorithmSuiteInfo.builder();
+    nativeBuilder.id(ToNative.AlgorithmSuiteId(dafnyValue.dtor_id()));
+    nativeBuilder.binaryId(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_binaryId()));
+    nativeBuilder.messageVersion((dafnyValue.dtor_messageVersion()));
+    nativeBuilder.encrypt(ToNative.Encrypt(dafnyValue.dtor_encrypt()));
+    nativeBuilder.kdf(ToNative.DerivationAlgorithm(dafnyValue.dtor_kdf()));
+    nativeBuilder.commitment(ToNative.DerivationAlgorithm(dafnyValue.dtor_commitment()));
+    nativeBuilder.signature(ToNative.SignatureAlgorithm(dafnyValue.dtor_signature()));
+    nativeBuilder.symmetricSignature(ToNative.SymmetricSignatureAlgorithm(dafnyValue.dtor_symmetricSignature()));
+    nativeBuilder.edkWrapping(ToNative.EdkWrappingAlgorithm(dafnyValue.dtor_edkWrapping()));
+    return nativeBuilder.build();
+  }
+
+  public static CreateCryptographicMaterialsCacheInput CreateCryptographicMaterialsCacheInput(
+      Dafny.Aws.Cryptography.MaterialProviders.Types.CreateCryptographicMaterialsCacheInput dafnyValue) {
+    CreateCryptographicMaterialsCacheInput.Builder nativeBuilder = CreateCryptographicMaterialsCacheInput.builder();
+    nativeBuilder.entryCapacity((dafnyValue.dtor_entryCapacity()));
+    if (dafnyValue.dtor_entryPruningTailSize().is_Some()) {
+      nativeBuilder.entryPruningTailSize((dafnyValue.dtor_entryPruningTailSize().dtor_value()));
+    }
+    return nativeBuilder.build();
+  }
+
+  public static BranchKeyMaterials BranchKeyMaterials(
+      Dafny.Aws.Cryptography.MaterialProviders.Types.BranchKeyMaterials dafnyValue) {
+    BranchKeyMaterials.Builder nativeBuilder = BranchKeyMaterials.builder();
+    nativeBuilder.branchKeyVersion(software.amazon.dafny.conversion.ToNative.Simple.DafnyUtf8Bytes(dafnyValue.dtor_branchKeyVersion()));
+    nativeBuilder.branchKey(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_branchKey()));
+    return nativeBuilder.build();
+  }
+
+  public static GetCacheEntryInput GetCacheEntryInput(
+      Dafny.Aws.Cryptography.MaterialProviders.Types.GetCacheEntryInput dafnyValue) {
+    GetCacheEntryInput.Builder nativeBuilder = GetCacheEntryInput.builder();
+    nativeBuilder.identifier(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_identifier()));
+    if (dafnyValue.dtor_bytesUsed().is_Some()) {
+      nativeBuilder.bytesUsed((dafnyValue.dtor_bytesUsed().dtor_value()));
+    }
+    return nativeBuilder.build();
+  }
+
+  public static DecryptMaterialsOutput DecryptMaterialsOutput(
+      Dafny.Aws.Cryptography.MaterialProviders.Types.DecryptMaterialsOutput dafnyValue) {
+    DecryptMaterialsOutput.Builder nativeBuilder = DecryptMaterialsOutput.builder();
+    nativeBuilder.decryptionMaterials(ToNative.DecryptionMaterials(dafnyValue.dtor_decryptionMaterials()));
+    return nativeBuilder.build();
+  }
+
+  public static ValidEncryptionMaterialsTransitionInput ValidEncryptionMaterialsTransitionInput(
+      Dafny.Aws.Cryptography.MaterialProviders.Types.ValidEncryptionMaterialsTransitionInput dafnyValue) {
+    ValidEncryptionMaterialsTransitionInput.Builder nativeBuilder = ValidEncryptionMaterialsTransitionInput.builder();
+    nativeBuilder.start(ToNative.EncryptionMaterials(dafnyValue.dtor_start()));
+    nativeBuilder.stop(ToNative.EncryptionMaterials(dafnyValue.dtor_stop()));
+    return nativeBuilder.build();
+  }
+
+  public static ValidateCommitmentPolicyOnDecryptInput ValidateCommitmentPolicyOnDecryptInput(
+      Dafny.Aws.Cryptography.MaterialProviders.Types.ValidateCommitmentPolicyOnDecryptInput dafnyValue) {
+    ValidateCommitmentPolicyOnDecryptInput.Builder nativeBuilder = ValidateCommitmentPolicyOnDecryptInput.builder();
+    nativeBuilder.algorithm(ToNative.AlgorithmSuiteId(dafnyValue.dtor_algorithm()));
+    nativeBuilder.commitmentPolicy(ToNative.CommitmentPolicy(dafnyValue.dtor_commitmentPolicy()));
+    return nativeBuilder.build();
+  }
+
+  public static OnEncryptOutput OnEncryptOutput(
+      Dafny.Aws.Cryptography.MaterialProviders.Types.OnEncryptOutput dafnyValue) {
+    OnEncryptOutput.Builder nativeBuilder = OnEncryptOutput.builder();
+    nativeBuilder.materials(ToNative.EncryptionMaterials(dafnyValue.dtor_materials()));
+    return nativeBuilder.build();
+  }
+
+  public static ByteBuffer GetAlgorithmSuiteInfoInput(DafnySequence<? extends Byte> dafnyValue) {
+    return software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue);
+  }
+
+  public static CreateAwsKmsMrkKeyringInput CreateAwsKmsMrkKeyringInput(
+      Dafny.Aws.Cryptography.MaterialProviders.Types.CreateAwsKmsMrkKeyringInput dafnyValue) {
+    CreateAwsKmsMrkKeyringInput.Builder nativeBuilder = CreateAwsKmsMrkKeyringInput.builder();
+    nativeBuilder.kmsKeyId(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_kmsKeyId()));
+    nativeBuilder.kmsClient(Dafny.Com.Amazonaws.Kms.ToNative.TrentService(dafnyValue.dtor_kmsClient()));
+    if (dafnyValue.dtor_grantTokens().is_Some()) {
+      nativeBuilder.grantTokens(ToNative.GrantTokenList(dafnyValue.dtor_grantTokens().dtor_value()));
+    }
+    return nativeBuilder.build();
+  }
+
+  public static PutCacheEntryInput PutCacheEntryInput(
+      Dafny.Aws.Cryptography.MaterialProviders.Types.PutCacheEntryInput dafnyValue) {
+    PutCacheEntryInput.Builder nativeBuilder = PutCacheEntryInput.builder();
+    nativeBuilder.identifier(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_identifier()));
+    nativeBuilder.materials(ToNative.Materials(dafnyValue.dtor_materials()));
+    nativeBuilder.creationTime((dafnyValue.dtor_creationTime()));
+    nativeBuilder.expiryTime((dafnyValue.dtor_expiryTime()));
+    if (dafnyValue.dtor_messagesUsed().is_Some()) {
+      nativeBuilder.messagesUsed((dafnyValue.dtor_messagesUsed().dtor_value()));
+    }
+    if (dafnyValue.dtor_bytesUsed().is_Some()) {
+      nativeBuilder.bytesUsed((dafnyValue.dtor_bytesUsed().dtor_value()));
+    }
+    return nativeBuilder.build();
+  }
+
+  public static DecryptionMaterials DecryptionMaterials(
+      Dafny.Aws.Cryptography.MaterialProviders.Types.DecryptionMaterials dafnyValue) {
+    DecryptionMaterials.Builder nativeBuilder = DecryptionMaterials.builder();
+    nativeBuilder.algorithmSuite(ToNative.AlgorithmSuiteInfo(dafnyValue.dtor_algorithmSuite()));
+    nativeBuilder.encryptionContext(ToNative.EncryptionContext(dafnyValue.dtor_encryptionContext()));
+    nativeBuilder.requiredEncryptionContextKeys(ToNative.EncryptionContextKeys(dafnyValue.dtor_requiredEncryptionContextKeys()));
+    if (dafnyValue.dtor_plaintextDataKey().is_Some()) {
+      nativeBuilder.plaintextDataKey(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_plaintextDataKey().dtor_value()));
+    }
+    if (dafnyValue.dtor_verificationKey().is_Some()) {
+      nativeBuilder.verificationKey(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_verificationKey().dtor_value()));
+    }
+    if (dafnyValue.dtor_symmetricSigningKey().is_Some()) {
+      nativeBuilder.symmetricSigningKey(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_symmetricSigningKey().dtor_value()));
+    }
+    return nativeBuilder.build();
+  }
+
+  public static CreateAwsKmsKeyringInput CreateAwsKmsKeyringInput(
+      Dafny.Aws.Cryptography.MaterialProviders.Types.CreateAwsKmsKeyringInput dafnyValue) {
+    CreateAwsKmsKeyringInput.Builder nativeBuilder = CreateAwsKmsKeyringInput.builder();
+    nativeBuilder.kmsKeyId(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_kmsKeyId()));
+    nativeBuilder.kmsClient(Dafny.Com.Amazonaws.Kms.ToNative.TrentService(dafnyValue.dtor_kmsClient()));
+    if (dafnyValue.dtor_grantTokens().is_Some()) {
+      nativeBuilder.grantTokens(ToNative.GrantTokenList(dafnyValue.dtor_grantTokens().dtor_value()));
+    }
+    return nativeBuilder.build();
+  }
+
+  public static DiscoveryFilter DiscoveryFilter(
+      Dafny.Aws.Cryptography.MaterialProviders.Types.DiscoveryFilter dafnyValue) {
+    DiscoveryFilter.Builder nativeBuilder = DiscoveryFilter.builder();
+    nativeBuilder.accountIds(ToNative.AccountIdList(dafnyValue.dtor_accountIds()));
+    nativeBuilder.partition(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_partition()));
+    return nativeBuilder.build();
+  }
+
+  public static CreateDefaultClientSupplierInput CreateDefaultClientSupplierInput(
+      Dafny.Aws.Cryptography.MaterialProviders.Types.CreateDefaultClientSupplierInput dafnyValue) {
+    CreateDefaultClientSupplierInput.Builder nativeBuilder = CreateDefaultClientSupplierInput.builder();
+    return nativeBuilder.build();
+  }
+
+  public static IDENTITY IDENTITY(
+      Dafny.Aws.Cryptography.MaterialProviders.Types.IDENTITY dafnyValue) {
+    IDENTITY.Builder nativeBuilder = IDENTITY.builder();
+    return nativeBuilder.build();
+  }
+
+  public static GetBranchKeyIdInput GetBranchKeyIdInput(
+      Dafny.Aws.Cryptography.MaterialProviders.Types.GetBranchKeyIdInput dafnyValue) {
+    GetBranchKeyIdInput.Builder nativeBuilder = GetBranchKeyIdInput.builder();
+    nativeBuilder.encryptionContext(ToNative.EncryptionContext(dafnyValue.dtor_encryptionContext()));
+    return nativeBuilder.build();
+  }
+
+  public static CreateAwsKmsMrkDiscoveryMultiKeyringInput CreateAwsKmsMrkDiscoveryMultiKeyringInput(
+      Dafny.Aws.Cryptography.MaterialProviders.Types.CreateAwsKmsMrkDiscoveryMultiKeyringInput dafnyValue) {
+    CreateAwsKmsMrkDiscoveryMultiKeyringInput.Builder nativeBuilder = CreateAwsKmsMrkDiscoveryMultiKeyringInput.builder();
+    nativeBuilder.regions(ToNative.RegionList(dafnyValue.dtor_regions()));
+    if (dafnyValue.dtor_discoveryFilter().is_Some()) {
+      nativeBuilder.discoveryFilter(ToNative.DiscoveryFilter(dafnyValue.dtor_discoveryFilter().dtor_value()));
+    }
+    if (dafnyValue.dtor_clientSupplier().is_Some()) {
+      nativeBuilder.clientSupplier(ToNative.ClientSupplier(dafnyValue.dtor_clientSupplier().dtor_value()));
+    }
+    if (dafnyValue.dtor_grantTokens().is_Some()) {
+      nativeBuilder.grantTokens(ToNative.GrantTokenList(dafnyValue.dtor_grantTokens().dtor_value()));
+    }
+    return nativeBuilder.build();
+  }
+
+  public static GetBranchKeyIdOutput GetBranchKeyIdOutput(
+      Dafny.Aws.Cryptography.MaterialProviders.Types.GetBranchKeyIdOutput dafnyValue) {
+    GetBranchKeyIdOutput.Builder nativeBuilder = GetBranchKeyIdOutput.builder();
+    nativeBuilder.branchKeyId(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_branchKeyId()));
+    return nativeBuilder.build();
+  }
+
+  public static CreateAwsKmsDiscoveryMultiKeyringInput CreateAwsKmsDiscoveryMultiKeyringInput(
+      Dafny.Aws.Cryptography.MaterialProviders.Types.CreateAwsKmsDiscoveryMultiKeyringInput dafnyValue) {
+    CreateAwsKmsDiscoveryMultiKeyringInput.Builder nativeBuilder = CreateAwsKmsDiscoveryMultiKeyringInput.builder();
+    nativeBuilder.regions(ToNative.RegionList(dafnyValue.dtor_regions()));
+    if (dafnyValue.dtor_discoveryFilter().is_Some()) {
+      nativeBuilder.discoveryFilter(ToNative.DiscoveryFilter(dafnyValue.dtor_discoveryFilter().dtor_value()));
+    }
+    if (dafnyValue.dtor_clientSupplier().is_Some()) {
+      nativeBuilder.clientSupplier(ToNative.ClientSupplier(dafnyValue.dtor_clientSupplier().dtor_value()));
+    }
+    if (dafnyValue.dtor_grantTokens().is_Some()) {
+      nativeBuilder.grantTokens(ToNative.GrantTokenList(dafnyValue.dtor_grantTokens().dtor_value()));
+    }
+    return nativeBuilder.build();
+  }
+
+  public static UpdaterUsageMetadataInput UpdaterUsageMetadataInput(
+      Dafny.Aws.Cryptography.MaterialProviders.Types.UpdaterUsageMetadataInput dafnyValue) {
+    UpdaterUsageMetadataInput.Builder nativeBuilder = UpdaterUsageMetadataInput.builder();
+    nativeBuilder.identifier(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_identifier()));
+    nativeBuilder.bytesUsed((dafnyValue.dtor_bytesUsed()));
+    return nativeBuilder.build();
+  }
+
+  public static CreateMultiKeyringInput CreateMultiKeyringInput(
+      Dafny.Aws.Cryptography.MaterialProviders.Types.CreateMultiKeyringInput dafnyValue) {
+    CreateMultiKeyringInput.Builder nativeBuilder = CreateMultiKeyringInput.builder();
+    if (dafnyValue.dtor_generator().is_Some()) {
+      nativeBuilder.generator(ToNative.Keyring(dafnyValue.dtor_generator().dtor_value()));
+    }
+    nativeBuilder.childKeyrings(ToNative.KeyringList(dafnyValue.dtor_childKeyrings()));
+    return nativeBuilder.build();
+  }
+
+  public static CreateAwsKmsMrkDiscoveryKeyringInput CreateAwsKmsMrkDiscoveryKeyringInput(
+      Dafny.Aws.Cryptography.MaterialProviders.Types.CreateAwsKmsMrkDiscoveryKeyringInput dafnyValue) {
+    CreateAwsKmsMrkDiscoveryKeyringInput.Builder nativeBuilder = CreateAwsKmsMrkDiscoveryKeyringInput.builder();
+    nativeBuilder.kmsClient(Dafny.Com.Amazonaws.Kms.ToNative.TrentService(dafnyValue.dtor_kmsClient()));
+    if (dafnyValue.dtor_discoveryFilter().is_Some()) {
+      nativeBuilder.discoveryFilter(ToNative.DiscoveryFilter(dafnyValue.dtor_discoveryFilter().dtor_value()));
+    }
+    if (dafnyValue.dtor_grantTokens().is_Some()) {
+      nativeBuilder.grantTokens(ToNative.GrantTokenList(dafnyValue.dtor_grantTokens().dtor_value()));
+    }
+    nativeBuilder.region(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_region()));
+    return nativeBuilder.build();
+  }
+
+  public static None None(Dafny.Aws.Cryptography.MaterialProviders.Types.None dafnyValue) {
+    None.Builder nativeBuilder = None.builder();
     return nativeBuilder.build();
   }
 
@@ -608,12 +757,26 @@ public class ToNative {
     return nativeBuilder.build();
   }
 
-  public static InitializeDecryptionMaterialsInput InitializeDecryptionMaterialsInput(
-      Dafny.Aws.Cryptography.MaterialProviders.Types.InitializeDecryptionMaterialsInput dafnyValue) {
-    InitializeDecryptionMaterialsInput.Builder nativeBuilder = InitializeDecryptionMaterialsInput.builder();
-    nativeBuilder.algorithmSuiteId(ToNative.AlgorithmSuiteId(dafnyValue.dtor_algorithmSuiteId()));
-    nativeBuilder.encryptionContext(ToNative.EncryptionContext(dafnyValue.dtor_encryptionContext()));
-    nativeBuilder.requiredEncryptionContextKeys(ToNative.EncryptionContextKeys(dafnyValue.dtor_requiredEncryptionContextKeys()));
+  public static HKDF HKDF(Dafny.Aws.Cryptography.MaterialProviders.Types.HKDF dafnyValue) {
+    HKDF.Builder nativeBuilder = HKDF.builder();
+    nativeBuilder.hmac(software.amazon.cryptography.primitives.ToNative.DigestAlgorithm(dafnyValue.dtor_hmac()));
+    nativeBuilder.saltLength((dafnyValue.dtor_saltLength()));
+    nativeBuilder.inputKeyLength((dafnyValue.dtor_inputKeyLength()));
+    nativeBuilder.outputKeyLength((dafnyValue.dtor_outputKeyLength()));
+    return nativeBuilder.build();
+  }
+
+  public static CreateDefaultCryptographicMaterialsManagerInput CreateDefaultCryptographicMaterialsManagerInput(
+      Dafny.Aws.Cryptography.MaterialProviders.Types.CreateDefaultCryptographicMaterialsManagerInput dafnyValue) {
+    CreateDefaultCryptographicMaterialsManagerInput.Builder nativeBuilder = CreateDefaultCryptographicMaterialsManagerInput.builder();
+    nativeBuilder.keyring(ToNative.Keyring(dafnyValue.dtor_keyring()));
+    return nativeBuilder.build();
+  }
+
+  public static DeleteCacheEntryInput DeleteCacheEntryInput(
+      Dafny.Aws.Cryptography.MaterialProviders.Types.DeleteCacheEntryInput dafnyValue) {
+    DeleteCacheEntryInput.Builder nativeBuilder = DeleteCacheEntryInput.builder();
+    nativeBuilder.identifier(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_identifier()));
     return nativeBuilder.build();
   }
 
@@ -632,181 +795,60 @@ public class ToNative {
     return nativeBuilder.build();
   }
 
-  public static CreateAwsKmsMrkDiscoveryKeyringInput CreateAwsKmsMrkDiscoveryKeyringInput(
-      Dafny.Aws.Cryptography.MaterialProviders.Types.CreateAwsKmsMrkDiscoveryKeyringInput dafnyValue) {
-    CreateAwsKmsMrkDiscoveryKeyringInput.Builder nativeBuilder = CreateAwsKmsMrkDiscoveryKeyringInput.builder();
-    nativeBuilder.kmsClient(Dafny.Com.Amazonaws.Kms.ToNative.TrentService(dafnyValue.dtor_kmsClient()));
-    if (dafnyValue.dtor_discoveryFilter().is_Some()) {
-      nativeBuilder.discoveryFilter(ToNative.DiscoveryFilter(dafnyValue.dtor_discoveryFilter().dtor_value()));
+  public static ESDKCommitmentPolicy ESDKCommitmentPolicy(
+      Dafny.Aws.Cryptography.MaterialProviders.Types.ESDKCommitmentPolicy dafnyValue) {
+    if (dafnyValue.is_FORBID__ENCRYPT__ALLOW__DECRYPT()) {
+      return ESDKCommitmentPolicy.FORBID_ENCRYPT_ALLOW_DECRYPT;
     }
-    if (dafnyValue.dtor_grantTokens().is_Some()) {
-      nativeBuilder.grantTokens(ToNative.GrantTokenList(dafnyValue.dtor_grantTokens().dtor_value()));
+    if (dafnyValue.is_REQUIRE__ENCRYPT__ALLOW__DECRYPT()) {
+      return ESDKCommitmentPolicy.REQUIRE_ENCRYPT_ALLOW_DECRYPT;
     }
-    nativeBuilder.region(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_region()));
-    return nativeBuilder.build();
+    if (dafnyValue.is_REQUIRE__ENCRYPT__REQUIRE__DECRYPT()) {
+      return ESDKCommitmentPolicy.REQUIRE_ENCRYPT_REQUIRE_DECRYPT;
+    }
+    throw new IllegalArgumentException("No entry of software.amazon.cryptography.materialProviders.model.ESDKCommitmentPolicy matches the input : " + dafnyValue);
   }
 
-  public static GetCacheEntryInput GetCacheEntryInput(
-      Dafny.Aws.Cryptography.MaterialProviders.Types.GetCacheEntryInput dafnyValue) {
-    GetCacheEntryInput.Builder nativeBuilder = GetCacheEntryInput.builder();
-    nativeBuilder.identifier(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_identifier()));
-    if (dafnyValue.dtor_bytesUsed().is_Some()) {
-      nativeBuilder.bytesUsed((dafnyValue.dtor_bytesUsed().dtor_value()));
+  public static DBECommitmentPolicy DBECommitmentPolicy(
+      Dafny.Aws.Cryptography.MaterialProviders.Types.DBECommitmentPolicy dafnyValue) {
+    if (dafnyValue.is_REQUIRE__ENCRYPT__REQUIRE__DECRYPT()) {
+      return DBECommitmentPolicy.REQUIRE_ENCRYPT_REQUIRE_DECRYPT;
     }
-    return nativeBuilder.build();
+    throw new IllegalArgumentException("No entry of software.amazon.cryptography.materialProviders.model.DBECommitmentPolicy matches the input : " + dafnyValue);
   }
 
-  public static CreateAwsKmsKeyringInput CreateAwsKmsKeyringInput(
-      Dafny.Aws.Cryptography.MaterialProviders.Types.CreateAwsKmsKeyringInput dafnyValue) {
-    CreateAwsKmsKeyringInput.Builder nativeBuilder = CreateAwsKmsKeyringInput.builder();
-    nativeBuilder.kmsKeyId(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_kmsKeyId()));
-    nativeBuilder.kmsClient(Dafny.Com.Amazonaws.Kms.ToNative.TrentService(dafnyValue.dtor_kmsClient()));
-    if (dafnyValue.dtor_grantTokens().is_Some()) {
-      nativeBuilder.grantTokens(ToNative.GrantTokenList(dafnyValue.dtor_grantTokens().dtor_value()));
+  public static AesWrappingAlg AesWrappingAlg(
+      Dafny.Aws.Cryptography.MaterialProviders.Types.AesWrappingAlg dafnyValue) {
+    if (dafnyValue.is_ALG__AES128__GCM__IV12__TAG16()) {
+      return AesWrappingAlg.ALG_AES128_GCM_IV12_TAG16;
     }
-    return nativeBuilder.build();
+    if (dafnyValue.is_ALG__AES192__GCM__IV12__TAG16()) {
+      return AesWrappingAlg.ALG_AES192_GCM_IV12_TAG16;
+    }
+    if (dafnyValue.is_ALG__AES256__GCM__IV12__TAG16()) {
+      return AesWrappingAlg.ALG_AES256_GCM_IV12_TAG16;
+    }
+    throw new IllegalArgumentException("No entry of software.amazon.cryptography.materialProviders.model.AesWrappingAlg matches the input : " + dafnyValue);
   }
 
-  public static DiscoveryFilter DiscoveryFilter(
-      Dafny.Aws.Cryptography.MaterialProviders.Types.DiscoveryFilter dafnyValue) {
-    DiscoveryFilter.Builder nativeBuilder = DiscoveryFilter.builder();
-    nativeBuilder.accountIds(ToNative.AccountIdList(dafnyValue.dtor_accountIds()));
-    nativeBuilder.partition(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_partition()));
-    return nativeBuilder.build();
-  }
-
-  public static DecryptMaterialsOutput DecryptMaterialsOutput(
-      Dafny.Aws.Cryptography.MaterialProviders.Types.DecryptMaterialsOutput dafnyValue) {
-    DecryptMaterialsOutput.Builder nativeBuilder = DecryptMaterialsOutput.builder();
-    nativeBuilder.decryptionMaterials(ToNative.DecryptionMaterials(dafnyValue.dtor_decryptionMaterials()));
-    return nativeBuilder.build();
-  }
-
-  public static DecryptMaterialsInput DecryptMaterialsInput(
-      Dafny.Aws.Cryptography.MaterialProviders.Types.DecryptMaterialsInput dafnyValue) {
-    DecryptMaterialsInput.Builder nativeBuilder = DecryptMaterialsInput.builder();
-    nativeBuilder.algorithmSuiteId(ToNative.AlgorithmSuiteId(dafnyValue.dtor_algorithmSuiteId()));
-    nativeBuilder.commitmentPolicy(ToNative.CommitmentPolicy(dafnyValue.dtor_commitmentPolicy()));
-    nativeBuilder.encryptedDataKeys(ToNative.EncryptedDataKeyList(dafnyValue.dtor_encryptedDataKeys()));
-    nativeBuilder.encryptionContext(ToNative.EncryptionContext(dafnyValue.dtor_encryptionContext()));
-    if (dafnyValue.dtor_reproducedEncryptionContext().is_Some()) {
-      nativeBuilder.reproducedEncryptionContext(ToNative.EncryptionContext(dafnyValue.dtor_reproducedEncryptionContext().dtor_value()));
+  public static PaddingScheme PaddingScheme(
+      Dafny.Aws.Cryptography.MaterialProviders.Types.PaddingScheme dafnyValue) {
+    if (dafnyValue.is_PKCS1()) {
+      return PaddingScheme.PKCS1;
     }
-    return nativeBuilder.build();
-  }
-
-  public static ECDSA ECDSA(Dafny.Aws.Cryptography.MaterialProviders.Types.ECDSA dafnyValue) {
-    ECDSA.Builder nativeBuilder = ECDSA.builder();
-    nativeBuilder.curve(software.amazon.cryptography.primitives.ToNative.ECDSASignatureAlgorithm(dafnyValue.dtor_curve()));
-    return nativeBuilder.build();
-  }
-
-  public static IntermediateKeyWrapping IntermediateKeyWrapping(
-      Dafny.Aws.Cryptography.MaterialProviders.Types.IntermediateKeyWrapping dafnyValue) {
-    IntermediateKeyWrapping.Builder nativeBuilder = IntermediateKeyWrapping.builder();
-    nativeBuilder.keyEncryptionKeyKdf(ToNative.DerivationAlgorithm(dafnyValue.dtor_keyEncryptionKeyKdf()));
-    nativeBuilder.macKeyKdf(ToNative.DerivationAlgorithm(dafnyValue.dtor_macKeyKdf()));
-    nativeBuilder.pdkEncryptAlgorithm(ToNative.Encrypt(dafnyValue.dtor_pdkEncryptAlgorithm()));
-    return nativeBuilder.build();
-  }
-
-  public static InitializeEncryptionMaterialsInput InitializeEncryptionMaterialsInput(
-      Dafny.Aws.Cryptography.MaterialProviders.Types.InitializeEncryptionMaterialsInput dafnyValue) {
-    InitializeEncryptionMaterialsInput.Builder nativeBuilder = InitializeEncryptionMaterialsInput.builder();
-    nativeBuilder.algorithmSuiteId(ToNative.AlgorithmSuiteId(dafnyValue.dtor_algorithmSuiteId()));
-    nativeBuilder.encryptionContext(ToNative.EncryptionContext(dafnyValue.dtor_encryptionContext()));
-    nativeBuilder.requiredEncryptionContextKeys(ToNative.EncryptionContextKeys(dafnyValue.dtor_requiredEncryptionContextKeys()));
-    if (dafnyValue.dtor_signingKey().is_Some()) {
-      nativeBuilder.signingKey(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_signingKey().dtor_value()));
+    if (dafnyValue.is_OAEP__SHA1__MGF1()) {
+      return PaddingScheme.OAEP_SHA1_MGF1;
     }
-    if (dafnyValue.dtor_verificationKey().is_Some()) {
-      nativeBuilder.verificationKey(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_verificationKey().dtor_value()));
+    if (dafnyValue.is_OAEP__SHA256__MGF1()) {
+      return PaddingScheme.OAEP_SHA256_MGF1;
     }
-    return nativeBuilder.build();
-  }
-
-  public static CreateAwsKmsDiscoveryMultiKeyringInput CreateAwsKmsDiscoveryMultiKeyringInput(
-      Dafny.Aws.Cryptography.MaterialProviders.Types.CreateAwsKmsDiscoveryMultiKeyringInput dafnyValue) {
-    CreateAwsKmsDiscoveryMultiKeyringInput.Builder nativeBuilder = CreateAwsKmsDiscoveryMultiKeyringInput.builder();
-    nativeBuilder.regions(ToNative.RegionList(dafnyValue.dtor_regions()));
-    if (dafnyValue.dtor_discoveryFilter().is_Some()) {
-      nativeBuilder.discoveryFilter(ToNative.DiscoveryFilter(dafnyValue.dtor_discoveryFilter().dtor_value()));
+    if (dafnyValue.is_OAEP__SHA384__MGF1()) {
+      return PaddingScheme.OAEP_SHA384_MGF1;
     }
-    if (dafnyValue.dtor_clientSupplier().is_Some()) {
-      nativeBuilder.clientSupplier(ToNative.ClientSupplier(dafnyValue.dtor_clientSupplier().dtor_value()));
+    if (dafnyValue.is_OAEP__SHA512__MGF1()) {
+      return PaddingScheme.OAEP_SHA512_MGF1;
     }
-    if (dafnyValue.dtor_grantTokens().is_Some()) {
-      nativeBuilder.grantTokens(ToNative.GrantTokenList(dafnyValue.dtor_grantTokens().dtor_value()));
-    }
-    return nativeBuilder.build();
-  }
-
-  public static OnEncryptInput OnEncryptInput(
-      Dafny.Aws.Cryptography.MaterialProviders.Types.OnEncryptInput dafnyValue) {
-    OnEncryptInput.Builder nativeBuilder = OnEncryptInput.builder();
-    nativeBuilder.materials(ToNative.EncryptionMaterials(dafnyValue.dtor_materials()));
-    return nativeBuilder.build();
-  }
-
-  public static ValidateCommitmentPolicyOnEncryptInput ValidateCommitmentPolicyOnEncryptInput(
-      Dafny.Aws.Cryptography.MaterialProviders.Types.ValidateCommitmentPolicyOnEncryptInput dafnyValue) {
-    ValidateCommitmentPolicyOnEncryptInput.Builder nativeBuilder = ValidateCommitmentPolicyOnEncryptInput.builder();
-    nativeBuilder.algorithm(ToNative.AlgorithmSuiteId(dafnyValue.dtor_algorithm()));
-    nativeBuilder.commitmentPolicy(ToNative.CommitmentPolicy(dafnyValue.dtor_commitmentPolicy()));
-    return nativeBuilder.build();
-  }
-
-  public static PutCacheEntryInput PutCacheEntryInput(
-      Dafny.Aws.Cryptography.MaterialProviders.Types.PutCacheEntryInput dafnyValue) {
-    PutCacheEntryInput.Builder nativeBuilder = PutCacheEntryInput.builder();
-    nativeBuilder.identifier(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_identifier()));
-    nativeBuilder.materials(ToNative.Materials(dafnyValue.dtor_materials()));
-    nativeBuilder.creationTime((dafnyValue.dtor_creationTime()));
-    nativeBuilder.expiryTime((dafnyValue.dtor_expiryTime()));
-    if (dafnyValue.dtor_messagesUsed().is_Some()) {
-      nativeBuilder.messagesUsed((dafnyValue.dtor_messagesUsed().dtor_value()));
-    }
-    if (dafnyValue.dtor_bytesUsed().is_Some()) {
-      nativeBuilder.bytesUsed((dafnyValue.dtor_bytesUsed().dtor_value()));
-    }
-    return nativeBuilder.build();
-  }
-
-  public static DIRECT_KEY_WRAPPING DIRECT_KEY_WRAPPING(DIRECT__KEY__WRAPPING dafnyValue) {
-    DIRECT_KEY_WRAPPING.Builder nativeBuilder = DIRECT_KEY_WRAPPING.builder();
-    return nativeBuilder.build();
-  }
-
-  public static BeaconKeyMaterials BeaconKeyMaterials(
-      Dafny.Aws.Cryptography.MaterialProviders.Types.BeaconKeyMaterials dafnyValue) {
-    BeaconKeyMaterials.Builder nativeBuilder = BeaconKeyMaterials.builder();
-    nativeBuilder.beaconKeyIdentifier(software.amazon.dafny.conversion.ToNative.Simple.String(dafnyValue.dtor_beaconKeyIdentifier()));
-    if (dafnyValue.dtor_beaconKey().is_Some()) {
-      nativeBuilder.beaconKey(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_beaconKey().dtor_value()));
-    }
-    if (dafnyValue.dtor_hmacKeys().is_Some()) {
-      nativeBuilder.hmacKeys(ToNative.HmacKeyMap(dafnyValue.dtor_hmacKeys().dtor_value()));
-    }
-    return nativeBuilder.build();
-  }
-
-  public static EncryptionMaterials EncryptionMaterials(
-      Dafny.Aws.Cryptography.MaterialProviders.Types.EncryptionMaterials dafnyValue) {
-    EncryptionMaterials.Builder nativeBuilder = EncryptionMaterials.builder();
-    nativeBuilder.algorithmSuite(ToNative.AlgorithmSuiteInfo(dafnyValue.dtor_algorithmSuite()));
-    nativeBuilder.encryptionContext(ToNative.EncryptionContext(dafnyValue.dtor_encryptionContext()));
-    nativeBuilder.encryptedDataKeys(ToNative.EncryptedDataKeyList(dafnyValue.dtor_encryptedDataKeys()));
-    nativeBuilder.requiredEncryptionContextKeys(ToNative.EncryptionContextKeys(dafnyValue.dtor_requiredEncryptionContextKeys()));
-    if (dafnyValue.dtor_plaintextDataKey().is_Some()) {
-      nativeBuilder.plaintextDataKey(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_plaintextDataKey().dtor_value()));
-    }
-    if (dafnyValue.dtor_signingKey().is_Some()) {
-      nativeBuilder.signingKey(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_signingKey().dtor_value()));
-    }
-    if (dafnyValue.dtor_symmetricSigningKeys().is_Some()) {
-      nativeBuilder.symmetricSigningKeys(ToNative.SymmetricSigningKeyList(dafnyValue.dtor_symmetricSigningKeys().dtor_value()));
-    }
-    return nativeBuilder.build();
+    throw new IllegalArgumentException("No entry of software.amazon.cryptography.materialProviders.model.PaddingScheme matches the input : " + dafnyValue);
   }
 
   public static ESDKAlgorithmSuiteId ESDKAlgorithmSuiteId(
@@ -847,54 +889,6 @@ public class ToNative {
     throw new IllegalArgumentException("No entry of software.amazon.cryptography.materialProviders.model.ESDKAlgorithmSuiteId matches the input : " + dafnyValue);
   }
 
-  public static AesWrappingAlg AesWrappingAlg(
-      Dafny.Aws.Cryptography.MaterialProviders.Types.AesWrappingAlg dafnyValue) {
-    if (dafnyValue.is_ALG__AES128__GCM__IV12__TAG16()) {
-      return AesWrappingAlg.ALG_AES128_GCM_IV12_TAG16;
-    }
-    if (dafnyValue.is_ALG__AES192__GCM__IV12__TAG16()) {
-      return AesWrappingAlg.ALG_AES192_GCM_IV12_TAG16;
-    }
-    if (dafnyValue.is_ALG__AES256__GCM__IV12__TAG16()) {
-      return AesWrappingAlg.ALG_AES256_GCM_IV12_TAG16;
-    }
-    throw new IllegalArgumentException("No entry of software.amazon.cryptography.materialProviders.model.AesWrappingAlg matches the input : " + dafnyValue);
-  }
-
-  public static PaddingScheme PaddingScheme(
-      Dafny.Aws.Cryptography.MaterialProviders.Types.PaddingScheme dafnyValue) {
-    if (dafnyValue.is_PKCS1()) {
-      return PaddingScheme.PKCS1;
-    }
-    if (dafnyValue.is_OAEP__SHA1__MGF1()) {
-      return PaddingScheme.OAEP_SHA1_MGF1;
-    }
-    if (dafnyValue.is_OAEP__SHA256__MGF1()) {
-      return PaddingScheme.OAEP_SHA256_MGF1;
-    }
-    if (dafnyValue.is_OAEP__SHA384__MGF1()) {
-      return PaddingScheme.OAEP_SHA384_MGF1;
-    }
-    if (dafnyValue.is_OAEP__SHA512__MGF1()) {
-      return PaddingScheme.OAEP_SHA512_MGF1;
-    }
-    throw new IllegalArgumentException("No entry of software.amazon.cryptography.materialProviders.model.PaddingScheme matches the input : " + dafnyValue);
-  }
-
-  public static ESDKCommitmentPolicy ESDKCommitmentPolicy(
-      Dafny.Aws.Cryptography.MaterialProviders.Types.ESDKCommitmentPolicy dafnyValue) {
-    if (dafnyValue.is_FORBID__ENCRYPT__ALLOW__DECRYPT()) {
-      return ESDKCommitmentPolicy.FORBID_ENCRYPT_ALLOW_DECRYPT;
-    }
-    if (dafnyValue.is_REQUIRE__ENCRYPT__ALLOW__DECRYPT()) {
-      return ESDKCommitmentPolicy.REQUIRE_ENCRYPT_ALLOW_DECRYPT;
-    }
-    if (dafnyValue.is_REQUIRE__ENCRYPT__REQUIRE__DECRYPT()) {
-      return ESDKCommitmentPolicy.REQUIRE_ENCRYPT_REQUIRE_DECRYPT;
-    }
-    throw new IllegalArgumentException("No entry of software.amazon.cryptography.materialProviders.model.ESDKCommitmentPolicy matches the input : " + dafnyValue);
-  }
-
   public static DBEAlgorithmSuiteId DBEAlgorithmSuiteId(
       Dafny.Aws.Cryptography.MaterialProviders.Types.DBEAlgorithmSuiteId dafnyValue) {
     if (dafnyValue.is_ALG__AES__256__GCM__HKDF__SHA512__COMMIT__KEY__SYMSIG__HMAC__SHA384()) {
@@ -906,12 +900,19 @@ public class ToNative {
     throw new IllegalArgumentException("No entry of software.amazon.cryptography.materialProviders.model.DBEAlgorithmSuiteId matches the input : " + dafnyValue);
   }
 
-  public static DBECommitmentPolicy DBECommitmentPolicy(
-      Dafny.Aws.Cryptography.MaterialProviders.Types.DBECommitmentPolicy dafnyValue) {
-    if (dafnyValue.is_REQUIRE__ENCRYPT__REQUIRE__DECRYPT()) {
-      return DBECommitmentPolicy.REQUIRE_ENCRYPT_REQUIRE_DECRYPT;
+  public static DerivationAlgorithm DerivationAlgorithm(
+      Dafny.Aws.Cryptography.MaterialProviders.Types.DerivationAlgorithm dafnyValue) {
+    DerivationAlgorithm.Builder nativeBuilder = DerivationAlgorithm.builder();
+    if (dafnyValue.is_HKDF()) {
+      nativeBuilder.HKDF(ToNative.HKDF(dafnyValue.dtor_HKDF()));
     }
-    throw new IllegalArgumentException("No entry of software.amazon.cryptography.materialProviders.model.DBECommitmentPolicy matches the input : " + dafnyValue);
+    if (dafnyValue.is_IDENTITY()) {
+      nativeBuilder.IDENTITY(ToNative.IDENTITY(dafnyValue.dtor_IDENTITY()));
+    }
+    if (dafnyValue.is_None()) {
+      nativeBuilder.None(ToNative.None(dafnyValue.dtor_None()));
+    }
+    return nativeBuilder.build();
   }
 
   public static AlgorithmSuiteId AlgorithmSuiteId(
@@ -934,18 +935,6 @@ public class ToNative {
     }
     if (dafnyValue.is_IntermediateKeyWrapping()) {
       nativeBuilder.IntermediateKeyWrapping(ToNative.IntermediateKeyWrapping(dafnyValue.dtor_IntermediateKeyWrapping()));
-    }
-    return nativeBuilder.build();
-  }
-
-  public static SymmetricSignatureAlgorithm SymmetricSignatureAlgorithm(
-      Dafny.Aws.Cryptography.MaterialProviders.Types.SymmetricSignatureAlgorithm dafnyValue) {
-    SymmetricSignatureAlgorithm.Builder nativeBuilder = SymmetricSignatureAlgorithm.builder();
-    if (dafnyValue.is_HMAC()) {
-      nativeBuilder.HMAC(software.amazon.cryptography.primitives.ToNative.DigestAlgorithm(dafnyValue.dtor_HMAC()));
-    }
-    if (dafnyValue.is_None()) {
-      nativeBuilder.None(ToNative.None(dafnyValue.dtor_None()));
     }
     return nativeBuilder.build();
   }
@@ -980,14 +969,6 @@ public class ToNative {
     return nativeBuilder.build();
   }
 
-  public static Encrypt Encrypt(Dafny.Aws.Cryptography.MaterialProviders.Types.Encrypt dafnyValue) {
-    Encrypt.Builder nativeBuilder = Encrypt.builder();
-    if (dafnyValue.is_AES__GCM()) {
-      nativeBuilder.AES_GCM(software.amazon.cryptography.primitives.ToNative.AES_GCM(dafnyValue.dtor_AES__GCM()));
-    }
-    return nativeBuilder.build();
-  }
-
   public static SignatureAlgorithm SignatureAlgorithm(
       Dafny.Aws.Cryptography.MaterialProviders.Types.SignatureAlgorithm dafnyValue) {
     SignatureAlgorithm.Builder nativeBuilder = SignatureAlgorithm.builder();
@@ -1000,19 +981,45 @@ public class ToNative {
     return nativeBuilder.build();
   }
 
-  public static DerivationAlgorithm DerivationAlgorithm(
-      Dafny.Aws.Cryptography.MaterialProviders.Types.DerivationAlgorithm dafnyValue) {
-    DerivationAlgorithm.Builder nativeBuilder = DerivationAlgorithm.builder();
-    if (dafnyValue.is_HKDF()) {
-      nativeBuilder.HKDF(ToNative.HKDF(dafnyValue.dtor_HKDF()));
-    }
-    if (dafnyValue.is_IDENTITY()) {
-      nativeBuilder.IDENTITY(ToNative.IDENTITY(dafnyValue.dtor_IDENTITY()));
+  public static SymmetricSignatureAlgorithm SymmetricSignatureAlgorithm(
+      Dafny.Aws.Cryptography.MaterialProviders.Types.SymmetricSignatureAlgorithm dafnyValue) {
+    SymmetricSignatureAlgorithm.Builder nativeBuilder = SymmetricSignatureAlgorithm.builder();
+    if (dafnyValue.is_HMAC()) {
+      nativeBuilder.HMAC(software.amazon.cryptography.primitives.ToNative.DigestAlgorithm(dafnyValue.dtor_HMAC()));
     }
     if (dafnyValue.is_None()) {
       nativeBuilder.None(ToNative.None(dafnyValue.dtor_None()));
     }
     return nativeBuilder.build();
+  }
+
+  public static Encrypt Encrypt(Dafny.Aws.Cryptography.MaterialProviders.Types.Encrypt dafnyValue) {
+    Encrypt.Builder nativeBuilder = Encrypt.builder();
+    if (dafnyValue.is_AES__GCM()) {
+      nativeBuilder.AES_GCM(software.amazon.cryptography.primitives.ToNative.AES_GCM(dafnyValue.dtor_AES__GCM()));
+    }
+    return nativeBuilder.build();
+  }
+
+  public static List<String> GrantTokenList(
+      DafnySequence<? extends DafnySequence<? extends Character>> dafnyValue) {
+    return software.amazon.dafny.conversion.ToNative.Aggregate.GenericToList(
+        dafnyValue, 
+        software.amazon.dafny.conversion.ToNative.Simple::String);
+  }
+
+  public static List<String> KmsKeyIdList(
+      DafnySequence<? extends DafnySequence<? extends Character>> dafnyValue) {
+    return software.amazon.dafny.conversion.ToNative.Aggregate.GenericToList(
+        dafnyValue, 
+        software.amazon.dafny.conversion.ToNative.Simple::String);
+  }
+
+  public static List<String> RegionList(
+      DafnySequence<? extends DafnySequence<? extends Character>> dafnyValue) {
+    return software.amazon.dafny.conversion.ToNative.Aggregate.GenericToList(
+        dafnyValue, 
+        software.amazon.dafny.conversion.ToNative.Simple::String);
   }
 
   public static List<EncryptedDataKey> EncryptedDataKeyList(
@@ -1029,25 +1036,11 @@ public class ToNative {
         software.amazon.dafny.conversion.ToNative.Simple::DafnyUtf8Bytes);
   }
 
-  public static List<String> RegionList(
+  public static List<String> AccountIdList(
       DafnySequence<? extends DafnySequence<? extends Character>> dafnyValue) {
     return software.amazon.dafny.conversion.ToNative.Aggregate.GenericToList(
         dafnyValue, 
         software.amazon.dafny.conversion.ToNative.Simple::String);
-  }
-
-  public static List<String> KmsKeyIdList(
-      DafnySequence<? extends DafnySequence<? extends Character>> dafnyValue) {
-    return software.amazon.dafny.conversion.ToNative.Aggregate.GenericToList(
-        dafnyValue, 
-        software.amazon.dafny.conversion.ToNative.Simple::String);
-  }
-
-  public static List<ByteBuffer> SymmetricSigningKeyList(
-      DafnySequence<? extends DafnySequence<? extends Byte>> dafnyValue) {
-    return software.amazon.dafny.conversion.ToNative.Aggregate.GenericToList(
-        dafnyValue, 
-        software.amazon.dafny.conversion.ToNative.Simple::ByteBuffer);
   }
 
   public static List<IKeyring> KeyringList(
@@ -1057,26 +1050,11 @@ public class ToNative {
         software.amazon.cryptography.materialProviders.ToNative::Keyring);
   }
 
-  public static List<String> AccountIdList(
-      DafnySequence<? extends DafnySequence<? extends Character>> dafnyValue) {
+  public static List<ByteBuffer> SymmetricSigningKeyList(
+      DafnySequence<? extends DafnySequence<? extends Byte>> dafnyValue) {
     return software.amazon.dafny.conversion.ToNative.Aggregate.GenericToList(
         dafnyValue, 
-        software.amazon.dafny.conversion.ToNative.Simple::String);
-  }
-
-  public static List<String> GrantTokenList(
-      DafnySequence<? extends DafnySequence<? extends Character>> dafnyValue) {
-    return software.amazon.dafny.conversion.ToNative.Aggregate.GenericToList(
-        dafnyValue, 
-        software.amazon.dafny.conversion.ToNative.Simple::String);
-  }
-
-  public static Map<String, String> EncryptionContext(
-      DafnyMap<? extends DafnySequence<? extends Byte>, ? extends DafnySequence<? extends Byte>> dafnyValue) {
-    return software.amazon.dafny.conversion.ToNative.Aggregate.GenericToMap(
-        dafnyValue, 
-        software.amazon.dafny.conversion.ToNative.Simple::DafnyUtf8Bytes, 
-        software.amazon.dafny.conversion.ToNative.Simple::DafnyUtf8Bytes);
+        software.amazon.dafny.conversion.ToNative.Simple::ByteBuffer);
   }
 
   public static Map<String, ByteBuffer> HmacKeyMap(
@@ -1087,12 +1065,28 @@ public class ToNative {
         software.amazon.dafny.conversion.ToNative.Simple::ByteBuffer);
   }
 
+  public static Map<String, String> EncryptionContext(
+      DafnyMap<? extends DafnySequence<? extends Byte>, ? extends DafnySequence<? extends Byte>> dafnyValue) {
+    return software.amazon.dafny.conversion.ToNative.Aggregate.GenericToMap(
+        dafnyValue, 
+        software.amazon.dafny.conversion.ToNative.Simple::DafnyUtf8Bytes, 
+        software.amazon.dafny.conversion.ToNative.Simple::DafnyUtf8Bytes);
+  }
+
   public static IClientSupplier ClientSupplier(
       Dafny.Aws.Cryptography.MaterialProviders.Types.IClientSupplier dafnyValue) {
     if (dafnyValue instanceof ClientSupplier.NativeWrapper) {
       return ((ClientSupplier.NativeWrapper) dafnyValue)._impl;
     }
     return ClientSupplier.wrap(dafnyValue);
+  }
+
+  public static ICryptographicMaterialsCache CryptographicMaterialsCache(
+      Dafny.Aws.Cryptography.MaterialProviders.Types.ICryptographicMaterialsCache dafnyValue) {
+    if (dafnyValue instanceof CryptographicMaterialsCache.NativeWrapper) {
+      return ((CryptographicMaterialsCache.NativeWrapper) dafnyValue)._impl;
+    }
+    return CryptographicMaterialsCache.wrap(dafnyValue);
   }
 
   public static ICryptographicMaterialsManager CryptographicMaterialsManager(
@@ -1117,14 +1111,6 @@ public class ToNative {
       return ((Keyring.NativeWrapper) dafnyValue)._impl;
     }
     return Keyring.wrap(dafnyValue);
-  }
-
-  public static ICryptographicMaterialsCache CryptographicMaterialsCache(
-      Dafny.Aws.Cryptography.MaterialProviders.Types.ICryptographicMaterialsCache dafnyValue) {
-    if (dafnyValue instanceof CryptographicMaterialsCache.NativeWrapper) {
-      return ((CryptographicMaterialsCache.NativeWrapper) dafnyValue)._impl;
-    }
-    return CryptographicMaterialsCache.wrap(dafnyValue);
   }
 
   public static MaterialProviders AwsCryptographicMaterialProviders(

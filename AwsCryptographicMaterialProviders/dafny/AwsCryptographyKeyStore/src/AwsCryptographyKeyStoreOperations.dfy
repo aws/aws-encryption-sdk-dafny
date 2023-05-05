@@ -23,7 +23,8 @@ module AwsCryptographyKeyStoreOperations refines AbstractAwsCryptographyKeyStore
   datatype Config = Config(
     nameonly id: string,
     nameonly ddbTableName: DDB.TableName,
-    nameonly kmsKeyArn: KmsKeyArn,
+    nameonly logicalKeyStoreName: string,
+    nameonly kmsConfiguration: KMSConfiguration,
     nameonly grantTokens: KMS.GrantTokenList,
     nameonly kmsClient: ComAmazonawsKmsTypes.IKMSClient,
     nameonly ddbClient: ComAmazonawsDynamodbTypes.IDynamoDBClient
@@ -35,7 +36,7 @@ module AwsCryptographyKeyStoreOperations refines AbstractAwsCryptographyKeyStore
   {
     && DDB.IsValid_TableName(config.ddbTableName)
     && DDB.IsValid_IndexName(CreateKeyStoreTable.GSI_NAME)
-    && KMS.IsValid_KeyIdType(config.kmsKeyArn)
+    && KMS.IsValid_KeyIdType(config.kmsConfiguration.kmsKeyArn)
     && config.kmsClient.ValidState()
     && config.ddbClient.ValidState()
   }
@@ -43,6 +44,34 @@ module AwsCryptographyKeyStoreOperations refines AbstractAwsCryptographyKeyStore
   function ModifiesInternalConfig(config: InternalConfig) : set<object>
   {
     config.kmsClient.Modifies + config.ddbClient.Modifies
+  }
+  predicate GetKeyStoreInfoEnsuresPublicly(output: Result<GetKeyStoreInfoOutput, Error>)
+  {true}
+
+  method GetKeyStoreInfo(config: InternalConfig)
+    returns (output: Result<GetKeyStoreInfoOutput, Error>)
+    //= aws-encryption-sdk-specification/framework/branch-key-store.md#getkeystoreinfo
+    //= type=implication
+    //# This operation MUST return the key store information in this key store configuration.
+    ensures output.Success? ==>
+      //= aws-encryption-sdk-specification/framework/branch-key-store.md#getkeystoreinfo
+      //= type=implication
+      //# This MUST include:
+      && output.value.keyStoreId == config.id 
+      && output.value.keyStoreName == config.ddbTableName
+      && output.value.logicalKeyStoreName == config.logicalKeyStoreName
+      && output.value.grantTokens == config.grantTokens
+      && output.value.kmsConfiguration == config.kmsConfiguration
+  {
+    output := Success(
+      Types.GetKeyStoreInfoOutput(
+        keyStoreId := config.id,
+        keyStoreName := config.ddbTableName,
+        logicalKeyStoreName := config.logicalKeyStoreName,
+        grantTokens := config.grantTokens,
+        kmsConfiguration := config.kmsConfiguration
+      )
+    );
   }
 
   predicate CreateKeyStoreEnsuresPublicly(input: CreateKeyStoreInput, output: Result<CreateKeyStoreOutput, Error>)
@@ -71,7 +100,7 @@ module AwsCryptographyKeyStoreOperations refines AbstractAwsCryptographyKeyStore
   method CreateKey(config: InternalConfig)
     returns (output: Result<CreateKeyOutput, Error>)
   {
-    output := CreateKeys.CreateBranchAndBeaconKeys(config.ddbTableName, config.kmsKeyArn, config.grantTokens, config.kmsClient, config.ddbClient);
+    output := CreateKeys.CreateBranchAndBeaconKeys(config.ddbTableName, config.logicalKeyStoreName, config.kmsConfiguration.kmsKeyArn, config.grantTokens, config.kmsClient, config.ddbClient);
   }
   
   predicate VersionKeyEnsuresPublicly(input: VersionKeyInput, output: Result<(), Error>)
@@ -80,7 +109,7 @@ module AwsCryptographyKeyStoreOperations refines AbstractAwsCryptographyKeyStore
   method VersionKey(config: InternalConfig, input: VersionKeyInput)
     returns (output: Result<(), Error>)
   {
-    output := CreateKeys.VersionActiveBranchKey(input, config.ddbTableName, config.kmsKeyArn, config.grantTokens, config.kmsClient, config.ddbClient);
+    output := CreateKeys.VersionActiveBranchKey(input, config.ddbTableName, config.logicalKeyStoreName, config.kmsConfiguration.kmsKeyArn, config.grantTokens, config.kmsClient, config.ddbClient);
   }
 
   predicate GetActiveBranchKeyEnsuresPublicly(input: GetActiveBranchKeyInput, output: Result<GetActiveBranchKeyOutput, Error>)
@@ -89,7 +118,7 @@ module AwsCryptographyKeyStoreOperations refines AbstractAwsCryptographyKeyStore
   method GetActiveBranchKey(config: InternalConfig, input: GetActiveBranchKeyInput) 
     returns (output: Result<GetActiveBranchKeyOutput, Error>)
   {
-    output := GetKeys.GetActiveKeyAndUnwrap(input, config.ddbTableName, config.kmsKeyArn, config.grantTokens, config.kmsClient, config.ddbClient);
+    output := GetKeys.GetActiveKeyAndUnwrap(input, config.ddbTableName, config.logicalKeyStoreName, config.kmsConfiguration.kmsKeyArn, config.grantTokens, config.kmsClient, config.ddbClient);
   }
 
   predicate GetBranchKeyVersionEnsuresPublicly(input: GetBranchKeyVersionInput, output: Result<GetBranchKeyVersionOutput, Error>)
@@ -98,7 +127,7 @@ module AwsCryptographyKeyStoreOperations refines AbstractAwsCryptographyKeyStore
   method GetBranchKeyVersion(config: InternalConfig, input: GetBranchKeyVersionInput)
     returns (output: Result<GetBranchKeyVersionOutput, Error>)
   {
-    output := GetKeys.GetBranchKeyVersion(input, config.ddbTableName, config.kmsKeyArn, config.grantTokens, config.kmsClient, config.ddbClient);
+    output := GetKeys.GetBranchKeyVersion(input, config.ddbTableName, config.logicalKeyStoreName, config.kmsConfiguration.kmsKeyArn, config.grantTokens, config.kmsClient, config.ddbClient);
   }
 
   predicate GetBeaconKeyEnsuresPublicly(input: GetBeaconKeyInput, output: Result<GetBeaconKeyOutput, Error>)
@@ -107,7 +136,7 @@ module AwsCryptographyKeyStoreOperations refines AbstractAwsCryptographyKeyStore
   method GetBeaconKey(config: InternalConfig, input: GetBeaconKeyInput)
     returns (output: Result<GetBeaconKeyOutput, Error>)
   {
-    output := GetKeys.GetBeaconKeyAndUnwrap(input, config.ddbTableName, config.kmsKeyArn, config.grantTokens, config.kmsClient, config.ddbClient);
+    output := GetKeys.GetBeaconKeyAndUnwrap(input, config.ddbTableName, config.logicalKeyStoreName, config.kmsConfiguration.kmsKeyArn, config.grantTokens, config.kmsClient, config.ddbClient);
   }
 
   predicate BranchKeyStatusResolutionEnsuresPublicly(input: BranchKeyStatusResolutionInput, output: Result<(), Error>)
@@ -116,6 +145,6 @@ module AwsCryptographyKeyStoreOperations refines AbstractAwsCryptographyKeyStore
   method BranchKeyStatusResolution(config: InternalConfig, input: BranchKeyStatusResolutionInput)
     returns (output: Result<(), Error>)
   {
-    output := KeyResolution.ActiveBranchKeysResolution(input, config.ddbTableName, config.kmsKeyArn, config.grantTokens, config.kmsClient, config.ddbClient);
+    output := KeyResolution.ActiveBranchKeysResolution(input, config.ddbTableName, config.logicalKeyStoreName, config.kmsConfiguration.kmsKeyArn, config.grantTokens, config.kmsClient, config.ddbClient);
   }
 }

@@ -90,6 +90,7 @@ module GetKeys {
   method GetActiveKeyAndUnwrap(
     input: Types.GetActiveBranchKeyInput,
     tableName: DDB.TableName,
+    logicalKeyStoreName: string,
     kmsKeyArn: Types.KmsKeyArn,
     grantTokens: KMS.GrantTokenList,
     kmsClient: KMS.IKMSClient,
@@ -119,7 +120,7 @@ module GetKeys {
 
     var branchKeyRecord := SortByTime(queryResponse.Items.value);
     
-    var branchKeyResponse :- decryptKeyStoreItem(branchKeyRecord, kmsKeyArn, grantTokens, tableName, kmsClient);
+    var branchKeyResponse :- decryptKeyStoreItem(branchKeyRecord, kmsKeyArn, grantTokens, logicalKeyStoreName, kmsClient);
     var branchKeyVersion := branchKeyRecord["type"].S[|BRANCH_KEY_TYPE_PREFIX|..];
     var branchKeyVersionUtf8 :- UTF8.Encode(branchKeyVersion).MapFailure(e => E(e));
 
@@ -197,6 +198,7 @@ module GetKeys {
   method GetBranchKeyVersion(
     input: Types.GetBranchKeyVersionInput,
     tableName: DDB.TableName,
+    logicalKeyStoreName: string,
     kmsKeyArn: Types.KmsKeyArn,
     grantTokens: KMS.GrantTokenList,
     kmsClient: KMS.IKMSClient,
@@ -239,7 +241,7 @@ module GetKeys {
     
     var branchKeyRecord: versionBranchKeyItem := getItemResponse.Item.value;
 
-    var maybeBranchKeyResponse := decryptKeyStoreItem(branchKeyRecord, kmsKeyArn, grantTokens, tableName, kmsClient);
+    var maybeBranchKeyResponse := decryptKeyStoreItem(branchKeyRecord, kmsKeyArn, grantTokens, logicalKeyStoreName, kmsClient);
     var branchKeyResponse :- maybeBranchKeyResponse;
 
     var branchKeyVersion := branchKeyRecord["type"].S[|BRANCH_KEY_TYPE_PREFIX|..];
@@ -254,6 +256,7 @@ module GetKeys {
   method GetBeaconKeyAndUnwrap(
     input: Types.GetBeaconKeyInput,
     tableName: DDB.TableName,
+    logicalKeyStoreName: string,
     kmsKeyArn: Types.KmsKeyArn,
     grantTokens: KMS.GrantTokenList,
     kmsClient: KMS.IKMSClient,
@@ -306,7 +309,7 @@ module GetKeys {
     
     //= aws-encryption-sdk-specification/framework/branch-key-store.md#getbeaconkey
     //# The operation MUST decrypt the beacon key according to the [AWS KMS Branch Key Decryption](#aws-kms-branch-key-decryption) section.
-    var beaconKeyResponse :- decryptKeyStoreItem(beaconKeyItem, kmsKeyArn, grantTokens, tableName, kmsClient);
+    var beaconKeyResponse :- decryptKeyStoreItem(beaconKeyItem, kmsKeyArn, grantTokens, logicalKeyStoreName, kmsClient);
 
     //= aws-encryption-sdk-specification/framework/branch-key-store.md#getbeaconkey
     //# This operation MUST return the constructed [beacon key materials](./structures.md#beacon-key-materials).
@@ -323,7 +326,7 @@ module GetKeys {
     branchKeyRecord: baseKeyStoreItem,
     awsKmsKeyArn: KMS.KeyIdType,
     grantTokens: KMS.GrantTokenList,
-    tableName: DDB.TableName,
+    logicalKeyStoreName: string,
     kmsClient: KMS.IKMSClient
   )
     returns (output: Result<KMS.DecryptResponse, Types.Error>)
@@ -353,7 +356,7 @@ module GetKeys {
     var encCtxMap: map<string, string> :=
       map k <- encCtxDdbMap ::
         k := ValueToString(encCtxDdbMap[k]).value;
-    encCtxMap := encCtxMap + map[TABLE_FIELD := tableName];
+    encCtxMap := encCtxMap + map[TABLE_FIELD := logicalKeyStoreName];
 
     :- Need(
       encCtxMap[KMS_FIELD] == awsKmsKeyArn,

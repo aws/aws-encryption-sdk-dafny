@@ -64,7 +64,6 @@ module {:options "/functionSyntax:4" } LocalCMC {
 
   class DoublyLinkedCacheEntryList {
 
-    // TODO change this name to list?
     ghost var Items : seq<CacheEntry>
 
     ghost predicate Invariant()
@@ -366,7 +365,6 @@ module {:options "/functionSyntax:4" } LocalCMC {
       // ensures output.Failure? ==> input.identifier !in cache
       ensures GetCacheEntryEnsuresPublicly(input, output)
       ensures unchanged(History)
-      // TODO some way to express not returning a aged out item
     {
       if input.identifier in cache.Keys() {
         var now := Time.GetCurrent();
@@ -470,7 +468,7 @@ module {:options "/functionSyntax:4" } LocalCMC {
       queue.pushCell(cell);  
       cache.Put(input.identifier, cell);
       Modifies := Modifies + {cell};
-      
+ 
       output := Success(());
 
       forall k <- cache.Keys(), k' <- cache.Keys() | k != k' ensures cache.Select(k) != cache.Select(k') {
@@ -480,6 +478,8 @@ module {:options "/functionSyntax:4" } LocalCMC {
           assert old@CAN_ADD(cache.Select(k)) != old@CAN_ADD(cache.Select(k'));
         }
       }
+
+      assert Invariant();
     }
 
     ghost predicate DeleteCacheEntryEnsuresPublicly(input: Types.DeleteCacheEntryInput, output: Result<(), Types.Error>)
@@ -622,14 +622,12 @@ module {:options "/functionSyntax:4" } LocalCMC {
     }
   }
 
-  // TODO move this into MutableMap
   ghost predicate MutableMapIsInjective<K, V>(m: MutableMap<K, V>)
     reads m
   {
     forall k <- m.Keys(), k' <- m.Keys() | k != k' :: m.Select(k) != m.Select(k')
   }
 
-  // TODO move this into MutableMap
   ghost predicate MutableMapContains<K, V>(big: MutableMap<K, V>, small: MutableMap<K, V>)
     reads {big, small}
   {
@@ -637,7 +635,6 @@ module {:options "/functionSyntax:4" } LocalCMC {
     && forall k <- small.Keys() :: small.Select(k) == big.Select(k)
   }
 
-  // TODO move this into MutableMap
   lemma LemmaMutableMapContainsPreservesInjectivity<K, V>(big: MutableMap<K, V>, small: MutableMap<K, V>)
     requires MutableMapContains(big, small)
     requires MutableMapIsInjective(big)

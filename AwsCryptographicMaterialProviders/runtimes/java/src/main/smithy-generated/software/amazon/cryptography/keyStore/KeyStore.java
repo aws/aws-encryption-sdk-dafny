@@ -21,6 +21,7 @@ import software.amazon.cryptography.keyStore.model.GetBeaconKeyInput;
 import software.amazon.cryptography.keyStore.model.GetBeaconKeyOutput;
 import software.amazon.cryptography.keyStore.model.GetBranchKeyVersionInput;
 import software.amazon.cryptography.keyStore.model.GetBranchKeyVersionOutput;
+import software.amazon.cryptography.keyStore.model.GetKeyStoreInfoOutput;
 import software.amazon.cryptography.keyStore.model.KeyStoreConfig;
 import software.amazon.cryptography.keyStore.model.VersionKeyInput;
 
@@ -43,6 +44,14 @@ public class KeyStore {
 
   public static Builder builder() {
     return new BuilderImpl();
+  }
+
+  public GetKeyStoreInfoOutput GetKeyStoreInfo() {
+    Result<Dafny.Aws.Cryptography.KeyStore.Types.GetKeyStoreInfoOutput, Error> result = this._impl.GetKeyStoreInfo();
+    if (result.is_Failure()) {
+      throw ToNative.Error(result.dtor_error());
+    }
+    return ToNative.GetKeyStoreInfoOutput(result.dtor_value());
   }
 
   public CreateKeyStoreOutput CreateKeyStore(CreateKeyStoreInput nativeValue) {

@@ -25,5 +25,26 @@ namespace Dafny.Com.Amazonaws.Dynamodb
                 >
                 .create_Success(new DynamoDBv2Shim(client));
         }
+
+        public static
+            _IResult<
+                Types.IDynamoDBClient,
+                Types._IError
+            >
+            DDBClientForRegion(
+                Dafny.ISequence<char> regionDafnyString
+            )
+        {
+          string regionStr = TypeConversion.FromDafny_N6_smithy__N3_api__S6_String(regionDafnyString);
+          var region = RegionEndpoint.GetBySystemName(regionStr);
+
+          var client = new AmazonDynamoDBClient(region);
+          
+          return Result<
+            Types.IDynamoDBClient,
+            Types._IError
+          >
+            .create_Success(new DynamoDBv2Shim(client));
+            }
     }
 }

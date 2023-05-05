@@ -9,17 +9,23 @@ using System;
  public class KeyStore {
  private readonly Dafny.Aws.Cryptography.KeyStore.Types.IKeyStoreClient _impl;
  public KeyStore(Dafny.Aws.Cryptography.KeyStore.Types.IKeyStoreClient impl) {
-    this._impl = impl;
-}
+   this._impl = impl;
+ }
  public Dafny.Aws.Cryptography.KeyStore.Types.IKeyStoreClient impl() {
-    return this._impl;
-}
+   return this._impl;
+ }
  public KeyStore(AWS.Cryptography.KeyStore.KeyStoreConfig input)
  {
  Dafny.Aws.Cryptography.KeyStore.Types._IKeyStoreConfig internalInput = TypeConversion.ToDafny_N3_aws__N12_cryptography__N8_keyStore__S14_KeyStoreConfig(input);
  var result = Dafny.Aws.Cryptography.KeyStore.__default.KeyStore(internalInput);
  if (result.is_Failure) throw TypeConversion.FromDafny_CommonError(result.dtor_error);
  this._impl = result.dtor_value;
+}
+ public AWS.Cryptography.KeyStore.GetKeyStoreInfoOutput GetKeyStoreInfo() {
+
+ Wrappers_Compile._IResult<Dafny.Aws.Cryptography.KeyStore.Types._IGetKeyStoreInfoOutput, Dafny.Aws.Cryptography.KeyStore.Types._IError> result = _impl.GetKeyStoreInfo();
+ if (result.is_Failure) throw TypeConversion.FromDafny_CommonError(result.dtor_error);
+ return TypeConversion.FromDafny_N3_aws__N12_cryptography__N8_keyStore__S21_GetKeyStoreInfoOutput(result.dtor_value);
 }
  public AWS.Cryptography.KeyStore.CreateKeyStoreOutput CreateKeyStore(AWS.Cryptography.KeyStore.CreateKeyStoreInput input) {
  Dafny.Aws.Cryptography.KeyStore.Types._ICreateKeyStoreInput internalInput = TypeConversion.ToDafny_N3_aws__N12_cryptography__N8_keyStore__S19_CreateKeyStoreInput(input);

@@ -28,6 +28,7 @@ module KeyResolution {
   method ActiveBranchKeysResolution(
     input: Types.BranchKeyStatusResolutionInput,
     tableName: DDB.TableName,
+    logicalKeyStoreName: string,
     kmsKeyArn: Types.KmsKeyArn,
     grantTokens: KMS.GrantTokenList,
     kmsClient: KMS.IKMSClient,
@@ -67,7 +68,7 @@ module KeyResolution {
 
     var reEncryptedDecryptOnlyBranchKeysDDMap :- ReEncryptedNonLatestActiveBranchKeys(
       nonLatestActiveBranchKeys,
-      tableName,
+      logicalKeyStoreName,
       kmsKeyArn,
       grantTokens,
       kmsClient
@@ -95,7 +96,7 @@ module KeyResolution {
     return Success(());
   }
 
-  method ReEncryptedNonLatestActiveBranchKeys(activeKeys: set<branchKeyItem>, ddbTableName: DDB.TableName, kmsKeyArn: Types.KmsKeyArn, grantTokens: KMS.GrantTokenList, kmsClient: KMS.IKMSClient)
+  method ReEncryptedNonLatestActiveBranchKeys(activeKeys: set<branchKeyItem>, logicalKeyStoreName: string, kmsKeyArn: Types.KmsKeyArn, grantTokens: KMS.GrantTokenList, kmsClient: KMS.IKMSClient)
     returns (res: Result<seq<DDB.AttributeMap>, Types.Error>)
     requires KMS.IsValid_KeyIdType(kmsKeyArn) // Remove?
     requires forall activeKey : branchKeyItem | activeKey in activeKeys :: validActiveBranchKey?(activeKey)
@@ -120,7 +121,7 @@ module KeyResolution {
         currentActiveKey[BRANCH_KEY_IDENTIFIER_FIELD].S,
         currentActiveKey[TYPE_FIELD].S[|BRANCH_KEY_TYPE_PREFIX|..],
         currentActiveKey[KEY_CREATE_TIME].S,
-        ddbTableName,
+        logicalKeyStoreName,
         currentActiveKey[KMS_FIELD].S
       );
 
@@ -128,7 +129,7 @@ module KeyResolution {
         currentActiveKey[BRANCH_KEY_IDENTIFIER_FIELD].S,
         currentActiveKey[TYPE_FIELD].S[|BRANCH_KEY_TYPE_PREFIX|..],
         currentActiveKey[KEY_CREATE_TIME].S,
-        ddbTableName,
+        logicalKeyStoreName,
         currentActiveKey[KMS_FIELD].S
       );
 
