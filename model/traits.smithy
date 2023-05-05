@@ -63,3 +63,9 @@ structure extendable {}
 // A trait to indicate that a resource stores local state
 @trait(selector: "resource")
 structure mutableLocalState {}
+
+// This is a workaround that should be removed when
+// Smithy-Dafny properly supports @documentation
+// https://github.com/awslabs/smithy-dafny/issues/247
+@trait(selector: "*")
+string javadoc
