@@ -16,7 +16,10 @@ module CanonicalEncryptionContext {
   //# (structures.md#encryption-context-1) in the same format as the
   //# serialization of [message header AAD key value pairs](../data-format/
   //# message-header.md#key-value-pairs).
-  // TODO: Tests/proofs
+
+  // This serialization matches the serialization described by
+  // [Message Header AAD Key Value Pairs](../data-format/message-header.md#key-value-pairs)
+  // and is used to serialize EC to use as AAD in the various keyrings
   function method EncryptionContextToAAD(
     encryptionContext: Types.EncryptionContext
   ):
@@ -27,8 +30,6 @@ module CanonicalEncryptionContext {
     var keys := SetToOrderedSequence(encryptionContext.Keys, UInt.UInt8Less);
 
     if |keys| == 0 then
-      // TODO: this adheres to spec (message-header.md) but diverges from what we do
-      // in EncryptionContext.WriteAADSection
       Success([])
     else
       var KeyIntoPairBytes := k

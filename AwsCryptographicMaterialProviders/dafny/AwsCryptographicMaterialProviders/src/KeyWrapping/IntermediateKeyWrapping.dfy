@@ -74,7 +74,6 @@ module IntermediateKeyWrapping {
           [])
 
   {
-    // TODO pass in the crypto client instead so that we can prove things about it's usage
     var maybeCrypto := Primitives.AtomicPrimitives();
     var cryptoPrimitives :- maybeCrypto
       .MapFailure(e => Types.AwsCryptographyPrimitives(e));
@@ -102,7 +101,7 @@ module IntermediateKeyWrapping {
     // Decrypt the plaintext data key with the pdkEncryptionKey
     var iv: seq<uint8> := seq(AlgorithmSuites.GetEncryptIvLength(algorithmSuite) as nat, _ => 0); // IV is zero
     var tagIndex := |encryptedPdk| - AlgorithmSuites.GetEncryptTagLength(algorithmSuite) as nat;
-    var aad :- CanonicalEncryptionContext.EncryptionContextToAAD(encryptionContext); // TODO centralize EC serialization
+    var aad :- CanonicalEncryptionContext.EncryptionContextToAAD(encryptionContext);
 
     var decInput := Crypto.AESDecryptInput(
       encAlg := algorithmSuite.encrypt.AES_GCM,
@@ -168,7 +167,6 @@ module IntermediateKeyWrapping {
         && |maybeIntermediateWrappedMat.value.encryptedPdk| ==
             (AlgorithmSuites.GetEncryptKeyLength(algorithmSuite) + AlgorithmSuites.GetEncryptTagLength(algorithmSuite)) as nat
   {
-    // TODO pass in the crypto client instead so that we can prove things about it's usage
     var maybeCrypto := Primitives.AtomicPrimitives();
     var cryptoPrimitives :- maybeCrypto
       .MapFailure(e => Types.AwsCryptographyPrimitives(e));
@@ -199,7 +197,7 @@ module IntermediateKeyWrapping {
     //  - AAD: The [enccryption context](./structures.md#encryption-context) in the related encryption or decryption materials,
     //    serialized according to the the [ESDK message header](../data-format/message-header.md#aad).
     var iv: seq<uint8> := seq(AlgorithmSuites.GetEncryptIvLength(algorithmSuite) as nat, _ => 0); // IV is zero
-    var aad :- CanonicalEncryptionContext.EncryptionContextToAAD(encryptionContext); // TODO centralize EC serialization
+    var aad :- CanonicalEncryptionContext.EncryptionContextToAAD(encryptionContext);
     var encInput := Crypto.AESEncryptInput(
       encAlg := algorithmSuite.encrypt.AES_GCM,
       iv := iv,
@@ -248,7 +246,6 @@ module IntermediateKeyWrapping {
             wrapInfo := res.value.wrapInfo)),
         [])
   {
-    // TODO pass in the crypto client instead so that we can prove things about it's usage
     var maybeCrypto := Primitives.AtomicPrimitives();
     var cryptoPrimitives :- maybeCrypto
       .MapFailure(e => Types.AwsCryptographyPrimitives(e));

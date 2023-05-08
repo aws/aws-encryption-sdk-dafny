@@ -77,17 +77,17 @@ module AwsKmsMrkAreUnique {
       AwsKmsMrkAreUnique(identifiers).Pass?
 
     //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-mrk-are-unique.md#implementation
-    //= type=implication
     //# If any duplicate multi-region resource ids exist, this function MUST
     //# yield an error that includes all identifiers with duplicate resource
     //# ids not only the first duplicate found.
+    // Note: this only checks for failure, but not the error message, so this is not an implication,
+    // and we require an associated unit test.
     ensures
       var mrks := Seq.Filter(IsMultiRegionAwsKmsIdentifier, identifiers);
       var ids := Seq.Map(GetKeyId, mrks);
       && |mrks| > 0
       && !Seq.HasNoDuplicates(ids)
     ==>
-      // TODO this only checks for failure, but not the error message
       AwsKmsMrkAreUnique(identifiers).Fail?
   {
     var mrks := Seq.Filter(IsMultiRegionAwsKmsIdentifier, identifiers);

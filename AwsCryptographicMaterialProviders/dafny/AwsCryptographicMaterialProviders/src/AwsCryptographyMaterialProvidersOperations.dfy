@@ -415,6 +415,28 @@ module AwsCryptographyMaterialProvidersOperations refines AbstractAwsCryptograph
       Types.AwsCryptographicMaterialProvidersException(
         message := "Unsupported EncryptionAlgorithmSpec"));
 
+    //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-rsa-keyring.md#initialization
+    //= type=implication
+    //# The AWS KMS key identifier MUST NOT be null or empty.
+
+    //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-rsa-keyring.md#initialization
+    //= type=implication
+    //# The AWS KMS key identifier MUST be [a valid identifier](../../framework/aws-kms/aws-kms-key-arn.md#a-valid-aws-kms-identifier).
+
+    //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-rsa-keyring.md#initialization
+    //= type=implication
+    //# The AWS KMS key identifier MUST NOT be an AWS KMS alias.
+    :- Need(
+      && KMS.IsValid_KeyIdType(input.kmsKeyId)
+      && ParseAwsKmsArn(input.kmsKeyId).Success?,
+      Types.AwsCryptographicMaterialProvidersException(
+        message := "Kms Key ID must be a KMS Key ARN")
+    );
+
+    //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-rsa-keyring.md#initialization
+    //= type=implication
+    //# If provided the Public Key
+    //# MUST have an RSA modulus bit length greater than or equal to 2048.
     if (input.publicKey.Some?) {
       var lengthOutputRes := config.crypto.GetRSAKeyModulusLength(
           Crypto.GetRSAKeyModulusLengthInput(publicKey := input.publicKey.value));
@@ -426,7 +448,6 @@ module AwsCryptographyMaterialProvidersOperations refines AbstractAwsCryptograph
 
     var _ :- ValidateKmsKeyId(input.kmsKeyId);
     var grantTokens :- GetValidGrantTokens(input.grantTokens);
-    // TODO complete validation, e.g. also ensure non-alias Key ID
     var keyring := new AwsKmsRsaKeyring.AwsKmsRsaKeyring(
       publicKey := input.publicKey,
       awsKmsKey := input.kmsKeyId,
@@ -460,8 +481,6 @@ module AwsCryptographyMaterialProvidersOperations refines AbstractAwsCryptograph
     returns (output: Result<ICryptographicMaterialsManager, Error>)
     ensures output.Success? ==> output.value.ValidState()
   {
-    // TODO -- Implement for keyring as well
-    // TODO Support both cmm or keyring. This is also required for the CachingCMM
     :- Need(input.underlyingCMM.Some? && input.keyring.None?, CmpError("CreateExpectedEncryptionContextCMM currently only supports cmm."));
     var keySet : set<UTF8.ValidUTF8Bytes> := set k <- input.requiredEncryptionContextKeys;
     :- Need(0 < |keySet|, CmpError("ExpectedEncryptionContextCMM needs at least one requiredEncryptionContextKey."));

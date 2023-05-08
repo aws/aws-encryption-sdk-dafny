@@ -378,11 +378,6 @@ module AwsKmsMrkDiscoveryKeyring {
   /*
    * Responsible for executing the actual KMS.Decrypt call on input EDKs,
    * returning decryption materials on success or an error message on failure.
-   *
-   * TODO: we may want to combine this with the very similar class in
-   * AwsKmsDiscoveryKeyring.dfy. However they're not *perfectly* identical
-   * because they handle ARNs differently. We can probably abstract that away,
-   * but in the interest of small changes, I'm leaving that for a separate PR.
    */
   class AwsKmsEncryptedDataKeyDecryptor
     extends ActionWithResult<

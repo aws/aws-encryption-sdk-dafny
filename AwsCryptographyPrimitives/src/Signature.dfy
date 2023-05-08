@@ -4,12 +4,6 @@
 include "../Model/AwsCryptographyPrimitivesTypes.dfy"
 
 module {:extern "Signature"} Signature {
-  // TODO figure out how to add the export sets back in
-  // export
-  //   reveals SignatureKeyPair
-  //   reveals ECDSAParams, ECDSAParams.SignatureLength, ECDSAParams.FieldSize
-  //   provides KeyGen, Sign, Verify, IsSigned, IsValidSignatureKeyPair
-  //   provides Wrappers, UInt, Types
 
   import opened Wrappers
   import opened UInt = StandardLibrary.UInt

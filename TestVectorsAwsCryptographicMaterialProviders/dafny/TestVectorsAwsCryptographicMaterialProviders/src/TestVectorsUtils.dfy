@@ -27,7 +27,6 @@ module TestVectorsUtils {
 
   const PARTITION := "aws";
   
-  // TODO correctly verify UTF8 validity of long sequences
   // This axiom should only be used by tests to skip UTF8 verification of long sequences
   // long to be serialized in 16 bytes, in order to avoid a false negative for from verification.
   lemma {:axiom} AssumeLongSeqIsValidUTF8(s: seq<uint8>)

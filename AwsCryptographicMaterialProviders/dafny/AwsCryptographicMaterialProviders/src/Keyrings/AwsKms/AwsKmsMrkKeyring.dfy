@@ -121,9 +121,6 @@ module AwsKmsMrkKeyring {
       ==>
         output.Failure?
 
-      // TODO: add ensures for pdk.none & intermediateKeyWrapping response
-      //       add ensures for pdk.some & intermediateKeyWrapping request and response
-
       //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-mrk-keyring.md#onencrypt
       //= type=implication
       //# If the input [encryption materials](../structures.md#encryption-
@@ -133,7 +130,6 @@ module AwsKmsMrkKeyring {
       //# API_GenerateDataKey.html).
       ensures
         && output.Success?
-        // TODO update specification to clarify expectations around when Generate vs Encrypt is called
         && input.materials.plaintextDataKey.None?
         && input.materials.algorithmSuite.edkWrapping.IntermediateKeyWrapping?
       ==>
@@ -220,7 +216,6 @@ module AwsKmsMrkKeyring {
       ensures
         && output.Success?
         && input.materials.plaintextDataKey.Some?
-        // TODO clarify spec expectations around calling Generate vs Encrypt
         && input.materials.algorithmSuite.edkWrapping.DIRECT_KEY_WRAPPING?
       ==>
         && KMS.IsValid_PlaintextType(input.materials.plaintextDataKey.value)
@@ -251,7 +246,6 @@ module AwsKmsMrkKeyring {
       ensures
         && input.materials.plaintextDataKey.Some?
         && output.Success?
-        // TODO clarify spec expectations around calling Generate vs Encrypt
         && input.materials.algorithmSuite.edkWrapping.DIRECT_KEY_WRAPPING?
       ==>
         && Last(client.History.Encrypt).output.Success?

@@ -15,7 +15,6 @@ module AwsKmsUtils {
   import AwsArnParsing
   import UTF8
 
-  // TODO: These EncryptionContext methods can be removed once we move to UTF8 strings
   function method StringifyEncryptionContext(utf8EncCtx: Types.EncryptionContext):
     (res: Result<KMS.EncryptionContextType, Types.Error>)
   {
@@ -29,7 +28,6 @@ module AwsKmsUtils {
         )
       else
         assert forall r | r in stringifyResults.Values :: r.Success?;
-        // TODO state that UTF8.Decode is injective so we don't need this
         var stringKeysUnique := forall k, k' | k in stringifyResults && k' in stringifyResults
           :: k != k' ==> stringifyResults[k].value.0 != stringifyResults[k'].value.0;
         if !stringKeysUnique then Failure(Types.AwsCryptographicMaterialProvidersException(

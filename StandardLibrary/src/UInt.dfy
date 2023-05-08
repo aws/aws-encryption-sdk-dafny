@@ -3,7 +3,6 @@
 
 module StandardLibrary.UInt {
 
-  // TODO: Depend on types defined in dafny-lang/libraries instead
   newtype uint8 = x | 0 <= x < 0x100
   newtype uint16 = x | 0 <= x < 0x1_0000
   newtype uint32 = x | 0 <= x < 0x1_0000_0000
