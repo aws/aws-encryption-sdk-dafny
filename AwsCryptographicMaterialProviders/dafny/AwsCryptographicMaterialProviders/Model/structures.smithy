@@ -96,9 +96,6 @@ structure DecryptionMaterials {
 }
 
 structure BranchKeyMaterials {
-  // TODO we should revisit if it makes sense to model
-  // as utf8bytes instead instead of integer so as to avoid 
-  // runtime checks in dafny
     @required
     branchKeyVersion: Utf8Bytes,
 

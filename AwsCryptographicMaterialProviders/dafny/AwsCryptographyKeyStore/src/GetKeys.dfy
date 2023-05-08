@@ -71,11 +71,6 @@ module GetKeys {
   
   function method ValueToString(a: DDB.AttributeValue): Result<string, Types.Error>
   {
-    // TODO: come back and agree on how we would like to represent 
-    // the other types. Look at DynamoToStruct.dfy to see how 
-    // DBE is doing this conversion.
-    // This is allowing us to bind the type of the value to the encryption context
-    // we pass to KMS; we could also do a runtime check to check for this
     match a {
       case S(s) => Success(a.S)
       case N(n) => Success(a.N)

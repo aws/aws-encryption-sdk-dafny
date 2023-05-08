@@ -70,7 +70,6 @@ module CreateRawAesKeyrings {
       )
     );
 
-    // TODO Update name/namespase to _more_ random
     var namespace, name := TestVectorsUtils.NamespaceAndName(0);
     keyring :- expect mpl.CreateRawAesKeyring(Types.CreateRawAesKeyringInput(
       keyNamespace := namespace,

@@ -137,7 +137,6 @@ module AwsKmsHierarchicalKeyring {
       && History !in keyStore.Modifies
       && History !in cryptoPrimitives.Modifies
       && (branchKeyIdSupplier.Some? ==> History !in branchKeyIdSupplier.value.Modifies)
-      // TODO this should eventually be Valid branch key store arn
       && (branchKeyIdSupplier.Some? || branchKeyId.Some?)
       && (branchKeyIdSupplier.None? || branchKeyId.None?)
     }
@@ -528,9 +527,8 @@ module AwsKmsHierarchicalKeyring {
     aad: seq<uint8>
   ): (res : seq<uint8>)
     requires UTF8.ValidUTF8Seq(branchKeyId)
-    // TODO right now branchKeyVersion is stored as UTF8 Bytes in the materials
-    // I either have to 1) decode the version every single time to get the raw uuid
-    // or 2). store it as raw bytes in the materials so that I can encode it once per call.
+    // branchKeyVersion is stored as UTF8 Bytes in the materials.
+    // Store it as raw bytes in the materials so that we can encode it once per call.
   {
       //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-hierarchical-keyring.md#branch-key-wrapping-and-unwrapping-aad
       //# To construct the AAD, the keyring MUST concatenate the following values
@@ -654,9 +652,6 @@ module AwsKmsHierarchicalKeyring {
       reads Modifies
       decreases Modifies
     {
-      // TODO look at the KMS keyring to see how we ensure that the call
-      // to KMS was done correctly; this might be hard to prove once we add the cache
-      // but we should be able to do it.
         res.Success?
       ==>
         && Invariant()
@@ -763,7 +758,6 @@ module AwsKmsHierarchicalKeyring {
       cacheId: seq<uint8>
     )
       returns (material: Result<Types.BranchKeyMaterials, Types.Error>)
-      // TODO Define valid HierarchicalMaterials such that we can ensure they are correct
       requires Invariant()
       requires keyStore.ValidState()
       modifies keyStore.Modifies

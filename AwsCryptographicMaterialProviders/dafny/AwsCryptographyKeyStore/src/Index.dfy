@@ -17,9 +17,7 @@ module {:extern "Dafny.Aws.Cryptography.KeyStore"}
   import DDB = ComAmazonawsDynamodbTypes
   import UUID
 
-  // TODO there is no sensible default, so what should this do?
-  // As is, the default config is invalid. Can we update the codegen to *not*
-  // build a default config?
+  // There is no sensible default, so define something that passes verification but will fail at runtime
   function method DefaultKeyStoreConfig(): KeyStoreConfig
   {
     KeyStoreConfig(

@@ -88,7 +88,6 @@ module RawAESKeyring {
       //= type=implication
       //# The length
       //# of the wrapping key MUST be 128, 192, or 256.
-      // TODO what does a condition like this mean for the shim?
       requires |key| == 16 || |key| == 24 || |key| == 32
       requires |key| == wrappingAlgorithm.keyLength as int
       requires cryptoPrimitives.ValidState()
@@ -350,14 +349,12 @@ module RawAESKeyring {
         iv
     }
 
-    // TODO bring in the broken up spec statements
     predicate method ShouldDecryptEDK(edk: Types.EncryptedDataKey) {
       // The key provider ID of the encrypted data key has a value equal to this keyring's key namespace.
       && edk.keyProviderId == keyNamespace
       && ValidProviderInfo(edk.keyProviderInfo)
     }
 
-    // TODO #68: prove providerInfo serializes/deserializes correctly
     predicate method ValidProviderInfo(info: seq<uint8>)
     {
       && |info| == |keyName| + AUTH_TAG_LEN_LEN + IV_LEN_LEN + wrappingAlgorithm.ivLength as int

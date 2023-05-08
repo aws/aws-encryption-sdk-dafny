@@ -200,7 +200,7 @@ structure CreateAwsKmsMrkDiscoveryKeyringInput {
 
   grantTokens: GrantTokenList,
 
-  @required // TODO: probably shouldn't be
+  @required
   region: Region
 }
 
@@ -220,7 +220,6 @@ structure CreateAwsKmsMrkDiscoveryMultiKeyringInput {
   grantTokens: GrantTokenList
 }
 
-// TODO
 // Multi
 
 operation CreateMultiKeyring {
@@ -326,13 +325,26 @@ structure CreateRawAesKeyringInput {
   }
 
   structure CreateAwsKmsRsaKeyringInput {
-    // MUST be configured for this keyring to allow encryption
+    //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-rsa-keyring.md#initialization
+    //= type=implication
+    //# - MAY provide a PEM encoded Public Key
     publicKey: Secret,
+    //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-rsa-keyring.md#initialization
+    //= type=implication
+    //# - MUST provide an AWS KMS key identifier
     @required
     kmsKeyId: KmsKeyId,
+    //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-rsa-keyring.md#initialization
+    //= type=implication
+    //# - MUST provide an [AWS KMS Encryption Algorithm](#supported-padding-schemes)
     @required
     encryptionAlgorithm: EncryptionAlgorithmSpec,
-    // MUST be configured for this keyring to allow decryption
+    //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-rsa-keyring.md#initialization
+    //= type=implication
+    //# - MAY provide an AWS KMS SDK client
     kmsClient: KmsClientReference,
+    //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-rsa-keyring.md#initialization
+    //= type=implication
+    //# - MAY provide a list of Grant Tokens
     grantTokens: GrantTokenList
   }

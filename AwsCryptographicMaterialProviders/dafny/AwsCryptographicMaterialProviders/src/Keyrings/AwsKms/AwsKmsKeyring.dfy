@@ -141,7 +141,6 @@ module AwsKmsKeyring {
       //# API_GenerateDataKey.html).
       ensures
         && res.Success?
-        // TODO update specification to clarify expectations around when Generate vs Encrypt is called
         && input.materials.plaintextDataKey.None?
         && (
           || (
@@ -241,7 +240,6 @@ module AwsKmsKeyring {
       ensures
         && res.Success?
         && input.materials.plaintextDataKey.Some?
-        // TODO clarify spec expectations around calling Generate vs Encrypt
         && input.materials.algorithmSuite.edkWrapping.DIRECT_KEY_WRAPPING?
       ==>
         && KMS.IsValid_PlaintextType(input.materials.plaintextDataKey.value)
@@ -286,7 +284,6 @@ module AwsKmsKeyring {
       ensures
         && input.materials.plaintextDataKey.Some?
         && res.Success?
-        // TODO clarify spec expectations around calling Generate vs Encrypt
         && input.materials.algorithmSuite.edkWrapping.DIRECT_KEY_WRAPPING?
       ==>
         //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-keyring.md#onencrypt

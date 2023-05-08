@@ -62,7 +62,6 @@ module MaterialWrapping {
   //      such as the AWS KMS Keyring via KMS::GenerateDataKey.
   //      Keyrings that do not have such optimizations SHOULD implement this by
   //      generating cryptographically secure bytes of the correct length and delegating to `WrapMaterial`
-  //      TODO: We could make `generateAndWrap` optional in EdkWrapping and do this for them.
   //   2. By seperating these Actions, we can have EdkWrapping implement the logic
   //      to decide whether it is necessary to generate new material in the right contexts,
   //      as opposed to requiring each Keyring to ensure they implement the
