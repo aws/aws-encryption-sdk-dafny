@@ -5725,11 +5725,9 @@ public class ToDafny {
   }
 
   public static Error Error(DynamoDbException nativeValue) {
-    Option<DafnySequence<? extends Character>> message;
-    message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
-        : Option.create_None();
-    return new Error_Opaque(message);
+    // BEGIN MANUAL EDIT
+    return new Error_Opaque(nativeValue);
+    // END MANUAL EDIT
   }
 
   public static IDynamoDBClient DynamoDB_20120810(DynamoDbClient nativeValue) {
