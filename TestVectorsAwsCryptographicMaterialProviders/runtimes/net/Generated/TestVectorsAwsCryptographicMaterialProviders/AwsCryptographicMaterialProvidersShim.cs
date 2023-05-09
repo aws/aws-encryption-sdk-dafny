@@ -5,282 +5,282 @@ using System;
  using System.Collections.Generic;
  using System.IO;
  using System.Linq; namespace AWS.Cryptography.MaterialProviders.Wrapped {
- public class AwsCryptographicMaterialProvidersShim : Dafny.Aws.Cryptography.MaterialProviders.Types.IAwsCryptographicMaterialProvidersClient {
+ public class AwsCryptographicMaterialProvidersShim : software.amazon.cryptography.materialproviders.internaldafny.types.IAwsCryptographicMaterialProvidersClient {
  public AWS.Cryptography.MaterialProviders.MaterialProviders _impl;
  public AwsCryptographicMaterialProvidersShim(AWS.Cryptography.MaterialProviders.MaterialProviders impl) {
     this._impl = impl;
 }
- public Wrappers_Compile._IResult<Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring, Dafny.Aws.Cryptography.MaterialProviders.Types._IError> CreateAwsKmsKeyring(Dafny.Aws.Cryptography.MaterialProviders.Types._ICreateAwsKmsKeyringInput request) {
+ public Wrappers_Compile._IResult<software.amazon.cryptography.materialproviders.internaldafny.types.IKeyring, software.amazon.cryptography.materialproviders.internaldafny.types._IError> CreateAwsKmsKeyring(software.amazon.cryptography.materialproviders.internaldafny.types._ICreateAwsKmsKeyringInput request) {
  AWS.Cryptography.MaterialProviders.CreateAwsKmsKeyringInput unWrappedRequest = TypeConversion.FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S24_CreateAwsKmsKeyringInput(request); try {
  AWS.Cryptography.MaterialProviders.IKeyring wrappedResponse =
  this._impl.CreateAwsKmsKeyring(unWrappedRequest);
- return Wrappers_Compile.Result<Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Success(TypeConversion.ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_CreateKeyringOutput(wrappedResponse));
+ return Wrappers_Compile.Result<software.amazon.cryptography.materialproviders.internaldafny.types.IKeyring, software.amazon.cryptography.materialproviders.internaldafny.types._IError>.create_Success(TypeConversion.ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_CreateKeyringOutput(wrappedResponse));
 } catch (System.Exception ex) {
-    return Wrappers_Compile.Result<Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<software.amazon.cryptography.materialproviders.internaldafny.types.IKeyring, software.amazon.cryptography.materialproviders.internaldafny.types._IError>.create_Failure(this.ConvertError(ex));
 }
 
 }
- public Wrappers_Compile._IResult<Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring, Dafny.Aws.Cryptography.MaterialProviders.Types._IError> CreateAwsKmsDiscoveryKeyring(Dafny.Aws.Cryptography.MaterialProviders.Types._ICreateAwsKmsDiscoveryKeyringInput request) {
+ public Wrappers_Compile._IResult<software.amazon.cryptography.materialproviders.internaldafny.types.IKeyring, software.amazon.cryptography.materialproviders.internaldafny.types._IError> CreateAwsKmsDiscoveryKeyring(software.amazon.cryptography.materialproviders.internaldafny.types._ICreateAwsKmsDiscoveryKeyringInput request) {
  AWS.Cryptography.MaterialProviders.CreateAwsKmsDiscoveryKeyringInput unWrappedRequest = TypeConversion.FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S33_CreateAwsKmsDiscoveryKeyringInput(request); try {
  AWS.Cryptography.MaterialProviders.IKeyring wrappedResponse =
  this._impl.CreateAwsKmsDiscoveryKeyring(unWrappedRequest);
- return Wrappers_Compile.Result<Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Success(TypeConversion.ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_CreateKeyringOutput(wrappedResponse));
+ return Wrappers_Compile.Result<software.amazon.cryptography.materialproviders.internaldafny.types.IKeyring, software.amazon.cryptography.materialproviders.internaldafny.types._IError>.create_Success(TypeConversion.ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_CreateKeyringOutput(wrappedResponse));
 } catch (System.Exception ex) {
-    return Wrappers_Compile.Result<Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<software.amazon.cryptography.materialproviders.internaldafny.types.IKeyring, software.amazon.cryptography.materialproviders.internaldafny.types._IError>.create_Failure(this.ConvertError(ex));
 }
 
 }
- public Wrappers_Compile._IResult<Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring, Dafny.Aws.Cryptography.MaterialProviders.Types._IError> CreateAwsKmsMultiKeyring(Dafny.Aws.Cryptography.MaterialProviders.Types._ICreateAwsKmsMultiKeyringInput request) {
+ public Wrappers_Compile._IResult<software.amazon.cryptography.materialproviders.internaldafny.types.IKeyring, software.amazon.cryptography.materialproviders.internaldafny.types._IError> CreateAwsKmsMultiKeyring(software.amazon.cryptography.materialproviders.internaldafny.types._ICreateAwsKmsMultiKeyringInput request) {
  AWS.Cryptography.MaterialProviders.CreateAwsKmsMultiKeyringInput unWrappedRequest = TypeConversion.FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S29_CreateAwsKmsMultiKeyringInput(request); try {
  AWS.Cryptography.MaterialProviders.IKeyring wrappedResponse =
  this._impl.CreateAwsKmsMultiKeyring(unWrappedRequest);
- return Wrappers_Compile.Result<Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Success(TypeConversion.ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_CreateKeyringOutput(wrappedResponse));
+ return Wrappers_Compile.Result<software.amazon.cryptography.materialproviders.internaldafny.types.IKeyring, software.amazon.cryptography.materialproviders.internaldafny.types._IError>.create_Success(TypeConversion.ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_CreateKeyringOutput(wrappedResponse));
 } catch (System.Exception ex) {
-    return Wrappers_Compile.Result<Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<software.amazon.cryptography.materialproviders.internaldafny.types.IKeyring, software.amazon.cryptography.materialproviders.internaldafny.types._IError>.create_Failure(this.ConvertError(ex));
 }
 
 }
- public Wrappers_Compile._IResult<Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring, Dafny.Aws.Cryptography.MaterialProviders.Types._IError> CreateAwsKmsDiscoveryMultiKeyring(Dafny.Aws.Cryptography.MaterialProviders.Types._ICreateAwsKmsDiscoveryMultiKeyringInput request) {
+ public Wrappers_Compile._IResult<software.amazon.cryptography.materialproviders.internaldafny.types.IKeyring, software.amazon.cryptography.materialproviders.internaldafny.types._IError> CreateAwsKmsDiscoveryMultiKeyring(software.amazon.cryptography.materialproviders.internaldafny.types._ICreateAwsKmsDiscoveryMultiKeyringInput request) {
  AWS.Cryptography.MaterialProviders.CreateAwsKmsDiscoveryMultiKeyringInput unWrappedRequest = TypeConversion.FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S38_CreateAwsKmsDiscoveryMultiKeyringInput(request); try {
  AWS.Cryptography.MaterialProviders.IKeyring wrappedResponse =
  this._impl.CreateAwsKmsDiscoveryMultiKeyring(unWrappedRequest);
- return Wrappers_Compile.Result<Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Success(TypeConversion.ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_CreateKeyringOutput(wrappedResponse));
+ return Wrappers_Compile.Result<software.amazon.cryptography.materialproviders.internaldafny.types.IKeyring, software.amazon.cryptography.materialproviders.internaldafny.types._IError>.create_Success(TypeConversion.ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_CreateKeyringOutput(wrappedResponse));
 } catch (System.Exception ex) {
-    return Wrappers_Compile.Result<Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<software.amazon.cryptography.materialproviders.internaldafny.types.IKeyring, software.amazon.cryptography.materialproviders.internaldafny.types._IError>.create_Failure(this.ConvertError(ex));
 }
 
 }
- public Wrappers_Compile._IResult<Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring, Dafny.Aws.Cryptography.MaterialProviders.Types._IError> CreateAwsKmsMrkKeyring(Dafny.Aws.Cryptography.MaterialProviders.Types._ICreateAwsKmsMrkKeyringInput request) {
+ public Wrappers_Compile._IResult<software.amazon.cryptography.materialproviders.internaldafny.types.IKeyring, software.amazon.cryptography.materialproviders.internaldafny.types._IError> CreateAwsKmsMrkKeyring(software.amazon.cryptography.materialproviders.internaldafny.types._ICreateAwsKmsMrkKeyringInput request) {
  AWS.Cryptography.MaterialProviders.CreateAwsKmsMrkKeyringInput unWrappedRequest = TypeConversion.FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S27_CreateAwsKmsMrkKeyringInput(request); try {
  AWS.Cryptography.MaterialProviders.IKeyring wrappedResponse =
  this._impl.CreateAwsKmsMrkKeyring(unWrappedRequest);
- return Wrappers_Compile.Result<Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Success(TypeConversion.ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_CreateKeyringOutput(wrappedResponse));
+ return Wrappers_Compile.Result<software.amazon.cryptography.materialproviders.internaldafny.types.IKeyring, software.amazon.cryptography.materialproviders.internaldafny.types._IError>.create_Success(TypeConversion.ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_CreateKeyringOutput(wrappedResponse));
 } catch (System.Exception ex) {
-    return Wrappers_Compile.Result<Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<software.amazon.cryptography.materialproviders.internaldafny.types.IKeyring, software.amazon.cryptography.materialproviders.internaldafny.types._IError>.create_Failure(this.ConvertError(ex));
 }
 
 }
- public Wrappers_Compile._IResult<Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring, Dafny.Aws.Cryptography.MaterialProviders.Types._IError> CreateAwsKmsMrkMultiKeyring(Dafny.Aws.Cryptography.MaterialProviders.Types._ICreateAwsKmsMrkMultiKeyringInput request) {
+ public Wrappers_Compile._IResult<software.amazon.cryptography.materialproviders.internaldafny.types.IKeyring, software.amazon.cryptography.materialproviders.internaldafny.types._IError> CreateAwsKmsMrkMultiKeyring(software.amazon.cryptography.materialproviders.internaldafny.types._ICreateAwsKmsMrkMultiKeyringInput request) {
  AWS.Cryptography.MaterialProviders.CreateAwsKmsMrkMultiKeyringInput unWrappedRequest = TypeConversion.FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S32_CreateAwsKmsMrkMultiKeyringInput(request); try {
  AWS.Cryptography.MaterialProviders.IKeyring wrappedResponse =
  this._impl.CreateAwsKmsMrkMultiKeyring(unWrappedRequest);
- return Wrappers_Compile.Result<Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Success(TypeConversion.ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_CreateKeyringOutput(wrappedResponse));
+ return Wrappers_Compile.Result<software.amazon.cryptography.materialproviders.internaldafny.types.IKeyring, software.amazon.cryptography.materialproviders.internaldafny.types._IError>.create_Success(TypeConversion.ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_CreateKeyringOutput(wrappedResponse));
 } catch (System.Exception ex) {
-    return Wrappers_Compile.Result<Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<software.amazon.cryptography.materialproviders.internaldafny.types.IKeyring, software.amazon.cryptography.materialproviders.internaldafny.types._IError>.create_Failure(this.ConvertError(ex));
 }
 
 }
- public Wrappers_Compile._IResult<Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring, Dafny.Aws.Cryptography.MaterialProviders.Types._IError> CreateAwsKmsMrkDiscoveryKeyring(Dafny.Aws.Cryptography.MaterialProviders.Types._ICreateAwsKmsMrkDiscoveryKeyringInput request) {
+ public Wrappers_Compile._IResult<software.amazon.cryptography.materialproviders.internaldafny.types.IKeyring, software.amazon.cryptography.materialproviders.internaldafny.types._IError> CreateAwsKmsMrkDiscoveryKeyring(software.amazon.cryptography.materialproviders.internaldafny.types._ICreateAwsKmsMrkDiscoveryKeyringInput request) {
  AWS.Cryptography.MaterialProviders.CreateAwsKmsMrkDiscoveryKeyringInput unWrappedRequest = TypeConversion.FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S36_CreateAwsKmsMrkDiscoveryKeyringInput(request); try {
  AWS.Cryptography.MaterialProviders.IKeyring wrappedResponse =
  this._impl.CreateAwsKmsMrkDiscoveryKeyring(unWrappedRequest);
- return Wrappers_Compile.Result<Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Success(TypeConversion.ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_CreateKeyringOutput(wrappedResponse));
+ return Wrappers_Compile.Result<software.amazon.cryptography.materialproviders.internaldafny.types.IKeyring, software.amazon.cryptography.materialproviders.internaldafny.types._IError>.create_Success(TypeConversion.ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_CreateKeyringOutput(wrappedResponse));
 } catch (System.Exception ex) {
-    return Wrappers_Compile.Result<Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<software.amazon.cryptography.materialproviders.internaldafny.types.IKeyring, software.amazon.cryptography.materialproviders.internaldafny.types._IError>.create_Failure(this.ConvertError(ex));
 }
 
 }
- public Wrappers_Compile._IResult<Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring, Dafny.Aws.Cryptography.MaterialProviders.Types._IError> CreateAwsKmsMrkDiscoveryMultiKeyring(Dafny.Aws.Cryptography.MaterialProviders.Types._ICreateAwsKmsMrkDiscoveryMultiKeyringInput request) {
+ public Wrappers_Compile._IResult<software.amazon.cryptography.materialproviders.internaldafny.types.IKeyring, software.amazon.cryptography.materialproviders.internaldafny.types._IError> CreateAwsKmsMrkDiscoveryMultiKeyring(software.amazon.cryptography.materialproviders.internaldafny.types._ICreateAwsKmsMrkDiscoveryMultiKeyringInput request) {
  AWS.Cryptography.MaterialProviders.CreateAwsKmsMrkDiscoveryMultiKeyringInput unWrappedRequest = TypeConversion.FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S41_CreateAwsKmsMrkDiscoveryMultiKeyringInput(request); try {
  AWS.Cryptography.MaterialProviders.IKeyring wrappedResponse =
  this._impl.CreateAwsKmsMrkDiscoveryMultiKeyring(unWrappedRequest);
- return Wrappers_Compile.Result<Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Success(TypeConversion.ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_CreateKeyringOutput(wrappedResponse));
+ return Wrappers_Compile.Result<software.amazon.cryptography.materialproviders.internaldafny.types.IKeyring, software.amazon.cryptography.materialproviders.internaldafny.types._IError>.create_Success(TypeConversion.ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_CreateKeyringOutput(wrappedResponse));
 } catch (System.Exception ex) {
-    return Wrappers_Compile.Result<Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<software.amazon.cryptography.materialproviders.internaldafny.types.IKeyring, software.amazon.cryptography.materialproviders.internaldafny.types._IError>.create_Failure(this.ConvertError(ex));
 }
 
 }
- public Wrappers_Compile._IResult<Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring, Dafny.Aws.Cryptography.MaterialProviders.Types._IError> CreateAwsKmsHierarchicalKeyring(Dafny.Aws.Cryptography.MaterialProviders.Types._ICreateAwsKmsHierarchicalKeyringInput request) {
+ public Wrappers_Compile._IResult<software.amazon.cryptography.materialproviders.internaldafny.types.IKeyring, software.amazon.cryptography.materialproviders.internaldafny.types._IError> CreateAwsKmsHierarchicalKeyring(software.amazon.cryptography.materialproviders.internaldafny.types._ICreateAwsKmsHierarchicalKeyringInput request) {
  AWS.Cryptography.MaterialProviders.CreateAwsKmsHierarchicalKeyringInput unWrappedRequest = TypeConversion.FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S36_CreateAwsKmsHierarchicalKeyringInput(request); try {
  AWS.Cryptography.MaterialProviders.IKeyring wrappedResponse =
  this._impl.CreateAwsKmsHierarchicalKeyring(unWrappedRequest);
- return Wrappers_Compile.Result<Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Success(TypeConversion.ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_CreateKeyringOutput(wrappedResponse));
+ return Wrappers_Compile.Result<software.amazon.cryptography.materialproviders.internaldafny.types.IKeyring, software.amazon.cryptography.materialproviders.internaldafny.types._IError>.create_Success(TypeConversion.ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_CreateKeyringOutput(wrappedResponse));
 } catch (System.Exception ex) {
-    return Wrappers_Compile.Result<Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<software.amazon.cryptography.materialproviders.internaldafny.types.IKeyring, software.amazon.cryptography.materialproviders.internaldafny.types._IError>.create_Failure(this.ConvertError(ex));
 }
 
 }
- public Wrappers_Compile._IResult<Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring, Dafny.Aws.Cryptography.MaterialProviders.Types._IError> CreateMultiKeyring(Dafny.Aws.Cryptography.MaterialProviders.Types._ICreateMultiKeyringInput request) {
+ public Wrappers_Compile._IResult<software.amazon.cryptography.materialproviders.internaldafny.types.IKeyring, software.amazon.cryptography.materialproviders.internaldafny.types._IError> CreateMultiKeyring(software.amazon.cryptography.materialproviders.internaldafny.types._ICreateMultiKeyringInput request) {
  AWS.Cryptography.MaterialProviders.CreateMultiKeyringInput unWrappedRequest = TypeConversion.FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S23_CreateMultiKeyringInput(request); try {
  AWS.Cryptography.MaterialProviders.IKeyring wrappedResponse =
  this._impl.CreateMultiKeyring(unWrappedRequest);
- return Wrappers_Compile.Result<Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Success(TypeConversion.ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_CreateKeyringOutput(wrappedResponse));
+ return Wrappers_Compile.Result<software.amazon.cryptography.materialproviders.internaldafny.types.IKeyring, software.amazon.cryptography.materialproviders.internaldafny.types._IError>.create_Success(TypeConversion.ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_CreateKeyringOutput(wrappedResponse));
 } catch (System.Exception ex) {
-    return Wrappers_Compile.Result<Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<software.amazon.cryptography.materialproviders.internaldafny.types.IKeyring, software.amazon.cryptography.materialproviders.internaldafny.types._IError>.create_Failure(this.ConvertError(ex));
 }
 
 }
- public Wrappers_Compile._IResult<Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring, Dafny.Aws.Cryptography.MaterialProviders.Types._IError> CreateRawAesKeyring(Dafny.Aws.Cryptography.MaterialProviders.Types._ICreateRawAesKeyringInput request) {
+ public Wrappers_Compile._IResult<software.amazon.cryptography.materialproviders.internaldafny.types.IKeyring, software.amazon.cryptography.materialproviders.internaldafny.types._IError> CreateRawAesKeyring(software.amazon.cryptography.materialproviders.internaldafny.types._ICreateRawAesKeyringInput request) {
  AWS.Cryptography.MaterialProviders.CreateRawAesKeyringInput unWrappedRequest = TypeConversion.FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S24_CreateRawAesKeyringInput(request); try {
  AWS.Cryptography.MaterialProviders.IKeyring wrappedResponse =
  this._impl.CreateRawAesKeyring(unWrappedRequest);
- return Wrappers_Compile.Result<Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Success(TypeConversion.ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_CreateKeyringOutput(wrappedResponse));
+ return Wrappers_Compile.Result<software.amazon.cryptography.materialproviders.internaldafny.types.IKeyring, software.amazon.cryptography.materialproviders.internaldafny.types._IError>.create_Success(TypeConversion.ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_CreateKeyringOutput(wrappedResponse));
 } catch (System.Exception ex) {
-    return Wrappers_Compile.Result<Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<software.amazon.cryptography.materialproviders.internaldafny.types.IKeyring, software.amazon.cryptography.materialproviders.internaldafny.types._IError>.create_Failure(this.ConvertError(ex));
 }
 
 }
- public Wrappers_Compile._IResult<Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring, Dafny.Aws.Cryptography.MaterialProviders.Types._IError> CreateRawRsaKeyring(Dafny.Aws.Cryptography.MaterialProviders.Types._ICreateRawRsaKeyringInput request) {
+ public Wrappers_Compile._IResult<software.amazon.cryptography.materialproviders.internaldafny.types.IKeyring, software.amazon.cryptography.materialproviders.internaldafny.types._IError> CreateRawRsaKeyring(software.amazon.cryptography.materialproviders.internaldafny.types._ICreateRawRsaKeyringInput request) {
  AWS.Cryptography.MaterialProviders.CreateRawRsaKeyringInput unWrappedRequest = TypeConversion.FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S24_CreateRawRsaKeyringInput(request); try {
  AWS.Cryptography.MaterialProviders.IKeyring wrappedResponse =
  this._impl.CreateRawRsaKeyring(unWrappedRequest);
- return Wrappers_Compile.Result<Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Success(TypeConversion.ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_CreateKeyringOutput(wrappedResponse));
+ return Wrappers_Compile.Result<software.amazon.cryptography.materialproviders.internaldafny.types.IKeyring, software.amazon.cryptography.materialproviders.internaldafny.types._IError>.create_Success(TypeConversion.ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_CreateKeyringOutput(wrappedResponse));
 } catch (System.Exception ex) {
-    return Wrappers_Compile.Result<Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<software.amazon.cryptography.materialproviders.internaldafny.types.IKeyring, software.amazon.cryptography.materialproviders.internaldafny.types._IError>.create_Failure(this.ConvertError(ex));
 }
 
 }
- public Wrappers_Compile._IResult<Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring, Dafny.Aws.Cryptography.MaterialProviders.Types._IError> CreateAwsKmsRsaKeyring(Dafny.Aws.Cryptography.MaterialProviders.Types._ICreateAwsKmsRsaKeyringInput request) {
+ public Wrappers_Compile._IResult<software.amazon.cryptography.materialproviders.internaldafny.types.IKeyring, software.amazon.cryptography.materialproviders.internaldafny.types._IError> CreateAwsKmsRsaKeyring(software.amazon.cryptography.materialproviders.internaldafny.types._ICreateAwsKmsRsaKeyringInput request) {
  AWS.Cryptography.MaterialProviders.CreateAwsKmsRsaKeyringInput unWrappedRequest = TypeConversion.FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S27_CreateAwsKmsRsaKeyringInput(request); try {
  AWS.Cryptography.MaterialProviders.IKeyring wrappedResponse =
  this._impl.CreateAwsKmsRsaKeyring(unWrappedRequest);
- return Wrappers_Compile.Result<Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Success(TypeConversion.ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_CreateKeyringOutput(wrappedResponse));
+ return Wrappers_Compile.Result<software.amazon.cryptography.materialproviders.internaldafny.types.IKeyring, software.amazon.cryptography.materialproviders.internaldafny.types._IError>.create_Success(TypeConversion.ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_CreateKeyringOutput(wrappedResponse));
 } catch (System.Exception ex) {
-    return Wrappers_Compile.Result<Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<software.amazon.cryptography.materialproviders.internaldafny.types.IKeyring, software.amazon.cryptography.materialproviders.internaldafny.types._IError>.create_Failure(this.ConvertError(ex));
 }
 
 }
- public Wrappers_Compile._IResult<Dafny.Aws.Cryptography.MaterialProviders.Types.ICryptographicMaterialsManager, Dafny.Aws.Cryptography.MaterialProviders.Types._IError> CreateDefaultCryptographicMaterialsManager(Dafny.Aws.Cryptography.MaterialProviders.Types._ICreateDefaultCryptographicMaterialsManagerInput request) {
+ public Wrappers_Compile._IResult<software.amazon.cryptography.materialproviders.internaldafny.types.ICryptographicMaterialsManager, software.amazon.cryptography.materialproviders.internaldafny.types._IError> CreateDefaultCryptographicMaterialsManager(software.amazon.cryptography.materialproviders.internaldafny.types._ICreateDefaultCryptographicMaterialsManagerInput request) {
  AWS.Cryptography.MaterialProviders.CreateDefaultCryptographicMaterialsManagerInput unWrappedRequest = TypeConversion.FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S47_CreateDefaultCryptographicMaterialsManagerInput(request); try {
  AWS.Cryptography.MaterialProviders.ICryptographicMaterialsManager wrappedResponse =
  this._impl.CreateDefaultCryptographicMaterialsManager(unWrappedRequest);
- return Wrappers_Compile.Result<Dafny.Aws.Cryptography.MaterialProviders.Types.ICryptographicMaterialsManager, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Success(TypeConversion.ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S41_CreateCryptographicMaterialsManagerOutput(wrappedResponse));
+ return Wrappers_Compile.Result<software.amazon.cryptography.materialproviders.internaldafny.types.ICryptographicMaterialsManager, software.amazon.cryptography.materialproviders.internaldafny.types._IError>.create_Success(TypeConversion.ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S41_CreateCryptographicMaterialsManagerOutput(wrappedResponse));
 } catch (System.Exception ex) {
-    return Wrappers_Compile.Result<Dafny.Aws.Cryptography.MaterialProviders.Types.ICryptographicMaterialsManager, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<software.amazon.cryptography.materialproviders.internaldafny.types.ICryptographicMaterialsManager, software.amazon.cryptography.materialproviders.internaldafny.types._IError>.create_Failure(this.ConvertError(ex));
 }
 
 }
- public Wrappers_Compile._IResult<Dafny.Aws.Cryptography.MaterialProviders.Types.ICryptographicMaterialsManager, Dafny.Aws.Cryptography.MaterialProviders.Types._IError> CreateExpectedEncryptionContextCMM(Dafny.Aws.Cryptography.MaterialProviders.Types._ICreateExpectedEncryptionContextCMMInput request) {
+ public Wrappers_Compile._IResult<software.amazon.cryptography.materialproviders.internaldafny.types.ICryptographicMaterialsManager, software.amazon.cryptography.materialproviders.internaldafny.types._IError> CreateExpectedEncryptionContextCMM(software.amazon.cryptography.materialproviders.internaldafny.types._ICreateExpectedEncryptionContextCMMInput request) {
  AWS.Cryptography.MaterialProviders.CreateExpectedEncryptionContextCMMInput unWrappedRequest = TypeConversion.FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S39_CreateExpectedEncryptionContextCMMInput(request); try {
  AWS.Cryptography.MaterialProviders.ICryptographicMaterialsManager wrappedResponse =
  this._impl.CreateExpectedEncryptionContextCMM(unWrappedRequest);
- return Wrappers_Compile.Result<Dafny.Aws.Cryptography.MaterialProviders.Types.ICryptographicMaterialsManager, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Success(TypeConversion.ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S40_CreateExpectedEncryptionContextCMMOutput(wrappedResponse));
+ return Wrappers_Compile.Result<software.amazon.cryptography.materialproviders.internaldafny.types.ICryptographicMaterialsManager, software.amazon.cryptography.materialproviders.internaldafny.types._IError>.create_Success(TypeConversion.ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S40_CreateExpectedEncryptionContextCMMOutput(wrappedResponse));
 } catch (System.Exception ex) {
-    return Wrappers_Compile.Result<Dafny.Aws.Cryptography.MaterialProviders.Types.ICryptographicMaterialsManager, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<software.amazon.cryptography.materialproviders.internaldafny.types.ICryptographicMaterialsManager, software.amazon.cryptography.materialproviders.internaldafny.types._IError>.create_Failure(this.ConvertError(ex));
 }
 
 }
- public Wrappers_Compile._IResult<Dafny.Aws.Cryptography.MaterialProviders.Types.ICryptographicMaterialsCache, Dafny.Aws.Cryptography.MaterialProviders.Types._IError> CreateCryptographicMaterialsCache(Dafny.Aws.Cryptography.MaterialProviders.Types._ICreateCryptographicMaterialsCacheInput request) {
+ public Wrappers_Compile._IResult<software.amazon.cryptography.materialproviders.internaldafny.types.ICryptographicMaterialsCache, software.amazon.cryptography.materialproviders.internaldafny.types._IError> CreateCryptographicMaterialsCache(software.amazon.cryptography.materialproviders.internaldafny.types._ICreateCryptographicMaterialsCacheInput request) {
  AWS.Cryptography.MaterialProviders.CreateCryptographicMaterialsCacheInput unWrappedRequest = TypeConversion.FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S38_CreateCryptographicMaterialsCacheInput(request); try {
  AWS.Cryptography.MaterialProviders.ICryptographicMaterialsCache wrappedResponse =
  this._impl.CreateCryptographicMaterialsCache(unWrappedRequest);
- return Wrappers_Compile.Result<Dafny.Aws.Cryptography.MaterialProviders.Types.ICryptographicMaterialsCache, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Success(TypeConversion.ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S39_CreateCryptographicMaterialsCacheOutput(wrappedResponse));
+ return Wrappers_Compile.Result<software.amazon.cryptography.materialproviders.internaldafny.types.ICryptographicMaterialsCache, software.amazon.cryptography.materialproviders.internaldafny.types._IError>.create_Success(TypeConversion.ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S39_CreateCryptographicMaterialsCacheOutput(wrappedResponse));
 } catch (System.Exception ex) {
-    return Wrappers_Compile.Result<Dafny.Aws.Cryptography.MaterialProviders.Types.ICryptographicMaterialsCache, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<software.amazon.cryptography.materialproviders.internaldafny.types.ICryptographicMaterialsCache, software.amazon.cryptography.materialproviders.internaldafny.types._IError>.create_Failure(this.ConvertError(ex));
 }
 
 }
- public Wrappers_Compile._IResult<Dafny.Aws.Cryptography.MaterialProviders.Types.IClientSupplier, Dafny.Aws.Cryptography.MaterialProviders.Types._IError> CreateDefaultClientSupplier(Dafny.Aws.Cryptography.MaterialProviders.Types._ICreateDefaultClientSupplierInput request) {
+ public Wrappers_Compile._IResult<software.amazon.cryptography.materialproviders.internaldafny.types.IClientSupplier, software.amazon.cryptography.materialproviders.internaldafny.types._IError> CreateDefaultClientSupplier(software.amazon.cryptography.materialproviders.internaldafny.types._ICreateDefaultClientSupplierInput request) {
  AWS.Cryptography.MaterialProviders.CreateDefaultClientSupplierInput unWrappedRequest = TypeConversion.FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S32_CreateDefaultClientSupplierInput(request); try {
  AWS.Cryptography.MaterialProviders.IClientSupplier wrappedResponse =
  this._impl.CreateDefaultClientSupplier(unWrappedRequest);
- return Wrappers_Compile.Result<Dafny.Aws.Cryptography.MaterialProviders.Types.IClientSupplier, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Success(TypeConversion.ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S33_CreateDefaultClientSupplierOutput(wrappedResponse));
+ return Wrappers_Compile.Result<software.amazon.cryptography.materialproviders.internaldafny.types.IClientSupplier, software.amazon.cryptography.materialproviders.internaldafny.types._IError>.create_Success(TypeConversion.ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S33_CreateDefaultClientSupplierOutput(wrappedResponse));
 } catch (System.Exception ex) {
-    return Wrappers_Compile.Result<Dafny.Aws.Cryptography.MaterialProviders.Types.IClientSupplier, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<software.amazon.cryptography.materialproviders.internaldafny.types.IClientSupplier, software.amazon.cryptography.materialproviders.internaldafny.types._IError>.create_Failure(this.ConvertError(ex));
 }
 
 }
- public Wrappers_Compile._IResult<Dafny.Aws.Cryptography.MaterialProviders.Types._IEncryptionMaterials, Dafny.Aws.Cryptography.MaterialProviders.Types._IError> InitializeEncryptionMaterials(Dafny.Aws.Cryptography.MaterialProviders.Types._IInitializeEncryptionMaterialsInput request) {
+ public Wrappers_Compile._IResult<software.amazon.cryptography.materialproviders.internaldafny.types._IEncryptionMaterials, software.amazon.cryptography.materialproviders.internaldafny.types._IError> InitializeEncryptionMaterials(software.amazon.cryptography.materialproviders.internaldafny.types._IInitializeEncryptionMaterialsInput request) {
  AWS.Cryptography.MaterialProviders.InitializeEncryptionMaterialsInput unWrappedRequest = TypeConversion.FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S34_InitializeEncryptionMaterialsInput(request); try {
  AWS.Cryptography.MaterialProviders.EncryptionMaterials wrappedResponse =
  this._impl.InitializeEncryptionMaterials(unWrappedRequest);
- return Wrappers_Compile.Result<Dafny.Aws.Cryptography.MaterialProviders.Types._IEncryptionMaterials, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Success(TypeConversion.ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_EncryptionMaterials(wrappedResponse));
+ return Wrappers_Compile.Result<software.amazon.cryptography.materialproviders.internaldafny.types._IEncryptionMaterials, software.amazon.cryptography.materialproviders.internaldafny.types._IError>.create_Success(TypeConversion.ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_EncryptionMaterials(wrappedResponse));
 } catch (System.Exception ex) {
-    return Wrappers_Compile.Result<Dafny.Aws.Cryptography.MaterialProviders.Types._IEncryptionMaterials, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<software.amazon.cryptography.materialproviders.internaldafny.types._IEncryptionMaterials, software.amazon.cryptography.materialproviders.internaldafny.types._IError>.create_Failure(this.ConvertError(ex));
 }
 
 }
- public Wrappers_Compile._IResult<Dafny.Aws.Cryptography.MaterialProviders.Types._IDecryptionMaterials, Dafny.Aws.Cryptography.MaterialProviders.Types._IError> InitializeDecryptionMaterials(Dafny.Aws.Cryptography.MaterialProviders.Types._IInitializeDecryptionMaterialsInput request) {
+ public Wrappers_Compile._IResult<software.amazon.cryptography.materialproviders.internaldafny.types._IDecryptionMaterials, software.amazon.cryptography.materialproviders.internaldafny.types._IError> InitializeDecryptionMaterials(software.amazon.cryptography.materialproviders.internaldafny.types._IInitializeDecryptionMaterialsInput request) {
  AWS.Cryptography.MaterialProviders.InitializeDecryptionMaterialsInput unWrappedRequest = TypeConversion.FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S34_InitializeDecryptionMaterialsInput(request); try {
  AWS.Cryptography.MaterialProviders.DecryptionMaterials wrappedResponse =
  this._impl.InitializeDecryptionMaterials(unWrappedRequest);
- return Wrappers_Compile.Result<Dafny.Aws.Cryptography.MaterialProviders.Types._IDecryptionMaterials, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Success(TypeConversion.ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_DecryptionMaterials(wrappedResponse));
+ return Wrappers_Compile.Result<software.amazon.cryptography.materialproviders.internaldafny.types._IDecryptionMaterials, software.amazon.cryptography.materialproviders.internaldafny.types._IError>.create_Success(TypeConversion.ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_DecryptionMaterials(wrappedResponse));
 } catch (System.Exception ex) {
-    return Wrappers_Compile.Result<Dafny.Aws.Cryptography.MaterialProviders.Types._IDecryptionMaterials, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<software.amazon.cryptography.materialproviders.internaldafny.types._IDecryptionMaterials, software.amazon.cryptography.materialproviders.internaldafny.types._IError>.create_Failure(this.ConvertError(ex));
 }
 
 }
- public Wrappers_Compile._IResult<_System._ITuple0, Dafny.Aws.Cryptography.MaterialProviders.Types._IError> ValidEncryptionMaterialsTransition(Dafny.Aws.Cryptography.MaterialProviders.Types._IValidEncryptionMaterialsTransitionInput request) {
+ public Wrappers_Compile._IResult<_System._ITuple0, software.amazon.cryptography.materialproviders.internaldafny.types._IError> ValidEncryptionMaterialsTransition(software.amazon.cryptography.materialproviders.internaldafny.types._IValidEncryptionMaterialsTransitionInput request) {
  AWS.Cryptography.MaterialProviders.ValidEncryptionMaterialsTransitionInput unWrappedRequest = TypeConversion.FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S39_ValidEncryptionMaterialsTransitionInput(request); try {
 
  this._impl.ValidEncryptionMaterialsTransition(unWrappedRequest);
- return Wrappers_Compile.Result<_System._ITuple0, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Success(_System.Tuple0.Default());
+ return Wrappers_Compile.Result<_System._ITuple0, software.amazon.cryptography.materialproviders.internaldafny.types._IError>.create_Success(_System.Tuple0.Default());
 } catch (System.Exception ex) {
-    return Wrappers_Compile.Result<_System._ITuple0, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<_System._ITuple0, software.amazon.cryptography.materialproviders.internaldafny.types._IError>.create_Failure(this.ConvertError(ex));
 }
 
 }
- public Wrappers_Compile._IResult<_System._ITuple0, Dafny.Aws.Cryptography.MaterialProviders.Types._IError> ValidDecryptionMaterialsTransition(Dafny.Aws.Cryptography.MaterialProviders.Types._IValidDecryptionMaterialsTransitionInput request) {
+ public Wrappers_Compile._IResult<_System._ITuple0, software.amazon.cryptography.materialproviders.internaldafny.types._IError> ValidDecryptionMaterialsTransition(software.amazon.cryptography.materialproviders.internaldafny.types._IValidDecryptionMaterialsTransitionInput request) {
  AWS.Cryptography.MaterialProviders.ValidDecryptionMaterialsTransitionInput unWrappedRequest = TypeConversion.FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S39_ValidDecryptionMaterialsTransitionInput(request); try {
 
  this._impl.ValidDecryptionMaterialsTransition(unWrappedRequest);
- return Wrappers_Compile.Result<_System._ITuple0, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Success(_System.Tuple0.Default());
+ return Wrappers_Compile.Result<_System._ITuple0, software.amazon.cryptography.materialproviders.internaldafny.types._IError>.create_Success(_System.Tuple0.Default());
 } catch (System.Exception ex) {
-    return Wrappers_Compile.Result<_System._ITuple0, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<_System._ITuple0, software.amazon.cryptography.materialproviders.internaldafny.types._IError>.create_Failure(this.ConvertError(ex));
 }
 
 }
- public Wrappers_Compile._IResult<_System._ITuple0, Dafny.Aws.Cryptography.MaterialProviders.Types._IError> EncryptionMaterialsHasPlaintextDataKey(Dafny.Aws.Cryptography.MaterialProviders.Types._IEncryptionMaterials request) {
+ public Wrappers_Compile._IResult<_System._ITuple0, software.amazon.cryptography.materialproviders.internaldafny.types._IError> EncryptionMaterialsHasPlaintextDataKey(software.amazon.cryptography.materialproviders.internaldafny.types._IEncryptionMaterials request) {
  AWS.Cryptography.MaterialProviders.EncryptionMaterials unWrappedRequest = TypeConversion.FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_EncryptionMaterials(request); try {
 
  this._impl.EncryptionMaterialsHasPlaintextDataKey(unWrappedRequest);
- return Wrappers_Compile.Result<_System._ITuple0, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Success(_System.Tuple0.Default());
+ return Wrappers_Compile.Result<_System._ITuple0, software.amazon.cryptography.materialproviders.internaldafny.types._IError>.create_Success(_System.Tuple0.Default());
 } catch (System.Exception ex) {
-    return Wrappers_Compile.Result<_System._ITuple0, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<_System._ITuple0, software.amazon.cryptography.materialproviders.internaldafny.types._IError>.create_Failure(this.ConvertError(ex));
 }
 
 }
- public Wrappers_Compile._IResult<_System._ITuple0, Dafny.Aws.Cryptography.MaterialProviders.Types._IError> DecryptionMaterialsWithPlaintextDataKey(Dafny.Aws.Cryptography.MaterialProviders.Types._IDecryptionMaterials request) {
+ public Wrappers_Compile._IResult<_System._ITuple0, software.amazon.cryptography.materialproviders.internaldafny.types._IError> DecryptionMaterialsWithPlaintextDataKey(software.amazon.cryptography.materialproviders.internaldafny.types._IDecryptionMaterials request) {
  AWS.Cryptography.MaterialProviders.DecryptionMaterials unWrappedRequest = TypeConversion.FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_DecryptionMaterials(request); try {
 
  this._impl.DecryptionMaterialsWithPlaintextDataKey(unWrappedRequest);
- return Wrappers_Compile.Result<_System._ITuple0, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Success(_System.Tuple0.Default());
+ return Wrappers_Compile.Result<_System._ITuple0, software.amazon.cryptography.materialproviders.internaldafny.types._IError>.create_Success(_System.Tuple0.Default());
 } catch (System.Exception ex) {
-    return Wrappers_Compile.Result<_System._ITuple0, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<_System._ITuple0, software.amazon.cryptography.materialproviders.internaldafny.types._IError>.create_Failure(this.ConvertError(ex));
 }
 
 }
- public Wrappers_Compile._IResult<Dafny.Aws.Cryptography.MaterialProviders.Types._IAlgorithmSuiteInfo, Dafny.Aws.Cryptography.MaterialProviders.Types._IError> GetAlgorithmSuiteInfo(Dafny.ISequence<byte> request) {
+ public Wrappers_Compile._IResult<software.amazon.cryptography.materialproviders.internaldafny.types._IAlgorithmSuiteInfo, software.amazon.cryptography.materialproviders.internaldafny.types._IError> GetAlgorithmSuiteInfo(Dafny.ISequence<byte> request) {
  System.IO.MemoryStream unWrappedRequest = TypeConversion.FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S26_GetAlgorithmSuiteInfoInput(request); try {
  AWS.Cryptography.MaterialProviders.AlgorithmSuiteInfo wrappedResponse =
  this._impl.GetAlgorithmSuiteInfo(unWrappedRequest);
- return Wrappers_Compile.Result<Dafny.Aws.Cryptography.MaterialProviders.Types._IAlgorithmSuiteInfo, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Success(TypeConversion.ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S18_AlgorithmSuiteInfo(wrappedResponse));
+ return Wrappers_Compile.Result<software.amazon.cryptography.materialproviders.internaldafny.types._IAlgorithmSuiteInfo, software.amazon.cryptography.materialproviders.internaldafny.types._IError>.create_Success(TypeConversion.ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S18_AlgorithmSuiteInfo(wrappedResponse));
 } catch (System.Exception ex) {
-    return Wrappers_Compile.Result<Dafny.Aws.Cryptography.MaterialProviders.Types._IAlgorithmSuiteInfo, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<software.amazon.cryptography.materialproviders.internaldafny.types._IAlgorithmSuiteInfo, software.amazon.cryptography.materialproviders.internaldafny.types._IError>.create_Failure(this.ConvertError(ex));
 }
 
 }
- public Wrappers_Compile._IResult<_System._ITuple0, Dafny.Aws.Cryptography.MaterialProviders.Types._IError> ValidAlgorithmSuiteInfo(Dafny.Aws.Cryptography.MaterialProviders.Types._IAlgorithmSuiteInfo request) {
+ public Wrappers_Compile._IResult<_System._ITuple0, software.amazon.cryptography.materialproviders.internaldafny.types._IError> ValidAlgorithmSuiteInfo(software.amazon.cryptography.materialproviders.internaldafny.types._IAlgorithmSuiteInfo request) {
  AWS.Cryptography.MaterialProviders.AlgorithmSuiteInfo unWrappedRequest = TypeConversion.FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S18_AlgorithmSuiteInfo(request); try {
 
  this._impl.ValidAlgorithmSuiteInfo(unWrappedRequest);
- return Wrappers_Compile.Result<_System._ITuple0, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Success(_System.Tuple0.Default());
+ return Wrappers_Compile.Result<_System._ITuple0, software.amazon.cryptography.materialproviders.internaldafny.types._IError>.create_Success(_System.Tuple0.Default());
 } catch (System.Exception ex) {
-    return Wrappers_Compile.Result<_System._ITuple0, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<_System._ITuple0, software.amazon.cryptography.materialproviders.internaldafny.types._IError>.create_Failure(this.ConvertError(ex));
 }
 
 }
- public Wrappers_Compile._IResult<_System._ITuple0, Dafny.Aws.Cryptography.MaterialProviders.Types._IError> ValidateCommitmentPolicyOnEncrypt(Dafny.Aws.Cryptography.MaterialProviders.Types._IValidateCommitmentPolicyOnEncryptInput request) {
+ public Wrappers_Compile._IResult<_System._ITuple0, software.amazon.cryptography.materialproviders.internaldafny.types._IError> ValidateCommitmentPolicyOnEncrypt(software.amazon.cryptography.materialproviders.internaldafny.types._IValidateCommitmentPolicyOnEncryptInput request) {
  AWS.Cryptography.MaterialProviders.ValidateCommitmentPolicyOnEncryptInput unWrappedRequest = TypeConversion.FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S38_ValidateCommitmentPolicyOnEncryptInput(request); try {
 
  this._impl.ValidateCommitmentPolicyOnEncrypt(unWrappedRequest);
- return Wrappers_Compile.Result<_System._ITuple0, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Success(_System.Tuple0.Default());
+ return Wrappers_Compile.Result<_System._ITuple0, software.amazon.cryptography.materialproviders.internaldafny.types._IError>.create_Success(_System.Tuple0.Default());
 } catch (System.Exception ex) {
-    return Wrappers_Compile.Result<_System._ITuple0, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<_System._ITuple0, software.amazon.cryptography.materialproviders.internaldafny.types._IError>.create_Failure(this.ConvertError(ex));
 }
 
 }
- public Wrappers_Compile._IResult<_System._ITuple0, Dafny.Aws.Cryptography.MaterialProviders.Types._IError> ValidateCommitmentPolicyOnDecrypt(Dafny.Aws.Cryptography.MaterialProviders.Types._IValidateCommitmentPolicyOnDecryptInput request) {
+ public Wrappers_Compile._IResult<_System._ITuple0, software.amazon.cryptography.materialproviders.internaldafny.types._IError> ValidateCommitmentPolicyOnDecrypt(software.amazon.cryptography.materialproviders.internaldafny.types._IValidateCommitmentPolicyOnDecryptInput request) {
  AWS.Cryptography.MaterialProviders.ValidateCommitmentPolicyOnDecryptInput unWrappedRequest = TypeConversion.FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S38_ValidateCommitmentPolicyOnDecryptInput(request); try {
 
  this._impl.ValidateCommitmentPolicyOnDecrypt(unWrappedRequest);
- return Wrappers_Compile.Result<_System._ITuple0, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Success(_System.Tuple0.Default());
+ return Wrappers_Compile.Result<_System._ITuple0, software.amazon.cryptography.materialproviders.internaldafny.types._IError>.create_Success(_System.Tuple0.Default());
 } catch (System.Exception ex) {
-    return Wrappers_Compile.Result<_System._ITuple0, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Failure(this.ConvertError(ex));
+    return Wrappers_Compile.Result<_System._ITuple0, software.amazon.cryptography.materialproviders.internaldafny.types._IError>.create_Failure(this.ConvertError(ex));
 }
 
 }
- private Dafny.Aws.Cryptography.MaterialProviders.Types._IError ConvertError(System.Exception error) {
+ private software.amazon.cryptography.materialproviders.internaldafny.types._IError ConvertError(System.Exception error) {
 
  switch (error) {
  case AWS.Cryptography.MaterialProviders.AwsCryptographicMaterialProvidersException e:
@@ -314,8 +314,8 @@ using System;
     return TypeConversion.ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S36_InvalidEncryptionMaterialsTransition(e);
 
  case CollectionOfErrors collectionOfErrors:
- return new Dafny.Aws.Cryptography.MaterialProviders.Types.Error_CollectionOfErrors(
-     Dafny.Sequence<Dafny.Aws.Cryptography.MaterialProviders.Types._IError>
+ return new software.amazon.cryptography.materialproviders.internaldafny.types.Error_CollectionOfErrors(
+     Dafny.Sequence<software.amazon.cryptography.materialproviders.internaldafny.types._IError>
      .FromArray(
          collectionOfErrors.list.Select
              (x => TypeConversion.ToDafny_CommonError(x))
@@ -324,7 +324,7 @@ using System;
  );
 
  default:
-    return new Dafny.Aws.Cryptography.MaterialProviders.Types.Error_Opaque(error);
+    return new software.amazon.cryptography.materialproviders.internaldafny.types.Error_Opaque(error);
 
 }
 }

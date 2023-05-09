@@ -1,7 +1,7 @@
 package Digest_Compile;
 
-import Dafny.Aws.Cryptography.Primitives.Types.DigestAlgorithm;
-import Dafny.Aws.Cryptography.Primitives.Types.Error;
+import software.amazon.cryptography.primitives.internaldafny.types.DigestAlgorithm;
+import software.amazon.cryptography.primitives.internaldafny.types.Error;
 import Wrappers_Compile.Result;
 import dafny.Array;
 import dafny.DafnySequence;

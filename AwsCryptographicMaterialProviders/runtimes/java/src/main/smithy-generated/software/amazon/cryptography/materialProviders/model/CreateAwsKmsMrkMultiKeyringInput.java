@@ -1,11 +1,11 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
-package software.amazon.cryptography.materialProviders.model;
+package software.amazon.cryptography.materialproviders.model;
 
 import java.util.List;
-import software.amazon.cryptography.materialProviders.ClientSupplier;
-import software.amazon.cryptography.materialProviders.IClientSupplier;
+import software.amazon.cryptography.materialproviders.ClientSupplier;
+import software.amazon.cryptography.materialproviders.IClientSupplier;
 
 public class CreateAwsKmsMrkMultiKeyringInput {
   private final String generator;

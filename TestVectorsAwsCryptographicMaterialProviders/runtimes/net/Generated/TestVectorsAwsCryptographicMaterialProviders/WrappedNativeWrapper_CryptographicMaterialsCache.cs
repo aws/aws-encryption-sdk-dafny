@@ -9,14 +9,14 @@
  using Wrappers_Compile;
 
  namespace AWS.Cryptography.MaterialProviders.Wrapped {
- internal class WrappedNativeWrapper_CryptographicMaterialsCache : Dafny.Aws.Cryptography.MaterialProviders.Types.ICryptographicMaterialsCache 
+ internal class WrappedNativeWrapper_CryptographicMaterialsCache : software.amazon.cryptography.materialproviders.internaldafny.types.ICryptographicMaterialsCache 
  {
  internal readonly CryptographicMaterialsCacheBase _impl;
  public WrappedNativeWrapper_CryptographicMaterialsCache(CryptographicMaterialsCacheBase nativeImpl)
  {
  _impl = nativeImpl;
 }
- public Wrappers_Compile._IResult<_System._ITuple0, Dafny.Aws.Cryptography.MaterialProviders.Types._IError> PutCacheEntry(Dafny.Aws.Cryptography.MaterialProviders.Types._IPutCacheEntryInput input)
+ public Wrappers_Compile._IResult<_System._ITuple0, software.amazon.cryptography.materialproviders.internaldafny.types._IError> PutCacheEntry(software.amazon.cryptography.materialproviders.internaldafny.types._IPutCacheEntryInput input)
  {
 
  AWS.Cryptography.MaterialProviders.PutCacheEntryInput nativeInput = TypeConversion.FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S18_PutCacheEntryInput(input);
@@ -24,18 +24,18 @@
   _impl.PutCacheEntry(nativeInput);
  
  
- return Wrappers_Compile.Result<_System._ITuple0, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Success(Tuple0.create());
+ return Wrappers_Compile.Result<_System._ITuple0, software.amazon.cryptography.materialproviders.internaldafny.types._IError>.create_Success(Tuple0.create());
 }
  catch(Exception e)
  {
- return Wrappers_Compile.Result<_System._ITuple0, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Failure(TypeConversion.ToDafny_CommonError(e));
+ return Wrappers_Compile.Result<_System._ITuple0, software.amazon.cryptography.materialproviders.internaldafny.types._IError>.create_Failure(TypeConversion.ToDafny_CommonError(e));
 }
 }
- public Wrappers_Compile._IResult<_System._ITuple0, Dafny.Aws.Cryptography.MaterialProviders.Types._IError> PutCacheEntry_k(Dafny.Aws.Cryptography.MaterialProviders.Types._IPutCacheEntryInput input)
+ public Wrappers_Compile._IResult<_System._ITuple0, software.amazon.cryptography.materialproviders.internaldafny.types._IError> PutCacheEntry_k(software.amazon.cryptography.materialproviders.internaldafny.types._IPutCacheEntryInput input)
  {
  throw new AwsCryptographicMaterialProvidersException("Not supported at this time.");
 }
- public Wrappers_Compile._IResult<_System._ITuple0, Dafny.Aws.Cryptography.MaterialProviders.Types._IError> UpdaterUsageMetadata(Dafny.Aws.Cryptography.MaterialProviders.Types._IUpdaterUsageMetadataInput input)
+ public Wrappers_Compile._IResult<_System._ITuple0, software.amazon.cryptography.materialproviders.internaldafny.types._IError> UpdaterUsageMetadata(software.amazon.cryptography.materialproviders.internaldafny.types._IUpdaterUsageMetadataInput input)
  {
 
  AWS.Cryptography.MaterialProviders.UpdaterUsageMetadataInput nativeInput = TypeConversion.FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S25_UpdaterUsageMetadataInput(input);
@@ -43,18 +43,18 @@
   _impl.UpdaterUsageMetadata(nativeInput);
  
  
- return Wrappers_Compile.Result<_System._ITuple0, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Success(Tuple0.create());
+ return Wrappers_Compile.Result<_System._ITuple0, software.amazon.cryptography.materialproviders.internaldafny.types._IError>.create_Success(Tuple0.create());
 }
  catch(Exception e)
  {
- return Wrappers_Compile.Result<_System._ITuple0, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Failure(TypeConversion.ToDafny_CommonError(e));
+ return Wrappers_Compile.Result<_System._ITuple0, software.amazon.cryptography.materialproviders.internaldafny.types._IError>.create_Failure(TypeConversion.ToDafny_CommonError(e));
 }
 }
- public Wrappers_Compile._IResult<_System._ITuple0, Dafny.Aws.Cryptography.MaterialProviders.Types._IError> UpdaterUsageMetadata_k(Dafny.Aws.Cryptography.MaterialProviders.Types._IUpdaterUsageMetadataInput input)
+ public Wrappers_Compile._IResult<_System._ITuple0, software.amazon.cryptography.materialproviders.internaldafny.types._IError> UpdaterUsageMetadata_k(software.amazon.cryptography.materialproviders.internaldafny.types._IUpdaterUsageMetadataInput input)
  {
  throw new AwsCryptographicMaterialProvidersException("Not supported at this time.");
 }
- public Wrappers_Compile._IResult<Dafny.Aws.Cryptography.MaterialProviders.Types._IGetCacheEntryOutput, Dafny.Aws.Cryptography.MaterialProviders.Types._IError> GetCacheEntry(Dafny.Aws.Cryptography.MaterialProviders.Types._IGetCacheEntryInput input)
+ public Wrappers_Compile._IResult<software.amazon.cryptography.materialproviders.internaldafny.types._IGetCacheEntryOutput, software.amazon.cryptography.materialproviders.internaldafny.types._IError> GetCacheEntry(software.amazon.cryptography.materialproviders.internaldafny.types._IGetCacheEntryInput input)
  {
  void validateOutput(AWS.Cryptography.MaterialProviders.GetCacheEntryOutput nativeOutput) {
  try { nativeOutput.Validate(); } catch (ArgumentException e)
@@ -68,18 +68,18 @@
  AWS.Cryptography.MaterialProviders.GetCacheEntryOutput nativeOutput = _impl.GetCacheEntry(nativeInput);
  _ = nativeOutput ?? throw new AwsCryptographicMaterialProvidersException($"{_impl}._GetCacheEntry returned null, should be {typeof(AWS.Cryptography.MaterialProviders.GetCacheEntryOutput)}");
  validateOutput(nativeOutput);
- return Wrappers_Compile.Result<Dafny.Aws.Cryptography.MaterialProviders.Types._IGetCacheEntryOutput, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Success(TypeConversion.ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_GetCacheEntryOutput(nativeOutput));
+ return Wrappers_Compile.Result<software.amazon.cryptography.materialproviders.internaldafny.types._IGetCacheEntryOutput, software.amazon.cryptography.materialproviders.internaldafny.types._IError>.create_Success(TypeConversion.ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_GetCacheEntryOutput(nativeOutput));
 }
  catch(Exception e)
  {
- return Wrappers_Compile.Result<Dafny.Aws.Cryptography.MaterialProviders.Types._IGetCacheEntryOutput, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Failure(TypeConversion.ToDafny_CommonError(e));
+ return Wrappers_Compile.Result<software.amazon.cryptography.materialproviders.internaldafny.types._IGetCacheEntryOutput, software.amazon.cryptography.materialproviders.internaldafny.types._IError>.create_Failure(TypeConversion.ToDafny_CommonError(e));
 }
 }
- public Wrappers_Compile._IResult<Dafny.Aws.Cryptography.MaterialProviders.Types._IGetCacheEntryOutput, Dafny.Aws.Cryptography.MaterialProviders.Types._IError> GetCacheEntry_k(Dafny.Aws.Cryptography.MaterialProviders.Types._IGetCacheEntryInput input)
+ public Wrappers_Compile._IResult<software.amazon.cryptography.materialproviders.internaldafny.types._IGetCacheEntryOutput, software.amazon.cryptography.materialproviders.internaldafny.types._IError> GetCacheEntry_k(software.amazon.cryptography.materialproviders.internaldafny.types._IGetCacheEntryInput input)
  {
  throw new AwsCryptographicMaterialProvidersException("Not supported at this time.");
 }
- public Wrappers_Compile._IResult<_System._ITuple0, Dafny.Aws.Cryptography.MaterialProviders.Types._IError> DeleteCacheEntry(Dafny.Aws.Cryptography.MaterialProviders.Types._IDeleteCacheEntryInput input)
+ public Wrappers_Compile._IResult<_System._ITuple0, software.amazon.cryptography.materialproviders.internaldafny.types._IError> DeleteCacheEntry(software.amazon.cryptography.materialproviders.internaldafny.types._IDeleteCacheEntryInput input)
  {
 
  AWS.Cryptography.MaterialProviders.DeleteCacheEntryInput nativeInput = TypeConversion.FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S21_DeleteCacheEntryInput(input);
@@ -87,14 +87,14 @@
   _impl.DeleteCacheEntry(nativeInput);
  
  
- return Wrappers_Compile.Result<_System._ITuple0, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Success(Tuple0.create());
+ return Wrappers_Compile.Result<_System._ITuple0, software.amazon.cryptography.materialproviders.internaldafny.types._IError>.create_Success(Tuple0.create());
 }
  catch(Exception e)
  {
- return Wrappers_Compile.Result<_System._ITuple0, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Failure(TypeConversion.ToDafny_CommonError(e));
+ return Wrappers_Compile.Result<_System._ITuple0, software.amazon.cryptography.materialproviders.internaldafny.types._IError>.create_Failure(TypeConversion.ToDafny_CommonError(e));
 }
 }
- public Wrappers_Compile._IResult<_System._ITuple0, Dafny.Aws.Cryptography.MaterialProviders.Types._IError> DeleteCacheEntry_k(Dafny.Aws.Cryptography.MaterialProviders.Types._IDeleteCacheEntryInput input)
+ public Wrappers_Compile._IResult<_System._ITuple0, software.amazon.cryptography.materialproviders.internaldafny.types._IError> DeleteCacheEntry_k(software.amazon.cryptography.materialproviders.internaldafny.types._IDeleteCacheEntryInput input)
  {
  throw new AwsCryptographicMaterialProvidersException("Not supported at this time.");
 }

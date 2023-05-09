@@ -75,6 +75,8 @@ public class HkdfExpandInput {
 
     protected int expectedLength;
 
+    private boolean _expectedLengthSet = false;
+
     protected BuilderImpl() {
     }
 
@@ -83,6 +85,7 @@ public class HkdfExpandInput {
       this.prk = model.prk();
       this.info = model.info();
       this.expectedLength = model.expectedLength();
+      this._expectedLengthSet = true;
     }
 
     public Builder digestAlgorithm(DigestAlgorithm digestAlgorithm) {
@@ -114,6 +117,7 @@ public class HkdfExpandInput {
 
     public Builder expectedLength(int expectedLength) {
       this.expectedLength = expectedLength;
+      this._expectedLengthSet = true;
       return this;
     }
 
@@ -131,10 +135,10 @@ public class HkdfExpandInput {
       if (Objects.isNull(this.info()))  {
         throw new IllegalArgumentException("Missing value for required field `info`");
       }
-      if (Objects.isNull(this.expectedLength()))  {
+      if (!this._expectedLengthSet) {
         throw new IllegalArgumentException("Missing value for required field `expectedLength`");
       }
-      if (Objects.nonNull(this.expectedLength()) && this.expectedLength() < 0) {
+      if (this._expectedLengthSet && this.expectedLength() < 0) {
         throw new IllegalArgumentException("`expectedLength` must be greater than or equal to 0");
       }
       return new HkdfExpandInput(this);

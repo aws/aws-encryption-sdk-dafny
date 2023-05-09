@@ -6,14 +6,14 @@ using System.Security.Cryptography;
 
 using icharseq = Dafny.ISequence<char>;
 using ibyteseq = Dafny.ISequence<byte>;
-using _IError = Dafny.Aws.Cryptography.Primitives.Types._IError;
-using Error_Opaque = Dafny.Aws.Cryptography.Primitives.Types.Error_Opaque;
+using _IError = software.amazon.cryptography.primitives.internaldafny.types._IError;
+using Error_Opaque = software.amazon.cryptography.primitives.internaldafny.types.Error_Opaque;
 
 namespace ExternRandom {
     public partial class __default {
         public static Wrappers_Compile._IResult<
             ibyteseq,
-            Dafny.Aws.Cryptography.Primitives.Types._IError
+            software.amazon.cryptography.primitives.internaldafny.types._IError
         > GenerateBytes(int i) {
             try {
                 //= compliance/data-format/message-header.txt#2.5.1.6

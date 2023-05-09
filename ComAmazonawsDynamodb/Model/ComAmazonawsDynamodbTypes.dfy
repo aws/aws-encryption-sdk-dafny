@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 include "../../StandardLibrary/src/Index.dfy"
- module {:extern "Dafny.Com.Amazonaws.Dynamodb.Types" } ComAmazonawsDynamodbTypes
+ module {:extern "software.amazon.cryptography.services.dynamodb.internaldafny.types" } ComAmazonawsDynamodbTypes
  {
  import opened Wrappers
  import opened StandardLibrary.UInt

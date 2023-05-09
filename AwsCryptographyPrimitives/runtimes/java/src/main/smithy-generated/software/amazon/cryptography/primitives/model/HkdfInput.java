@@ -88,6 +88,8 @@ public class HkdfInput {
 
     protected int expectedLength;
 
+    private boolean _expectedLengthSet = false;
+
     protected BuilderImpl() {
     }
 
@@ -97,6 +99,7 @@ public class HkdfInput {
       this.ikm = model.ikm();
       this.info = model.info();
       this.expectedLength = model.expectedLength();
+      this._expectedLengthSet = true;
     }
 
     public Builder digestAlgorithm(DigestAlgorithm digestAlgorithm) {
@@ -137,6 +140,7 @@ public class HkdfInput {
 
     public Builder expectedLength(int expectedLength) {
       this.expectedLength = expectedLength;
+      this._expectedLengthSet = true;
       return this;
     }
 
@@ -154,10 +158,10 @@ public class HkdfInput {
       if (Objects.isNull(this.info()))  {
         throw new IllegalArgumentException("Missing value for required field `info`");
       }
-      if (Objects.isNull(this.expectedLength()))  {
+      if (!this._expectedLengthSet) {
         throw new IllegalArgumentException("Missing value for required field `expectedLength`");
       }
-      if (Objects.nonNull(this.expectedLength()) && this.expectedLength() < 0) {
+      if (this._expectedLengthSet && this.expectedLength() < 0) {
         throw new IllegalArgumentException("`expectedLength` must be greater than or equal to 0");
       }
       return new HkdfInput(this);

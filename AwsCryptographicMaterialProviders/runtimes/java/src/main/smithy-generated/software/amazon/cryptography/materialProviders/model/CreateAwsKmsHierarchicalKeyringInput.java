@@ -1,12 +1,12 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
-package software.amazon.cryptography.materialProviders.model;
+package software.amazon.cryptography.materialproviders.model;
 
 import java.util.Objects;
-import software.amazon.cryptography.keyStore.KeyStore;
-import software.amazon.cryptography.materialProviders.BranchKeyIdSupplier;
-import software.amazon.cryptography.materialProviders.IBranchKeyIdSupplier;
+import software.amazon.cryptography.keystore.KeyStore;
+import software.amazon.cryptography.materialproviders.BranchKeyIdSupplier;
+import software.amazon.cryptography.materialproviders.IBranchKeyIdSupplier;
 
 public class CreateAwsKmsHierarchicalKeyringInput {
   private final String branchKeyId;
@@ -88,7 +88,11 @@ public class CreateAwsKmsHierarchicalKeyringInput {
 
     protected long ttlSeconds;
 
+    private boolean _ttlSecondsSet = false;
+
     protected int maxCacheSize;
+
+    private boolean _maxCacheSizeSet = false;
 
     protected BuilderImpl() {
     }
@@ -98,7 +102,9 @@ public class CreateAwsKmsHierarchicalKeyringInput {
       this.branchKeyIdSupplier = model.branchKeyIdSupplier();
       this.keyStore = model.keyStore();
       this.ttlSeconds = model.ttlSeconds();
+      this._ttlSecondsSet = true;
       this.maxCacheSize = model.maxCacheSize();
+      this._maxCacheSizeSet = true;
     }
 
     public Builder branchKeyId(String branchKeyId) {
@@ -130,6 +136,7 @@ public class CreateAwsKmsHierarchicalKeyringInput {
 
     public Builder ttlSeconds(long ttlSeconds) {
       this.ttlSeconds = ttlSeconds;
+      this._ttlSecondsSet = true;
       return this;
     }
 
@@ -139,6 +146,7 @@ public class CreateAwsKmsHierarchicalKeyringInput {
 
     public Builder maxCacheSize(int maxCacheSize) {
       this.maxCacheSize = maxCacheSize;
+      this._maxCacheSizeSet = true;
       return this;
     }
 
@@ -150,13 +158,13 @@ public class CreateAwsKmsHierarchicalKeyringInput {
       if (Objects.isNull(this.keyStore()))  {
         throw new IllegalArgumentException("Missing value for required field `keyStore`");
       }
-      if (Objects.isNull(this.ttlSeconds()))  {
+      if (!this._ttlSecondsSet) {
         throw new IllegalArgumentException("Missing value for required field `ttlSeconds`");
       }
-      if (Objects.nonNull(this.ttlSeconds()) && this.ttlSeconds() < 0) {
+      if (this._ttlSecondsSet && this.ttlSeconds() < 0) {
         throw new IllegalArgumentException("`ttlSeconds` must be greater than or equal to 0");
       }
-      if (Objects.nonNull(this.maxCacheSize()) && this.maxCacheSize() < 0) {
+      if (this._maxCacheSizeSet && this.maxCacheSize() < 0) {
         throw new IllegalArgumentException("`maxCacheSize` must be greater than or equal to 0");
       }
       return new CreateAwsKmsHierarchicalKeyringInput(this);

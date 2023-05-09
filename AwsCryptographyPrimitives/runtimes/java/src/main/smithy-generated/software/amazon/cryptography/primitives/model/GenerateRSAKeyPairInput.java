@@ -3,8 +3,6 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.primitives.model;
 
-import java.util.Objects;
-
 public class GenerateRSAKeyPairInput {
   private final int lengthBits;
 
@@ -35,15 +33,19 @@ public class GenerateRSAKeyPairInput {
   static class BuilderImpl implements Builder {
     protected int lengthBits;
 
+    private boolean _lengthBitsSet = false;
+
     protected BuilderImpl() {
     }
 
     protected BuilderImpl(GenerateRSAKeyPairInput model) {
       this.lengthBits = model.lengthBits();
+      this._lengthBitsSet = true;
     }
 
     public Builder lengthBits(int lengthBits) {
       this.lengthBits = lengthBits;
+      this._lengthBitsSet = true;
       return this;
     }
 
@@ -52,13 +54,13 @@ public class GenerateRSAKeyPairInput {
     }
 
     public GenerateRSAKeyPairInput build() {
-      if (Objects.isNull(this.lengthBits()))  {
+      if (!this._lengthBitsSet) {
         throw new IllegalArgumentException("Missing value for required field `lengthBits`");
       }
-      if (Objects.nonNull(this.lengthBits()) && this.lengthBits() < 81) {
+      if (this._lengthBitsSet && this.lengthBits() < 81) {
         throw new IllegalArgumentException("`lengthBits` must be greater than or equal to 81");
       }
-      if (Objects.nonNull(this.lengthBits()) && this.lengthBits() > 4096) {
+      if (this._lengthBitsSet && this.lengthBits() > 4096) {
         throw new IllegalArgumentException("`lengthBits` must be less than or equal to 4096.");
       }
       return new GenerateRSAKeyPairInput(this);

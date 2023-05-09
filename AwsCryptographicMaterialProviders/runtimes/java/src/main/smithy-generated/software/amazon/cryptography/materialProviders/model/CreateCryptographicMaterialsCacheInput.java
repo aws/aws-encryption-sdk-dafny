@@ -1,9 +1,7 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
-package software.amazon.cryptography.materialProviders.model;
-
-import java.util.Objects;
+package software.amazon.cryptography.materialproviders.model;
 
 public class CreateCryptographicMaterialsCacheInput {
   private final int entryCapacity;
@@ -46,18 +44,25 @@ public class CreateCryptographicMaterialsCacheInput {
   static class BuilderImpl implements Builder {
     protected int entryCapacity;
 
+    private boolean _entryCapacitySet = false;
+
     protected int entryPruningTailSize;
+
+    private boolean _entryPruningTailSizeSet = false;
 
     protected BuilderImpl() {
     }
 
     protected BuilderImpl(CreateCryptographicMaterialsCacheInput model) {
       this.entryCapacity = model.entryCapacity();
+      this._entryCapacitySet = true;
       this.entryPruningTailSize = model.entryPruningTailSize();
+      this._entryPruningTailSizeSet = true;
     }
 
     public Builder entryCapacity(int entryCapacity) {
       this.entryCapacity = entryCapacity;
+      this._entryCapacitySet = true;
       return this;
     }
 
@@ -67,6 +72,7 @@ public class CreateCryptographicMaterialsCacheInput {
 
     public Builder entryPruningTailSize(int entryPruningTailSize) {
       this.entryPruningTailSize = entryPruningTailSize;
+      this._entryPruningTailSizeSet = true;
       return this;
     }
 
@@ -75,13 +81,13 @@ public class CreateCryptographicMaterialsCacheInput {
     }
 
     public CreateCryptographicMaterialsCacheInput build() {
-      if (Objects.isNull(this.entryCapacity()))  {
+      if (!this._entryCapacitySet) {
         throw new IllegalArgumentException("Missing value for required field `entryCapacity`");
       }
-      if (Objects.nonNull(this.entryCapacity()) && this.entryCapacity() < 0) {
+      if (this._entryCapacitySet && this.entryCapacity() < 0) {
         throw new IllegalArgumentException("`entryCapacity` must be greater than or equal to 0");
       }
-      if (Objects.nonNull(this.entryPruningTailSize()) && this.entryPruningTailSize() < 0) {
+      if (this._entryPruningTailSizeSet && this.entryPruningTailSize() < 0) {
         throw new IllegalArgumentException("`entryPruningTailSize` must be greater than or equal to 0");
       }
       return new CreateCryptographicMaterialsCacheInput(this);

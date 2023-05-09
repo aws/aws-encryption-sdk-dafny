@@ -1,6 +1,6 @@
 package HMAC;
 
-import Dafny.Aws.Cryptography.Primitives.Types.Error;
+import software.amazon.cryptography.primitives.internaldafny.types.Error;
 import StandardLibrary_mUInt_Compile.uint8;
 import Wrappers_Compile.Result;
 import dafny.DafnySequence;
@@ -10,7 +10,7 @@ import java.security.NoSuchAlgorithmException;
 public class __default {
 
   public static Result<DafnySequence<? extends Byte>, Error> Digest(
-    Dafny.Aws.Cryptography.Primitives.Types.HMacInput input
+    software.amazon.cryptography.primitives.internaldafny.types.HMacInput input
   )
   {
     Result<HMac, Error> maybeHMac = HMac.Build(input._digestAlgorithm);

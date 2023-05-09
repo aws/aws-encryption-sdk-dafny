@@ -1,5 +1,10 @@
 namespace aws.cryptography.materialProviders
 
+use aws.cryptography.keyStore#KeyStore
+use aws.cryptography.primitives#AwsCryptographicPrimitives
+use com.amazonaws.dynamodb#DynamoDB_20120810
+use com.amazonaws.kms#TrentService
+
 @range(min: 0)
 integer PositiveInteger
 
@@ -11,6 +16,12 @@ long PositiveLong
 @aws.polymorph#localService(
   sdkId: "MaterialProviders",
   config: MaterialProvidersConfig,
+  dependencies: [
+    AwsCryptographicPrimitives,
+    DynamoDB_20120810,
+    TrentService,
+    KeyStore
+  ]
 )
 service AwsCryptographicMaterialProviders {
   version: "2021-11-01",

@@ -4,7 +4,7 @@
 include "../Model/AwsCryptographyMaterialProvidersTypesWrapped.dfy"
 
 module
-  {:extern "Dafny.Aws.Cryptography.MaterialProviders.Wrapped" }
+  {:extern "software.amazon.cryptography.materialproviders.internaldafny.wrapped" }
   WrappedMaterialProviders refines WrappedAbstractAwsCryptographyMaterialProvidersService
 {
   import WrappedService = MaterialProviders

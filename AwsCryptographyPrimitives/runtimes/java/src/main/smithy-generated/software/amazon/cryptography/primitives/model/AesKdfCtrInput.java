@@ -60,6 +60,8 @@ public class AesKdfCtrInput {
 
     protected int expectedLength;
 
+    private boolean _expectedLengthSet = false;
+
     protected ByteBuffer nonce;
 
     protected BuilderImpl() {
@@ -68,6 +70,7 @@ public class AesKdfCtrInput {
     protected BuilderImpl(AesKdfCtrInput model) {
       this.ikm = model.ikm();
       this.expectedLength = model.expectedLength();
+      this._expectedLengthSet = true;
       this.nonce = model.nonce();
     }
 
@@ -82,6 +85,7 @@ public class AesKdfCtrInput {
 
     public Builder expectedLength(int expectedLength) {
       this.expectedLength = expectedLength;
+      this._expectedLengthSet = true;
       return this;
     }
 
@@ -102,10 +106,10 @@ public class AesKdfCtrInput {
       if (Objects.isNull(this.ikm()))  {
         throw new IllegalArgumentException("Missing value for required field `ikm`");
       }
-      if (Objects.isNull(this.expectedLength()))  {
+      if (!this._expectedLengthSet) {
         throw new IllegalArgumentException("Missing value for required field `expectedLength`");
       }
-      if (Objects.nonNull(this.expectedLength()) && this.expectedLength() < 0) {
+      if (this._expectedLengthSet && this.expectedLength() < 0) {
         throw new IllegalArgumentException("`expectedLength` must be greater than or equal to 0");
       }
       return new AesKdfCtrInput(this);
