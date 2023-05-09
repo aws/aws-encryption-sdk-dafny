@@ -1,20 +1,20 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
-package software.amazon.cryptography.materialProviders;
+package software.amazon.cryptography.materialproviders;
 
-import software.amazon.cryptography.materialProviders.model.DeleteCacheEntryInput;
-import software.amazon.cryptography.materialProviders.model.GetCacheEntryInput;
-import software.amazon.cryptography.materialProviders.model.GetCacheEntryOutput;
-import software.amazon.cryptography.materialProviders.model.PutCacheEntryInput;
-import software.amazon.cryptography.materialProviders.model.UpdaterUsageMetadataInput;
+import software.amazon.cryptography.materialproviders.model.DeleteCacheEntryInput;
+import software.amazon.cryptography.materialproviders.model.GetCacheEntryInput;
+import software.amazon.cryptography.materialproviders.model.GetCacheEntryOutput;
+import software.amazon.cryptography.materialproviders.model.PutCacheEntryInput;
+import software.amazon.cryptography.materialproviders.model.UpdaterUsageMetadataInput;
 
 public interface ICryptographicMaterialsCache {
-  void PutCacheEntry(PutCacheEntryInput nativeValue);
+  void DeleteCacheEntry(DeleteCacheEntryInput nativeValue);
 
   GetCacheEntryOutput GetCacheEntry(GetCacheEntryInput nativeValue);
 
-  void UpdaterUsageMetadata(UpdaterUsageMetadataInput nativeValue);
+  void PutCacheEntry(PutCacheEntryInput nativeValue);
 
-  void DeleteCacheEntry(DeleteCacheEntryInput nativeValue);
+  void UpdaterUsageMetadata(UpdaterUsageMetadataInput nativeValue);
 }

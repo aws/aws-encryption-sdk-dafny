@@ -3,7 +3,7 @@
 
 package Random_Compile;
 
-import Dafny.Aws.Cryptography.Primitives.Types.Error;
+import software.amazon.cryptography.primitives.internaldafny.types.Error;
 import Wrappers_Compile.Result;
 import dafny.DafnySequence;
 import software.amazon.cryptography.primitives.ToDafny;

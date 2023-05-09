@@ -9,7 +9,7 @@ import java.security.spec.ECPrivateKeySpec;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.InvalidParameterSpecException;
 
-import Dafny.Aws.Cryptography.Primitives.Types.Error;
+import software.amazon.cryptography.primitives.internaldafny.types.Error;
 import Wrappers_Compile.Result;
 import dafny.Array;
 import dafny.DafnySequence;

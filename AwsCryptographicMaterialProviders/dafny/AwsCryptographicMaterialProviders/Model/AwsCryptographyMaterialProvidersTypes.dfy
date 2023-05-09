@@ -6,7 +6,7 @@ include "../../../../StandardLibrary/src/Index.dfy"
  include "../../../../AwsCryptographyPrimitives/src/Index.dfy"
  include "../../../../ComAmazonawsDynamodb/src/Index.dfy"
  include "../../../../ComAmazonawsKms/src/Index.dfy"
- module {:extern "Dafny.Aws.Cryptography.MaterialProviders.Types" } AwsCryptographyMaterialProvidersTypes
+ module {:extern "software.amazon.cryptography.materialproviders.internaldafny.types" } AwsCryptographyMaterialProvidersTypes
  {
  import opened Wrappers
  import opened StandardLibrary.UInt

@@ -1,4 +1,4 @@
-package Dafny.Aws.Cryptography.Primitives.Types;
+package software.amazon.cryptography.primitives.internaldafny.types;
 
-public class __default extends Dafny.Aws.Cryptography.Primitives.Types._ExternBase___default{
+public class __default extends software.amazon.cryptography.primitives.internaldafny.types._ExternBase___default{
 }

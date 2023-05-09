@@ -5,7 +5,7 @@ using System;
 using System.Diagnostics;
 using System.Text;
 using System.IO;
-using Dafny.Aws.Cryptography.Primitives.Types;
+using software.amazon.cryptography.primitives.internaldafny.types;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Digests;
 using Org.BouncyCastle.Crypto.Engines;
@@ -21,8 +21,8 @@ using icharseq = Dafny.ISequence<char>;
 using ibyteseq = Dafny.ISequence<byte>;
 using byteseq = Dafny.Sequence<byte>;
 
-using _IError = Dafny.Aws.Cryptography.Primitives.Types._IError;
-using Error_Opaque = Dafny.Aws.Cryptography.Primitives.Types.Error_Opaque;
+using _IError = software.amazon.cryptography.primitives.internaldafny.types._IError;
+using Error_Opaque = software.amazon.cryptography.primitives.internaldafny.types.Error_Opaque;
 
 namespace RSAEncryption {
 

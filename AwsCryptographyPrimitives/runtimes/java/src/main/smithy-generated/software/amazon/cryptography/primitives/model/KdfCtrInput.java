@@ -84,6 +84,8 @@ public class KdfCtrInput {
 
     protected int expectedLength;
 
+    private boolean _expectedLengthSet = false;
+
     protected ByteBuffer purpose;
 
     protected ByteBuffer nonce;
@@ -95,6 +97,7 @@ public class KdfCtrInput {
       this.digestAlgorithm = model.digestAlgorithm();
       this.ikm = model.ikm();
       this.expectedLength = model.expectedLength();
+      this._expectedLengthSet = true;
       this.purpose = model.purpose();
       this.nonce = model.nonce();
     }
@@ -119,6 +122,7 @@ public class KdfCtrInput {
 
     public Builder expectedLength(int expectedLength) {
       this.expectedLength = expectedLength;
+      this._expectedLengthSet = true;
       return this;
     }
 
@@ -151,10 +155,10 @@ public class KdfCtrInput {
       if (Objects.isNull(this.ikm()))  {
         throw new IllegalArgumentException("Missing value for required field `ikm`");
       }
-      if (Objects.isNull(this.expectedLength()))  {
+      if (!this._expectedLengthSet) {
         throw new IllegalArgumentException("Missing value for required field `expectedLength`");
       }
-      if (Objects.nonNull(this.expectedLength()) && this.expectedLength() < 0) {
+      if (this._expectedLengthSet && this.expectedLength() < 0) {
         throw new IllegalArgumentException("`expectedLength` must be greater than or equal to 0");
       }
       return new KdfCtrInput(this);

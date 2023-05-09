@@ -10,31 +10,31 @@ using Com.Amazonaws.Kms;
 
 // This extern is identified in Dafny code
 // that refines the AWS SDK KMS Model
-namespace Dafny.Com.Amazonaws.Kms
+namespace software.amazon.cryptography.services.kms.internaldafny
 {
   public partial class __default
   {
     
     public static
       _IResult<
-        Types.IKMSClient,
-        Types._IError
+        types.IKMSClient,
+        types._IError
       >
       KMSClient()
     {
       var client = new DefaultKmsClient();
 
       return Result<
-        Types.IKMSClient,
-        Types._IError
+        types.IKMSClient,
+        types._IError
       >
         .create_Success(new KeyManagementServiceShim(client));
     }
 
     public static
       _IResult<
-        Types.IKMSClient,
-        Types._IError
+        types.IKMSClient,
+        types._IError
       >
       KMSClientForRegion(
         Dafny.ISequence<char> regionDafnyString
@@ -45,14 +45,14 @@ namespace Dafny.Com.Amazonaws.Kms
       var client = new DefaultKmsClient(region);
 
       return Result<
-        Types.IKMSClient,
-        Types._IError
+        types.IKMSClient,
+        types._IError
       >
         .create_Success(new KeyManagementServiceShim(client));
     }
 
     public static _IOption<bool> RegionMatch(
-        Dafny.Com.Amazonaws.Kms.Types.IKMSClient client,
+        software.amazon.cryptography.services.kms.internaldafny.types.IKMSClient client,
         Dafny.ISequence<char> region
     ) {
         string regionStr = TypeConversion.FromDafny_N6_smithy__N3_api__S6_String(region);

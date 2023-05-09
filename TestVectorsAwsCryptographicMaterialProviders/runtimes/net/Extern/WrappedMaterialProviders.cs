@@ -1,16 +1,16 @@
 using Wrappers_Compile;
 
-namespace Dafny.Aws.Cryptography.MaterialProviders.Wrapped
+namespace software.amazon.cryptography.materialproviders.internaldafny.wrapped
 {
   public partial class __default
   {
     public static
       _IResult<
-        Types.IAwsCryptographicMaterialProvidersClient,
-        Types._IError
+        types.IAwsCryptographicMaterialProvidersClient,
+        types._IError
       >
       WrappedMaterialProviders(
-        Types._IMaterialProvidersConfig config
+        types._IMaterialProvidersConfig config
       )
     {
       var wrappedConfig = AWS.Cryptography.MaterialProviders.Wrapped.TypeConversion
@@ -19,8 +19,8 @@ namespace Dafny.Aws.Cryptography.MaterialProviders.Wrapped
       var wrappedClient = new AWS.Cryptography.MaterialProviders.Wrapped.AwsCryptographicMaterialProvidersShim(impl);
 
       return Result<
-          Types.IAwsCryptographicMaterialProvidersClient,
-          Types._IError
+          types.IAwsCryptographicMaterialProvidersClient,
+          types._IError
         >
         .create_Success(wrappedClient);
     }

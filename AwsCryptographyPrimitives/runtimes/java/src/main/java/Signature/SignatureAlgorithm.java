@@ -6,9 +6,9 @@ import java.security.spec.ECGenParameterSpec;
 import java.security.spec.ECParameterSpec;
 import java.security.spec.InvalidParameterSpecException;
 
-import Dafny.Aws.Cryptography.Primitives.Types.DigestAlgorithm;
-import Dafny.Aws.Cryptography.Primitives.Types.ECDSASignatureAlgorithm;
-import Dafny.Aws.Cryptography.Primitives.Types.Error;
+import software.amazon.cryptography.primitives.internaldafny.types.DigestAlgorithm;
+import software.amazon.cryptography.primitives.internaldafny.types.ECDSASignatureAlgorithm;
+import software.amazon.cryptography.primitives.internaldafny.types.Error;
 import Wrappers_Compile.Result;
 import software.amazon.cryptography.primitives.ToDafny;
 import software.amazon.cryptography.primitives.model.AwsCryptographicPrimitivesError;

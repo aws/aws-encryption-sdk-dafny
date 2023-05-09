@@ -14,8 +14,8 @@ import java.security.spec.InvalidParameterSpecException;
 import java.util.Arrays;
 import java.util.Objects;
 
-import Dafny.Aws.Cryptography.Primitives.Types.ECDSASignatureAlgorithm;
-import Dafny.Aws.Cryptography.Primitives.Types.Error;
+import software.amazon.cryptography.primitives.internaldafny.types.ECDSASignatureAlgorithm;
+import software.amazon.cryptography.primitives.internaldafny.types.Error;
 import Wrappers_Compile.Result;
 import dafny.Array;
 import dafny.DafnySequence;

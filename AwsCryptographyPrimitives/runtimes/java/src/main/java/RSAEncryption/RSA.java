@@ -1,7 +1,7 @@
 package RSAEncryption;
 
-import Dafny.Aws.Cryptography.Primitives.Types.Error;
-import Dafny.Aws.Cryptography.Primitives.Types.RSAPaddingMode;
+import software.amazon.cryptography.primitives.internaldafny.types.Error;
+import software.amazon.cryptography.primitives.internaldafny.types.RSAPaddingMode;
 import Random_Compile.ExternRandom;
 import Wrappers_Compile.Result;
 import dafny.Array;

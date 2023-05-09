@@ -30,6 +30,10 @@ structure DdbClientReference {}
 @localService(
   sdkId: "KeyStore",
   config: KeyStoreConfig,
+  dependencies: [
+    DynamoDB_20120810,
+    TrentService
+  ] 
 )
 service KeyStore {
   version: "2023-04-01",

@@ -6,8 +6,8 @@ using Org.BouncyCastle.Security;
 using Wrappers_Compile;
 using ibyteseq = Dafny.ISequence<byte>;
 using byteseq = Dafny.Sequence<byte>;
-using _IError = Dafny.Aws.Cryptography.Primitives.Types._IError;
-using Error_Opaque = Dafny.Aws.Cryptography.Primitives.Types.Error_Opaque;
+using _IError = software.amazon.cryptography.primitives.internaldafny.types._IError;
+using Error_Opaque = software.amazon.cryptography.primitives.internaldafny.types.Error_Opaque;
 
 namespace AesKdfCtr {
    public partial class __default {

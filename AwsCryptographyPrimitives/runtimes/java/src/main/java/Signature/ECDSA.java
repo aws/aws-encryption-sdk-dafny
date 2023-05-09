@@ -13,8 +13,8 @@ import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
 import java.security.spec.ECGenParameterSpec;
 
-import Dafny.Aws.Cryptography.Primitives.Types.ECDSASignatureAlgorithm;
-import Dafny.Aws.Cryptography.Primitives.Types.Error;
+import software.amazon.cryptography.primitives.internaldafny.types.ECDSASignatureAlgorithm;
+import software.amazon.cryptography.primitives.internaldafny.types.Error;
 import Digest_Compile.ExternDigest;
 import Random_Compile.ExternRandom;
 import Wrappers_Compile.Result;

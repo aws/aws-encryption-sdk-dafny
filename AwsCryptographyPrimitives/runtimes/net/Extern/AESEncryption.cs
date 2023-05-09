@@ -11,10 +11,10 @@ using ibyteseq = Dafny.ISequence<byte>;
 using byteseq = Dafny.Sequence<byte>;
 using icharseq = Dafny.ISequence<char>;
 using charseq = Dafny.Sequence<char>;
-using _IAES__GCM = Dafny.Aws.Cryptography.Primitives.Types._IAES__GCM;
-using _IAESEncryptOutput = Dafny.Aws.Cryptography.Primitives.Types._IAESEncryptOutput;
-using _IError = Dafny.Aws.Cryptography.Primitives.Types._IError;
-using Error_Opaque = Dafny.Aws.Cryptography.Primitives.Types.Error_Opaque;
+using _IAES__GCM = software.amazon.cryptography.primitives.internaldafny.types._IAES__GCM;
+using _IAESEncryptOutput = software.amazon.cryptography.primitives.internaldafny.types._IAESEncryptOutput;
+using _IError = software.amazon.cryptography.primitives.internaldafny.types._IError;
+using Error_Opaque = software.amazon.cryptography.primitives.internaldafny.types.Error_Opaque;
 
 
 namespace AESEncryption {

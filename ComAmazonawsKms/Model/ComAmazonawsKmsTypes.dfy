@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 include "../../StandardLibrary/src/Index.dfy"
- module {:extern "Dafny.Com.Amazonaws.Kms.Types" } ComAmazonawsKmsTypes
+ module {:extern "software.amazon.cryptography.services.kms.internaldafny.types" } ComAmazonawsKmsTypes
  {
  import opened Wrappers
  import opened StandardLibrary.UInt

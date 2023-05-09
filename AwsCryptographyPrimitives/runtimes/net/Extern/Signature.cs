@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 using System;
-using Dafny.Aws.Cryptography.Primitives.Types;
+using software.amazon.cryptography.primitives.internaldafny.types;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Generators;
 using Org.BouncyCastle.Crypto.Parameters;
@@ -17,9 +17,9 @@ using Wrappers_Compile;
 using icharseq = Dafny.ISequence<char>;
 using ibyteseq = Dafny.ISequence<byte>;
 using byteseq = Dafny.Sequence<byte>;
-using _IError = Dafny.Aws.Cryptography.Primitives.Types._IError;
-using Error_Opaque = Dafny.Aws.Cryptography.Primitives.Types.Error_Opaque;
-using Error_AwsCryptographicPrimitivesError = Dafny.Aws.Cryptography.Primitives.Types.Error_AwsCryptographicPrimitivesError;
+using _IError = software.amazon.cryptography.primitives.internaldafny.types._IError;
+using Error_Opaque = software.amazon.cryptography.primitives.internaldafny.types.Error_Opaque;
+using Error_AwsCryptographicPrimitivesError = software.amazon.cryptography.primitives.internaldafny.types.Error_AwsCryptographicPrimitivesError;
 
 namespace Signature {
 

@@ -8,9 +8,9 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-import Dafny.Aws.Cryptography.Primitives.Types.AESEncryptOutput;
-import Dafny.Aws.Cryptography.Primitives.Types.AES__GCM;
-import Dafny.Aws.Cryptography.Primitives.Types.Error;
+import software.amazon.cryptography.primitives.internaldafny.types.AESEncryptOutput;
+import software.amazon.cryptography.primitives.internaldafny.types.AES__GCM;
+import software.amazon.cryptography.primitives.internaldafny.types.Error;
 import Random_Compile.ExternRandom;
 import Wrappers_Compile.Result;
 

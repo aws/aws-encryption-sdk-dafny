@@ -16,7 +16,7 @@ import software.amazon.cryptography.primitives.ToDafny;
 import software.amazon.cryptography.primitives.model.OpaqueError;
 
 public class __default {
-    public static Wrappers_Compile.Result<dafny.DafnySequence<? extends Byte>, Dafny.Aws.Cryptography.Primitives.Types.Error>
+    public static Wrappers_Compile.Result<dafny.DafnySequence<? extends Byte>, software.amazon.cryptography.primitives.internaldafny.types.Error>
     AesKdfCtrStream(dafny.DafnySequence<? extends Byte> iv, dafny.DafnySequence<? extends Byte> key, int length)
     {
         byte[] keyBytes = (byte[]) Array.unwrap(key.toArray());

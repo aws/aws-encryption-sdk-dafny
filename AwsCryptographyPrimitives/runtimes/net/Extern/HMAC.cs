@@ -4,12 +4,12 @@
 using System;
 using System.Collections.Immutable;
 using Wrappers_Compile;
-using Dafny.Aws.Cryptography.Primitives.Types;
+using software.amazon.cryptography.primitives.internaldafny.types;
 using Org.BouncyCastle.Math;
 using ibyteseq = Dafny.ISequence<byte>;
 using byteseq = Dafny.Sequence<byte>;
-using _IDigestAlgorithm = Dafny.Aws.Cryptography.Primitives.Types._IDigestAlgorithm;
-using Error_Opaque = Dafny.Aws.Cryptography.Primitives.Types.Error_Opaque;
+using _IDigestAlgorithm = software.amazon.cryptography.primitives.internaldafny.types._IDigestAlgorithm;
+using Error_Opaque = software.amazon.cryptography.primitives.internaldafny.types.Error_Opaque;
 
 namespace HMAC {
 

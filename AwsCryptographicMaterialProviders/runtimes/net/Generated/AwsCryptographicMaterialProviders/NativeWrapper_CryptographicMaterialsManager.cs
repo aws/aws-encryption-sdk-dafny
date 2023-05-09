@@ -9,14 +9,14 @@
  using Wrappers_Compile;
 
  namespace AWS.Cryptography.MaterialProviders {
- internal class NativeWrapper_CryptographicMaterialsManager : Dafny.Aws.Cryptography.MaterialProviders.Types.ICryptographicMaterialsManager 
+ internal class NativeWrapper_CryptographicMaterialsManager : software.amazon.cryptography.materialproviders.internaldafny.types.ICryptographicMaterialsManager 
  {
  internal readonly CryptographicMaterialsManagerBase _impl;
  public NativeWrapper_CryptographicMaterialsManager(CryptographicMaterialsManagerBase nativeImpl)
  {
  _impl = nativeImpl;
 }
- public Wrappers_Compile._IResult<Dafny.Aws.Cryptography.MaterialProviders.Types._IGetEncryptionMaterialsOutput, Dafny.Aws.Cryptography.MaterialProviders.Types._IError> GetEncryptionMaterials(Dafny.Aws.Cryptography.MaterialProviders.Types._IGetEncryptionMaterialsInput input)
+ public Wrappers_Compile._IResult<software.amazon.cryptography.materialproviders.internaldafny.types._IGetEncryptionMaterialsOutput, software.amazon.cryptography.materialproviders.internaldafny.types._IError> GetEncryptionMaterials(software.amazon.cryptography.materialproviders.internaldafny.types._IGetEncryptionMaterialsInput input)
  {
  void validateOutput(AWS.Cryptography.MaterialProviders.GetEncryptionMaterialsOutput nativeOutput) {
  try { nativeOutput.Validate(); } catch (ArgumentException e)
@@ -30,18 +30,18 @@
  AWS.Cryptography.MaterialProviders.GetEncryptionMaterialsOutput nativeOutput = _impl.GetEncryptionMaterials(nativeInput);
  _ = nativeOutput ?? throw new AwsCryptographicMaterialProvidersException($"{_impl}._GetEncryptionMaterials returned null, should be {typeof(AWS.Cryptography.MaterialProviders.GetEncryptionMaterialsOutput)}");
  validateOutput(nativeOutput);
- return Wrappers_Compile.Result<Dafny.Aws.Cryptography.MaterialProviders.Types._IGetEncryptionMaterialsOutput, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Success(TypeConversion.ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S28_GetEncryptionMaterialsOutput(nativeOutput));
+ return Wrappers_Compile.Result<software.amazon.cryptography.materialproviders.internaldafny.types._IGetEncryptionMaterialsOutput, software.amazon.cryptography.materialproviders.internaldafny.types._IError>.create_Success(TypeConversion.ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S28_GetEncryptionMaterialsOutput(nativeOutput));
 }
  catch(Exception e)
  {
- return Wrappers_Compile.Result<Dafny.Aws.Cryptography.MaterialProviders.Types._IGetEncryptionMaterialsOutput, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Failure(TypeConversion.ToDafny_CommonError(e));
+ return Wrappers_Compile.Result<software.amazon.cryptography.materialproviders.internaldafny.types._IGetEncryptionMaterialsOutput, software.amazon.cryptography.materialproviders.internaldafny.types._IError>.create_Failure(TypeConversion.ToDafny_CommonError(e));
 }
 }
- public Wrappers_Compile._IResult<Dafny.Aws.Cryptography.MaterialProviders.Types._IGetEncryptionMaterialsOutput, Dafny.Aws.Cryptography.MaterialProviders.Types._IError> GetEncryptionMaterials_k(Dafny.Aws.Cryptography.MaterialProviders.Types._IGetEncryptionMaterialsInput input)
+ public Wrappers_Compile._IResult<software.amazon.cryptography.materialproviders.internaldafny.types._IGetEncryptionMaterialsOutput, software.amazon.cryptography.materialproviders.internaldafny.types._IError> GetEncryptionMaterials_k(software.amazon.cryptography.materialproviders.internaldafny.types._IGetEncryptionMaterialsInput input)
  {
  throw new AwsCryptographicMaterialProvidersException("Not supported at this time.");
 }
- public Wrappers_Compile._IResult<Dafny.Aws.Cryptography.MaterialProviders.Types._IDecryptMaterialsOutput, Dafny.Aws.Cryptography.MaterialProviders.Types._IError> DecryptMaterials(Dafny.Aws.Cryptography.MaterialProviders.Types._IDecryptMaterialsInput input)
+ public Wrappers_Compile._IResult<software.amazon.cryptography.materialproviders.internaldafny.types._IDecryptMaterialsOutput, software.amazon.cryptography.materialproviders.internaldafny.types._IError> DecryptMaterials(software.amazon.cryptography.materialproviders.internaldafny.types._IDecryptMaterialsInput input)
  {
  void validateOutput(AWS.Cryptography.MaterialProviders.DecryptMaterialsOutput nativeOutput) {
  try { nativeOutput.Validate(); } catch (ArgumentException e)
@@ -55,14 +55,14 @@
  AWS.Cryptography.MaterialProviders.DecryptMaterialsOutput nativeOutput = _impl.DecryptMaterials(nativeInput);
  _ = nativeOutput ?? throw new AwsCryptographicMaterialProvidersException($"{_impl}._DecryptMaterials returned null, should be {typeof(AWS.Cryptography.MaterialProviders.DecryptMaterialsOutput)}");
  validateOutput(nativeOutput);
- return Wrappers_Compile.Result<Dafny.Aws.Cryptography.MaterialProviders.Types._IDecryptMaterialsOutput, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Success(TypeConversion.ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S22_DecryptMaterialsOutput(nativeOutput));
+ return Wrappers_Compile.Result<software.amazon.cryptography.materialproviders.internaldafny.types._IDecryptMaterialsOutput, software.amazon.cryptography.materialproviders.internaldafny.types._IError>.create_Success(TypeConversion.ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S22_DecryptMaterialsOutput(nativeOutput));
 }
  catch(Exception e)
  {
- return Wrappers_Compile.Result<Dafny.Aws.Cryptography.MaterialProviders.Types._IDecryptMaterialsOutput, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Failure(TypeConversion.ToDafny_CommonError(e));
+ return Wrappers_Compile.Result<software.amazon.cryptography.materialproviders.internaldafny.types._IDecryptMaterialsOutput, software.amazon.cryptography.materialproviders.internaldafny.types._IError>.create_Failure(TypeConversion.ToDafny_CommonError(e));
 }
 }
- public Wrappers_Compile._IResult<Dafny.Aws.Cryptography.MaterialProviders.Types._IDecryptMaterialsOutput, Dafny.Aws.Cryptography.MaterialProviders.Types._IError> DecryptMaterials_k(Dafny.Aws.Cryptography.MaterialProviders.Types._IDecryptMaterialsInput input)
+ public Wrappers_Compile._IResult<software.amazon.cryptography.materialproviders.internaldafny.types._IDecryptMaterialsOutput, software.amazon.cryptography.materialproviders.internaldafny.types._IError> DecryptMaterials_k(software.amazon.cryptography.materialproviders.internaldafny.types._IDecryptMaterialsInput input)
  {
  throw new AwsCryptographicMaterialProvidersException("Not supported at this time.");
 }

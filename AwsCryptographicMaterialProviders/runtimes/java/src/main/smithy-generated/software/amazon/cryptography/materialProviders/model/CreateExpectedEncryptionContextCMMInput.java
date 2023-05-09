@@ -1,14 +1,14 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
-package software.amazon.cryptography.materialProviders.model;
+package software.amazon.cryptography.materialproviders.model;
 
 import java.util.List;
 import java.util.Objects;
-import software.amazon.cryptography.materialProviders.CryptographicMaterialsManager;
-import software.amazon.cryptography.materialProviders.ICryptographicMaterialsManager;
-import software.amazon.cryptography.materialProviders.IKeyring;
-import software.amazon.cryptography.materialProviders.Keyring;
+import software.amazon.cryptography.materialproviders.CryptographicMaterialsManager;
+import software.amazon.cryptography.materialproviders.ICryptographicMaterialsManager;
+import software.amazon.cryptography.materialproviders.IKeyring;
+import software.amazon.cryptography.materialproviders.Keyring;
 
 public class CreateExpectedEncryptionContextCMMInput {
   private final ICryptographicMaterialsManager underlyingCMM;

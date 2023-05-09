@@ -4,7 +4,7 @@
 include "../../../../StandardLibrary/src/Index.dfy"
  include "../../../../ComAmazonawsDynamodb/src/Index.dfy"
  include "../../../../ComAmazonawsKms/src/Index.dfy"
- module {:extern "Dafny.Aws.Cryptography.KeyStore.Types" } AwsCryptographyKeyStoreTypes
+ module {:extern "software.amazon.cryptography.keystore.internaldafny.types" } AwsCryptographyKeyStoreTypes
  {
  import opened Wrappers
  import opened StandardLibrary.UInt

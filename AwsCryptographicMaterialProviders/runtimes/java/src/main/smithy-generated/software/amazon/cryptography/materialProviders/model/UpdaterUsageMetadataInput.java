@@ -1,7 +1,7 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
-package software.amazon.cryptography.materialProviders.model;
+package software.amazon.cryptography.materialproviders.model;
 
 import java.nio.ByteBuffer;
 import java.util.Objects;
@@ -49,12 +49,15 @@ public class UpdaterUsageMetadataInput {
 
     protected int bytesUsed;
 
+    private boolean _bytesUsedSet = false;
+
     protected BuilderImpl() {
     }
 
     protected BuilderImpl(UpdaterUsageMetadataInput model) {
       this.identifier = model.identifier();
       this.bytesUsed = model.bytesUsed();
+      this._bytesUsedSet = true;
     }
 
     public Builder identifier(ByteBuffer identifier) {
@@ -68,6 +71,7 @@ public class UpdaterUsageMetadataInput {
 
     public Builder bytesUsed(int bytesUsed) {
       this.bytesUsed = bytesUsed;
+      this._bytesUsedSet = true;
       return this;
     }
 
@@ -79,10 +83,10 @@ public class UpdaterUsageMetadataInput {
       if (Objects.isNull(this.identifier()))  {
         throw new IllegalArgumentException("Missing value for required field `identifier`");
       }
-      if (Objects.isNull(this.bytesUsed()))  {
+      if (!this._bytesUsedSet) {
         throw new IllegalArgumentException("Missing value for required field `bytesUsed`");
       }
-      if (Objects.nonNull(this.bytesUsed()) && this.bytesUsed() < 0) {
+      if (this._bytesUsedSet && this.bytesUsed() < 0) {
         throw new IllegalArgumentException("`bytesUsed` must be greater than or equal to 0");
       }
       return new UpdaterUsageMetadataInput(this);

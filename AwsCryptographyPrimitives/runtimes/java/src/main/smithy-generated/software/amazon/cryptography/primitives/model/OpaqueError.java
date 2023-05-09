@@ -4,6 +4,9 @@
 package software.amazon.cryptography.primitives.model;
 
 public class OpaqueError extends RuntimeException {
+  /**
+   * The unexpected object encountered. It MIGHT BE an Exception, but that is not guaranteed.
+   */
   private final Object obj;
 
   protected OpaqueError(BuilderImpl builder) {
@@ -21,14 +24,23 @@ public class OpaqueError extends RuntimeException {
     return null;
   }
 
+  /**
+   * See {@link Throwable#getMessage()}.
+   */
   public String message() {
     return this.getMessage();
   }
 
+  /**
+   * See {@link Throwable#getCause()}.
+   */
   public Throwable cause() {
     return this.getCause();
   }
 
+  /**
+   * @return The unexpected object encountered. It MIGHT BE an Exception, but that is not guaranteed.
+   */
   public Object obj() {
     return this.obj;
   }
@@ -42,16 +54,34 @@ public class OpaqueError extends RuntimeException {
   }
 
   public interface Builder {
+    /**
+     * @param message The detailed message. The detail message is saved for later retrieval by the {@link #getMessage()} method.
+     */
     Builder message(String message);
 
+    /**
+     * @return The detailed message. The detail message is saved for later retrieval by the {@link #getMessage()} method.
+     */
     String message();
 
+    /**
+     * @param cause The cause (which is saved for later retrieval by the {@link #getCause()} method). (A {@code null} value is permitted, and indicates that the cause is nonexistent or unknown.)
+     */
     Builder cause(Throwable cause);
 
+    /**
+     * @return The cause (which is saved for later retrieval by the {@link #getCause()} method). (A {@code null} value is permitted, and indicates that the cause is nonexistent or unknown.)
+     */
     Throwable cause();
 
+    /**
+     * @param obj The unexpected object encountered. It MIGHT BE an Exception, but that is not guaranteed.
+     */
     Builder obj(Object obj);
 
+    /**
+     * @return The unexpected object encountered. It MIGHT BE an Exception, but that is not guaranteed.
+     */
     Object obj();
 
     OpaqueError build();

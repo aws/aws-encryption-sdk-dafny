@@ -9,14 +9,14 @@
  using Wrappers_Compile;
 
  namespace AWS.Cryptography.MaterialProviders.Wrapped {
- internal class WrappedNativeWrapper_ClientSupplier : Dafny.Aws.Cryptography.MaterialProviders.Types.IClientSupplier 
+ internal class WrappedNativeWrapper_ClientSupplier : software.amazon.cryptography.materialproviders.internaldafny.types.IClientSupplier 
  {
  internal readonly ClientSupplierBase _impl;
  public WrappedNativeWrapper_ClientSupplier(ClientSupplierBase nativeImpl)
  {
  _impl = nativeImpl;
 }
- public Wrappers_Compile._IResult<Dafny.Com.Amazonaws.Kms.Types.IKMSClient, Dafny.Aws.Cryptography.MaterialProviders.Types._IError> GetClient(Dafny.Aws.Cryptography.MaterialProviders.Types._IGetClientInput input)
+ public Wrappers_Compile._IResult<software.amazon.cryptography.services.kms.internaldafny.types.IKMSClient, software.amazon.cryptography.materialproviders.internaldafny.types._IError> GetClient(software.amazon.cryptography.materialproviders.internaldafny.types._IGetClientInput input)
  {
 
  AWS.Cryptography.MaterialProviders.GetClientInput nativeInput = TypeConversion.FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S14_GetClientInput(input);
@@ -24,14 +24,14 @@
  Amazon.KeyManagementService.IAmazonKeyManagementService nativeOutput = _impl.GetClient(nativeInput);
  _ = nativeOutput ?? throw new AwsCryptographicMaterialProvidersException($"{_impl}._GetClient returned null, should be {typeof(Amazon.KeyManagementService.IAmazonKeyManagementService)}");
  
- return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Kms.Types.IKMSClient, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Success(TypeConversion.ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S15_GetClientOutput(nativeOutput));
+ return Wrappers_Compile.Result<software.amazon.cryptography.services.kms.internaldafny.types.IKMSClient, software.amazon.cryptography.materialproviders.internaldafny.types._IError>.create_Success(TypeConversion.ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S15_GetClientOutput(nativeOutput));
 }
  catch(Exception e)
  {
- return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Kms.Types.IKMSClient, Dafny.Aws.Cryptography.MaterialProviders.Types._IError>.create_Failure(TypeConversion.ToDafny_CommonError(e));
+ return Wrappers_Compile.Result<software.amazon.cryptography.services.kms.internaldafny.types.IKMSClient, software.amazon.cryptography.materialproviders.internaldafny.types._IError>.create_Failure(TypeConversion.ToDafny_CommonError(e));
 }
 }
- public Wrappers_Compile._IResult<Dafny.Com.Amazonaws.Kms.Types.IKMSClient, Dafny.Aws.Cryptography.MaterialProviders.Types._IError> GetClient_k(Dafny.Aws.Cryptography.MaterialProviders.Types._IGetClientInput input)
+ public Wrappers_Compile._IResult<software.amazon.cryptography.services.kms.internaldafny.types.IKMSClient, software.amazon.cryptography.materialproviders.internaldafny.types._IError> GetClient_k(software.amazon.cryptography.materialproviders.internaldafny.types._IGetClientInput input)
  {
  throw new AwsCryptographicMaterialProvidersException("Not supported at this time.");
 }
