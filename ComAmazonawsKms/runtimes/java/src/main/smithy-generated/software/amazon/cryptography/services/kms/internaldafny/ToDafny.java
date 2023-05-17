@@ -194,7 +194,7 @@ import software.amazon.cryptography.services.kms.internaldafny.types.WrappingKey
 public class ToDafny {
   public static DafnySequence<? extends AliasListEntry> AliasList(
       List<software.amazon.awssdk.services.kms.model.AliasListEntry> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
         software.amazon.cryptography.services.kms.internaldafny.ToDafny::AliasListEntry, 
         AliasListEntry._typeDescriptor());
@@ -204,23 +204,23 @@ public class ToDafny {
       software.amazon.awssdk.services.kms.model.AliasListEntry nativeValue) {
     Option<DafnySequence<? extends Character>> aliasName;
     aliasName = Objects.nonNull(nativeValue.aliasName()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.aliasName()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.aliasName()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> aliasArn;
     aliasArn = Objects.nonNull(nativeValue.aliasArn()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.aliasArn()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.aliasArn()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> targetKeyId;
     targetKeyId = Objects.nonNull(nativeValue.targetKeyId()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.targetKeyId()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.targetKeyId()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> creationDate;
     creationDate = Objects.nonNull(nativeValue.creationDate()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.creationDate()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.creationDate()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> lastUpdatedDate;
     lastUpdatedDate = Objects.nonNull(nativeValue.lastUpdatedDate()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.lastUpdatedDate()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.lastUpdatedDate()))
         : Option.create_None();
     return new AliasListEntry(aliasName, aliasArn, targetKeyId, creationDate, lastUpdatedDate);
   }
@@ -228,7 +228,7 @@ public class ToDafny {
   public static CancelKeyDeletionRequest CancelKeyDeletionRequest(
       software.amazon.awssdk.services.kms.model.CancelKeyDeletionRequest nativeValue) {
     DafnySequence<? extends Character> keyId;
-    keyId = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId());
+    keyId = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId());
     return new CancelKeyDeletionRequest(keyId);
   }
 
@@ -236,7 +236,7 @@ public class ToDafny {
       software.amazon.awssdk.services.kms.model.CancelKeyDeletionResponse nativeValue) {
     Option<DafnySequence<? extends Character>> keyId;
     keyId = Objects.nonNull(nativeValue.keyId()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId()))
         : Option.create_None();
     return new CancelKeyDeletionResponse(keyId);
   }
@@ -244,7 +244,7 @@ public class ToDafny {
   public static ConnectCustomKeyStoreRequest ConnectCustomKeyStoreRequest(
       software.amazon.awssdk.services.kms.model.ConnectCustomKeyStoreRequest nativeValue) {
     DafnySequence<? extends Character> customKeyStoreId;
-    customKeyStoreId = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.customKeyStoreId());
+    customKeyStoreId = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.customKeyStoreId());
     return new ConnectCustomKeyStoreRequest(customKeyStoreId);
   }
 
@@ -256,22 +256,22 @@ public class ToDafny {
   public static CreateAliasRequest CreateAliasRequest(
       software.amazon.awssdk.services.kms.model.CreateAliasRequest nativeValue) {
     DafnySequence<? extends Character> aliasName;
-    aliasName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.aliasName());
+    aliasName = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.aliasName());
     DafnySequence<? extends Character> targetKeyId;
-    targetKeyId = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.targetKeyId());
+    targetKeyId = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.targetKeyId());
     return new CreateAliasRequest(aliasName, targetKeyId);
   }
 
   public static CreateCustomKeyStoreRequest CreateCustomKeyStoreRequest(
       software.amazon.awssdk.services.kms.model.CreateCustomKeyStoreRequest nativeValue) {
     DafnySequence<? extends Character> customKeyStoreName;
-    customKeyStoreName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.customKeyStoreName());
+    customKeyStoreName = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.customKeyStoreName());
     DafnySequence<? extends Character> cloudHsmClusterId;
-    cloudHsmClusterId = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.cloudHsmClusterId());
+    cloudHsmClusterId = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.cloudHsmClusterId());
     DafnySequence<? extends Character> trustAnchorCertificate;
-    trustAnchorCertificate = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.trustAnchorCertificate());
+    trustAnchorCertificate = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.trustAnchorCertificate());
     DafnySequence<? extends Character> keyStorePassword;
-    keyStorePassword = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyStorePassword());
+    keyStorePassword = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyStorePassword());
     return new CreateCustomKeyStoreRequest(customKeyStoreName, cloudHsmClusterId, trustAnchorCertificate, keyStorePassword);
   }
 
@@ -279,7 +279,7 @@ public class ToDafny {
       software.amazon.awssdk.services.kms.model.CreateCustomKeyStoreResponse nativeValue) {
     Option<DafnySequence<? extends Character>> customKeyStoreId;
     customKeyStoreId = Objects.nonNull(nativeValue.customKeyStoreId()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.customKeyStoreId()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.customKeyStoreId()))
         : Option.create_None();
     return new CreateCustomKeyStoreResponse(customKeyStoreId);
   }
@@ -287,12 +287,12 @@ public class ToDafny {
   public static CreateGrantRequest CreateGrantRequest(
       software.amazon.awssdk.services.kms.model.CreateGrantRequest nativeValue) {
     DafnySequence<? extends Character> keyId;
-    keyId = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId());
+    keyId = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId());
     DafnySequence<? extends Character> granteePrincipal;
-    granteePrincipal = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.granteePrincipal());
+    granteePrincipal = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.granteePrincipal());
     Option<DafnySequence<? extends Character>> retiringPrincipal;
     retiringPrincipal = Objects.nonNull(nativeValue.retiringPrincipal()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.retiringPrincipal()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.retiringPrincipal()))
         : Option.create_None();
     DafnySequence<? extends GrantOperation> operations;
     operations = ToDafny.GrantOperationList(nativeValue.operations());
@@ -306,7 +306,7 @@ public class ToDafny {
         : Option.create_None();
     Option<DafnySequence<? extends Character>> name;
     name = Objects.nonNull(nativeValue.name()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.name()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.name()))
         : Option.create_None();
     return new CreateGrantRequest(keyId, granteePrincipal, retiringPrincipal, operations, constraints, grantTokens, name);
   }
@@ -315,11 +315,11 @@ public class ToDafny {
       software.amazon.awssdk.services.kms.model.CreateGrantResponse nativeValue) {
     Option<DafnySequence<? extends Character>> grantToken;
     grantToken = Objects.nonNull(nativeValue.grantToken()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.grantToken()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.grantToken()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> grantId;
     grantId = Objects.nonNull(nativeValue.grantId()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.grantId()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.grantId()))
         : Option.create_None();
     return new CreateGrantResponse(grantToken, grantId);
   }
@@ -328,11 +328,11 @@ public class ToDafny {
       software.amazon.awssdk.services.kms.model.CreateKeyRequest nativeValue) {
     Option<DafnySequence<? extends Character>> policy;
     policy = Objects.nonNull(nativeValue.policy()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.policy()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.policy()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> description;
     description = Objects.nonNull(nativeValue.description()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.description()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.description()))
         : Option.create_None();
     Option<KeyUsageType> keyUsage;
     keyUsage = Objects.nonNull(nativeValue.keyUsage()) ?
@@ -352,7 +352,7 @@ public class ToDafny {
         : Option.create_None();
     Option<DafnySequence<? extends Character>> customKeyStoreId;
     customKeyStoreId = Objects.nonNull(nativeValue.customKeyStoreId()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.customKeyStoreId()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.customKeyStoreId()))
         : Option.create_None();
     Option<Boolean> bypassPolicyLockoutSafetyCheck;
     bypassPolicyLockoutSafetyCheck = Objects.nonNull(nativeValue.bypassPolicyLockoutSafetyCheck()) ?
@@ -380,7 +380,7 @@ public class ToDafny {
 
   public static DafnySequence<? extends CustomKeyStoresListEntry> CustomKeyStoresList(
       List<software.amazon.awssdk.services.kms.model.CustomKeyStoresListEntry> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
         software.amazon.cryptography.services.kms.internaldafny.ToDafny::CustomKeyStoresListEntry, 
         CustomKeyStoresListEntry._typeDescriptor());
@@ -390,19 +390,19 @@ public class ToDafny {
       software.amazon.awssdk.services.kms.model.CustomKeyStoresListEntry nativeValue) {
     Option<DafnySequence<? extends Character>> customKeyStoreId;
     customKeyStoreId = Objects.nonNull(nativeValue.customKeyStoreId()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.customKeyStoreId()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.customKeyStoreId()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> customKeyStoreName;
     customKeyStoreName = Objects.nonNull(nativeValue.customKeyStoreName()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.customKeyStoreName()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.customKeyStoreName()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> cloudHsmClusterId;
     cloudHsmClusterId = Objects.nonNull(nativeValue.cloudHsmClusterId()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.cloudHsmClusterId()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.cloudHsmClusterId()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> trustAnchorCertificate;
     trustAnchorCertificate = Objects.nonNull(nativeValue.trustAnchorCertificate()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.trustAnchorCertificate()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.trustAnchorCertificate()))
         : Option.create_None();
     Option<ConnectionStateType> connectionState;
     connectionState = Objects.nonNull(nativeValue.connectionState()) ?
@@ -414,7 +414,7 @@ public class ToDafny {
         : Option.create_None();
     Option<DafnySequence<? extends Character>> creationDate;
     creationDate = Objects.nonNull(nativeValue.creationDate()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.creationDate()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.creationDate()))
         : Option.create_None();
     return new CustomKeyStoresListEntry(customKeyStoreId, customKeyStoreName, cloudHsmClusterId, trustAnchorCertificate, connectionState, connectionErrorCode, creationDate);
   }
@@ -422,7 +422,7 @@ public class ToDafny {
   public static DecryptRequest DecryptRequest(
       software.amazon.awssdk.services.kms.model.DecryptRequest nativeValue) {
     DafnySequence<? extends Byte> ciphertextBlob;
-    ciphertextBlob = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.ciphertextBlob().asByteArray());
+    ciphertextBlob = software.amazon.smithy.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.ciphertextBlob().asByteArray());
     Option<DafnyMap<? extends DafnySequence<? extends Character>, ? extends DafnySequence<? extends Character>>> encryptionContext;
     encryptionContext = (Objects.nonNull(nativeValue.encryptionContext()) && nativeValue.encryptionContext().size() > 0) ?
         Option.create_Some(ToDafny.EncryptionContextType(nativeValue.encryptionContext()))
@@ -433,7 +433,7 @@ public class ToDafny {
         : Option.create_None();
     Option<DafnySequence<? extends Character>> keyId;
     keyId = Objects.nonNull(nativeValue.keyId()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId()))
         : Option.create_None();
     Option<EncryptionAlgorithmSpec> encryptionAlgorithm;
     encryptionAlgorithm = Objects.nonNull(nativeValue.encryptionAlgorithm()) ?
@@ -446,11 +446,11 @@ public class ToDafny {
       software.amazon.awssdk.services.kms.model.DecryptResponse nativeValue) {
     Option<DafnySequence<? extends Character>> keyId;
     keyId = Objects.nonNull(nativeValue.keyId()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId()))
         : Option.create_None();
     Option<DafnySequence<? extends Byte>> plaintext;
     plaintext = Objects.nonNull(nativeValue.plaintext()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.plaintext().asByteArray()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.plaintext().asByteArray()))
         : Option.create_None();
     Option<EncryptionAlgorithmSpec> encryptionAlgorithm;
     encryptionAlgorithm = Objects.nonNull(nativeValue.encryptionAlgorithm()) ?
@@ -462,14 +462,14 @@ public class ToDafny {
   public static DeleteAliasRequest DeleteAliasRequest(
       software.amazon.awssdk.services.kms.model.DeleteAliasRequest nativeValue) {
     DafnySequence<? extends Character> aliasName;
-    aliasName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.aliasName());
+    aliasName = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.aliasName());
     return new DeleteAliasRequest(aliasName);
   }
 
   public static DeleteCustomKeyStoreRequest DeleteCustomKeyStoreRequest(
       software.amazon.awssdk.services.kms.model.DeleteCustomKeyStoreRequest nativeValue) {
     DafnySequence<? extends Character> customKeyStoreId;
-    customKeyStoreId = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.customKeyStoreId());
+    customKeyStoreId = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.customKeyStoreId());
     return new DeleteCustomKeyStoreRequest(customKeyStoreId);
   }
 
@@ -481,7 +481,7 @@ public class ToDafny {
   public static DeleteImportedKeyMaterialRequest DeleteImportedKeyMaterialRequest(
       software.amazon.awssdk.services.kms.model.DeleteImportedKeyMaterialRequest nativeValue) {
     DafnySequence<? extends Character> keyId;
-    keyId = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId());
+    keyId = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId());
     return new DeleteImportedKeyMaterialRequest(keyId);
   }
 
@@ -489,11 +489,11 @@ public class ToDafny {
       software.amazon.awssdk.services.kms.model.DescribeCustomKeyStoresRequest nativeValue) {
     Option<DafnySequence<? extends Character>> customKeyStoreId;
     customKeyStoreId = Objects.nonNull(nativeValue.customKeyStoreId()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.customKeyStoreId()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.customKeyStoreId()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> customKeyStoreName;
     customKeyStoreName = Objects.nonNull(nativeValue.customKeyStoreName()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.customKeyStoreName()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.customKeyStoreName()))
         : Option.create_None();
     Option<Integer> limit;
     limit = Objects.nonNull(nativeValue.limit()) ?
@@ -501,7 +501,7 @@ public class ToDafny {
         : Option.create_None();
     Option<DafnySequence<? extends Character>> marker;
     marker = Objects.nonNull(nativeValue.marker()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.marker()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.marker()))
         : Option.create_None();
     return new DescribeCustomKeyStoresRequest(customKeyStoreId, customKeyStoreName, limit, marker);
   }
@@ -514,7 +514,7 @@ public class ToDafny {
         : Option.create_None();
     Option<DafnySequence<? extends Character>> nextMarker;
     nextMarker = Objects.nonNull(nativeValue.nextMarker()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.nextMarker()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.nextMarker()))
         : Option.create_None();
     Option<Boolean> truncated;
     truncated = Objects.nonNull(nativeValue.truncated()) ?
@@ -526,7 +526,7 @@ public class ToDafny {
   public static DescribeKeyRequest DescribeKeyRequest(
       software.amazon.awssdk.services.kms.model.DescribeKeyRequest nativeValue) {
     DafnySequence<? extends Character> keyId;
-    keyId = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId());
+    keyId = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId());
     Option<DafnySequence<? extends DafnySequence<? extends Character>>> grantTokens;
     grantTokens = (Objects.nonNull(nativeValue.grantTokens()) && nativeValue.grantTokens().size() > 0) ?
         Option.create_Some(ToDafny.GrantTokenList(nativeValue.grantTokens()))
@@ -546,21 +546,21 @@ public class ToDafny {
   public static DisableKeyRequest DisableKeyRequest(
       software.amazon.awssdk.services.kms.model.DisableKeyRequest nativeValue) {
     DafnySequence<? extends Character> keyId;
-    keyId = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId());
+    keyId = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId());
     return new DisableKeyRequest(keyId);
   }
 
   public static DisableKeyRotationRequest DisableKeyRotationRequest(
       software.amazon.awssdk.services.kms.model.DisableKeyRotationRequest nativeValue) {
     DafnySequence<? extends Character> keyId;
-    keyId = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId());
+    keyId = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId());
     return new DisableKeyRotationRequest(keyId);
   }
 
   public static DisconnectCustomKeyStoreRequest DisconnectCustomKeyStoreRequest(
       software.amazon.awssdk.services.kms.model.DisconnectCustomKeyStoreRequest nativeValue) {
     DafnySequence<? extends Character> customKeyStoreId;
-    customKeyStoreId = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.customKeyStoreId());
+    customKeyStoreId = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.customKeyStoreId());
     return new DisconnectCustomKeyStoreRequest(customKeyStoreId);
   }
 
@@ -572,20 +572,20 @@ public class ToDafny {
   public static EnableKeyRequest EnableKeyRequest(
       software.amazon.awssdk.services.kms.model.EnableKeyRequest nativeValue) {
     DafnySequence<? extends Character> keyId;
-    keyId = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId());
+    keyId = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId());
     return new EnableKeyRequest(keyId);
   }
 
   public static EnableKeyRotationRequest EnableKeyRotationRequest(
       software.amazon.awssdk.services.kms.model.EnableKeyRotationRequest nativeValue) {
     DafnySequence<? extends Character> keyId;
-    keyId = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId());
+    keyId = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId());
     return new EnableKeyRotationRequest(keyId);
   }
 
   public static DafnySequence<? extends EncryptionAlgorithmSpec> EncryptionAlgorithmSpecList(
       List<software.amazon.awssdk.services.kms.model.EncryptionAlgorithmSpec> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
         software.amazon.cryptography.services.kms.internaldafny.ToDafny::EncryptionAlgorithmSpec, 
         EncryptionAlgorithmSpec._typeDescriptor());
@@ -593,18 +593,18 @@ public class ToDafny {
 
   public static DafnyMap<? extends DafnySequence<? extends Character>, ? extends DafnySequence<? extends Character>> EncryptionContextType(
       Map<String, String> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToMap(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToMap(
         nativeValue, 
-        software.amazon.dafny.conversion.ToDafny.Simple::CharacterSequence, 
-        software.amazon.dafny.conversion.ToDafny.Simple::CharacterSequence);
+        software.amazon.smithy.dafny.conversion.ToDafny.Simple::CharacterSequence, 
+        software.amazon.smithy.dafny.conversion.ToDafny.Simple::CharacterSequence);
   }
 
   public static EncryptRequest EncryptRequest(
       software.amazon.awssdk.services.kms.model.EncryptRequest nativeValue) {
     DafnySequence<? extends Character> keyId;
-    keyId = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId());
+    keyId = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId());
     DafnySequence<? extends Byte> plaintext;
-    plaintext = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.plaintext().asByteArray());
+    plaintext = software.amazon.smithy.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.plaintext().asByteArray());
     Option<DafnyMap<? extends DafnySequence<? extends Character>, ? extends DafnySequence<? extends Character>>> encryptionContext;
     encryptionContext = (Objects.nonNull(nativeValue.encryptionContext()) && nativeValue.encryptionContext().size() > 0) ?
         Option.create_Some(ToDafny.EncryptionContextType(nativeValue.encryptionContext()))
@@ -624,11 +624,11 @@ public class ToDafny {
       software.amazon.awssdk.services.kms.model.EncryptResponse nativeValue) {
     Option<DafnySequence<? extends Byte>> ciphertextBlob;
     ciphertextBlob = Objects.nonNull(nativeValue.ciphertextBlob()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.ciphertextBlob().asByteArray()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.ciphertextBlob().asByteArray()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> keyId;
     keyId = Objects.nonNull(nativeValue.keyId()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId()))
         : Option.create_None();
     Option<EncryptionAlgorithmSpec> encryptionAlgorithm;
     encryptionAlgorithm = Objects.nonNull(nativeValue.encryptionAlgorithm()) ?
@@ -644,7 +644,7 @@ public class ToDafny {
         Option.create_Some(ToDafny.EncryptionContextType(nativeValue.encryptionContext()))
         : Option.create_None();
     DafnySequence<? extends Character> keyId;
-    keyId = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId());
+    keyId = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId());
     DataKeyPairSpec keyPairSpec;
     keyPairSpec = ToDafny.DataKeyPairSpec(nativeValue.keyPairSpec());
     Option<DafnySequence<? extends DafnySequence<? extends Character>>> grantTokens;
@@ -658,19 +658,19 @@ public class ToDafny {
       software.amazon.awssdk.services.kms.model.GenerateDataKeyPairResponse nativeValue) {
     Option<DafnySequence<? extends Byte>> privateKeyCiphertextBlob;
     privateKeyCiphertextBlob = Objects.nonNull(nativeValue.privateKeyCiphertextBlob()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.privateKeyCiphertextBlob().asByteArray()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.privateKeyCiphertextBlob().asByteArray()))
         : Option.create_None();
     Option<DafnySequence<? extends Byte>> privateKeyPlaintext;
     privateKeyPlaintext = Objects.nonNull(nativeValue.privateKeyPlaintext()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.privateKeyPlaintext().asByteArray()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.privateKeyPlaintext().asByteArray()))
         : Option.create_None();
     Option<DafnySequence<? extends Byte>> publicKey;
     publicKey = Objects.nonNull(nativeValue.publicKey()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.publicKey().asByteArray()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.publicKey().asByteArray()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> keyId;
     keyId = Objects.nonNull(nativeValue.keyId()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId()))
         : Option.create_None();
     Option<DataKeyPairSpec> keyPairSpec;
     keyPairSpec = Objects.nonNull(nativeValue.keyPairSpec()) ?
@@ -686,7 +686,7 @@ public class ToDafny {
         Option.create_Some(ToDafny.EncryptionContextType(nativeValue.encryptionContext()))
         : Option.create_None();
     DafnySequence<? extends Character> keyId;
-    keyId = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId());
+    keyId = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId());
     DataKeyPairSpec keyPairSpec;
     keyPairSpec = ToDafny.DataKeyPairSpec(nativeValue.keyPairSpec());
     Option<DafnySequence<? extends DafnySequence<? extends Character>>> grantTokens;
@@ -700,15 +700,15 @@ public class ToDafny {
       software.amazon.awssdk.services.kms.model.GenerateDataKeyPairWithoutPlaintextResponse nativeValue) {
     Option<DafnySequence<? extends Byte>> privateKeyCiphertextBlob;
     privateKeyCiphertextBlob = Objects.nonNull(nativeValue.privateKeyCiphertextBlob()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.privateKeyCiphertextBlob().asByteArray()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.privateKeyCiphertextBlob().asByteArray()))
         : Option.create_None();
     Option<DafnySequence<? extends Byte>> publicKey;
     publicKey = Objects.nonNull(nativeValue.publicKey()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.publicKey().asByteArray()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.publicKey().asByteArray()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> keyId;
     keyId = Objects.nonNull(nativeValue.keyId()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId()))
         : Option.create_None();
     Option<DataKeyPairSpec> keyPairSpec;
     keyPairSpec = Objects.nonNull(nativeValue.keyPairSpec()) ?
@@ -720,7 +720,7 @@ public class ToDafny {
   public static GenerateDataKeyRequest GenerateDataKeyRequest(
       software.amazon.awssdk.services.kms.model.GenerateDataKeyRequest nativeValue) {
     DafnySequence<? extends Character> keyId;
-    keyId = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId());
+    keyId = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId());
     Option<DafnyMap<? extends DafnySequence<? extends Character>, ? extends DafnySequence<? extends Character>>> encryptionContext;
     encryptionContext = (Objects.nonNull(nativeValue.encryptionContext()) && nativeValue.encryptionContext().size() > 0) ?
         Option.create_Some(ToDafny.EncryptionContextType(nativeValue.encryptionContext()))
@@ -744,15 +744,15 @@ public class ToDafny {
       software.amazon.awssdk.services.kms.model.GenerateDataKeyResponse nativeValue) {
     Option<DafnySequence<? extends Byte>> ciphertextBlob;
     ciphertextBlob = Objects.nonNull(nativeValue.ciphertextBlob()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.ciphertextBlob().asByteArray()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.ciphertextBlob().asByteArray()))
         : Option.create_None();
     Option<DafnySequence<? extends Byte>> plaintext;
     plaintext = Objects.nonNull(nativeValue.plaintext()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.plaintext().asByteArray()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.plaintext().asByteArray()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> keyId;
     keyId = Objects.nonNull(nativeValue.keyId()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId()))
         : Option.create_None();
     return new GenerateDataKeyResponse(ciphertextBlob, plaintext, keyId);
   }
@@ -760,7 +760,7 @@ public class ToDafny {
   public static GenerateDataKeyWithoutPlaintextRequest GenerateDataKeyWithoutPlaintextRequest(
       software.amazon.awssdk.services.kms.model.GenerateDataKeyWithoutPlaintextRequest nativeValue) {
     DafnySequence<? extends Character> keyId;
-    keyId = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId());
+    keyId = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId());
     Option<DafnyMap<? extends DafnySequence<? extends Character>, ? extends DafnySequence<? extends Character>>> encryptionContext;
     encryptionContext = (Objects.nonNull(nativeValue.encryptionContext()) && nativeValue.encryptionContext().size() > 0) ?
         Option.create_Some(ToDafny.EncryptionContextType(nativeValue.encryptionContext()))
@@ -784,11 +784,11 @@ public class ToDafny {
       software.amazon.awssdk.services.kms.model.GenerateDataKeyWithoutPlaintextResponse nativeValue) {
     Option<DafnySequence<? extends Byte>> ciphertextBlob;
     ciphertextBlob = Objects.nonNull(nativeValue.ciphertextBlob()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.ciphertextBlob().asByteArray()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.ciphertextBlob().asByteArray()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> keyId;
     keyId = Objects.nonNull(nativeValue.keyId()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId()))
         : Option.create_None();
     return new GenerateDataKeyWithoutPlaintextResponse(ciphertextBlob, keyId);
   }
@@ -801,7 +801,7 @@ public class ToDafny {
         : Option.create_None();
     Option<DafnySequence<? extends Character>> customKeyStoreId;
     customKeyStoreId = Objects.nonNull(nativeValue.customKeyStoreId()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.customKeyStoreId()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.customKeyStoreId()))
         : Option.create_None();
     return new GenerateRandomRequest(numberOfBytes, customKeyStoreId);
   }
@@ -810,7 +810,7 @@ public class ToDafny {
       software.amazon.awssdk.services.kms.model.GenerateRandomResponse nativeValue) {
     Option<DafnySequence<? extends Byte>> plaintext;
     plaintext = Objects.nonNull(nativeValue.plaintext()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.plaintext().asByteArray()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.plaintext().asByteArray()))
         : Option.create_None();
     return new GenerateRandomResponse(plaintext);
   }
@@ -818,9 +818,9 @@ public class ToDafny {
   public static GetKeyPolicyRequest GetKeyPolicyRequest(
       software.amazon.awssdk.services.kms.model.GetKeyPolicyRequest nativeValue) {
     DafnySequence<? extends Character> keyId;
-    keyId = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId());
+    keyId = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId());
     DafnySequence<? extends Character> policyName;
-    policyName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.policyName());
+    policyName = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.policyName());
     return new GetKeyPolicyRequest(keyId, policyName);
   }
 
@@ -828,7 +828,7 @@ public class ToDafny {
       software.amazon.awssdk.services.kms.model.GetKeyPolicyResponse nativeValue) {
     Option<DafnySequence<? extends Character>> policy;
     policy = Objects.nonNull(nativeValue.policy()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.policy()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.policy()))
         : Option.create_None();
     return new GetKeyPolicyResponse(policy);
   }
@@ -836,7 +836,7 @@ public class ToDafny {
   public static GetKeyRotationStatusRequest GetKeyRotationStatusRequest(
       software.amazon.awssdk.services.kms.model.GetKeyRotationStatusRequest nativeValue) {
     DafnySequence<? extends Character> keyId;
-    keyId = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId());
+    keyId = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId());
     return new GetKeyRotationStatusRequest(keyId);
   }
 
@@ -852,7 +852,7 @@ public class ToDafny {
   public static GetParametersForImportRequest GetParametersForImportRequest(
       software.amazon.awssdk.services.kms.model.GetParametersForImportRequest nativeValue) {
     DafnySequence<? extends Character> keyId;
-    keyId = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId());
+    keyId = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId());
     AlgorithmSpec wrappingAlgorithm;
     wrappingAlgorithm = ToDafny.AlgorithmSpec(nativeValue.wrappingAlgorithm());
     WrappingKeySpec wrappingKeySpec;
@@ -864,19 +864,19 @@ public class ToDafny {
       software.amazon.awssdk.services.kms.model.GetParametersForImportResponse nativeValue) {
     Option<DafnySequence<? extends Character>> keyId;
     keyId = Objects.nonNull(nativeValue.keyId()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId()))
         : Option.create_None();
     Option<DafnySequence<? extends Byte>> importToken;
     importToken = Objects.nonNull(nativeValue.importToken()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.importToken().asByteArray()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.importToken().asByteArray()))
         : Option.create_None();
     Option<DafnySequence<? extends Byte>> publicKey;
     publicKey = Objects.nonNull(nativeValue.publicKey()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.publicKey().asByteArray()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.publicKey().asByteArray()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> parametersValidTo;
     parametersValidTo = Objects.nonNull(nativeValue.parametersValidTo()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.parametersValidTo()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.parametersValidTo()))
         : Option.create_None();
     return new GetParametersForImportResponse(keyId, importToken, publicKey, parametersValidTo);
   }
@@ -884,7 +884,7 @@ public class ToDafny {
   public static GetPublicKeyRequest GetPublicKeyRequest(
       software.amazon.awssdk.services.kms.model.GetPublicKeyRequest nativeValue) {
     DafnySequence<? extends Character> keyId;
-    keyId = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId());
+    keyId = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId());
     Option<DafnySequence<? extends DafnySequence<? extends Character>>> grantTokens;
     grantTokens = (Objects.nonNull(nativeValue.grantTokens()) && nativeValue.grantTokens().size() > 0) ?
         Option.create_Some(ToDafny.GrantTokenList(nativeValue.grantTokens()))
@@ -896,11 +896,11 @@ public class ToDafny {
       software.amazon.awssdk.services.kms.model.GetPublicKeyResponse nativeValue) {
     Option<DafnySequence<? extends Character>> keyId;
     keyId = Objects.nonNull(nativeValue.keyId()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId()))
         : Option.create_None();
     Option<DafnySequence<? extends Byte>> publicKey;
     publicKey = Objects.nonNull(nativeValue.publicKey()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.publicKey().asByteArray()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.publicKey().asByteArray()))
         : Option.create_None();
     Option<CustomerMasterKeySpec> customerMasterKeySpec;
     customerMasterKeySpec = Objects.nonNull(nativeValue.customerMasterKeySpec()) ?
@@ -940,7 +940,7 @@ public class ToDafny {
 
   public static DafnySequence<? extends GrantListEntry> GrantList(
       List<software.amazon.awssdk.services.kms.model.GrantListEntry> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
         software.amazon.cryptography.services.kms.internaldafny.ToDafny::GrantListEntry, 
         GrantListEntry._typeDescriptor());
@@ -950,31 +950,31 @@ public class ToDafny {
       software.amazon.awssdk.services.kms.model.GrantListEntry nativeValue) {
     Option<DafnySequence<? extends Character>> keyId;
     keyId = Objects.nonNull(nativeValue.keyId()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> grantId;
     grantId = Objects.nonNull(nativeValue.grantId()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.grantId()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.grantId()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> name;
     name = Objects.nonNull(nativeValue.name()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.name()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.name()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> creationDate;
     creationDate = Objects.nonNull(nativeValue.creationDate()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.creationDate()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.creationDate()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> granteePrincipal;
     granteePrincipal = Objects.nonNull(nativeValue.granteePrincipal()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.granteePrincipal()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.granteePrincipal()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> retiringPrincipal;
     retiringPrincipal = Objects.nonNull(nativeValue.retiringPrincipal()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.retiringPrincipal()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.retiringPrincipal()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> issuingAccount;
     issuingAccount = Objects.nonNull(nativeValue.issuingAccount()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.issuingAccount()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.issuingAccount()))
         : Option.create_None();
     Option<DafnySequence<? extends GrantOperation>> operations;
     operations = (Objects.nonNull(nativeValue.operations()) && nativeValue.operations().size() > 0) ?
@@ -989,7 +989,7 @@ public class ToDafny {
 
   public static DafnySequence<? extends GrantOperation> GrantOperationList(
       List<software.amazon.awssdk.services.kms.model.GrantOperation> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
         software.amazon.cryptography.services.kms.internaldafny.ToDafny::GrantOperation, 
         GrantOperation._typeDescriptor());
@@ -997,23 +997,23 @@ public class ToDafny {
 
   public static DafnySequence<? extends DafnySequence<? extends Character>> GrantTokenList(
       List<String> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
-        software.amazon.dafny.conversion.ToDafny.Simple::CharacterSequence, 
+        software.amazon.smithy.dafny.conversion.ToDafny.Simple::CharacterSequence, 
         DafnySequence._typeDescriptor(TypeDescriptor.CHAR));
   }
 
   public static ImportKeyMaterialRequest ImportKeyMaterialRequest(
       software.amazon.awssdk.services.kms.model.ImportKeyMaterialRequest nativeValue) {
     DafnySequence<? extends Character> keyId;
-    keyId = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId());
+    keyId = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId());
     DafnySequence<? extends Byte> importToken;
-    importToken = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.importToken().asByteArray());
+    importToken = software.amazon.smithy.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.importToken().asByteArray());
     DafnySequence<? extends Byte> encryptedKeyMaterial;
-    encryptedKeyMaterial = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.encryptedKeyMaterial().asByteArray());
+    encryptedKeyMaterial = software.amazon.smithy.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.encryptedKeyMaterial().asByteArray());
     Option<DafnySequence<? extends Character>> validTo;
     validTo = Objects.nonNull(nativeValue.validTo()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.validTo()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.validTo()))
         : Option.create_None();
     Option<ExpirationModelType> expirationModel;
     expirationModel = Objects.nonNull(nativeValue.expirationModel()) ?
@@ -1031,17 +1031,17 @@ public class ToDafny {
       software.amazon.awssdk.services.kms.model.KeyMetadata nativeValue) {
     Option<DafnySequence<? extends Character>> aWSAccountId;
     aWSAccountId = Objects.nonNull(nativeValue.awsAccountId()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.awsAccountId()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.awsAccountId()))
         : Option.create_None();
     DafnySequence<? extends Character> keyId;
-    keyId = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId());
+    keyId = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId());
     Option<DafnySequence<? extends Character>> arn;
     arn = Objects.nonNull(nativeValue.arn()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.arn()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.arn()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> creationDate;
     creationDate = Objects.nonNull(nativeValue.creationDate()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.creationDate()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.creationDate()))
         : Option.create_None();
     Option<Boolean> enabled;
     enabled = Objects.nonNull(nativeValue.enabled()) ?
@@ -1049,7 +1049,7 @@ public class ToDafny {
         : Option.create_None();
     Option<DafnySequence<? extends Character>> description;
     description = Objects.nonNull(nativeValue.description()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.description()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.description()))
         : Option.create_None();
     Option<KeyUsageType> keyUsage;
     keyUsage = Objects.nonNull(nativeValue.keyUsage()) ?
@@ -1061,11 +1061,11 @@ public class ToDafny {
         : Option.create_None();
     Option<DafnySequence<? extends Character>> deletionDate;
     deletionDate = Objects.nonNull(nativeValue.deletionDate()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.deletionDate()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.deletionDate()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> validTo;
     validTo = Objects.nonNull(nativeValue.validTo()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.validTo()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.validTo()))
         : Option.create_None();
     Option<OriginType> origin;
     origin = Objects.nonNull(nativeValue.origin()) ?
@@ -1073,11 +1073,11 @@ public class ToDafny {
         : Option.create_None();
     Option<DafnySequence<? extends Character>> customKeyStoreId;
     customKeyStoreId = Objects.nonNull(nativeValue.customKeyStoreId()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.customKeyStoreId()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.customKeyStoreId()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> cloudHsmClusterId;
     cloudHsmClusterId = Objects.nonNull(nativeValue.cloudHsmClusterId()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.cloudHsmClusterId()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.cloudHsmClusterId()))
         : Option.create_None();
     Option<ExpirationModelType> expirationModel;
     expirationModel = Objects.nonNull(nativeValue.expirationModel()) ?
@@ -1122,7 +1122,7 @@ public class ToDafny {
       software.amazon.awssdk.services.kms.model.ListAliasesRequest nativeValue) {
     Option<DafnySequence<? extends Character>> keyId;
     keyId = Objects.nonNull(nativeValue.keyId()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId()))
         : Option.create_None();
     Option<Integer> limit;
     limit = Objects.nonNull(nativeValue.limit()) ?
@@ -1130,7 +1130,7 @@ public class ToDafny {
         : Option.create_None();
     Option<DafnySequence<? extends Character>> marker;
     marker = Objects.nonNull(nativeValue.marker()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.marker()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.marker()))
         : Option.create_None();
     return new ListAliasesRequest(keyId, limit, marker);
   }
@@ -1143,7 +1143,7 @@ public class ToDafny {
         : Option.create_None();
     Option<DafnySequence<? extends Character>> nextMarker;
     nextMarker = Objects.nonNull(nativeValue.nextMarker()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.nextMarker()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.nextMarker()))
         : Option.create_None();
     Option<Boolean> truncated;
     truncated = Objects.nonNull(nativeValue.truncated()) ?
@@ -1160,17 +1160,17 @@ public class ToDafny {
         : Option.create_None();
     Option<DafnySequence<? extends Character>> marker;
     marker = Objects.nonNull(nativeValue.marker()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.marker()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.marker()))
         : Option.create_None();
     DafnySequence<? extends Character> keyId;
-    keyId = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId());
+    keyId = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId());
     Option<DafnySequence<? extends Character>> grantId;
     grantId = Objects.nonNull(nativeValue.grantId()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.grantId()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.grantId()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> granteePrincipal;
     granteePrincipal = Objects.nonNull(nativeValue.granteePrincipal()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.granteePrincipal()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.granteePrincipal()))
         : Option.create_None();
     return new ListGrantsRequest(limit, marker, keyId, grantId, granteePrincipal);
   }
@@ -1183,7 +1183,7 @@ public class ToDafny {
         : Option.create_None();
     Option<DafnySequence<? extends Character>> nextMarker;
     nextMarker = Objects.nonNull(nativeValue.nextMarker()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.nextMarker()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.nextMarker()))
         : Option.create_None();
     Option<Boolean> truncated;
     truncated = Objects.nonNull(nativeValue.truncated()) ?
@@ -1195,14 +1195,14 @@ public class ToDafny {
   public static ListKeyPoliciesRequest ListKeyPoliciesRequest(
       software.amazon.awssdk.services.kms.model.ListKeyPoliciesRequest nativeValue) {
     DafnySequence<? extends Character> keyId;
-    keyId = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId());
+    keyId = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId());
     Option<Integer> limit;
     limit = Objects.nonNull(nativeValue.limit()) ?
         Option.create_Some((nativeValue.limit()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> marker;
     marker = Objects.nonNull(nativeValue.marker()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.marker()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.marker()))
         : Option.create_None();
     return new ListKeyPoliciesRequest(keyId, limit, marker);
   }
@@ -1215,7 +1215,7 @@ public class ToDafny {
         : Option.create_None();
     Option<DafnySequence<? extends Character>> nextMarker;
     nextMarker = Objects.nonNull(nativeValue.nextMarker()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.nextMarker()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.nextMarker()))
         : Option.create_None();
     Option<Boolean> truncated;
     truncated = Objects.nonNull(nativeValue.truncated()) ?
@@ -1227,14 +1227,14 @@ public class ToDafny {
   public static ListResourceTagsRequest ListResourceTagsRequest(
       software.amazon.awssdk.services.kms.model.ListResourceTagsRequest nativeValue) {
     DafnySequence<? extends Character> keyId;
-    keyId = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId());
+    keyId = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId());
     Option<Integer> limit;
     limit = Objects.nonNull(nativeValue.limit()) ?
         Option.create_Some((nativeValue.limit()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> marker;
     marker = Objects.nonNull(nativeValue.marker()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.marker()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.marker()))
         : Option.create_None();
     return new ListResourceTagsRequest(keyId, limit, marker);
   }
@@ -1247,7 +1247,7 @@ public class ToDafny {
         : Option.create_None();
     Option<DafnySequence<? extends Character>> nextMarker;
     nextMarker = Objects.nonNull(nativeValue.nextMarker()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.nextMarker()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.nextMarker()))
         : Option.create_None();
     Option<Boolean> truncated;
     truncated = Objects.nonNull(nativeValue.truncated()) ?
@@ -1277,18 +1277,18 @@ public class ToDafny {
       software.amazon.awssdk.services.kms.model.MultiRegionKey nativeValue) {
     Option<DafnySequence<? extends Character>> arn;
     arn = Objects.nonNull(nativeValue.arn()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.arn()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.arn()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> region;
     region = Objects.nonNull(nativeValue.region()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.region()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.region()))
         : Option.create_None();
     return new MultiRegionKey(arn, region);
   }
 
   public static DafnySequence<? extends MultiRegionKey> MultiRegionKeyList(
       List<software.amazon.awssdk.services.kms.model.MultiRegionKey> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
         software.amazon.cryptography.services.kms.internaldafny.ToDafny::MultiRegionKey, 
         MultiRegionKey._typeDescriptor());
@@ -1296,20 +1296,20 @@ public class ToDafny {
 
   public static DafnySequence<? extends DafnySequence<? extends Character>> PolicyNameList(
       List<String> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
-        software.amazon.dafny.conversion.ToDafny.Simple::CharacterSequence, 
+        software.amazon.smithy.dafny.conversion.ToDafny.Simple::CharacterSequence, 
         DafnySequence._typeDescriptor(TypeDescriptor.CHAR));
   }
 
   public static PutKeyPolicyRequest PutKeyPolicyRequest(
       software.amazon.awssdk.services.kms.model.PutKeyPolicyRequest nativeValue) {
     DafnySequence<? extends Character> keyId;
-    keyId = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId());
+    keyId = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId());
     DafnySequence<? extends Character> policyName;
-    policyName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.policyName());
+    policyName = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.policyName());
     DafnySequence<? extends Character> policy;
-    policy = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.policy());
+    policy = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.policy());
     Option<Boolean> bypassPolicyLockoutSafetyCheck;
     bypassPolicyLockoutSafetyCheck = Objects.nonNull(nativeValue.bypassPolicyLockoutSafetyCheck()) ?
         Option.create_Some((nativeValue.bypassPolicyLockoutSafetyCheck()))
@@ -1320,17 +1320,17 @@ public class ToDafny {
   public static ReEncryptRequest ReEncryptRequest(
       software.amazon.awssdk.services.kms.model.ReEncryptRequest nativeValue) {
     DafnySequence<? extends Byte> ciphertextBlob;
-    ciphertextBlob = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.ciphertextBlob().asByteArray());
+    ciphertextBlob = software.amazon.smithy.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.ciphertextBlob().asByteArray());
     Option<DafnyMap<? extends DafnySequence<? extends Character>, ? extends DafnySequence<? extends Character>>> sourceEncryptionContext;
     sourceEncryptionContext = (Objects.nonNull(nativeValue.sourceEncryptionContext()) && nativeValue.sourceEncryptionContext().size() > 0) ?
         Option.create_Some(ToDafny.EncryptionContextType(nativeValue.sourceEncryptionContext()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> sourceKeyId;
     sourceKeyId = Objects.nonNull(nativeValue.sourceKeyId()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.sourceKeyId()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.sourceKeyId()))
         : Option.create_None();
     DafnySequence<? extends Character> destinationKeyId;
-    destinationKeyId = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.destinationKeyId());
+    destinationKeyId = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.destinationKeyId());
     Option<DafnyMap<? extends DafnySequence<? extends Character>, ? extends DafnySequence<? extends Character>>> destinationEncryptionContext;
     destinationEncryptionContext = (Objects.nonNull(nativeValue.destinationEncryptionContext()) && nativeValue.destinationEncryptionContext().size() > 0) ?
         Option.create_Some(ToDafny.EncryptionContextType(nativeValue.destinationEncryptionContext()))
@@ -1354,15 +1354,15 @@ public class ToDafny {
       software.amazon.awssdk.services.kms.model.ReEncryptResponse nativeValue) {
     Option<DafnySequence<? extends Byte>> ciphertextBlob;
     ciphertextBlob = Objects.nonNull(nativeValue.ciphertextBlob()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.ciphertextBlob().asByteArray()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.ciphertextBlob().asByteArray()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> sourceKeyId;
     sourceKeyId = Objects.nonNull(nativeValue.sourceKeyId()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.sourceKeyId()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.sourceKeyId()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> keyId;
     keyId = Objects.nonNull(nativeValue.keyId()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId()))
         : Option.create_None();
     Option<EncryptionAlgorithmSpec> sourceEncryptionAlgorithm;
     sourceEncryptionAlgorithm = Objects.nonNull(nativeValue.sourceEncryptionAlgorithm()) ?
@@ -1378,12 +1378,12 @@ public class ToDafny {
   public static ReplicateKeyRequest ReplicateKeyRequest(
       software.amazon.awssdk.services.kms.model.ReplicateKeyRequest nativeValue) {
     DafnySequence<? extends Character> keyId;
-    keyId = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId());
+    keyId = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId());
     DafnySequence<? extends Character> replicaRegion;
-    replicaRegion = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.replicaRegion());
+    replicaRegion = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.replicaRegion());
     Option<DafnySequence<? extends Character>> policy;
     policy = Objects.nonNull(nativeValue.policy()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.policy()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.policy()))
         : Option.create_None();
     Option<Boolean> bypassPolicyLockoutSafetyCheck;
     bypassPolicyLockoutSafetyCheck = Objects.nonNull(nativeValue.bypassPolicyLockoutSafetyCheck()) ?
@@ -1391,7 +1391,7 @@ public class ToDafny {
         : Option.create_None();
     Option<DafnySequence<? extends Character>> description;
     description = Objects.nonNull(nativeValue.description()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.description()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.description()))
         : Option.create_None();
     Option<DafnySequence<? extends Tag>> tags;
     tags = (Objects.nonNull(nativeValue.tags()) && nativeValue.tags().size() > 0) ?
@@ -1408,7 +1408,7 @@ public class ToDafny {
         : Option.create_None();
     Option<DafnySequence<? extends Character>> replicaPolicy;
     replicaPolicy = Objects.nonNull(nativeValue.replicaPolicy()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.replicaPolicy()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.replicaPolicy()))
         : Option.create_None();
     Option<DafnySequence<? extends Tag>> replicaTags;
     replicaTags = (Objects.nonNull(nativeValue.replicaTags()) && nativeValue.replicaTags().size() > 0) ?
@@ -1421,15 +1421,15 @@ public class ToDafny {
       software.amazon.awssdk.services.kms.model.RetireGrantRequest nativeValue) {
     Option<DafnySequence<? extends Character>> grantToken;
     grantToken = Objects.nonNull(nativeValue.grantToken()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.grantToken()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.grantToken()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> keyId;
     keyId = Objects.nonNull(nativeValue.keyId()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> grantId;
     grantId = Objects.nonNull(nativeValue.grantId()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.grantId()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.grantId()))
         : Option.create_None();
     return new RetireGrantRequest(grantToken, keyId, grantId);
   }
@@ -1437,16 +1437,16 @@ public class ToDafny {
   public static RevokeGrantRequest RevokeGrantRequest(
       software.amazon.awssdk.services.kms.model.RevokeGrantRequest nativeValue) {
     DafnySequence<? extends Character> keyId;
-    keyId = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId());
+    keyId = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId());
     DafnySequence<? extends Character> grantId;
-    grantId = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.grantId());
+    grantId = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.grantId());
     return new RevokeGrantRequest(keyId, grantId);
   }
 
   public static ScheduleKeyDeletionRequest ScheduleKeyDeletionRequest(
       software.amazon.awssdk.services.kms.model.ScheduleKeyDeletionRequest nativeValue) {
     DafnySequence<? extends Character> keyId;
-    keyId = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId());
+    keyId = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId());
     Option<Integer> pendingWindowInDays;
     pendingWindowInDays = Objects.nonNull(nativeValue.pendingWindowInDays()) ?
         Option.create_Some((nativeValue.pendingWindowInDays()))
@@ -1458,11 +1458,11 @@ public class ToDafny {
       software.amazon.awssdk.services.kms.model.ScheduleKeyDeletionResponse nativeValue) {
     Option<DafnySequence<? extends Character>> keyId;
     keyId = Objects.nonNull(nativeValue.keyId()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> deletionDate;
     deletionDate = Objects.nonNull(nativeValue.deletionDate()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.deletionDate()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.deletionDate()))
         : Option.create_None();
     Option<KeyState> keyState;
     keyState = Objects.nonNull(nativeValue.keyState()) ?
@@ -1477,7 +1477,7 @@ public class ToDafny {
 
   public static DafnySequence<? extends SigningAlgorithmSpec> SigningAlgorithmSpecList(
       List<software.amazon.awssdk.services.kms.model.SigningAlgorithmSpec> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
         software.amazon.cryptography.services.kms.internaldafny.ToDafny::SigningAlgorithmSpec, 
         SigningAlgorithmSpec._typeDescriptor());
@@ -1486,9 +1486,9 @@ public class ToDafny {
   public static SignRequest SignRequest(
       software.amazon.awssdk.services.kms.model.SignRequest nativeValue) {
     DafnySequence<? extends Character> keyId;
-    keyId = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId());
+    keyId = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId());
     DafnySequence<? extends Byte> message;
-    message = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.message().asByteArray());
+    message = software.amazon.smithy.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.message().asByteArray());
     Option<MessageType> messageType;
     messageType = Objects.nonNull(nativeValue.messageType()) ?
         Option.create_Some(ToDafny.MessageType(nativeValue.messageType()))
@@ -1506,11 +1506,11 @@ public class ToDafny {
       software.amazon.awssdk.services.kms.model.SignResponse nativeValue) {
     Option<DafnySequence<? extends Character>> keyId;
     keyId = Objects.nonNull(nativeValue.keyId()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId()))
         : Option.create_None();
     Option<DafnySequence<? extends Byte>> signature;
     signature = Objects.nonNull(nativeValue.signature()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.signature().asByteArray()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.signature().asByteArray()))
         : Option.create_None();
     Option<SigningAlgorithmSpec> signingAlgorithm;
     signingAlgorithm = Objects.nonNull(nativeValue.signingAlgorithm()) ?
@@ -1521,23 +1521,23 @@ public class ToDafny {
 
   public static Tag Tag(software.amazon.awssdk.services.kms.model.Tag nativeValue) {
     DafnySequence<? extends Character> tagKey;
-    tagKey = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tagKey());
+    tagKey = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tagKey());
     DafnySequence<? extends Character> tagValue;
-    tagValue = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tagValue());
+    tagValue = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tagValue());
     return new Tag(tagKey, tagValue);
   }
 
   public static DafnySequence<? extends DafnySequence<? extends Character>> TagKeyList(
       List<String> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
-        software.amazon.dafny.conversion.ToDafny.Simple::CharacterSequence, 
+        software.amazon.smithy.dafny.conversion.ToDafny.Simple::CharacterSequence, 
         DafnySequence._typeDescriptor(TypeDescriptor.CHAR));
   }
 
   public static DafnySequence<? extends Tag> TagList(
       List<software.amazon.awssdk.services.kms.model.Tag> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
         software.amazon.cryptography.services.kms.internaldafny.ToDafny::Tag, 
         Tag._typeDescriptor());
@@ -1546,7 +1546,7 @@ public class ToDafny {
   public static TagResourceRequest TagResourceRequest(
       software.amazon.awssdk.services.kms.model.TagResourceRequest nativeValue) {
     DafnySequence<? extends Character> keyId;
-    keyId = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId());
+    keyId = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId());
     DafnySequence<? extends Tag> tags;
     tags = ToDafny.TagList(nativeValue.tags());
     return new TagResourceRequest(keyId, tags);
@@ -1555,7 +1555,7 @@ public class ToDafny {
   public static UntagResourceRequest UntagResourceRequest(
       software.amazon.awssdk.services.kms.model.UntagResourceRequest nativeValue) {
     DafnySequence<? extends Character> keyId;
-    keyId = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId());
+    keyId = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId());
     DafnySequence<? extends DafnySequence<? extends Character>> tagKeys;
     tagKeys = ToDafny.TagKeyList(nativeValue.tagKeys());
     return new UntagResourceRequest(keyId, tagKeys);
@@ -1564,27 +1564,27 @@ public class ToDafny {
   public static UpdateAliasRequest UpdateAliasRequest(
       software.amazon.awssdk.services.kms.model.UpdateAliasRequest nativeValue) {
     DafnySequence<? extends Character> aliasName;
-    aliasName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.aliasName());
+    aliasName = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.aliasName());
     DafnySequence<? extends Character> targetKeyId;
-    targetKeyId = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.targetKeyId());
+    targetKeyId = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.targetKeyId());
     return new UpdateAliasRequest(aliasName, targetKeyId);
   }
 
   public static UpdateCustomKeyStoreRequest UpdateCustomKeyStoreRequest(
       software.amazon.awssdk.services.kms.model.UpdateCustomKeyStoreRequest nativeValue) {
     DafnySequence<? extends Character> customKeyStoreId;
-    customKeyStoreId = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.customKeyStoreId());
+    customKeyStoreId = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.customKeyStoreId());
     Option<DafnySequence<? extends Character>> newCustomKeyStoreName;
     newCustomKeyStoreName = Objects.nonNull(nativeValue.newCustomKeyStoreName()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.newCustomKeyStoreName()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.newCustomKeyStoreName()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> keyStorePassword;
     keyStorePassword = Objects.nonNull(nativeValue.keyStorePassword()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyStorePassword()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyStorePassword()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> cloudHsmClusterId;
     cloudHsmClusterId = Objects.nonNull(nativeValue.cloudHsmClusterId()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.cloudHsmClusterId()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.cloudHsmClusterId()))
         : Option.create_None();
     return new UpdateCustomKeyStoreRequest(customKeyStoreId, newCustomKeyStoreName, keyStorePassword, cloudHsmClusterId);
   }
@@ -1597,33 +1597,33 @@ public class ToDafny {
   public static UpdateKeyDescriptionRequest UpdateKeyDescriptionRequest(
       software.amazon.awssdk.services.kms.model.UpdateKeyDescriptionRequest nativeValue) {
     DafnySequence<? extends Character> keyId;
-    keyId = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId());
+    keyId = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId());
     DafnySequence<? extends Character> description;
-    description = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.description());
+    description = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.description());
     return new UpdateKeyDescriptionRequest(keyId, description);
   }
 
   public static UpdatePrimaryRegionRequest UpdatePrimaryRegionRequest(
       software.amazon.awssdk.services.kms.model.UpdatePrimaryRegionRequest nativeValue) {
     DafnySequence<? extends Character> keyId;
-    keyId = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId());
+    keyId = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId());
     DafnySequence<? extends Character> primaryRegion;
-    primaryRegion = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.primaryRegion());
+    primaryRegion = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.primaryRegion());
     return new UpdatePrimaryRegionRequest(keyId, primaryRegion);
   }
 
   public static VerifyRequest VerifyRequest(
       software.amazon.awssdk.services.kms.model.VerifyRequest nativeValue) {
     DafnySequence<? extends Character> keyId;
-    keyId = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId());
+    keyId = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId());
     DafnySequence<? extends Byte> message;
-    message = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.message().asByteArray());
+    message = software.amazon.smithy.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.message().asByteArray());
     Option<MessageType> messageType;
     messageType = Objects.nonNull(nativeValue.messageType()) ?
         Option.create_Some(ToDafny.MessageType(nativeValue.messageType()))
         : Option.create_None();
     DafnySequence<? extends Byte> signature;
-    signature = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.signature().asByteArray());
+    signature = software.amazon.smithy.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.signature().asByteArray());
     SigningAlgorithmSpec signingAlgorithm;
     signingAlgorithm = ToDafny.SigningAlgorithmSpec(nativeValue.signingAlgorithm());
     Option<DafnySequence<? extends DafnySequence<? extends Character>>> grantTokens;
@@ -1637,7 +1637,7 @@ public class ToDafny {
       software.amazon.awssdk.services.kms.model.VerifyResponse nativeValue) {
     Option<DafnySequence<? extends Character>> keyId;
     keyId = Objects.nonNull(nativeValue.keyId()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyId()))
         : Option.create_None();
     Option<Boolean> signatureValid;
     signatureValid = Objects.nonNull(nativeValue.signatureValid()) ?
@@ -1653,7 +1653,7 @@ public class ToDafny {
   public static Error Error(AlreadyExistsException nativeValue) {
     Option<DafnySequence<? extends Character>> message;
     message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
         : Option.create_None();
     return new Error_AlreadyExistsException(message);
   }
@@ -1661,7 +1661,7 @@ public class ToDafny {
   public static Error Error(CloudHsmClusterInUseException nativeValue) {
     Option<DafnySequence<? extends Character>> message;
     message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
         : Option.create_None();
     return new Error_CloudHsmClusterInUseException(message);
   }
@@ -1669,7 +1669,7 @@ public class ToDafny {
   public static Error Error(CloudHsmClusterInvalidConfigurationException nativeValue) {
     Option<DafnySequence<? extends Character>> message;
     message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
         : Option.create_None();
     return new Error_CloudHsmClusterInvalidConfigurationException(message);
   }
@@ -1677,7 +1677,7 @@ public class ToDafny {
   public static Error Error(CloudHsmClusterNotActiveException nativeValue) {
     Option<DafnySequence<? extends Character>> message;
     message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
         : Option.create_None();
     return new Error_CloudHsmClusterNotActiveException(message);
   }
@@ -1685,7 +1685,7 @@ public class ToDafny {
   public static Error Error(CloudHsmClusterNotFoundException nativeValue) {
     Option<DafnySequence<? extends Character>> message;
     message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
         : Option.create_None();
     return new Error_CloudHsmClusterNotFoundException(message);
   }
@@ -1693,7 +1693,7 @@ public class ToDafny {
   public static Error Error(CloudHsmClusterNotRelatedException nativeValue) {
     Option<DafnySequence<? extends Character>> message;
     message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
         : Option.create_None();
     return new Error_CloudHsmClusterNotRelatedException(message);
   }
@@ -1701,7 +1701,7 @@ public class ToDafny {
   public static Error Error(CustomKeyStoreHasCmKsException nativeValue) {
     Option<DafnySequence<? extends Character>> message;
     message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
         : Option.create_None();
     return new Error_CustomKeyStoreHasCMKsException(message);
   }
@@ -1709,7 +1709,7 @@ public class ToDafny {
   public static Error Error(CustomKeyStoreInvalidStateException nativeValue) {
     Option<DafnySequence<? extends Character>> message;
     message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
         : Option.create_None();
     return new Error_CustomKeyStoreInvalidStateException(message);
   }
@@ -1717,7 +1717,7 @@ public class ToDafny {
   public static Error Error(CustomKeyStoreNameInUseException nativeValue) {
     Option<DafnySequence<? extends Character>> message;
     message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
         : Option.create_None();
     return new Error_CustomKeyStoreNameInUseException(message);
   }
@@ -1725,7 +1725,7 @@ public class ToDafny {
   public static Error Error(CustomKeyStoreNotFoundException nativeValue) {
     Option<DafnySequence<? extends Character>> message;
     message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
         : Option.create_None();
     return new Error_CustomKeyStoreNotFoundException(message);
   }
@@ -1733,7 +1733,7 @@ public class ToDafny {
   public static Error Error(DependencyTimeoutException nativeValue) {
     Option<DafnySequence<? extends Character>> message;
     message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
         : Option.create_None();
     return new Error_DependencyTimeoutException(message);
   }
@@ -1741,7 +1741,7 @@ public class ToDafny {
   public static Error Error(DisabledException nativeValue) {
     Option<DafnySequence<? extends Character>> message;
     message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
         : Option.create_None();
     return new Error_DisabledException(message);
   }
@@ -1749,7 +1749,7 @@ public class ToDafny {
   public static Error Error(ExpiredImportTokenException nativeValue) {
     Option<DafnySequence<? extends Character>> message;
     message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
         : Option.create_None();
     return new Error_ExpiredImportTokenException(message);
   }
@@ -1757,7 +1757,7 @@ public class ToDafny {
   public static Error Error(IncorrectKeyException nativeValue) {
     Option<DafnySequence<? extends Character>> message;
     message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
         : Option.create_None();
     return new Error_IncorrectKeyException(message);
   }
@@ -1765,7 +1765,7 @@ public class ToDafny {
   public static Error Error(IncorrectKeyMaterialException nativeValue) {
     Option<DafnySequence<? extends Character>> message;
     message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
         : Option.create_None();
     return new Error_IncorrectKeyMaterialException(message);
   }
@@ -1773,7 +1773,7 @@ public class ToDafny {
   public static Error Error(IncorrectTrustAnchorException nativeValue) {
     Option<DafnySequence<? extends Character>> message;
     message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
         : Option.create_None();
     return new Error_IncorrectTrustAnchorException(message);
   }
@@ -1781,7 +1781,7 @@ public class ToDafny {
   public static Error Error(InvalidAliasNameException nativeValue) {
     Option<DafnySequence<? extends Character>> message;
     message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
         : Option.create_None();
     return new Error_InvalidAliasNameException(message);
   }
@@ -1789,7 +1789,7 @@ public class ToDafny {
   public static Error Error(InvalidArnException nativeValue) {
     Option<DafnySequence<? extends Character>> message;
     message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
         : Option.create_None();
     return new Error_InvalidArnException(message);
   }
@@ -1797,7 +1797,7 @@ public class ToDafny {
   public static Error Error(InvalidCiphertextException nativeValue) {
     Option<DafnySequence<? extends Character>> message;
     message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
         : Option.create_None();
     return new Error_InvalidCiphertextException(message);
   }
@@ -1805,7 +1805,7 @@ public class ToDafny {
   public static Error Error(InvalidGrantIdException nativeValue) {
     Option<DafnySequence<? extends Character>> message;
     message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
         : Option.create_None();
     return new Error_InvalidGrantIdException(message);
   }
@@ -1813,7 +1813,7 @@ public class ToDafny {
   public static Error Error(InvalidGrantTokenException nativeValue) {
     Option<DafnySequence<? extends Character>> message;
     message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
         : Option.create_None();
     return new Error_InvalidGrantTokenException(message);
   }
@@ -1821,7 +1821,7 @@ public class ToDafny {
   public static Error Error(InvalidImportTokenException nativeValue) {
     Option<DafnySequence<? extends Character>> message;
     message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
         : Option.create_None();
     return new Error_InvalidImportTokenException(message);
   }
@@ -1829,7 +1829,7 @@ public class ToDafny {
   public static Error Error(InvalidKeyUsageException nativeValue) {
     Option<DafnySequence<? extends Character>> message;
     message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
         : Option.create_None();
     return new Error_InvalidKeyUsageException(message);
   }
@@ -1837,7 +1837,7 @@ public class ToDafny {
   public static Error Error(InvalidMarkerException nativeValue) {
     Option<DafnySequence<? extends Character>> message;
     message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
         : Option.create_None();
     return new Error_InvalidMarkerException(message);
   }
@@ -1845,7 +1845,7 @@ public class ToDafny {
   public static Error Error(KeyUnavailableException nativeValue) {
     Option<DafnySequence<? extends Character>> message;
     message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
         : Option.create_None();
     return new Error_KeyUnavailableException(message);
   }
@@ -1853,7 +1853,7 @@ public class ToDafny {
   public static Error Error(KmsInternalException nativeValue) {
     Option<DafnySequence<? extends Character>> message;
     message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
         : Option.create_None();
     return new Error_KMSInternalException(message);
   }
@@ -1861,7 +1861,7 @@ public class ToDafny {
   public static Error Error(KmsInvalidSignatureException nativeValue) {
     Option<DafnySequence<? extends Character>> message;
     message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
         : Option.create_None();
     return new Error_KMSInvalidSignatureException(message);
   }
@@ -1869,7 +1869,7 @@ public class ToDafny {
   public static Error Error(KmsInvalidStateException nativeValue) {
     Option<DafnySequence<? extends Character>> message;
     message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
         : Option.create_None();
     return new Error_KMSInvalidStateException(message);
   }
@@ -1877,7 +1877,7 @@ public class ToDafny {
   public static Error Error(LimitExceededException nativeValue) {
     Option<DafnySequence<? extends Character>> message;
     message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
         : Option.create_None();
     return new Error_LimitExceededException(message);
   }
@@ -1885,7 +1885,7 @@ public class ToDafny {
   public static Error Error(MalformedPolicyDocumentException nativeValue) {
     Option<DafnySequence<? extends Character>> message;
     message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
         : Option.create_None();
     return new Error_MalformedPolicyDocumentException(message);
   }
@@ -1893,7 +1893,7 @@ public class ToDafny {
   public static Error Error(NotFoundException nativeValue) {
     Option<DafnySequence<? extends Character>> message;
     message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
         : Option.create_None();
     return new Error_NotFoundException(message);
   }
@@ -1901,7 +1901,7 @@ public class ToDafny {
   public static Error Error(TagException nativeValue) {
     Option<DafnySequence<? extends Character>> message;
     message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
         : Option.create_None();
     return new Error_TagException(message);
   }
@@ -1909,7 +1909,7 @@ public class ToDafny {
   public static Error Error(UnsupportedOperationException nativeValue) {
     Option<DafnySequence<? extends Character>> message;
     message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
         : Option.create_None();
     return new Error_UnsupportedOperationException(message);
   }

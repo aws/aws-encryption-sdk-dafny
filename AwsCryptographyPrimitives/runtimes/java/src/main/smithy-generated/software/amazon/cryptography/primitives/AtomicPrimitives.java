@@ -64,7 +64,7 @@ public class AtomicPrimitives {
     if (result.is_Failure()) {
       throw ToNative.Error(result.dtor_error());
     }
-    return software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(result.dtor_value());
+    return software.amazon.smithy.dafny.conversion.ToNative.Simple.ByteBuffer(result.dtor_value());
   }
 
   public AESEncryptOutput AESEncrypt(AESEncryptInput nativeValue) {
@@ -82,7 +82,7 @@ public class AtomicPrimitives {
     if (result.is_Failure()) {
       throw ToNative.Error(result.dtor_error());
     }
-    return software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(result.dtor_value());
+    return software.amazon.smithy.dafny.conversion.ToNative.Simple.ByteBuffer(result.dtor_value());
   }
 
   public ByteBuffer Digest(DigestInput nativeValue) {
@@ -91,7 +91,7 @@ public class AtomicPrimitives {
     if (result.is_Failure()) {
       throw ToNative.Error(result.dtor_error());
     }
-    return software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(result.dtor_value());
+    return software.amazon.smithy.dafny.conversion.ToNative.Simple.ByteBuffer(result.dtor_value());
   }
 
   public ByteBuffer ECDSASign(ECDSASignInput nativeValue) {
@@ -100,7 +100,7 @@ public class AtomicPrimitives {
     if (result.is_Failure()) {
       throw ToNative.Error(result.dtor_error());
     }
-    return software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(result.dtor_value());
+    return software.amazon.smithy.dafny.conversion.ToNative.Simple.ByteBuffer(result.dtor_value());
   }
 
   public Boolean ECDSAVerify(ECDSAVerifyInput nativeValue) {
@@ -128,7 +128,7 @@ public class AtomicPrimitives {
     if (result.is_Failure()) {
       throw ToNative.Error(result.dtor_error());
     }
-    return software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(result.dtor_value());
+    return software.amazon.smithy.dafny.conversion.ToNative.Simple.ByteBuffer(result.dtor_value());
   }
 
   public GenerateRSAKeyPairOutput GenerateRSAKeyPair(GenerateRSAKeyPairInput nativeValue) {
@@ -156,7 +156,7 @@ public class AtomicPrimitives {
     if (result.is_Failure()) {
       throw ToNative.Error(result.dtor_error());
     }
-    return software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(result.dtor_value());
+    return software.amazon.smithy.dafny.conversion.ToNative.Simple.ByteBuffer(result.dtor_value());
   }
 
   public ByteBuffer HkdfExpand(HkdfExpandInput nativeValue) {
@@ -165,7 +165,7 @@ public class AtomicPrimitives {
     if (result.is_Failure()) {
       throw ToNative.Error(result.dtor_error());
     }
-    return software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(result.dtor_value());
+    return software.amazon.smithy.dafny.conversion.ToNative.Simple.ByteBuffer(result.dtor_value());
   }
 
   public ByteBuffer HkdfExtract(HkdfExtractInput nativeValue) {
@@ -174,7 +174,7 @@ public class AtomicPrimitives {
     if (result.is_Failure()) {
       throw ToNative.Error(result.dtor_error());
     }
-    return software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(result.dtor_value());
+    return software.amazon.smithy.dafny.conversion.ToNative.Simple.ByteBuffer(result.dtor_value());
   }
 
   public ByteBuffer HMac(HMacInput nativeValue) {
@@ -183,7 +183,7 @@ public class AtomicPrimitives {
     if (result.is_Failure()) {
       throw ToNative.Error(result.dtor_error());
     }
-    return software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(result.dtor_value());
+    return software.amazon.smithy.dafny.conversion.ToNative.Simple.ByteBuffer(result.dtor_value());
   }
 
   public ByteBuffer KdfCounterMode(KdfCtrInput nativeValue) {
@@ -192,7 +192,7 @@ public class AtomicPrimitives {
     if (result.is_Failure()) {
       throw ToNative.Error(result.dtor_error());
     }
-    return software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(result.dtor_value());
+    return software.amazon.smithy.dafny.conversion.ToNative.Simple.ByteBuffer(result.dtor_value());
   }
 
   public ByteBuffer RSADecrypt(RSADecryptInput nativeValue) {
@@ -201,7 +201,7 @@ public class AtomicPrimitives {
     if (result.is_Failure()) {
       throw ToNative.Error(result.dtor_error());
     }
-    return software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(result.dtor_value());
+    return software.amazon.smithy.dafny.conversion.ToNative.Simple.ByteBuffer(result.dtor_value());
   }
 
   public ByteBuffer RSAEncrypt(RSAEncryptInput nativeValue) {
@@ -210,7 +210,7 @@ public class AtomicPrimitives {
     if (result.is_Failure()) {
       throw ToNative.Error(result.dtor_error());
     }
-    return software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(result.dtor_value());
+    return software.amazon.smithy.dafny.conversion.ToNative.Simple.ByteBuffer(result.dtor_value());
   }
 
   protected IAwsCryptographicPrimitivesClient impl() {

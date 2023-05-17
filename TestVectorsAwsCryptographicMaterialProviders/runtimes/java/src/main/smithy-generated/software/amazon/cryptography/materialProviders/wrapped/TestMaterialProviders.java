@@ -280,7 +280,7 @@ public class TestMaterialProviders implements IAwsCryptographicMaterialProviders
 
   public Result<AlgorithmSuiteInfo, Error> GetAlgorithmSuiteInfo(
       DafnySequence<? extends Byte> dafnyInput) {
-    ByteBuffer nativeInput = software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyInput);
+    ByteBuffer nativeInput = software.amazon.smithy.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyInput);
     try {
       software.amazon.cryptography.materialproviders.model.AlgorithmSuiteInfo nativeOutput = this._impl.GetAlgorithmSuiteInfo(nativeInput);
       AlgorithmSuiteInfo dafnyOutput = ToDafny.AlgorithmSuiteInfo(nativeOutput);

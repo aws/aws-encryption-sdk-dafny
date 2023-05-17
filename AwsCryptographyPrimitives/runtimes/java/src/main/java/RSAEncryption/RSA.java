@@ -45,7 +45,7 @@ import java.io.StringWriter;
 import java.nio.ByteBuffer;
 import java.math.BigInteger;
 
-import static software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence;
+import static software.amazon.smithy.dafny.conversion.ToDafny.Simple.ByteSequence;
 
 public class RSA {
     private static int RSA_KEY_LEN_MAX = 4096;
