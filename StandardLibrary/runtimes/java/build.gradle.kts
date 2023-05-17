@@ -52,7 +52,7 @@ repositories {
 
 dependencies {
     implementation("org.dafny:DafnyRuntime:4.0.0")
-    implementation("software.amazon.dafny:conversion:1.0-SNAPSHOT")
+    implementation("software.amazon.smithy.dafny:conversion:1.0-SNAPSHOT")
 }
 publishing {
     publications.create<MavenPublication>("maven") {

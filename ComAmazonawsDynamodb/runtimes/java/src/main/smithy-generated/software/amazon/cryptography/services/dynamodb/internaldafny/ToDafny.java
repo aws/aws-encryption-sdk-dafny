@@ -438,15 +438,15 @@ public class ToDafny {
       software.amazon.awssdk.services.dynamodb.model.ArchivalSummary nativeValue) {
     Option<DafnySequence<? extends Character>> archivalDateTime;
     archivalDateTime = Objects.nonNull(nativeValue.archivalDateTime()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.archivalDateTime()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.archivalDateTime()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> archivalReason;
     archivalReason = Objects.nonNull(nativeValue.archivalReason()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.archivalReason()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.archivalReason()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> archivalBackupArn;
     archivalBackupArn = Objects.nonNull(nativeValue.archivalBackupArn()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.archivalBackupArn()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.archivalBackupArn()))
         : Option.create_None();
     return new ArchivalSummary(archivalDateTime, archivalReason, archivalBackupArn);
   }
@@ -454,7 +454,7 @@ public class ToDafny {
   public static AttributeDefinition AttributeDefinition(
       software.amazon.awssdk.services.dynamodb.model.AttributeDefinition nativeValue) {
     DafnySequence<? extends Character> attributeName;
-    attributeName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.attributeName());
+    attributeName = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.attributeName());
     ScalarAttributeType attributeType;
     attributeType = ToDafny.ScalarAttributeType(nativeValue.attributeType());
     return new AttributeDefinition(attributeName, attributeType);
@@ -462,7 +462,7 @@ public class ToDafny {
 
   public static DafnySequence<? extends AttributeDefinition> AttributeDefinitions(
       List<software.amazon.awssdk.services.dynamodb.model.AttributeDefinition> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
         software.amazon.cryptography.services.dynamodb.internaldafny.ToDafny::AttributeDefinition, 
         AttributeDefinition._typeDescriptor());
@@ -470,25 +470,25 @@ public class ToDafny {
 
   public static DafnyMap<? extends DafnySequence<? extends Character>, ? extends AttributeValue> AttributeMap(
       Map<String, software.amazon.awssdk.services.dynamodb.model.AttributeValue> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToMap(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToMap(
         nativeValue, 
-        software.amazon.dafny.conversion.ToDafny.Simple::CharacterSequence, 
+        software.amazon.smithy.dafny.conversion.ToDafny.Simple::CharacterSequence, 
         software.amazon.cryptography.services.dynamodb.internaldafny.ToDafny::AttributeValue);
   }
 
   public static DafnySequence<? extends DafnySequence<? extends Character>> AttributeNameList(
       List<String> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
-        software.amazon.dafny.conversion.ToDafny.Simple::CharacterSequence, 
+        software.amazon.smithy.dafny.conversion.ToDafny.Simple::CharacterSequence, 
         DafnySequence._typeDescriptor(TypeDescriptor.CHAR));
   }
 
   public static DafnyMap<? extends DafnySequence<? extends Character>, ? extends AttributeValueUpdate> AttributeUpdates(
       Map<String, software.amazon.awssdk.services.dynamodb.model.AttributeValueUpdate> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToMap(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToMap(
         nativeValue, 
-        software.amazon.dafny.conversion.ToDafny.Simple::CharacterSequence, 
+        software.amazon.smithy.dafny.conversion.ToDafny.Simple::CharacterSequence, 
         software.amazon.cryptography.services.dynamodb.internaldafny.ToDafny::AttributeValueUpdate);
   }
 
@@ -496,13 +496,13 @@ public class ToDafny {
       software.amazon.awssdk.services.dynamodb.model.AttributeValue nativeValue) {
     switch (nativeValue.type()) {
       case S: {
-        return AttributeValue.create_S(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.s()));
+        return AttributeValue.create_S(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.s()));
       }
       case N: {
-        return AttributeValue.create_N(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.n()));
+        return AttributeValue.create_N(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.n()));
       }
       case B: {
-        return AttributeValue.create_B(software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.b().asByteArray()));
+        return AttributeValue.create_B(software.amazon.smithy.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.b().asByteArray()));
       }
       case SS: {
         return AttributeValue.create_SS(ToDafny.StringSetAttributeValue(nativeValue.ss()));
@@ -535,7 +535,7 @@ public class ToDafny {
 
   public static DafnySequence<? extends AttributeValue> AttributeValueList(
       List<software.amazon.awssdk.services.dynamodb.model.AttributeValue> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
         software.amazon.cryptography.services.dynamodb.internaldafny.ToDafny::AttributeValue, 
         AttributeValue._typeDescriptor());
@@ -558,7 +558,7 @@ public class ToDafny {
       software.amazon.awssdk.services.dynamodb.model.AutoScalingPolicyDescription nativeValue) {
     Option<DafnySequence<? extends Character>> policyName;
     policyName = Objects.nonNull(nativeValue.policyName()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.policyName()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.policyName()))
         : Option.create_None();
     Option<AutoScalingTargetTrackingScalingPolicyConfigurationDescription> targetTrackingScalingPolicyConfiguration;
     targetTrackingScalingPolicyConfiguration = Objects.nonNull(nativeValue.targetTrackingScalingPolicyConfiguration()) ?
@@ -569,7 +569,7 @@ public class ToDafny {
 
   public static DafnySequence<? extends AutoScalingPolicyDescription> AutoScalingPolicyDescriptionList(
       List<software.amazon.awssdk.services.dynamodb.model.AutoScalingPolicyDescription> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
         software.amazon.cryptography.services.dynamodb.internaldafny.ToDafny::AutoScalingPolicyDescription, 
         AutoScalingPolicyDescription._typeDescriptor());
@@ -579,7 +579,7 @@ public class ToDafny {
       software.amazon.awssdk.services.dynamodb.model.AutoScalingPolicyUpdate nativeValue) {
     Option<DafnySequence<? extends Character>> policyName;
     policyName = Objects.nonNull(nativeValue.policyName()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.policyName()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.policyName()))
         : Option.create_None();
     AutoScalingTargetTrackingScalingPolicyConfigurationUpdate targetTrackingScalingPolicyConfiguration;
     targetTrackingScalingPolicyConfiguration = ToDafny.AutoScalingTargetTrackingScalingPolicyConfigurationUpdate(nativeValue.targetTrackingScalingPolicyConfiguration());
@@ -602,7 +602,7 @@ public class ToDafny {
         : Option.create_None();
     Option<DafnySequence<? extends Character>> autoScalingRoleArn;
     autoScalingRoleArn = Objects.nonNull(nativeValue.autoScalingRoleArn()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.autoScalingRoleArn()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.autoScalingRoleArn()))
         : Option.create_None();
     Option<DafnySequence<? extends AutoScalingPolicyDescription>> scalingPolicies;
     scalingPolicies = (Objects.nonNull(nativeValue.scalingPolicies()) && nativeValue.scalingPolicies().size() > 0) ?
@@ -627,7 +627,7 @@ public class ToDafny {
         : Option.create_None();
     Option<DafnySequence<? extends Character>> autoScalingRoleArn;
     autoScalingRoleArn = Objects.nonNull(nativeValue.autoScalingRoleArn()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.autoScalingRoleArn()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.autoScalingRoleArn()))
         : Option.create_None();
     Option<AutoScalingPolicyUpdate> scalingPolicyUpdate;
     scalingPolicyUpdate = Objects.nonNull(nativeValue.scalingPolicyUpdate()) ?
@@ -651,7 +651,7 @@ public class ToDafny {
         Option.create_Some((nativeValue.scaleOutCooldown()))
         : Option.create_None();
     DafnySequence<? extends Byte> targetValue;
-    targetValue = software.amazon.dafny.conversion.ToDafny.Simple.Double(nativeValue.targetValue());
+    targetValue = software.amazon.smithy.dafny.conversion.ToDafny.Simple.Double(nativeValue.targetValue());
     return new AutoScalingTargetTrackingScalingPolicyConfigurationDescription(disableScaleIn, scaleInCooldown, scaleOutCooldown, targetValue);
   }
 
@@ -670,7 +670,7 @@ public class ToDafny {
         Option.create_Some((nativeValue.scaleOutCooldown()))
         : Option.create_None();
     DafnySequence<? extends Byte> targetValue;
-    targetValue = software.amazon.dafny.conversion.ToDafny.Simple.Double(nativeValue.targetValue());
+    targetValue = software.amazon.smithy.dafny.conversion.ToDafny.Simple.Double(nativeValue.targetValue());
     return new AutoScalingTargetTrackingScalingPolicyConfigurationUpdate(disableScaleIn, scaleInCooldown, scaleOutCooldown, targetValue);
   }
 
@@ -694,9 +694,9 @@ public class ToDafny {
   public static BackupDetails BackupDetails(
       software.amazon.awssdk.services.dynamodb.model.BackupDetails nativeValue) {
     DafnySequence<? extends Character> backupArn;
-    backupArn = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.backupArn());
+    backupArn = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.backupArn());
     DafnySequence<? extends Character> backupName;
-    backupName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.backupName());
+    backupName = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.backupName());
     Option<Long> backupSizeBytes;
     backupSizeBytes = Objects.nonNull(nativeValue.backupSizeBytes()) ?
         Option.create_Some((nativeValue.backupSizeBytes()))
@@ -706,17 +706,17 @@ public class ToDafny {
     BackupType backupType;
     backupType = ToDafny.BackupType(nativeValue.backupType());
     DafnySequence<? extends Character> backupCreationDateTime;
-    backupCreationDateTime = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.backupCreationDateTime());
+    backupCreationDateTime = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.backupCreationDateTime());
     Option<DafnySequence<? extends Character>> backupExpiryDateTime;
     backupExpiryDateTime = Objects.nonNull(nativeValue.backupExpiryDateTime()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.backupExpiryDateTime()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.backupExpiryDateTime()))
         : Option.create_None();
     return new BackupDetails(backupArn, backupName, backupSizeBytes, backupStatus, backupType, backupCreationDateTime, backupExpiryDateTime);
   }
 
   public static DafnySequence<? extends BackupSummary> BackupSummaries(
       List<software.amazon.awssdk.services.dynamodb.model.BackupSummary> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
         software.amazon.cryptography.services.dynamodb.internaldafny.ToDafny::BackupSummary, 
         BackupSummary._typeDescriptor());
@@ -726,31 +726,31 @@ public class ToDafny {
       software.amazon.awssdk.services.dynamodb.model.BackupSummary nativeValue) {
     Option<DafnySequence<? extends Character>> tableName;
     tableName = Objects.nonNull(nativeValue.tableName()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> tableId;
     tableId = Objects.nonNull(nativeValue.tableId()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableId()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableId()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> tableArn;
     tableArn = Objects.nonNull(nativeValue.tableArn()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableArn()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableArn()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> backupArn;
     backupArn = Objects.nonNull(nativeValue.backupArn()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.backupArn()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.backupArn()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> backupName;
     backupName = Objects.nonNull(nativeValue.backupName()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.backupName()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.backupName()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> backupCreationDateTime;
     backupCreationDateTime = Objects.nonNull(nativeValue.backupCreationDateTime()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.backupCreationDateTime()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.backupCreationDateTime()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> backupExpiryDateTime;
     backupExpiryDateTime = Objects.nonNull(nativeValue.backupExpiryDateTime()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.backupExpiryDateTime()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.backupExpiryDateTime()))
         : Option.create_None();
     Option<BackupStatus> backupStatus;
     backupStatus = Objects.nonNull(nativeValue.backupStatus()) ?
@@ -819,17 +819,17 @@ public class ToDafny {
 
   public static DafnyMap<? extends DafnySequence<? extends Character>, ? extends KeysAndAttributes> BatchGetRequestMap(
       Map<String, software.amazon.awssdk.services.dynamodb.model.KeysAndAttributes> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToMap(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToMap(
         nativeValue, 
-        software.amazon.dafny.conversion.ToDafny.Simple::CharacterSequence, 
+        software.amazon.smithy.dafny.conversion.ToDafny.Simple::CharacterSequence, 
         software.amazon.cryptography.services.dynamodb.internaldafny.ToDafny::KeysAndAttributes);
   }
 
   public static DafnyMap<? extends DafnySequence<? extends Character>, ? extends DafnySequence<? extends DafnyMap<? extends DafnySequence<? extends Character>, ? extends AttributeValue>>> BatchGetResponseMap(
       Map<String, List<Map<String, software.amazon.awssdk.services.dynamodb.model.AttributeValue>>> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToMap(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToMap(
         nativeValue, 
-        software.amazon.dafny.conversion.ToDafny.Simple::CharacterSequence, 
+        software.amazon.smithy.dafny.conversion.ToDafny.Simple::CharacterSequence, 
         software.amazon.cryptography.services.dynamodb.internaldafny.ToDafny::ItemList);
   }
 
@@ -841,7 +841,7 @@ public class ToDafny {
         : Option.create_None();
     Option<DafnySequence<? extends Character>> message;
     message = Objects.nonNull(nativeValue.message()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.message()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.message()))
         : Option.create_None();
     return new BatchStatementError(code, message);
   }
@@ -849,7 +849,7 @@ public class ToDafny {
   public static BatchStatementRequest BatchStatementRequest(
       software.amazon.awssdk.services.dynamodb.model.BatchStatementRequest nativeValue) {
     DafnySequence<? extends Character> statement;
-    statement = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.statement());
+    statement = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.statement());
     Option<DafnySequence<? extends AttributeValue>> parameters;
     parameters = (Objects.nonNull(nativeValue.parameters()) && nativeValue.parameters().size() > 0) ?
         Option.create_Some(ToDafny.PreparedStatementParameters(nativeValue.parameters()))
@@ -869,7 +869,7 @@ public class ToDafny {
         : Option.create_None();
     Option<DafnySequence<? extends Character>> tableName;
     tableName = Objects.nonNull(nativeValue.tableName()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName()))
         : Option.create_None();
     Option<DafnyMap<? extends DafnySequence<? extends Character>, ? extends AttributeValue>> item;
     item = (Objects.nonNull(nativeValue.item()) && nativeValue.item().size() > 0) ?
@@ -910,9 +910,9 @@ public class ToDafny {
 
   public static DafnyMap<? extends DafnySequence<? extends Character>, ? extends DafnySequence<? extends WriteRequest>> BatchWriteItemRequestMap(
       Map<String, List<software.amazon.awssdk.services.dynamodb.model.WriteRequest>> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToMap(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToMap(
         nativeValue, 
-        software.amazon.dafny.conversion.ToDafny.Simple::CharacterSequence, 
+        software.amazon.smithy.dafny.conversion.ToDafny.Simple::CharacterSequence, 
         software.amazon.cryptography.services.dynamodb.internaldafny.ToDafny::WriteRequests);
   }
 
@@ -924,16 +924,16 @@ public class ToDafny {
         : Option.create_None();
     Option<DafnySequence<? extends Character>> lastUpdateToPayPerRequestDateTime;
     lastUpdateToPayPerRequestDateTime = Objects.nonNull(nativeValue.lastUpdateToPayPerRequestDateTime()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.lastUpdateToPayPerRequestDateTime()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.lastUpdateToPayPerRequestDateTime()))
         : Option.create_None();
     return new BillingModeSummary(billingMode, lastUpdateToPayPerRequestDateTime);
   }
 
   public static DafnySequence<? extends DafnySequence<? extends Byte>> BinarySetAttributeValue(
       List<ByteBuffer> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
-        software.amazon.dafny.conversion.ToDafny.Simple::ByteSequence, 
+        software.amazon.smithy.dafny.conversion.ToDafny.Simple::ByteSequence, 
         DafnySequence._typeDescriptor(TypeDescriptor.BYTE));
   }
 
@@ -945,18 +945,18 @@ public class ToDafny {
         : Option.create_None();
     Option<DafnySequence<? extends Character>> code;
     code = Objects.nonNull(nativeValue.code()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.code()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.code()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> message;
     message = Objects.nonNull(nativeValue.message()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.message()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.message()))
         : Option.create_None();
     return new CancellationReason(item, code, message);
   }
 
   public static DafnySequence<? extends CancellationReason> CancellationReasonList(
       List<software.amazon.awssdk.services.dynamodb.model.CancellationReason> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
         software.amazon.cryptography.services.dynamodb.internaldafny.ToDafny::CancellationReason, 
         CancellationReason._typeDescriptor());
@@ -966,15 +966,15 @@ public class ToDafny {
       software.amazon.awssdk.services.dynamodb.model.Capacity nativeValue) {
     Option<DafnySequence<? extends Byte>> readCapacityUnits;
     readCapacityUnits = Objects.nonNull(nativeValue.readCapacityUnits()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.Double(nativeValue.readCapacityUnits()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.Double(nativeValue.readCapacityUnits()))
         : Option.create_None();
     Option<DafnySequence<? extends Byte>> writeCapacityUnits;
     writeCapacityUnits = Objects.nonNull(nativeValue.writeCapacityUnits()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.Double(nativeValue.writeCapacityUnits()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.Double(nativeValue.writeCapacityUnits()))
         : Option.create_None();
     Option<DafnySequence<? extends Byte>> capacityUnits;
     capacityUnits = Objects.nonNull(nativeValue.capacityUnits()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.Double(nativeValue.capacityUnits()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.Double(nativeValue.capacityUnits()))
         : Option.create_None();
     return new Capacity(readCapacityUnits, writeCapacityUnits, capacityUnits);
   }
@@ -995,9 +995,9 @@ public class ToDafny {
     DafnyMap<? extends DafnySequence<? extends Character>, ? extends AttributeValue> key;
     key = ToDafny.Key(nativeValue.key());
     DafnySequence<? extends Character> tableName;
-    tableName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName());
+    tableName = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName());
     DafnySequence<? extends Character> conditionExpression;
-    conditionExpression = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.conditionExpression());
+    conditionExpression = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.conditionExpression());
     Option<DafnyMap<? extends DafnySequence<? extends Character>, ? extends DafnySequence<? extends Character>>> expressionAttributeNames;
     expressionAttributeNames = (Objects.nonNull(nativeValue.expressionAttributeNames()) && nativeValue.expressionAttributeNames().size() > 0) ?
         Option.create_Some(ToDafny.ExpressionAttributeNameMap(nativeValue.expressionAttributeNames()))
@@ -1017,19 +1017,19 @@ public class ToDafny {
       software.amazon.awssdk.services.dynamodb.model.ConsumedCapacity nativeValue) {
     Option<DafnySequence<? extends Character>> tableName;
     tableName = Objects.nonNull(nativeValue.tableName()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName()))
         : Option.create_None();
     Option<DafnySequence<? extends Byte>> capacityUnits;
     capacityUnits = Objects.nonNull(nativeValue.capacityUnits()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.Double(nativeValue.capacityUnits()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.Double(nativeValue.capacityUnits()))
         : Option.create_None();
     Option<DafnySequence<? extends Byte>> readCapacityUnits;
     readCapacityUnits = Objects.nonNull(nativeValue.readCapacityUnits()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.Double(nativeValue.readCapacityUnits()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.Double(nativeValue.readCapacityUnits()))
         : Option.create_None();
     Option<DafnySequence<? extends Byte>> writeCapacityUnits;
     writeCapacityUnits = Objects.nonNull(nativeValue.writeCapacityUnits()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.Double(nativeValue.writeCapacityUnits()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.Double(nativeValue.writeCapacityUnits()))
         : Option.create_None();
     Option<Capacity> table;
     table = Objects.nonNull(nativeValue.table()) ?
@@ -1048,7 +1048,7 @@ public class ToDafny {
 
   public static DafnySequence<? extends ConsumedCapacity> ConsumedCapacityMultiple(
       List<software.amazon.awssdk.services.dynamodb.model.ConsumedCapacity> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
         software.amazon.cryptography.services.dynamodb.internaldafny.ToDafny::ConsumedCapacity, 
         ConsumedCapacity._typeDescriptor());
@@ -1067,15 +1067,15 @@ public class ToDafny {
 
   public static DafnySequence<? extends DafnySequence<? extends Character>> ContributorInsightsRuleList(
       List<String> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
-        software.amazon.dafny.conversion.ToDafny.Simple::CharacterSequence, 
+        software.amazon.smithy.dafny.conversion.ToDafny.Simple::CharacterSequence, 
         DafnySequence._typeDescriptor(TypeDescriptor.CHAR));
   }
 
   public static DafnySequence<? extends ContributorInsightsSummary> ContributorInsightsSummaries(
       List<software.amazon.awssdk.services.dynamodb.model.ContributorInsightsSummary> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
         software.amazon.cryptography.services.dynamodb.internaldafny.ToDafny::ContributorInsightsSummary, 
         ContributorInsightsSummary._typeDescriptor());
@@ -1085,11 +1085,11 @@ public class ToDafny {
       software.amazon.awssdk.services.dynamodb.model.ContributorInsightsSummary nativeValue) {
     Option<DafnySequence<? extends Character>> tableName;
     tableName = Objects.nonNull(nativeValue.tableName()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> indexName;
     indexName = Objects.nonNull(nativeValue.indexName()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.indexName()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.indexName()))
         : Option.create_None();
     Option<ContributorInsightsStatus> contributorInsightsStatus;
     contributorInsightsStatus = Objects.nonNull(nativeValue.contributorInsightsStatus()) ?
@@ -1100,9 +1100,9 @@ public class ToDafny {
 
   public static CreateBackupInput CreateBackupInput(CreateBackupRequest nativeValue) {
     DafnySequence<? extends Character> tableName;
-    tableName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName());
+    tableName = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName());
     DafnySequence<? extends Character> backupName;
-    backupName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.backupName());
+    backupName = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.backupName());
     return new CreateBackupInput(tableName, backupName);
   }
 
@@ -1117,7 +1117,7 @@ public class ToDafny {
   public static CreateGlobalSecondaryIndexAction CreateGlobalSecondaryIndexAction(
       software.amazon.awssdk.services.dynamodb.model.CreateGlobalSecondaryIndexAction nativeValue) {
     DafnySequence<? extends Character> indexName;
-    indexName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.indexName());
+    indexName = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.indexName());
     DafnySequence<? extends KeySchemaElement> keySchema;
     keySchema = ToDafny.KeySchema(nativeValue.keySchema());
     Projection projection;
@@ -1132,7 +1132,7 @@ public class ToDafny {
   public static CreateGlobalTableInput CreateGlobalTableInput(
       CreateGlobalTableRequest nativeValue) {
     DafnySequence<? extends Character> globalTableName;
-    globalTableName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.globalTableName());
+    globalTableName = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.globalTableName());
     DafnySequence<? extends Replica> replicationGroup;
     replicationGroup = ToDafny.ReplicaList(nativeValue.replicationGroup());
     return new CreateGlobalTableInput(globalTableName, replicationGroup);
@@ -1150,17 +1150,17 @@ public class ToDafny {
   public static CreateReplicaAction CreateReplicaAction(
       software.amazon.awssdk.services.dynamodb.model.CreateReplicaAction nativeValue) {
     DafnySequence<? extends Character> regionName;
-    regionName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.regionName());
+    regionName = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.regionName());
     return new CreateReplicaAction(regionName);
   }
 
   public static CreateReplicationGroupMemberAction CreateReplicationGroupMemberAction(
       software.amazon.awssdk.services.dynamodb.model.CreateReplicationGroupMemberAction nativeValue) {
     DafnySequence<? extends Character> regionName;
-    regionName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.regionName());
+    regionName = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.regionName());
     Option<DafnySequence<? extends Character>> kMSMasterKeyId;
     kMSMasterKeyId = Objects.nonNull(nativeValue.kmsMasterKeyId()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.kmsMasterKeyId()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.kmsMasterKeyId()))
         : Option.create_None();
     Option<ProvisionedThroughputOverride> provisionedThroughputOverride;
     provisionedThroughputOverride = Objects.nonNull(nativeValue.provisionedThroughputOverride()) ?
@@ -1181,7 +1181,7 @@ public class ToDafny {
     DafnySequence<? extends AttributeDefinition> attributeDefinitions;
     attributeDefinitions = ToDafny.AttributeDefinitions(nativeValue.attributeDefinitions());
     DafnySequence<? extends Character> tableName;
-    tableName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName());
+    tableName = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName());
     DafnySequence<? extends KeySchemaElement> keySchema;
     keySchema = ToDafny.KeySchema(nativeValue.keySchema());
     Option<DafnySequence<? extends LocalSecondaryIndex>> localSecondaryIndexes;
@@ -1229,9 +1229,9 @@ public class ToDafny {
 
   public static DafnySequence<? extends DafnySequence<? extends Character>> CsvHeaderList(
       List<String> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
-        software.amazon.dafny.conversion.ToDafny.Simple::CharacterSequence, 
+        software.amazon.smithy.dafny.conversion.ToDafny.Simple::CharacterSequence, 
         DafnySequence._typeDescriptor(TypeDescriptor.CHAR));
   }
 
@@ -1239,7 +1239,7 @@ public class ToDafny {
       software.amazon.awssdk.services.dynamodb.model.CsvOptions nativeValue) {
     Option<DafnySequence<? extends Character>> delimiter;
     delimiter = Objects.nonNull(nativeValue.delimiter()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.delimiter()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.delimiter()))
         : Option.create_None();
     Option<DafnySequence<? extends DafnySequence<? extends Character>>> headerList;
     headerList = (Objects.nonNull(nativeValue.headerList()) && nativeValue.headerList().size() > 0) ?
@@ -1252,10 +1252,10 @@ public class ToDafny {
     DafnyMap<? extends DafnySequence<? extends Character>, ? extends AttributeValue> key;
     key = ToDafny.Key(nativeValue.key());
     DafnySequence<? extends Character> tableName;
-    tableName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName());
+    tableName = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName());
     Option<DafnySequence<? extends Character>> conditionExpression;
     conditionExpression = Objects.nonNull(nativeValue.conditionExpression()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.conditionExpression()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.conditionExpression()))
         : Option.create_None();
     Option<DafnyMap<? extends DafnySequence<? extends Character>, ? extends DafnySequence<? extends Character>>> expressionAttributeNames;
     expressionAttributeNames = (Objects.nonNull(nativeValue.expressionAttributeNames()) && nativeValue.expressionAttributeNames().size() > 0) ?
@@ -1274,7 +1274,7 @@ public class ToDafny {
 
   public static DeleteBackupInput DeleteBackupInput(DeleteBackupRequest nativeValue) {
     DafnySequence<? extends Character> backupArn;
-    backupArn = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.backupArn());
+    backupArn = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.backupArn());
     return new DeleteBackupInput(backupArn);
   }
 
@@ -1289,13 +1289,13 @@ public class ToDafny {
   public static DeleteGlobalSecondaryIndexAction DeleteGlobalSecondaryIndexAction(
       software.amazon.awssdk.services.dynamodb.model.DeleteGlobalSecondaryIndexAction nativeValue) {
     DafnySequence<? extends Character> indexName;
-    indexName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.indexName());
+    indexName = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.indexName());
     return new DeleteGlobalSecondaryIndexAction(indexName);
   }
 
   public static DeleteItemInput DeleteItemInput(DeleteItemRequest nativeValue) {
     DafnySequence<? extends Character> tableName;
-    tableName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName());
+    tableName = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName());
     DafnyMap<? extends DafnySequence<? extends Character>, ? extends AttributeValue> key;
     key = ToDafny.Key(nativeValue.key());
     Option<DafnyMap<? extends DafnySequence<? extends Character>, ? extends ExpectedAttributeValue>> expected;
@@ -1320,7 +1320,7 @@ public class ToDafny {
         : Option.create_None();
     Option<DafnySequence<? extends Character>> conditionExpression;
     conditionExpression = Objects.nonNull(nativeValue.conditionExpression()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.conditionExpression()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.conditionExpression()))
         : Option.create_None();
     Option<DafnyMap<? extends DafnySequence<? extends Character>, ? extends DafnySequence<? extends Character>>> expressionAttributeNames;
     expressionAttributeNames = (Objects.nonNull(nativeValue.expressionAttributeNames()) && nativeValue.expressionAttributeNames().size() > 0) ?
@@ -1352,14 +1352,14 @@ public class ToDafny {
   public static DeleteReplicaAction DeleteReplicaAction(
       software.amazon.awssdk.services.dynamodb.model.DeleteReplicaAction nativeValue) {
     DafnySequence<? extends Character> regionName;
-    regionName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.regionName());
+    regionName = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.regionName());
     return new DeleteReplicaAction(regionName);
   }
 
   public static DeleteReplicationGroupMemberAction DeleteReplicationGroupMemberAction(
       software.amazon.awssdk.services.dynamodb.model.DeleteReplicationGroupMemberAction nativeValue) {
     DafnySequence<? extends Character> regionName;
-    regionName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.regionName());
+    regionName = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.regionName());
     return new DeleteReplicationGroupMemberAction(regionName);
   }
 
@@ -1372,7 +1372,7 @@ public class ToDafny {
 
   public static DeleteTableInput DeleteTableInput(DeleteTableRequest nativeValue) {
     DafnySequence<? extends Character> tableName;
-    tableName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName());
+    tableName = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName());
     return new DeleteTableInput(tableName);
   }
 
@@ -1386,7 +1386,7 @@ public class ToDafny {
 
   public static DescribeBackupInput DescribeBackupInput(DescribeBackupRequest nativeValue) {
     DafnySequence<? extends Character> backupArn;
-    backupArn = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.backupArn());
+    backupArn = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.backupArn());
     return new DescribeBackupInput(backupArn);
   }
 
@@ -1401,7 +1401,7 @@ public class ToDafny {
   public static DescribeContinuousBackupsInput DescribeContinuousBackupsInput(
       DescribeContinuousBackupsRequest nativeValue) {
     DafnySequence<? extends Character> tableName;
-    tableName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName());
+    tableName = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName());
     return new DescribeContinuousBackupsInput(tableName);
   }
 
@@ -1417,10 +1417,10 @@ public class ToDafny {
   public static DescribeContributorInsightsInput DescribeContributorInsightsInput(
       DescribeContributorInsightsRequest nativeValue) {
     DafnySequence<? extends Character> tableName;
-    tableName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName());
+    tableName = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName());
     Option<DafnySequence<? extends Character>> indexName;
     indexName = Objects.nonNull(nativeValue.indexName()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.indexName()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.indexName()))
         : Option.create_None();
     return new DescribeContributorInsightsInput(tableName, indexName);
   }
@@ -1429,11 +1429,11 @@ public class ToDafny {
       DescribeContributorInsightsResponse nativeValue) {
     Option<DafnySequence<? extends Character>> tableName;
     tableName = Objects.nonNull(nativeValue.tableName()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> indexName;
     indexName = Objects.nonNull(nativeValue.indexName()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.indexName()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.indexName()))
         : Option.create_None();
     Option<DafnySequence<? extends DafnySequence<? extends Character>>> contributorInsightsRuleList;
     contributorInsightsRuleList = (Objects.nonNull(nativeValue.contributorInsightsRuleList()) && nativeValue.contributorInsightsRuleList().size() > 0) ?
@@ -1445,7 +1445,7 @@ public class ToDafny {
         : Option.create_None();
     Option<DafnySequence<? extends Character>> lastUpdateDateTime;
     lastUpdateDateTime = Objects.nonNull(nativeValue.lastUpdateDateTime()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.lastUpdateDateTime()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.lastUpdateDateTime()))
         : Option.create_None();
     Option<FailureException> failureException;
     failureException = Objects.nonNull(nativeValue.failureException()) ?
@@ -1468,7 +1468,7 @@ public class ToDafny {
 
   public static DescribeExportInput DescribeExportInput(DescribeExportRequest nativeValue) {
     DafnySequence<? extends Character> exportArn;
-    exportArn = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.exportArn());
+    exportArn = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.exportArn());
     return new DescribeExportInput(exportArn);
   }
 
@@ -1483,7 +1483,7 @@ public class ToDafny {
   public static DescribeGlobalTableInput DescribeGlobalTableInput(
       DescribeGlobalTableRequest nativeValue) {
     DafnySequence<? extends Character> globalTableName;
-    globalTableName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.globalTableName());
+    globalTableName = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.globalTableName());
     return new DescribeGlobalTableInput(globalTableName);
   }
 
@@ -1499,7 +1499,7 @@ public class ToDafny {
   public static DescribeGlobalTableSettingsInput DescribeGlobalTableSettingsInput(
       DescribeGlobalTableSettingsRequest nativeValue) {
     DafnySequence<? extends Character> globalTableName;
-    globalTableName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.globalTableName());
+    globalTableName = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.globalTableName());
     return new DescribeGlobalTableSettingsInput(globalTableName);
   }
 
@@ -1507,7 +1507,7 @@ public class ToDafny {
       DescribeGlobalTableSettingsResponse nativeValue) {
     Option<DafnySequence<? extends Character>> globalTableName;
     globalTableName = Objects.nonNull(nativeValue.globalTableName()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.globalTableName()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.globalTableName()))
         : Option.create_None();
     Option<DafnySequence<? extends ReplicaSettingsDescription>> replicaSettings;
     replicaSettings = (Objects.nonNull(nativeValue.replicaSettings()) && nativeValue.replicaSettings().size() > 0) ?
@@ -1518,7 +1518,7 @@ public class ToDafny {
 
   public static DescribeImportInput DescribeImportInput(DescribeImportRequest nativeValue) {
     DafnySequence<? extends Character> importArn;
-    importArn = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.importArn());
+    importArn = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.importArn());
     return new DescribeImportInput(importArn);
   }
 
@@ -1531,7 +1531,7 @@ public class ToDafny {
   public static DescribeKinesisStreamingDestinationInput DescribeKinesisStreamingDestinationInput(
       DescribeKinesisStreamingDestinationRequest nativeValue) {
     DafnySequence<? extends Character> tableName;
-    tableName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName());
+    tableName = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName());
     return new DescribeKinesisStreamingDestinationInput(tableName);
   }
 
@@ -1539,7 +1539,7 @@ public class ToDafny {
       DescribeKinesisStreamingDestinationResponse nativeValue) {
     Option<DafnySequence<? extends Character>> tableName;
     tableName = Objects.nonNull(nativeValue.tableName()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName()))
         : Option.create_None();
     Option<DafnySequence<? extends KinesisDataStreamDestination>> kinesisDataStreamDestinations;
     kinesisDataStreamDestinations = (Objects.nonNull(nativeValue.kinesisDataStreamDestinations()) && nativeValue.kinesisDataStreamDestinations().size() > 0) ?
@@ -1574,7 +1574,7 @@ public class ToDafny {
 
   public static DescribeTableInput DescribeTableInput(DescribeTableRequest nativeValue) {
     DafnySequence<? extends Character> tableName;
-    tableName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName());
+    tableName = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName());
     return new DescribeTableInput(tableName);
   }
 
@@ -1589,7 +1589,7 @@ public class ToDafny {
   public static DescribeTableReplicaAutoScalingInput DescribeTableReplicaAutoScalingInput(
       DescribeTableReplicaAutoScalingRequest nativeValue) {
     DafnySequence<? extends Character> tableName;
-    tableName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName());
+    tableName = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName());
     return new DescribeTableReplicaAutoScalingInput(tableName);
   }
 
@@ -1605,7 +1605,7 @@ public class ToDafny {
   public static DescribeTimeToLiveInput DescribeTimeToLiveInput(
       DescribeTimeToLiveRequest nativeValue) {
     DafnySequence<? extends Character> tableName;
-    tableName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName());
+    tableName = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName());
     return new DescribeTimeToLiveInput(tableName);
   }
 
@@ -1621,9 +1621,9 @@ public class ToDafny {
   public static DisableKinesisStreamingDestinationInput DisableKinesisStreamingDestinationInput(
       DisableKinesisStreamingDestinationRequest nativeValue) {
     DafnySequence<? extends Character> tableName;
-    tableName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName());
+    tableName = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName());
     DafnySequence<? extends Character> streamArn;
-    streamArn = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.streamArn());
+    streamArn = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.streamArn());
     return new DisableKinesisStreamingDestinationInput(tableName, streamArn);
   }
 
@@ -1631,11 +1631,11 @@ public class ToDafny {
       DisableKinesisStreamingDestinationResponse nativeValue) {
     Option<DafnySequence<? extends Character>> tableName;
     tableName = Objects.nonNull(nativeValue.tableName()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> streamArn;
     streamArn = Objects.nonNull(nativeValue.streamArn()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.streamArn()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.streamArn()))
         : Option.create_None();
     Option<DestinationStatus> destinationStatus;
     destinationStatus = Objects.nonNull(nativeValue.destinationStatus()) ?
@@ -1647,9 +1647,9 @@ public class ToDafny {
   public static EnableKinesisStreamingDestinationInput EnableKinesisStreamingDestinationInput(
       EnableKinesisStreamingDestinationRequest nativeValue) {
     DafnySequence<? extends Character> tableName;
-    tableName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName());
+    tableName = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName());
     DafnySequence<? extends Character> streamArn;
-    streamArn = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.streamArn());
+    streamArn = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.streamArn());
     return new EnableKinesisStreamingDestinationInput(tableName, streamArn);
   }
 
@@ -1657,11 +1657,11 @@ public class ToDafny {
       EnableKinesisStreamingDestinationResponse nativeValue) {
     Option<DafnySequence<? extends Character>> tableName;
     tableName = Objects.nonNull(nativeValue.tableName()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> streamArn;
     streamArn = Objects.nonNull(nativeValue.streamArn()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.streamArn()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.streamArn()))
         : Option.create_None();
     Option<DestinationStatus> destinationStatus;
     destinationStatus = Objects.nonNull(nativeValue.destinationStatus()) ?
@@ -1673,7 +1673,7 @@ public class ToDafny {
   public static Endpoint Endpoint(
       software.amazon.awssdk.services.dynamodb.model.Endpoint nativeValue) {
     DafnySequence<? extends Character> address;
-    address = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.address());
+    address = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.address());
     Long cachePeriodInMinutes;
     cachePeriodInMinutes = (nativeValue.cachePeriodInMinutes());
     return new Endpoint(address, cachePeriodInMinutes);
@@ -1681,7 +1681,7 @@ public class ToDafny {
 
   public static DafnySequence<? extends Endpoint> Endpoints(
       List<software.amazon.awssdk.services.dynamodb.model.Endpoint> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
         software.amazon.cryptography.services.dynamodb.internaldafny.ToDafny::Endpoint, 
         Endpoint._typeDescriptor());
@@ -1689,7 +1689,7 @@ public class ToDafny {
 
   public static ExecuteStatementInput ExecuteStatementInput(ExecuteStatementRequest nativeValue) {
     DafnySequence<? extends Character> statement;
-    statement = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.statement());
+    statement = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.statement());
     Option<DafnySequence<? extends AttributeValue>> parameters;
     parameters = (Objects.nonNull(nativeValue.parameters()) && nativeValue.parameters().size() > 0) ?
         Option.create_Some(ToDafny.PreparedStatementParameters(nativeValue.parameters()))
@@ -1700,7 +1700,7 @@ public class ToDafny {
         : Option.create_None();
     Option<DafnySequence<? extends Character>> nextToken;
     nextToken = Objects.nonNull(nativeValue.nextToken()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.nextToken()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.nextToken()))
         : Option.create_None();
     Option<ReturnConsumedCapacity> returnConsumedCapacity;
     returnConsumedCapacity = Objects.nonNull(nativeValue.returnConsumedCapacity()) ?
@@ -1721,7 +1721,7 @@ public class ToDafny {
         : Option.create_None();
     Option<DafnySequence<? extends Character>> nextToken;
     nextToken = Objects.nonNull(nativeValue.nextToken()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.nextToken()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.nextToken()))
         : Option.create_None();
     Option<ConsumedCapacity> consumedCapacity;
     consumedCapacity = Objects.nonNull(nativeValue.consumedCapacity()) ?
@@ -1740,7 +1740,7 @@ public class ToDafny {
     transactStatements = ToDafny.ParameterizedStatements(nativeValue.transactStatements());
     Option<DafnySequence<? extends Character>> clientRequestToken;
     clientRequestToken = Objects.nonNull(nativeValue.clientRequestToken()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.clientRequestToken()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.clientRequestToken()))
         : Option.create_None();
     Option<ReturnConsumedCapacity> returnConsumedCapacity;
     returnConsumedCapacity = Objects.nonNull(nativeValue.returnConsumedCapacity()) ?
@@ -1764,9 +1764,9 @@ public class ToDafny {
 
   public static DafnyMap<? extends DafnySequence<? extends Character>, ? extends ExpectedAttributeValue> ExpectedAttributeMap(
       Map<String, software.amazon.awssdk.services.dynamodb.model.ExpectedAttributeValue> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToMap(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToMap(
         nativeValue, 
-        software.amazon.dafny.conversion.ToDafny.Simple::CharacterSequence, 
+        software.amazon.smithy.dafny.conversion.ToDafny.Simple::CharacterSequence, 
         software.amazon.cryptography.services.dynamodb.internaldafny.ToDafny::ExpectedAttributeValue);
   }
 
@@ -1795,7 +1795,7 @@ public class ToDafny {
       software.amazon.awssdk.services.dynamodb.model.ExportDescription nativeValue) {
     Option<DafnySequence<? extends Character>> exportArn;
     exportArn = Objects.nonNull(nativeValue.exportArn()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.exportArn()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.exportArn()))
         : Option.create_None();
     Option<ExportStatus> exportStatus;
     exportStatus = Objects.nonNull(nativeValue.exportStatus()) ?
@@ -1803,43 +1803,43 @@ public class ToDafny {
         : Option.create_None();
     Option<DafnySequence<? extends Character>> startTime;
     startTime = Objects.nonNull(nativeValue.startTime()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.startTime()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.startTime()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> endTime;
     endTime = Objects.nonNull(nativeValue.endTime()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.endTime()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.endTime()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> exportManifest;
     exportManifest = Objects.nonNull(nativeValue.exportManifest()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.exportManifest()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.exportManifest()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> tableArn;
     tableArn = Objects.nonNull(nativeValue.tableArn()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableArn()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableArn()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> tableId;
     tableId = Objects.nonNull(nativeValue.tableId()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableId()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableId()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> exportTime;
     exportTime = Objects.nonNull(nativeValue.exportTime()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.exportTime()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.exportTime()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> clientToken;
     clientToken = Objects.nonNull(nativeValue.clientToken()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.clientToken()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.clientToken()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> s3Bucket;
     s3Bucket = Objects.nonNull(nativeValue.s3Bucket()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.s3Bucket()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.s3Bucket()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> s3BucketOwner;
     s3BucketOwner = Objects.nonNull(nativeValue.s3BucketOwner()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.s3BucketOwner()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.s3BucketOwner()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> s3Prefix;
     s3Prefix = Objects.nonNull(nativeValue.s3Prefix()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.s3Prefix()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.s3Prefix()))
         : Option.create_None();
     Option<S3SseAlgorithm> s3SseAlgorithm;
     s3SseAlgorithm = Objects.nonNull(nativeValue.s3SseAlgorithm()) ?
@@ -1847,15 +1847,15 @@ public class ToDafny {
         : Option.create_None();
     Option<DafnySequence<? extends Character>> s3SseKmsKeyId;
     s3SseKmsKeyId = Objects.nonNull(nativeValue.s3SseKmsKeyId()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.s3SseKmsKeyId()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.s3SseKmsKeyId()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> failureCode;
     failureCode = Objects.nonNull(nativeValue.failureCode()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.failureCode()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.failureCode()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> failureMessage;
     failureMessage = Objects.nonNull(nativeValue.failureMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.failureMessage()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.failureMessage()))
         : Option.create_None();
     Option<ExportFormat> exportFormat;
     exportFormat = Objects.nonNull(nativeValue.exportFormat()) ?
@@ -1874,7 +1874,7 @@ public class ToDafny {
 
   public static DafnySequence<? extends ExportSummary> ExportSummaries(
       List<software.amazon.awssdk.services.dynamodb.model.ExportSummary> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
         software.amazon.cryptography.services.dynamodb.internaldafny.ToDafny::ExportSummary, 
         ExportSummary._typeDescriptor());
@@ -1884,7 +1884,7 @@ public class ToDafny {
       software.amazon.awssdk.services.dynamodb.model.ExportSummary nativeValue) {
     Option<DafnySequence<? extends Character>> exportArn;
     exportArn = Objects.nonNull(nativeValue.exportArn()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.exportArn()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.exportArn()))
         : Option.create_None();
     Option<ExportStatus> exportStatus;
     exportStatus = Objects.nonNull(nativeValue.exportStatus()) ?
@@ -1896,24 +1896,24 @@ public class ToDafny {
   public static ExportTableToPointInTimeInput ExportTableToPointInTimeInput(
       ExportTableToPointInTimeRequest nativeValue) {
     DafnySequence<? extends Character> tableArn;
-    tableArn = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableArn());
+    tableArn = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableArn());
     Option<DafnySequence<? extends Character>> exportTime;
     exportTime = Objects.nonNull(nativeValue.exportTime()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.exportTime()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.exportTime()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> clientToken;
     clientToken = Objects.nonNull(nativeValue.clientToken()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.clientToken()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.clientToken()))
         : Option.create_None();
     DafnySequence<? extends Character> s3Bucket;
-    s3Bucket = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.s3Bucket());
+    s3Bucket = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.s3Bucket());
     Option<DafnySequence<? extends Character>> s3BucketOwner;
     s3BucketOwner = Objects.nonNull(nativeValue.s3BucketOwner()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.s3BucketOwner()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.s3BucketOwner()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> s3Prefix;
     s3Prefix = Objects.nonNull(nativeValue.s3Prefix()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.s3Prefix()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.s3Prefix()))
         : Option.create_None();
     Option<S3SseAlgorithm> s3SseAlgorithm;
     s3SseAlgorithm = Objects.nonNull(nativeValue.s3SseAlgorithm()) ?
@@ -1921,7 +1921,7 @@ public class ToDafny {
         : Option.create_None();
     Option<DafnySequence<? extends Character>> s3SseKmsKeyId;
     s3SseKmsKeyId = Objects.nonNull(nativeValue.s3SseKmsKeyId()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.s3SseKmsKeyId()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.s3SseKmsKeyId()))
         : Option.create_None();
     Option<ExportFormat> exportFormat;
     exportFormat = Objects.nonNull(nativeValue.exportFormat()) ?
@@ -1941,17 +1941,17 @@ public class ToDafny {
 
   public static DafnyMap<? extends DafnySequence<? extends Character>, ? extends DafnySequence<? extends Character>> ExpressionAttributeNameMap(
       Map<String, String> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToMap(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToMap(
         nativeValue, 
-        software.amazon.dafny.conversion.ToDafny.Simple::CharacterSequence, 
-        software.amazon.dafny.conversion.ToDafny.Simple::CharacterSequence);
+        software.amazon.smithy.dafny.conversion.ToDafny.Simple::CharacterSequence, 
+        software.amazon.smithy.dafny.conversion.ToDafny.Simple::CharacterSequence);
   }
 
   public static DafnyMap<? extends DafnySequence<? extends Character>, ? extends AttributeValue> ExpressionAttributeValueMap(
       Map<String, software.amazon.awssdk.services.dynamodb.model.AttributeValue> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToMap(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToMap(
         nativeValue, 
-        software.amazon.dafny.conversion.ToDafny.Simple::CharacterSequence, 
+        software.amazon.smithy.dafny.conversion.ToDafny.Simple::CharacterSequence, 
         software.amazon.cryptography.services.dynamodb.internaldafny.ToDafny::AttributeValue);
   }
 
@@ -1959,20 +1959,20 @@ public class ToDafny {
       software.amazon.awssdk.services.dynamodb.model.FailureException nativeValue) {
     Option<DafnySequence<? extends Character>> exceptionName;
     exceptionName = Objects.nonNull(nativeValue.exceptionName()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.exceptionName()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.exceptionName()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> exceptionDescription;
     exceptionDescription = Objects.nonNull(nativeValue.exceptionDescription()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.exceptionDescription()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.exceptionDescription()))
         : Option.create_None();
     return new FailureException(exceptionName, exceptionDescription);
   }
 
   public static DafnyMap<? extends DafnySequence<? extends Character>, ? extends Condition> FilterConditionMap(
       Map<String, software.amazon.awssdk.services.dynamodb.model.Condition> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToMap(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToMap(
         nativeValue, 
-        software.amazon.dafny.conversion.ToDafny.Simple::CharacterSequence, 
+        software.amazon.smithy.dafny.conversion.ToDafny.Simple::CharacterSequence, 
         software.amazon.cryptography.services.dynamodb.internaldafny.ToDafny::Condition);
   }
 
@@ -1980,10 +1980,10 @@ public class ToDafny {
     DafnyMap<? extends DafnySequence<? extends Character>, ? extends AttributeValue> key;
     key = ToDafny.Key(nativeValue.key());
     DafnySequence<? extends Character> tableName;
-    tableName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName());
+    tableName = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName());
     Option<DafnySequence<? extends Character>> projectionExpression;
     projectionExpression = Objects.nonNull(nativeValue.projectionExpression()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.projectionExpression()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.projectionExpression()))
         : Option.create_None();
     Option<DafnyMap<? extends DafnySequence<? extends Character>, ? extends DafnySequence<? extends Character>>> expressionAttributeNames;
     expressionAttributeNames = (Objects.nonNull(nativeValue.expressionAttributeNames()) && nativeValue.expressionAttributeNames().size() > 0) ?
@@ -1994,7 +1994,7 @@ public class ToDafny {
 
   public static GetItemInput GetItemInput(GetItemRequest nativeValue) {
     DafnySequence<? extends Character> tableName;
-    tableName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName());
+    tableName = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName());
     DafnyMap<? extends DafnySequence<? extends Character>, ? extends AttributeValue> key;
     key = ToDafny.Key(nativeValue.key());
     Option<DafnySequence<? extends DafnySequence<? extends Character>>> attributesToGet;
@@ -2011,7 +2011,7 @@ public class ToDafny {
         : Option.create_None();
     Option<DafnySequence<? extends Character>> projectionExpression;
     projectionExpression = Objects.nonNull(nativeValue.projectionExpression()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.projectionExpression()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.projectionExpression()))
         : Option.create_None();
     Option<DafnyMap<? extends DafnySequence<? extends Character>, ? extends DafnySequence<? extends Character>>> expressionAttributeNames;
     expressionAttributeNames = (Objects.nonNull(nativeValue.expressionAttributeNames()) && nativeValue.expressionAttributeNames().size() > 0) ?
@@ -2035,7 +2035,7 @@ public class ToDafny {
   public static GlobalSecondaryIndex GlobalSecondaryIndex(
       software.amazon.awssdk.services.dynamodb.model.GlobalSecondaryIndex nativeValue) {
     DafnySequence<? extends Character> indexName;
-    indexName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.indexName());
+    indexName = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.indexName());
     DafnySequence<? extends KeySchemaElement> keySchema;
     keySchema = ToDafny.KeySchema(nativeValue.keySchema());
     Projection projection;
@@ -2051,7 +2051,7 @@ public class ToDafny {
       software.amazon.awssdk.services.dynamodb.model.GlobalSecondaryIndexAutoScalingUpdate nativeValue) {
     Option<DafnySequence<? extends Character>> indexName;
     indexName = Objects.nonNull(nativeValue.indexName()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.indexName()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.indexName()))
         : Option.create_None();
     Option<AutoScalingSettingsUpdate> provisionedWriteCapacityAutoScalingUpdate;
     provisionedWriteCapacityAutoScalingUpdate = Objects.nonNull(nativeValue.provisionedWriteCapacityAutoScalingUpdate()) ?
@@ -2062,7 +2062,7 @@ public class ToDafny {
 
   public static DafnySequence<? extends GlobalSecondaryIndexAutoScalingUpdate> GlobalSecondaryIndexAutoScalingUpdateList(
       List<software.amazon.awssdk.services.dynamodb.model.GlobalSecondaryIndexAutoScalingUpdate> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
         software.amazon.cryptography.services.dynamodb.internaldafny.ToDafny::GlobalSecondaryIndexAutoScalingUpdate, 
         GlobalSecondaryIndexAutoScalingUpdate._typeDescriptor());
@@ -2072,7 +2072,7 @@ public class ToDafny {
       software.amazon.awssdk.services.dynamodb.model.GlobalSecondaryIndexDescription nativeValue) {
     Option<DafnySequence<? extends Character>> indexName;
     indexName = Objects.nonNull(nativeValue.indexName()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.indexName()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.indexName()))
         : Option.create_None();
     Option<DafnySequence<? extends KeySchemaElement>> keySchema;
     keySchema = (Objects.nonNull(nativeValue.keySchema()) && nativeValue.keySchema().size() > 0) ?
@@ -2104,14 +2104,14 @@ public class ToDafny {
         : Option.create_None();
     Option<DafnySequence<? extends Character>> indexArn;
     indexArn = Objects.nonNull(nativeValue.indexArn()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.indexArn()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.indexArn()))
         : Option.create_None();
     return new GlobalSecondaryIndexDescription(indexName, keySchema, projection, indexStatus, backfilling, provisionedThroughput, indexSizeBytes, itemCount, indexArn);
   }
 
   public static DafnySequence<? extends GlobalSecondaryIndexDescription> GlobalSecondaryIndexDescriptionList(
       List<software.amazon.awssdk.services.dynamodb.model.GlobalSecondaryIndexDescription> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
         software.amazon.cryptography.services.dynamodb.internaldafny.ToDafny::GlobalSecondaryIndexDescription, 
         GlobalSecondaryIndexDescription._typeDescriptor());
@@ -2119,7 +2119,7 @@ public class ToDafny {
 
   public static DafnySequence<? extends GlobalSecondaryIndexInfo> GlobalSecondaryIndexes(
       List<software.amazon.awssdk.services.dynamodb.model.GlobalSecondaryIndexInfo> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
         software.amazon.cryptography.services.dynamodb.internaldafny.ToDafny::GlobalSecondaryIndexInfo, 
         GlobalSecondaryIndexInfo._typeDescriptor());
@@ -2129,7 +2129,7 @@ public class ToDafny {
       software.amazon.awssdk.services.dynamodb.model.GlobalSecondaryIndexInfo nativeValue) {
     Option<DafnySequence<? extends Character>> indexName;
     indexName = Objects.nonNull(nativeValue.indexName()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.indexName()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.indexName()))
         : Option.create_None();
     Option<DafnySequence<? extends KeySchemaElement>> keySchema;
     keySchema = (Objects.nonNull(nativeValue.keySchema()) && nativeValue.keySchema().size() > 0) ?
@@ -2148,7 +2148,7 @@ public class ToDafny {
 
   public static DafnySequence<? extends GlobalSecondaryIndex> GlobalSecondaryIndexList(
       List<software.amazon.awssdk.services.dynamodb.model.GlobalSecondaryIndex> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
         software.amazon.cryptography.services.dynamodb.internaldafny.ToDafny::GlobalSecondaryIndex, 
         GlobalSecondaryIndex._typeDescriptor());
@@ -2173,7 +2173,7 @@ public class ToDafny {
 
   public static DafnySequence<? extends GlobalSecondaryIndexUpdate> GlobalSecondaryIndexUpdateList(
       List<software.amazon.awssdk.services.dynamodb.model.GlobalSecondaryIndexUpdate> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
         software.amazon.cryptography.services.dynamodb.internaldafny.ToDafny::GlobalSecondaryIndexUpdate, 
         GlobalSecondaryIndexUpdate._typeDescriptor());
@@ -2183,7 +2183,7 @@ public class ToDafny {
       software.amazon.awssdk.services.dynamodb.model.GlobalTable nativeValue) {
     Option<DafnySequence<? extends Character>> globalTableName;
     globalTableName = Objects.nonNull(nativeValue.globalTableName()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.globalTableName()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.globalTableName()))
         : Option.create_None();
     Option<DafnySequence<? extends Replica>> replicationGroup;
     replicationGroup = (Objects.nonNull(nativeValue.replicationGroup()) && nativeValue.replicationGroup().size() > 0) ?
@@ -2200,11 +2200,11 @@ public class ToDafny {
         : Option.create_None();
     Option<DafnySequence<? extends Character>> globalTableArn;
     globalTableArn = Objects.nonNull(nativeValue.globalTableArn()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.globalTableArn()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.globalTableArn()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> creationDateTime;
     creationDateTime = Objects.nonNull(nativeValue.creationDateTime()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.creationDateTime()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.creationDateTime()))
         : Option.create_None();
     Option<GlobalTableStatus> globalTableStatus;
     globalTableStatus = Objects.nonNull(nativeValue.globalTableStatus()) ?
@@ -2212,7 +2212,7 @@ public class ToDafny {
         : Option.create_None();
     Option<DafnySequence<? extends Character>> globalTableName;
     globalTableName = Objects.nonNull(nativeValue.globalTableName()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.globalTableName()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.globalTableName()))
         : Option.create_None();
     return new GlobalTableDescription(replicationGroup, globalTableArn, creationDateTime, globalTableStatus, globalTableName);
   }
@@ -2220,7 +2220,7 @@ public class ToDafny {
   public static GlobalTableGlobalSecondaryIndexSettingsUpdate GlobalTableGlobalSecondaryIndexSettingsUpdate(
       software.amazon.awssdk.services.dynamodb.model.GlobalTableGlobalSecondaryIndexSettingsUpdate nativeValue) {
     DafnySequence<? extends Character> indexName;
-    indexName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.indexName());
+    indexName = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.indexName());
     Option<Long> provisionedWriteCapacityUnits;
     provisionedWriteCapacityUnits = Objects.nonNull(nativeValue.provisionedWriteCapacityUnits()) ?
         Option.create_Some((nativeValue.provisionedWriteCapacityUnits()))
@@ -2234,7 +2234,7 @@ public class ToDafny {
 
   public static DafnySequence<? extends GlobalTableGlobalSecondaryIndexSettingsUpdate> GlobalTableGlobalSecondaryIndexSettingsUpdateList(
       List<software.amazon.awssdk.services.dynamodb.model.GlobalTableGlobalSecondaryIndexSettingsUpdate> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
         software.amazon.cryptography.services.dynamodb.internaldafny.ToDafny::GlobalTableGlobalSecondaryIndexSettingsUpdate, 
         GlobalTableGlobalSecondaryIndexSettingsUpdate._typeDescriptor());
@@ -2242,7 +2242,7 @@ public class ToDafny {
 
   public static DafnySequence<? extends GlobalTable> GlobalTableList(
       List<software.amazon.awssdk.services.dynamodb.model.GlobalTable> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
         software.amazon.cryptography.services.dynamodb.internaldafny.ToDafny::GlobalTable, 
         GlobalTable._typeDescriptor());
@@ -2252,7 +2252,7 @@ public class ToDafny {
       software.amazon.awssdk.services.dynamodb.model.ImportSummary nativeValue) {
     Option<DafnySequence<? extends Character>> importArn;
     importArn = Objects.nonNull(nativeValue.importArn()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.importArn()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.importArn()))
         : Option.create_None();
     Option<ImportStatus> importStatus;
     importStatus = Objects.nonNull(nativeValue.importStatus()) ?
@@ -2260,7 +2260,7 @@ public class ToDafny {
         : Option.create_None();
     Option<DafnySequence<? extends Character>> tableArn;
     tableArn = Objects.nonNull(nativeValue.tableArn()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableArn()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableArn()))
         : Option.create_None();
     Option<S3BucketSource> s3BucketSource;
     s3BucketSource = Objects.nonNull(nativeValue.s3BucketSource()) ?
@@ -2268,7 +2268,7 @@ public class ToDafny {
         : Option.create_None();
     Option<DafnySequence<? extends Character>> cloudWatchLogGroupArn;
     cloudWatchLogGroupArn = Objects.nonNull(nativeValue.cloudWatchLogGroupArn()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.cloudWatchLogGroupArn()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.cloudWatchLogGroupArn()))
         : Option.create_None();
     Option<InputFormat> inputFormat;
     inputFormat = Objects.nonNull(nativeValue.inputFormat()) ?
@@ -2276,18 +2276,18 @@ public class ToDafny {
         : Option.create_None();
     Option<DafnySequence<? extends Character>> startTime;
     startTime = Objects.nonNull(nativeValue.startTime()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.startTime()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.startTime()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> endTime;
     endTime = Objects.nonNull(nativeValue.endTime()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.endTime()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.endTime()))
         : Option.create_None();
     return new ImportSummary(importArn, importStatus, tableArn, s3BucketSource, cloudWatchLogGroupArn, inputFormat, startTime, endTime);
   }
 
   public static DafnySequence<? extends ImportSummary> ImportSummaryList(
       List<software.amazon.awssdk.services.dynamodb.model.ImportSummary> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
         software.amazon.cryptography.services.dynamodb.internaldafny.ToDafny::ImportSummary, 
         ImportSummary._typeDescriptor());
@@ -2297,7 +2297,7 @@ public class ToDafny {
       software.amazon.awssdk.services.dynamodb.model.ImportTableDescription nativeValue) {
     Option<DafnySequence<? extends Character>> importArn;
     importArn = Objects.nonNull(nativeValue.importArn()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.importArn()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.importArn()))
         : Option.create_None();
     Option<ImportStatus> importStatus;
     importStatus = Objects.nonNull(nativeValue.importStatus()) ?
@@ -2305,15 +2305,15 @@ public class ToDafny {
         : Option.create_None();
     Option<DafnySequence<? extends Character>> tableArn;
     tableArn = Objects.nonNull(nativeValue.tableArn()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableArn()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableArn()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> tableId;
     tableId = Objects.nonNull(nativeValue.tableId()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableId()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableId()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> clientToken;
     clientToken = Objects.nonNull(nativeValue.clientToken()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.clientToken()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.clientToken()))
         : Option.create_None();
     Option<S3BucketSource> s3BucketSource;
     s3BucketSource = Objects.nonNull(nativeValue.s3BucketSource()) ?
@@ -2325,7 +2325,7 @@ public class ToDafny {
         : Option.create_None();
     Option<DafnySequence<? extends Character>> cloudWatchLogGroupArn;
     cloudWatchLogGroupArn = Objects.nonNull(nativeValue.cloudWatchLogGroupArn()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.cloudWatchLogGroupArn()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.cloudWatchLogGroupArn()))
         : Option.create_None();
     Option<InputFormat> inputFormat;
     inputFormat = Objects.nonNull(nativeValue.inputFormat()) ?
@@ -2345,11 +2345,11 @@ public class ToDafny {
         : Option.create_None();
     Option<DafnySequence<? extends Character>> startTime;
     startTime = Objects.nonNull(nativeValue.startTime()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.startTime()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.startTime()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> endTime;
     endTime = Objects.nonNull(nativeValue.endTime()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.endTime()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.endTime()))
         : Option.create_None();
     Option<Long> processedSizeBytes;
     processedSizeBytes = Objects.nonNull(nativeValue.processedSizeBytes()) ?
@@ -2365,11 +2365,11 @@ public class ToDafny {
         : Option.create_None();
     Option<DafnySequence<? extends Character>> failureCode;
     failureCode = Objects.nonNull(nativeValue.failureCode()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.failureCode()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.failureCode()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> failureMessage;
     failureMessage = Objects.nonNull(nativeValue.failureMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.failureMessage()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.failureMessage()))
         : Option.create_None();
     return new ImportTableDescription(importArn, importStatus, tableArn, tableId, clientToken, s3BucketSource, errorCount, cloudWatchLogGroupArn, inputFormat, inputFormatOptions, inputCompressionType, tableCreationParameters, startTime, endTime, processedSizeBytes, processedItemCount, importedItemCount, failureCode, failureMessage);
   }
@@ -2377,7 +2377,7 @@ public class ToDafny {
   public static ImportTableInput ImportTableInput(ImportTableRequest nativeValue) {
     Option<DafnySequence<? extends Character>> clientToken;
     clientToken = Objects.nonNull(nativeValue.clientToken()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.clientToken()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.clientToken()))
         : Option.create_None();
     S3BucketSource s3BucketSource;
     s3BucketSource = ToDafny.S3BucketSource(nativeValue.s3BucketSource());
@@ -2413,9 +2413,9 @@ public class ToDafny {
 
   public static DafnyMap<? extends DafnySequence<? extends Character>, ? extends AttributeValue> ItemCollectionKeyAttributeMap(
       Map<String, software.amazon.awssdk.services.dynamodb.model.AttributeValue> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToMap(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToMap(
         nativeValue, 
-        software.amazon.dafny.conversion.ToDafny.Simple::CharacterSequence, 
+        software.amazon.smithy.dafny.conversion.ToDafny.Simple::CharacterSequence, 
         software.amazon.cryptography.services.dynamodb.internaldafny.ToDafny::AttributeValue);
   }
 
@@ -2434,7 +2434,7 @@ public class ToDafny {
 
   public static DafnySequence<? extends ItemCollectionMetrics> ItemCollectionMetricsMultiple(
       List<software.amazon.awssdk.services.dynamodb.model.ItemCollectionMetrics> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
         software.amazon.cryptography.services.dynamodb.internaldafny.ToDafny::ItemCollectionMetrics, 
         ItemCollectionMetrics._typeDescriptor());
@@ -2442,17 +2442,17 @@ public class ToDafny {
 
   public static DafnyMap<? extends DafnySequence<? extends Character>, ? extends DafnySequence<? extends ItemCollectionMetrics>> ItemCollectionMetricsPerTable(
       Map<String, List<software.amazon.awssdk.services.dynamodb.model.ItemCollectionMetrics>> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToMap(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToMap(
         nativeValue, 
-        software.amazon.dafny.conversion.ToDafny.Simple::CharacterSequence, 
+        software.amazon.smithy.dafny.conversion.ToDafny.Simple::CharacterSequence, 
         software.amazon.cryptography.services.dynamodb.internaldafny.ToDafny::ItemCollectionMetricsMultiple);
   }
 
   public static DafnySequence<? extends DafnySequence<? extends Byte>> ItemCollectionSizeEstimateRange(
       List<Double> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
-        software.amazon.dafny.conversion.ToDafny.Simple::Double, 
+        software.amazon.smithy.dafny.conversion.ToDafny.Simple::Double, 
         ItemCollectionSizeEstimateBound._typeDescriptor());
   }
 
@@ -2461,7 +2461,7 @@ public class ToDafny {
       List<Map<String, software.amazon.awssdk.services.dynamodb.model.AttributeValue>> nativeValue) {
     return 
         (dafny.DafnySequence<? extends dafny.DafnyMap<? extends dafny.DafnySequence<? extends java.lang.Character>, ? extends software.amazon.cryptography.services.dynamodb.internaldafny.types.AttributeValue>>) 
-        software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+        software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
         software.amazon.cryptography.services.dynamodb.internaldafny.ToDafny::AttributeMap, 
         TypeDescriptor.referenceWithInitializer(dafny.DafnyMap.class, () -> dafny.DafnyMap.<dafny.DafnySequence<? extends Character>,AttributeValue> empty()));
@@ -2478,7 +2478,7 @@ public class ToDafny {
 
   public static DafnySequence<? extends ItemResponse> ItemResponseList(
       List<software.amazon.awssdk.services.dynamodb.model.ItemResponse> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
         software.amazon.cryptography.services.dynamodb.internaldafny.ToDafny::ItemResponse, 
         ItemResponse._typeDescriptor());
@@ -2486,17 +2486,17 @@ public class ToDafny {
 
   public static DafnyMap<? extends DafnySequence<? extends Character>, ? extends AttributeValue> Key(
       Map<String, software.amazon.awssdk.services.dynamodb.model.AttributeValue> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToMap(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToMap(
         nativeValue, 
-        software.amazon.dafny.conversion.ToDafny.Simple::CharacterSequence, 
+        software.amazon.smithy.dafny.conversion.ToDafny.Simple::CharacterSequence, 
         software.amazon.cryptography.services.dynamodb.internaldafny.ToDafny::AttributeValue);
   }
 
   public static DafnyMap<? extends DafnySequence<? extends Character>, ? extends Condition> KeyConditions(
       Map<String, software.amazon.awssdk.services.dynamodb.model.Condition> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToMap(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToMap(
         nativeValue, 
-        software.amazon.dafny.conversion.ToDafny.Simple::CharacterSequence, 
+        software.amazon.smithy.dafny.conversion.ToDafny.Simple::CharacterSequence, 
         software.amazon.cryptography.services.dynamodb.internaldafny.ToDafny::Condition);
   }
 
@@ -2505,7 +2505,7 @@ public class ToDafny {
       List<Map<String, software.amazon.awssdk.services.dynamodb.model.AttributeValue>> nativeValue) {
     return 
         (dafny.DafnySequence<? extends dafny.DafnyMap<? extends dafny.DafnySequence<? extends java.lang.Character>, ? extends software.amazon.cryptography.services.dynamodb.internaldafny.types.AttributeValue>>) 
-        software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+        software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
         software.amazon.cryptography.services.dynamodb.internaldafny.ToDafny::Key, 
         TypeDescriptor.referenceWithInitializer(dafny.DafnyMap.class, () -> dafny.DafnyMap.<dafny.DafnySequence<? extends Character>,AttributeValue> empty()));
@@ -2525,7 +2525,7 @@ public class ToDafny {
         : Option.create_None();
     Option<DafnySequence<? extends Character>> projectionExpression;
     projectionExpression = Objects.nonNull(nativeValue.projectionExpression()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.projectionExpression()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.projectionExpression()))
         : Option.create_None();
     Option<DafnyMap<? extends DafnySequence<? extends Character>, ? extends DafnySequence<? extends Character>>> expressionAttributeNames;
     expressionAttributeNames = (Objects.nonNull(nativeValue.expressionAttributeNames()) && nativeValue.expressionAttributeNames().size() > 0) ?
@@ -2536,7 +2536,7 @@ public class ToDafny {
 
   public static DafnySequence<? extends KeySchemaElement> KeySchema(
       List<software.amazon.awssdk.services.dynamodb.model.KeySchemaElement> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
         software.amazon.cryptography.services.dynamodb.internaldafny.ToDafny::KeySchemaElement, 
         KeySchemaElement._typeDescriptor());
@@ -2545,7 +2545,7 @@ public class ToDafny {
   public static KeySchemaElement KeySchemaElement(
       software.amazon.awssdk.services.dynamodb.model.KeySchemaElement nativeValue) {
     DafnySequence<? extends Character> attributeName;
-    attributeName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.attributeName());
+    attributeName = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.attributeName());
     KeyType keyType;
     keyType = ToDafny.KeyType(nativeValue.keyType());
     return new KeySchemaElement(attributeName, keyType);
@@ -2555,7 +2555,7 @@ public class ToDafny {
       software.amazon.awssdk.services.dynamodb.model.KinesisDataStreamDestination nativeValue) {
     Option<DafnySequence<? extends Character>> streamArn;
     streamArn = Objects.nonNull(nativeValue.streamArn()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.streamArn()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.streamArn()))
         : Option.create_None();
     Option<DestinationStatus> destinationStatus;
     destinationStatus = Objects.nonNull(nativeValue.destinationStatus()) ?
@@ -2563,14 +2563,14 @@ public class ToDafny {
         : Option.create_None();
     Option<DafnySequence<? extends Character>> destinationStatusDescription;
     destinationStatusDescription = Objects.nonNull(nativeValue.destinationStatusDescription()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.destinationStatusDescription()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.destinationStatusDescription()))
         : Option.create_None();
     return new KinesisDataStreamDestination(streamArn, destinationStatus, destinationStatusDescription);
   }
 
   public static DafnySequence<? extends KinesisDataStreamDestination> KinesisDataStreamDestinations(
       List<software.amazon.awssdk.services.dynamodb.model.KinesisDataStreamDestination> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
         software.amazon.cryptography.services.dynamodb.internaldafny.ToDafny::KinesisDataStreamDestination, 
         KinesisDataStreamDestination._typeDescriptor());
@@ -2578,7 +2578,7 @@ public class ToDafny {
 
   public static DafnySequence<? extends AttributeValue> ListAttributeValue(
       List<software.amazon.awssdk.services.dynamodb.model.AttributeValue> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
         software.amazon.cryptography.services.dynamodb.internaldafny.ToDafny::AttributeValue, 
         AttributeValue._typeDescriptor());
@@ -2587,7 +2587,7 @@ public class ToDafny {
   public static ListBackupsInput ListBackupsInput(ListBackupsRequest nativeValue) {
     Option<DafnySequence<? extends Character>> tableName;
     tableName = Objects.nonNull(nativeValue.tableName()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName()))
         : Option.create_None();
     Option<Integer> limit;
     limit = Objects.nonNull(nativeValue.limit()) ?
@@ -2595,15 +2595,15 @@ public class ToDafny {
         : Option.create_None();
     Option<DafnySequence<? extends Character>> timeRangeLowerBound;
     timeRangeLowerBound = Objects.nonNull(nativeValue.timeRangeLowerBound()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.timeRangeLowerBound()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.timeRangeLowerBound()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> timeRangeUpperBound;
     timeRangeUpperBound = Objects.nonNull(nativeValue.timeRangeUpperBound()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.timeRangeUpperBound()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.timeRangeUpperBound()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> exclusiveStartBackupArn;
     exclusiveStartBackupArn = Objects.nonNull(nativeValue.exclusiveStartBackupArn()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.exclusiveStartBackupArn()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.exclusiveStartBackupArn()))
         : Option.create_None();
     Option<BackupTypeFilter> backupType;
     backupType = Objects.nonNull(nativeValue.backupType()) ?
@@ -2619,7 +2619,7 @@ public class ToDafny {
         : Option.create_None();
     Option<DafnySequence<? extends Character>> lastEvaluatedBackupArn;
     lastEvaluatedBackupArn = Objects.nonNull(nativeValue.lastEvaluatedBackupArn()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.lastEvaluatedBackupArn()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.lastEvaluatedBackupArn()))
         : Option.create_None();
     return new ListBackupsOutput(backupSummaries, lastEvaluatedBackupArn);
   }
@@ -2628,11 +2628,11 @@ public class ToDafny {
       ListContributorInsightsRequest nativeValue) {
     Option<DafnySequence<? extends Character>> tableName;
     tableName = Objects.nonNull(nativeValue.tableName()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> nextToken;
     nextToken = Objects.nonNull(nativeValue.nextToken()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.nextToken()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.nextToken()))
         : Option.create_None();
     Option<Integer> maxResults;
     maxResults = Objects.nonNull(nativeValue.maxResults()) ?
@@ -2649,7 +2649,7 @@ public class ToDafny {
         : Option.create_None();
     Option<DafnySequence<? extends Character>> nextToken;
     nextToken = Objects.nonNull(nativeValue.nextToken()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.nextToken()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.nextToken()))
         : Option.create_None();
     return new ListContributorInsightsOutput(contributorInsightsSummaries, nextToken);
   }
@@ -2657,7 +2657,7 @@ public class ToDafny {
   public static ListExportsInput ListExportsInput(ListExportsRequest nativeValue) {
     Option<DafnySequence<? extends Character>> tableArn;
     tableArn = Objects.nonNull(nativeValue.tableArn()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableArn()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableArn()))
         : Option.create_None();
     Option<Integer> maxResults;
     maxResults = Objects.nonNull(nativeValue.maxResults()) ?
@@ -2665,7 +2665,7 @@ public class ToDafny {
         : Option.create_None();
     Option<DafnySequence<? extends Character>> nextToken;
     nextToken = Objects.nonNull(nativeValue.nextToken()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.nextToken()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.nextToken()))
         : Option.create_None();
     return new ListExportsInput(tableArn, maxResults, nextToken);
   }
@@ -2677,7 +2677,7 @@ public class ToDafny {
         : Option.create_None();
     Option<DafnySequence<? extends Character>> nextToken;
     nextToken = Objects.nonNull(nativeValue.nextToken()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.nextToken()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.nextToken()))
         : Option.create_None();
     return new ListExportsOutput(exportSummaries, nextToken);
   }
@@ -2685,7 +2685,7 @@ public class ToDafny {
   public static ListGlobalTablesInput ListGlobalTablesInput(ListGlobalTablesRequest nativeValue) {
     Option<DafnySequence<? extends Character>> exclusiveStartGlobalTableName;
     exclusiveStartGlobalTableName = Objects.nonNull(nativeValue.exclusiveStartGlobalTableName()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.exclusiveStartGlobalTableName()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.exclusiveStartGlobalTableName()))
         : Option.create_None();
     Option<Integer> limit;
     limit = Objects.nonNull(nativeValue.limit()) ?
@@ -2693,7 +2693,7 @@ public class ToDafny {
         : Option.create_None();
     Option<DafnySequence<? extends Character>> regionName;
     regionName = Objects.nonNull(nativeValue.regionName()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.regionName()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.regionName()))
         : Option.create_None();
     return new ListGlobalTablesInput(exclusiveStartGlobalTableName, limit, regionName);
   }
@@ -2706,7 +2706,7 @@ public class ToDafny {
         : Option.create_None();
     Option<DafnySequence<? extends Character>> lastEvaluatedGlobalTableName;
     lastEvaluatedGlobalTableName = Objects.nonNull(nativeValue.lastEvaluatedGlobalTableName()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.lastEvaluatedGlobalTableName()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.lastEvaluatedGlobalTableName()))
         : Option.create_None();
     return new ListGlobalTablesOutput(globalTables, lastEvaluatedGlobalTableName);
   }
@@ -2714,7 +2714,7 @@ public class ToDafny {
   public static ListImportsInput ListImportsInput(ListImportsRequest nativeValue) {
     Option<DafnySequence<? extends Character>> tableArn;
     tableArn = Objects.nonNull(nativeValue.tableArn()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableArn()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableArn()))
         : Option.create_None();
     Option<Integer> pageSize;
     pageSize = Objects.nonNull(nativeValue.pageSize()) ?
@@ -2722,7 +2722,7 @@ public class ToDafny {
         : Option.create_None();
     Option<DafnySequence<? extends Character>> nextToken;
     nextToken = Objects.nonNull(nativeValue.nextToken()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.nextToken()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.nextToken()))
         : Option.create_None();
     return new ListImportsInput(tableArn, pageSize, nextToken);
   }
@@ -2734,7 +2734,7 @@ public class ToDafny {
         : Option.create_None();
     Option<DafnySequence<? extends Character>> nextToken;
     nextToken = Objects.nonNull(nativeValue.nextToken()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.nextToken()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.nextToken()))
         : Option.create_None();
     return new ListImportsOutput(importSummaryList, nextToken);
   }
@@ -2742,7 +2742,7 @@ public class ToDafny {
   public static ListTablesInput ListTablesInput(ListTablesRequest nativeValue) {
     Option<DafnySequence<? extends Character>> exclusiveStartTableName;
     exclusiveStartTableName = Objects.nonNull(nativeValue.exclusiveStartTableName()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.exclusiveStartTableName()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.exclusiveStartTableName()))
         : Option.create_None();
     Option<Integer> limit;
     limit = Objects.nonNull(nativeValue.limit()) ?
@@ -2758,7 +2758,7 @@ public class ToDafny {
         : Option.create_None();
     Option<DafnySequence<? extends Character>> lastEvaluatedTableName;
     lastEvaluatedTableName = Objects.nonNull(nativeValue.lastEvaluatedTableName()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.lastEvaluatedTableName()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.lastEvaluatedTableName()))
         : Option.create_None();
     return new ListTablesOutput(tableNames, lastEvaluatedTableName);
   }
@@ -2766,10 +2766,10 @@ public class ToDafny {
   public static ListTagsOfResourceInput ListTagsOfResourceInput(
       ListTagsOfResourceRequest nativeValue) {
     DafnySequence<? extends Character> resourceArn;
-    resourceArn = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.resourceArn());
+    resourceArn = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.resourceArn());
     Option<DafnySequence<? extends Character>> nextToken;
     nextToken = Objects.nonNull(nativeValue.nextToken()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.nextToken()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.nextToken()))
         : Option.create_None();
     return new ListTagsOfResourceInput(resourceArn, nextToken);
   }
@@ -2782,7 +2782,7 @@ public class ToDafny {
         : Option.create_None();
     Option<DafnySequence<? extends Character>> nextToken;
     nextToken = Objects.nonNull(nativeValue.nextToken()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.nextToken()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.nextToken()))
         : Option.create_None();
     return new ListTagsOfResourceOutput(tags, nextToken);
   }
@@ -2790,7 +2790,7 @@ public class ToDafny {
   public static LocalSecondaryIndex LocalSecondaryIndex(
       software.amazon.awssdk.services.dynamodb.model.LocalSecondaryIndex nativeValue) {
     DafnySequence<? extends Character> indexName;
-    indexName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.indexName());
+    indexName = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.indexName());
     DafnySequence<? extends KeySchemaElement> keySchema;
     keySchema = ToDafny.KeySchema(nativeValue.keySchema());
     Projection projection;
@@ -2802,7 +2802,7 @@ public class ToDafny {
       software.amazon.awssdk.services.dynamodb.model.LocalSecondaryIndexDescription nativeValue) {
     Option<DafnySequence<? extends Character>> indexName;
     indexName = Objects.nonNull(nativeValue.indexName()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.indexName()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.indexName()))
         : Option.create_None();
     Option<DafnySequence<? extends KeySchemaElement>> keySchema;
     keySchema = (Objects.nonNull(nativeValue.keySchema()) && nativeValue.keySchema().size() > 0) ?
@@ -2822,14 +2822,14 @@ public class ToDafny {
         : Option.create_None();
     Option<DafnySequence<? extends Character>> indexArn;
     indexArn = Objects.nonNull(nativeValue.indexArn()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.indexArn()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.indexArn()))
         : Option.create_None();
     return new LocalSecondaryIndexDescription(indexName, keySchema, projection, indexSizeBytes, itemCount, indexArn);
   }
 
   public static DafnySequence<? extends LocalSecondaryIndexDescription> LocalSecondaryIndexDescriptionList(
       List<software.amazon.awssdk.services.dynamodb.model.LocalSecondaryIndexDescription> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
         software.amazon.cryptography.services.dynamodb.internaldafny.ToDafny::LocalSecondaryIndexDescription, 
         LocalSecondaryIndexDescription._typeDescriptor());
@@ -2837,7 +2837,7 @@ public class ToDafny {
 
   public static DafnySequence<? extends LocalSecondaryIndexInfo> LocalSecondaryIndexes(
       List<software.amazon.awssdk.services.dynamodb.model.LocalSecondaryIndexInfo> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
         software.amazon.cryptography.services.dynamodb.internaldafny.ToDafny::LocalSecondaryIndexInfo, 
         LocalSecondaryIndexInfo._typeDescriptor());
@@ -2847,7 +2847,7 @@ public class ToDafny {
       software.amazon.awssdk.services.dynamodb.model.LocalSecondaryIndexInfo nativeValue) {
     Option<DafnySequence<? extends Character>> indexName;
     indexName = Objects.nonNull(nativeValue.indexName()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.indexName()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.indexName()))
         : Option.create_None();
     Option<DafnySequence<? extends KeySchemaElement>> keySchema;
     keySchema = (Objects.nonNull(nativeValue.keySchema()) && nativeValue.keySchema().size() > 0) ?
@@ -2862,7 +2862,7 @@ public class ToDafny {
 
   public static DafnySequence<? extends LocalSecondaryIndex> LocalSecondaryIndexList(
       List<software.amazon.awssdk.services.dynamodb.model.LocalSecondaryIndex> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
         software.amazon.cryptography.services.dynamodb.internaldafny.ToDafny::LocalSecondaryIndex, 
         LocalSecondaryIndex._typeDescriptor());
@@ -2870,32 +2870,32 @@ public class ToDafny {
 
   public static DafnyMap<? extends DafnySequence<? extends Character>, ? extends AttributeValue> MapAttributeValue(
       Map<String, software.amazon.awssdk.services.dynamodb.model.AttributeValue> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToMap(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToMap(
         nativeValue, 
-        software.amazon.dafny.conversion.ToDafny.Simple::CharacterSequence, 
+        software.amazon.smithy.dafny.conversion.ToDafny.Simple::CharacterSequence, 
         software.amazon.cryptography.services.dynamodb.internaldafny.ToDafny::AttributeValue);
   }
 
   public static DafnySequence<? extends DafnySequence<? extends Character>> NonKeyAttributeNameList(
       List<String> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
-        software.amazon.dafny.conversion.ToDafny.Simple::CharacterSequence, 
+        software.amazon.smithy.dafny.conversion.ToDafny.Simple::CharacterSequence, 
         DafnySequence._typeDescriptor(TypeDescriptor.CHAR));
   }
 
   public static DafnySequence<? extends DafnySequence<? extends Character>> NumberSetAttributeValue(
       List<String> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
-        software.amazon.dafny.conversion.ToDafny.Simple::CharacterSequence, 
+        software.amazon.smithy.dafny.conversion.ToDafny.Simple::CharacterSequence, 
         DafnySequence._typeDescriptor(TypeDescriptor.CHAR));
   }
 
   public static ParameterizedStatement ParameterizedStatement(
       software.amazon.awssdk.services.dynamodb.model.ParameterizedStatement nativeValue) {
     DafnySequence<? extends Character> statement;
-    statement = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.statement());
+    statement = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.statement());
     Option<DafnySequence<? extends AttributeValue>> parameters;
     parameters = (Objects.nonNull(nativeValue.parameters()) && nativeValue.parameters().size() > 0) ?
         Option.create_Some(ToDafny.PreparedStatementParameters(nativeValue.parameters()))
@@ -2905,7 +2905,7 @@ public class ToDafny {
 
   public static DafnySequence<? extends ParameterizedStatement> ParameterizedStatements(
       List<software.amazon.awssdk.services.dynamodb.model.ParameterizedStatement> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
         software.amazon.cryptography.services.dynamodb.internaldafny.ToDafny::ParameterizedStatement, 
         ParameterizedStatement._typeDescriptor());
@@ -2913,7 +2913,7 @@ public class ToDafny {
 
   public static DafnySequence<? extends BatchStatementRequest> PartiQLBatchRequest(
       List<software.amazon.awssdk.services.dynamodb.model.BatchStatementRequest> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
         software.amazon.cryptography.services.dynamodb.internaldafny.ToDafny::BatchStatementRequest, 
         BatchStatementRequest._typeDescriptor());
@@ -2921,7 +2921,7 @@ public class ToDafny {
 
   public static DafnySequence<? extends BatchStatementResponse> PartiQLBatchResponse(
       List<software.amazon.awssdk.services.dynamodb.model.BatchStatementResponse> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
         software.amazon.cryptography.services.dynamodb.internaldafny.ToDafny::BatchStatementResponse, 
         BatchStatementResponse._typeDescriptor());
@@ -2935,11 +2935,11 @@ public class ToDafny {
         : Option.create_None();
     Option<DafnySequence<? extends Character>> earliestRestorableDateTime;
     earliestRestorableDateTime = Objects.nonNull(nativeValue.earliestRestorableDateTime()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.earliestRestorableDateTime()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.earliestRestorableDateTime()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> latestRestorableDateTime;
     latestRestorableDateTime = Objects.nonNull(nativeValue.latestRestorableDateTime()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.latestRestorableDateTime()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.latestRestorableDateTime()))
         : Option.create_None();
     return new PointInTimeRecoveryDescription(pointInTimeRecoveryStatus, earliestRestorableDateTime, latestRestorableDateTime);
   }
@@ -2953,7 +2953,7 @@ public class ToDafny {
 
   public static DafnySequence<? extends AttributeValue> PreparedStatementParameters(
       List<software.amazon.awssdk.services.dynamodb.model.AttributeValue> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
         software.amazon.cryptography.services.dynamodb.internaldafny.ToDafny::AttributeValue, 
         AttributeValue._typeDescriptor());
@@ -2985,11 +2985,11 @@ public class ToDafny {
       software.amazon.awssdk.services.dynamodb.model.ProvisionedThroughputDescription nativeValue) {
     Option<DafnySequence<? extends Character>> lastIncreaseDateTime;
     lastIncreaseDateTime = Objects.nonNull(nativeValue.lastIncreaseDateTime()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.lastIncreaseDateTime()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.lastIncreaseDateTime()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> lastDecreaseDateTime;
     lastDecreaseDateTime = Objects.nonNull(nativeValue.lastDecreaseDateTime()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.lastDecreaseDateTime()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.lastDecreaseDateTime()))
         : Option.create_None();
     Option<Long> numberOfDecreasesToday;
     numberOfDecreasesToday = Objects.nonNull(nativeValue.numberOfDecreasesToday()) ?
@@ -3019,10 +3019,10 @@ public class ToDafny {
     DafnyMap<? extends DafnySequence<? extends Character>, ? extends AttributeValue> item;
     item = ToDafny.PutItemInputAttributeMap(nativeValue.item());
     DafnySequence<? extends Character> tableName;
-    tableName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName());
+    tableName = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName());
     Option<DafnySequence<? extends Character>> conditionExpression;
     conditionExpression = Objects.nonNull(nativeValue.conditionExpression()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.conditionExpression()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.conditionExpression()))
         : Option.create_None();
     Option<DafnyMap<? extends DafnySequence<? extends Character>, ? extends DafnySequence<? extends Character>>> expressionAttributeNames;
     expressionAttributeNames = (Objects.nonNull(nativeValue.expressionAttributeNames()) && nativeValue.expressionAttributeNames().size() > 0) ?
@@ -3041,7 +3041,7 @@ public class ToDafny {
 
   public static PutItemInput PutItemInput(PutItemRequest nativeValue) {
     DafnySequence<? extends Character> tableName;
-    tableName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName());
+    tableName = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName());
     DafnyMap<? extends DafnySequence<? extends Character>, ? extends AttributeValue> item;
     item = ToDafny.PutItemInputAttributeMap(nativeValue.item());
     Option<DafnyMap<? extends DafnySequence<? extends Character>, ? extends ExpectedAttributeValue>> expected;
@@ -3066,7 +3066,7 @@ public class ToDafny {
         : Option.create_None();
     Option<DafnySequence<? extends Character>> conditionExpression;
     conditionExpression = Objects.nonNull(nativeValue.conditionExpression()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.conditionExpression()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.conditionExpression()))
         : Option.create_None();
     Option<DafnyMap<? extends DafnySequence<? extends Character>, ? extends DafnySequence<? extends Character>>> expressionAttributeNames;
     expressionAttributeNames = (Objects.nonNull(nativeValue.expressionAttributeNames()) && nativeValue.expressionAttributeNames().size() > 0) ?
@@ -3081,9 +3081,9 @@ public class ToDafny {
 
   public static DafnyMap<? extends DafnySequence<? extends Character>, ? extends AttributeValue> PutItemInputAttributeMap(
       Map<String, software.amazon.awssdk.services.dynamodb.model.AttributeValue> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToMap(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToMap(
         nativeValue, 
-        software.amazon.dafny.conversion.ToDafny.Simple::CharacterSequence, 
+        software.amazon.smithy.dafny.conversion.ToDafny.Simple::CharacterSequence, 
         software.amazon.cryptography.services.dynamodb.internaldafny.ToDafny::AttributeValue);
   }
 
@@ -3112,10 +3112,10 @@ public class ToDafny {
 
   public static QueryInput QueryInput(QueryRequest nativeValue) {
     DafnySequence<? extends Character> tableName;
-    tableName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName());
+    tableName = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName());
     Option<DafnySequence<? extends Character>> indexName;
     indexName = Objects.nonNull(nativeValue.indexName()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.indexName()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.indexName()))
         : Option.create_None();
     Option<Select> select;
     select = Objects.nonNull(nativeValue.select()) ?
@@ -3159,15 +3159,15 @@ public class ToDafny {
         : Option.create_None();
     Option<DafnySequence<? extends Character>> projectionExpression;
     projectionExpression = Objects.nonNull(nativeValue.projectionExpression()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.projectionExpression()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.projectionExpression()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> filterExpression;
     filterExpression = Objects.nonNull(nativeValue.filterExpression()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.filterExpression()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.filterExpression()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> keyConditionExpression;
     keyConditionExpression = Objects.nonNull(nativeValue.keyConditionExpression()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyConditionExpression()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyConditionExpression()))
         : Option.create_None();
     Option<DafnyMap<? extends DafnySequence<? extends Character>, ? extends DafnySequence<? extends Character>>> expressionAttributeNames;
     expressionAttributeNames = (Objects.nonNull(nativeValue.expressionAttributeNames()) && nativeValue.expressionAttributeNames().size() > 0) ?
@@ -3208,7 +3208,7 @@ public class ToDafny {
       software.amazon.awssdk.services.dynamodb.model.Replica nativeValue) {
     Option<DafnySequence<? extends Character>> regionName;
     regionName = Objects.nonNull(nativeValue.regionName()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.regionName()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.regionName()))
         : Option.create_None();
     return new Replica(regionName);
   }
@@ -3217,7 +3217,7 @@ public class ToDafny {
       software.amazon.awssdk.services.dynamodb.model.ReplicaAutoScalingDescription nativeValue) {
     Option<DafnySequence<? extends Character>> regionName;
     regionName = Objects.nonNull(nativeValue.regionName()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.regionName()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.regionName()))
         : Option.create_None();
     Option<DafnySequence<? extends ReplicaGlobalSecondaryIndexAutoScalingDescription>> globalSecondaryIndexes;
     globalSecondaryIndexes = (Objects.nonNull(nativeValue.globalSecondaryIndexes()) && nativeValue.globalSecondaryIndexes().size() > 0) ?
@@ -3240,7 +3240,7 @@ public class ToDafny {
 
   public static DafnySequence<? extends ReplicaAutoScalingDescription> ReplicaAutoScalingDescriptionList(
       List<software.amazon.awssdk.services.dynamodb.model.ReplicaAutoScalingDescription> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
         software.amazon.cryptography.services.dynamodb.internaldafny.ToDafny::ReplicaAutoScalingDescription, 
         ReplicaAutoScalingDescription._typeDescriptor());
@@ -3249,7 +3249,7 @@ public class ToDafny {
   public static ReplicaAutoScalingUpdate ReplicaAutoScalingUpdate(
       software.amazon.awssdk.services.dynamodb.model.ReplicaAutoScalingUpdate nativeValue) {
     DafnySequence<? extends Character> regionName;
-    regionName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.regionName());
+    regionName = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.regionName());
     Option<DafnySequence<? extends ReplicaGlobalSecondaryIndexAutoScalingUpdate>> replicaGlobalSecondaryIndexUpdates;
     replicaGlobalSecondaryIndexUpdates = (Objects.nonNull(nativeValue.replicaGlobalSecondaryIndexUpdates()) && nativeValue.replicaGlobalSecondaryIndexUpdates().size() > 0) ?
         Option.create_Some(ToDafny.ReplicaGlobalSecondaryIndexAutoScalingUpdateList(nativeValue.replicaGlobalSecondaryIndexUpdates()))
@@ -3263,7 +3263,7 @@ public class ToDafny {
 
   public static DafnySequence<? extends ReplicaAutoScalingUpdate> ReplicaAutoScalingUpdateList(
       List<software.amazon.awssdk.services.dynamodb.model.ReplicaAutoScalingUpdate> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
         software.amazon.cryptography.services.dynamodb.internaldafny.ToDafny::ReplicaAutoScalingUpdate, 
         ReplicaAutoScalingUpdate._typeDescriptor());
@@ -3273,7 +3273,7 @@ public class ToDafny {
       software.amazon.awssdk.services.dynamodb.model.ReplicaDescription nativeValue) {
     Option<DafnySequence<? extends Character>> regionName;
     regionName = Objects.nonNull(nativeValue.regionName()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.regionName()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.regionName()))
         : Option.create_None();
     Option<ReplicaStatus> replicaStatus;
     replicaStatus = Objects.nonNull(nativeValue.replicaStatus()) ?
@@ -3281,15 +3281,15 @@ public class ToDafny {
         : Option.create_None();
     Option<DafnySequence<? extends Character>> replicaStatusDescription;
     replicaStatusDescription = Objects.nonNull(nativeValue.replicaStatusDescription()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.replicaStatusDescription()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.replicaStatusDescription()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> replicaStatusPercentProgress;
     replicaStatusPercentProgress = Objects.nonNull(nativeValue.replicaStatusPercentProgress()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.replicaStatusPercentProgress()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.replicaStatusPercentProgress()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> kMSMasterKeyId;
     kMSMasterKeyId = Objects.nonNull(nativeValue.kmsMasterKeyId()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.kmsMasterKeyId()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.kmsMasterKeyId()))
         : Option.create_None();
     Option<ProvisionedThroughputOverride> provisionedThroughputOverride;
     provisionedThroughputOverride = Objects.nonNull(nativeValue.provisionedThroughputOverride()) ?
@@ -3301,7 +3301,7 @@ public class ToDafny {
         : Option.create_None();
     Option<DafnySequence<? extends Character>> replicaInaccessibleDateTime;
     replicaInaccessibleDateTime = Objects.nonNull(nativeValue.replicaInaccessibleDateTime()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.replicaInaccessibleDateTime()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.replicaInaccessibleDateTime()))
         : Option.create_None();
     Option<TableClassSummary> replicaTableClassSummary;
     replicaTableClassSummary = Objects.nonNull(nativeValue.replicaTableClassSummary()) ?
@@ -3312,7 +3312,7 @@ public class ToDafny {
 
   public static DafnySequence<? extends ReplicaDescription> ReplicaDescriptionList(
       List<software.amazon.awssdk.services.dynamodb.model.ReplicaDescription> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
         software.amazon.cryptography.services.dynamodb.internaldafny.ToDafny::ReplicaDescription, 
         ReplicaDescription._typeDescriptor());
@@ -3321,7 +3321,7 @@ public class ToDafny {
   public static ReplicaGlobalSecondaryIndex ReplicaGlobalSecondaryIndex(
       software.amazon.awssdk.services.dynamodb.model.ReplicaGlobalSecondaryIndex nativeValue) {
     DafnySequence<? extends Character> indexName;
-    indexName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.indexName());
+    indexName = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.indexName());
     Option<ProvisionedThroughputOverride> provisionedThroughputOverride;
     provisionedThroughputOverride = Objects.nonNull(nativeValue.provisionedThroughputOverride()) ?
         Option.create_Some(ToDafny.ProvisionedThroughputOverride(nativeValue.provisionedThroughputOverride()))
@@ -3333,7 +3333,7 @@ public class ToDafny {
       software.amazon.awssdk.services.dynamodb.model.ReplicaGlobalSecondaryIndexAutoScalingDescription nativeValue) {
     Option<DafnySequence<? extends Character>> indexName;
     indexName = Objects.nonNull(nativeValue.indexName()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.indexName()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.indexName()))
         : Option.create_None();
     Option<IndexStatus> indexStatus;
     indexStatus = Objects.nonNull(nativeValue.indexStatus()) ?
@@ -3352,7 +3352,7 @@ public class ToDafny {
 
   public static DafnySequence<? extends ReplicaGlobalSecondaryIndexAutoScalingDescription> ReplicaGlobalSecondaryIndexAutoScalingDescriptionList(
       List<software.amazon.awssdk.services.dynamodb.model.ReplicaGlobalSecondaryIndexAutoScalingDescription> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
         software.amazon.cryptography.services.dynamodb.internaldafny.ToDafny::ReplicaGlobalSecondaryIndexAutoScalingDescription, 
         ReplicaGlobalSecondaryIndexAutoScalingDescription._typeDescriptor());
@@ -3362,7 +3362,7 @@ public class ToDafny {
       software.amazon.awssdk.services.dynamodb.model.ReplicaGlobalSecondaryIndexAutoScalingUpdate nativeValue) {
     Option<DafnySequence<? extends Character>> indexName;
     indexName = Objects.nonNull(nativeValue.indexName()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.indexName()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.indexName()))
         : Option.create_None();
     Option<AutoScalingSettingsUpdate> provisionedReadCapacityAutoScalingUpdate;
     provisionedReadCapacityAutoScalingUpdate = Objects.nonNull(nativeValue.provisionedReadCapacityAutoScalingUpdate()) ?
@@ -3373,7 +3373,7 @@ public class ToDafny {
 
   public static DafnySequence<? extends ReplicaGlobalSecondaryIndexAutoScalingUpdate> ReplicaGlobalSecondaryIndexAutoScalingUpdateList(
       List<software.amazon.awssdk.services.dynamodb.model.ReplicaGlobalSecondaryIndexAutoScalingUpdate> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
         software.amazon.cryptography.services.dynamodb.internaldafny.ToDafny::ReplicaGlobalSecondaryIndexAutoScalingUpdate, 
         ReplicaGlobalSecondaryIndexAutoScalingUpdate._typeDescriptor());
@@ -3383,7 +3383,7 @@ public class ToDafny {
       software.amazon.awssdk.services.dynamodb.model.ReplicaGlobalSecondaryIndexDescription nativeValue) {
     Option<DafnySequence<? extends Character>> indexName;
     indexName = Objects.nonNull(nativeValue.indexName()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.indexName()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.indexName()))
         : Option.create_None();
     Option<ProvisionedThroughputOverride> provisionedThroughputOverride;
     provisionedThroughputOverride = Objects.nonNull(nativeValue.provisionedThroughputOverride()) ?
@@ -3394,7 +3394,7 @@ public class ToDafny {
 
   public static DafnySequence<? extends ReplicaGlobalSecondaryIndexDescription> ReplicaGlobalSecondaryIndexDescriptionList(
       List<software.amazon.awssdk.services.dynamodb.model.ReplicaGlobalSecondaryIndexDescription> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
         software.amazon.cryptography.services.dynamodb.internaldafny.ToDafny::ReplicaGlobalSecondaryIndexDescription, 
         ReplicaGlobalSecondaryIndexDescription._typeDescriptor());
@@ -3402,7 +3402,7 @@ public class ToDafny {
 
   public static DafnySequence<? extends ReplicaGlobalSecondaryIndex> ReplicaGlobalSecondaryIndexList(
       List<software.amazon.awssdk.services.dynamodb.model.ReplicaGlobalSecondaryIndex> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
         software.amazon.cryptography.services.dynamodb.internaldafny.ToDafny::ReplicaGlobalSecondaryIndex, 
         ReplicaGlobalSecondaryIndex._typeDescriptor());
@@ -3411,7 +3411,7 @@ public class ToDafny {
   public static ReplicaGlobalSecondaryIndexSettingsDescription ReplicaGlobalSecondaryIndexSettingsDescription(
       software.amazon.awssdk.services.dynamodb.model.ReplicaGlobalSecondaryIndexSettingsDescription nativeValue) {
     DafnySequence<? extends Character> indexName;
-    indexName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.indexName());
+    indexName = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.indexName());
     Option<IndexStatus> indexStatus;
     indexStatus = Objects.nonNull(nativeValue.indexStatus()) ?
         Option.create_Some(ToDafny.IndexStatus(nativeValue.indexStatus()))
@@ -3437,7 +3437,7 @@ public class ToDafny {
 
   public static DafnySequence<? extends ReplicaGlobalSecondaryIndexSettingsDescription> ReplicaGlobalSecondaryIndexSettingsDescriptionList(
       List<software.amazon.awssdk.services.dynamodb.model.ReplicaGlobalSecondaryIndexSettingsDescription> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
         software.amazon.cryptography.services.dynamodb.internaldafny.ToDafny::ReplicaGlobalSecondaryIndexSettingsDescription, 
         ReplicaGlobalSecondaryIndexSettingsDescription._typeDescriptor());
@@ -3446,7 +3446,7 @@ public class ToDafny {
   public static ReplicaGlobalSecondaryIndexSettingsUpdate ReplicaGlobalSecondaryIndexSettingsUpdate(
       software.amazon.awssdk.services.dynamodb.model.ReplicaGlobalSecondaryIndexSettingsUpdate nativeValue) {
     DafnySequence<? extends Character> indexName;
-    indexName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.indexName());
+    indexName = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.indexName());
     Option<Long> provisionedReadCapacityUnits;
     provisionedReadCapacityUnits = Objects.nonNull(nativeValue.provisionedReadCapacityUnits()) ?
         Option.create_Some((nativeValue.provisionedReadCapacityUnits()))
@@ -3460,7 +3460,7 @@ public class ToDafny {
 
   public static DafnySequence<? extends ReplicaGlobalSecondaryIndexSettingsUpdate> ReplicaGlobalSecondaryIndexSettingsUpdateList(
       List<software.amazon.awssdk.services.dynamodb.model.ReplicaGlobalSecondaryIndexSettingsUpdate> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
         software.amazon.cryptography.services.dynamodb.internaldafny.ToDafny::ReplicaGlobalSecondaryIndexSettingsUpdate, 
         ReplicaGlobalSecondaryIndexSettingsUpdate._typeDescriptor());
@@ -3468,7 +3468,7 @@ public class ToDafny {
 
   public static DafnySequence<? extends Replica> ReplicaList(
       List<software.amazon.awssdk.services.dynamodb.model.Replica> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
         software.amazon.cryptography.services.dynamodb.internaldafny.ToDafny::Replica, 
         Replica._typeDescriptor());
@@ -3477,7 +3477,7 @@ public class ToDafny {
   public static ReplicaSettingsDescription ReplicaSettingsDescription(
       software.amazon.awssdk.services.dynamodb.model.ReplicaSettingsDescription nativeValue) {
     DafnySequence<? extends Character> regionName;
-    regionName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.regionName());
+    regionName = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.regionName());
     Option<ReplicaStatus> replicaStatus;
     replicaStatus = Objects.nonNull(nativeValue.replicaStatus()) ?
         Option.create_Some(ToDafny.ReplicaStatus(nativeValue.replicaStatus()))
@@ -3515,7 +3515,7 @@ public class ToDafny {
 
   public static DafnySequence<? extends ReplicaSettingsDescription> ReplicaSettingsDescriptionList(
       List<software.amazon.awssdk.services.dynamodb.model.ReplicaSettingsDescription> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
         software.amazon.cryptography.services.dynamodb.internaldafny.ToDafny::ReplicaSettingsDescription, 
         ReplicaSettingsDescription._typeDescriptor());
@@ -3524,7 +3524,7 @@ public class ToDafny {
   public static ReplicaSettingsUpdate ReplicaSettingsUpdate(
       software.amazon.awssdk.services.dynamodb.model.ReplicaSettingsUpdate nativeValue) {
     DafnySequence<? extends Character> regionName;
-    regionName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.regionName());
+    regionName = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.regionName());
     Option<Long> replicaProvisionedReadCapacityUnits;
     replicaProvisionedReadCapacityUnits = Objects.nonNull(nativeValue.replicaProvisionedReadCapacityUnits()) ?
         Option.create_Some((nativeValue.replicaProvisionedReadCapacityUnits()))
@@ -3546,7 +3546,7 @@ public class ToDafny {
 
   public static DafnySequence<? extends ReplicaSettingsUpdate> ReplicaSettingsUpdateList(
       List<software.amazon.awssdk.services.dynamodb.model.ReplicaSettingsUpdate> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
         software.amazon.cryptography.services.dynamodb.internaldafny.ToDafny::ReplicaSettingsUpdate, 
         ReplicaSettingsUpdate._typeDescriptor());
@@ -3571,7 +3571,7 @@ public class ToDafny {
 
   public static DafnySequence<? extends ReplicationGroupUpdate> ReplicationGroupUpdateList(
       List<software.amazon.awssdk.services.dynamodb.model.ReplicationGroupUpdate> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
         software.amazon.cryptography.services.dynamodb.internaldafny.ToDafny::ReplicationGroupUpdate, 
         ReplicationGroupUpdate._typeDescriptor());
@@ -3592,7 +3592,7 @@ public class ToDafny {
 
   public static DafnySequence<? extends ReplicaUpdate> ReplicaUpdateList(
       List<software.amazon.awssdk.services.dynamodb.model.ReplicaUpdate> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
         software.amazon.cryptography.services.dynamodb.internaldafny.ToDafny::ReplicaUpdate, 
         ReplicaUpdate._typeDescriptor());
@@ -3602,14 +3602,14 @@ public class ToDafny {
       software.amazon.awssdk.services.dynamodb.model.RestoreSummary nativeValue) {
     Option<DafnySequence<? extends Character>> sourceBackupArn;
     sourceBackupArn = Objects.nonNull(nativeValue.sourceBackupArn()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.sourceBackupArn()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.sourceBackupArn()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> sourceTableArn;
     sourceTableArn = Objects.nonNull(nativeValue.sourceTableArn()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.sourceTableArn()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.sourceTableArn()))
         : Option.create_None();
     DafnySequence<? extends Character> restoreDateTime;
-    restoreDateTime = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.restoreDateTime());
+    restoreDateTime = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.restoreDateTime());
     Boolean restoreInProgress;
     restoreInProgress = (nativeValue.restoreInProgress());
     return new RestoreSummary(sourceBackupArn, sourceTableArn, restoreDateTime, restoreInProgress);
@@ -3618,9 +3618,9 @@ public class ToDafny {
   public static RestoreTableFromBackupInput RestoreTableFromBackupInput(
       RestoreTableFromBackupRequest nativeValue) {
     DafnySequence<? extends Character> targetTableName;
-    targetTableName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.targetTableName());
+    targetTableName = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.targetTableName());
     DafnySequence<? extends Character> backupArn;
-    backupArn = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.backupArn());
+    backupArn = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.backupArn());
     Option<BillingMode> billingModeOverride;
     billingModeOverride = Objects.nonNull(nativeValue.billingModeOverride()) ?
         Option.create_Some(ToDafny.BillingMode(nativeValue.billingModeOverride()))
@@ -3657,21 +3657,21 @@ public class ToDafny {
       RestoreTableToPointInTimeRequest nativeValue) {
     Option<DafnySequence<? extends Character>> sourceTableArn;
     sourceTableArn = Objects.nonNull(nativeValue.sourceTableArn()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.sourceTableArn()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.sourceTableArn()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> sourceTableName;
     sourceTableName = Objects.nonNull(nativeValue.sourceTableName()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.sourceTableName()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.sourceTableName()))
         : Option.create_None();
     DafnySequence<? extends Character> targetTableName;
-    targetTableName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.targetTableName());
+    targetTableName = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.targetTableName());
     Option<Boolean> useLatestRestorableTime;
     useLatestRestorableTime = Objects.nonNull(nativeValue.useLatestRestorableTime()) ?
         Option.create_Some((nativeValue.useLatestRestorableTime()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> restoreDateTime;
     restoreDateTime = Objects.nonNull(nativeValue.restoreDateTime()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.restoreDateTime()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.restoreDateTime()))
         : Option.create_None();
     Option<BillingMode> billingModeOverride;
     billingModeOverride = Objects.nonNull(nativeValue.billingModeOverride()) ?
@@ -3709,23 +3709,23 @@ public class ToDafny {
       software.amazon.awssdk.services.dynamodb.model.S3BucketSource nativeValue) {
     Option<DafnySequence<? extends Character>> s3BucketOwner;
     s3BucketOwner = Objects.nonNull(nativeValue.s3BucketOwner()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.s3BucketOwner()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.s3BucketOwner()))
         : Option.create_None();
     DafnySequence<? extends Character> s3Bucket;
-    s3Bucket = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.s3Bucket());
+    s3Bucket = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.s3Bucket());
     Option<DafnySequence<? extends Character>> s3KeyPrefix;
     s3KeyPrefix = Objects.nonNull(nativeValue.s3KeyPrefix()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.s3KeyPrefix()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.s3KeyPrefix()))
         : Option.create_None();
     return new S3BucketSource(s3BucketOwner, s3Bucket, s3KeyPrefix);
   }
 
   public static ScanInput ScanInput(ScanRequest nativeValue) {
     DafnySequence<? extends Character> tableName;
-    tableName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName());
+    tableName = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName());
     Option<DafnySequence<? extends Character>> indexName;
     indexName = Objects.nonNull(nativeValue.indexName()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.indexName()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.indexName()))
         : Option.create_None();
     Option<DafnySequence<? extends DafnySequence<? extends Character>>> attributesToGet;
     attributesToGet = (Objects.nonNull(nativeValue.attributesToGet()) && nativeValue.attributesToGet().size() > 0) ?
@@ -3765,11 +3765,11 @@ public class ToDafny {
         : Option.create_None();
     Option<DafnySequence<? extends Character>> projectionExpression;
     projectionExpression = Objects.nonNull(nativeValue.projectionExpression()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.projectionExpression()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.projectionExpression()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> filterExpression;
     filterExpression = Objects.nonNull(nativeValue.filterExpression()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.filterExpression()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.filterExpression()))
         : Option.create_None();
     Option<DafnyMap<? extends DafnySequence<? extends Character>, ? extends DafnySequence<? extends Character>>> expressionAttributeNames;
     expressionAttributeNames = (Objects.nonNull(nativeValue.expressionAttributeNames()) && nativeValue.expressionAttributeNames().size() > 0) ?
@@ -3812,21 +3812,21 @@ public class ToDafny {
 
   public static DafnyMap<? extends DafnySequence<? extends Character>, ? extends Capacity> SecondaryIndexesCapacityMap(
       Map<String, software.amazon.awssdk.services.dynamodb.model.Capacity> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToMap(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToMap(
         nativeValue, 
-        software.amazon.dafny.conversion.ToDafny.Simple::CharacterSequence, 
+        software.amazon.smithy.dafny.conversion.ToDafny.Simple::CharacterSequence, 
         software.amazon.cryptography.services.dynamodb.internaldafny.ToDafny::Capacity);
   }
 
   public static SourceTableDetails SourceTableDetails(
       software.amazon.awssdk.services.dynamodb.model.SourceTableDetails nativeValue) {
     DafnySequence<? extends Character> tableName;
-    tableName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName());
+    tableName = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName());
     DafnySequence<? extends Character> tableId;
-    tableId = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableId());
+    tableId = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableId());
     Option<DafnySequence<? extends Character>> tableArn;
     tableArn = Objects.nonNull(nativeValue.tableArn()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableArn()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableArn()))
         : Option.create_None();
     Option<Long> tableSizeBytes;
     tableSizeBytes = Objects.nonNull(nativeValue.tableSizeBytes()) ?
@@ -3835,7 +3835,7 @@ public class ToDafny {
     DafnySequence<? extends KeySchemaElement> keySchema;
     keySchema = ToDafny.KeySchema(nativeValue.keySchema());
     DafnySequence<? extends Character> tableCreationDateTime;
-    tableCreationDateTime = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableCreationDateTime());
+    tableCreationDateTime = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableCreationDateTime());
     ProvisionedThroughput provisionedThroughput;
     provisionedThroughput = ToDafny.ProvisionedThroughput(nativeValue.provisionedThroughput());
     Option<Long> itemCount;
@@ -3886,11 +3886,11 @@ public class ToDafny {
         : Option.create_None();
     Option<DafnySequence<? extends Character>> kMSMasterKeyArn;
     kMSMasterKeyArn = Objects.nonNull(nativeValue.kmsMasterKeyArn()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.kmsMasterKeyArn()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.kmsMasterKeyArn()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> inaccessibleEncryptionDateTime;
     inaccessibleEncryptionDateTime = Objects.nonNull(nativeValue.inaccessibleEncryptionDateTime()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.inaccessibleEncryptionDateTime()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.inaccessibleEncryptionDateTime()))
         : Option.create_None();
     return new SSEDescription(status, sSEType, kMSMasterKeyArn, inaccessibleEncryptionDateTime);
   }
@@ -3907,7 +3907,7 @@ public class ToDafny {
         : Option.create_None();
     Option<DafnySequence<? extends Character>> kMSMasterKeyId;
     kMSMasterKeyId = Objects.nonNull(nativeValue.kmsMasterKeyId()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.kmsMasterKeyId()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.kmsMasterKeyId()))
         : Option.create_None();
     return new SSESpecification(enabled, sSEType, kMSMasterKeyId);
   }
@@ -3925,9 +3925,9 @@ public class ToDafny {
 
   public static DafnySequence<? extends DafnySequence<? extends Character>> StringSetAttributeValue(
       List<String> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
-        software.amazon.dafny.conversion.ToDafny.Simple::CharacterSequence, 
+        software.amazon.smithy.dafny.conversion.ToDafny.Simple::CharacterSequence, 
         DafnySequence._typeDescriptor(TypeDescriptor.CHAR));
   }
 
@@ -3935,7 +3935,7 @@ public class ToDafny {
       software.amazon.awssdk.services.dynamodb.model.TableAutoScalingDescription nativeValue) {
     Option<DafnySequence<? extends Character>> tableName;
     tableName = Objects.nonNull(nativeValue.tableName()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName()))
         : Option.create_None();
     Option<TableStatus> tableStatus;
     tableStatus = Objects.nonNull(nativeValue.tableStatus()) ?
@@ -3956,7 +3956,7 @@ public class ToDafny {
         : Option.create_None();
     Option<DafnySequence<? extends Character>> lastUpdateDateTime;
     lastUpdateDateTime = Objects.nonNull(nativeValue.lastUpdateDateTime()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.lastUpdateDateTime()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.lastUpdateDateTime()))
         : Option.create_None();
     return new TableClassSummary(tableClass, lastUpdateDateTime);
   }
@@ -3964,7 +3964,7 @@ public class ToDafny {
   public static TableCreationParameters TableCreationParameters(
       software.amazon.awssdk.services.dynamodb.model.TableCreationParameters nativeValue) {
     DafnySequence<? extends Character> tableName;
-    tableName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName());
+    tableName = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName());
     DafnySequence<? extends AttributeDefinition> attributeDefinitions;
     attributeDefinitions = ToDafny.AttributeDefinitions(nativeValue.attributeDefinitions());
     DafnySequence<? extends KeySchemaElement> keySchema;
@@ -3996,7 +3996,7 @@ public class ToDafny {
         : Option.create_None();
     Option<DafnySequence<? extends Character>> tableName;
     tableName = Objects.nonNull(nativeValue.tableName()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName()))
         : Option.create_None();
     Option<DafnySequence<? extends KeySchemaElement>> keySchema;
     keySchema = (Objects.nonNull(nativeValue.keySchema()) && nativeValue.keySchema().size() > 0) ?
@@ -4008,7 +4008,7 @@ public class ToDafny {
         : Option.create_None();
     Option<DafnySequence<? extends Character>> creationDateTime;
     creationDateTime = Objects.nonNull(nativeValue.creationDateTime()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.creationDateTime()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.creationDateTime()))
         : Option.create_None();
     Option<ProvisionedThroughputDescription> provisionedThroughput;
     provisionedThroughput = Objects.nonNull(nativeValue.provisionedThroughput()) ?
@@ -4024,11 +4024,11 @@ public class ToDafny {
         : Option.create_None();
     Option<DafnySequence<? extends Character>> tableArn;
     tableArn = Objects.nonNull(nativeValue.tableArn()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableArn()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableArn()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> tableId;
     tableId = Objects.nonNull(nativeValue.tableId()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableId()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableId()))
         : Option.create_None();
     Option<BillingModeSummary> billingModeSummary;
     billingModeSummary = Objects.nonNull(nativeValue.billingModeSummary()) ?
@@ -4048,15 +4048,15 @@ public class ToDafny {
         : Option.create_None();
     Option<DafnySequence<? extends Character>> latestStreamLabel;
     latestStreamLabel = Objects.nonNull(nativeValue.latestStreamLabel()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.latestStreamLabel()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.latestStreamLabel()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> latestStreamArn;
     latestStreamArn = Objects.nonNull(nativeValue.latestStreamArn()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.latestStreamArn()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.latestStreamArn()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> globalTableVersion;
     globalTableVersion = Objects.nonNull(nativeValue.globalTableVersion()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.globalTableVersion()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.globalTableVersion()))
         : Option.create_None();
     Option<DafnySequence<? extends ReplicaDescription>> replicas;
     replicas = (Objects.nonNull(nativeValue.replicas()) && nativeValue.replicas().size() > 0) ?
@@ -4083,31 +4083,31 @@ public class ToDafny {
 
   public static DafnySequence<? extends DafnySequence<? extends Character>> TableNameList(
       List<String> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
-        software.amazon.dafny.conversion.ToDafny.Simple::CharacterSequence, 
+        software.amazon.smithy.dafny.conversion.ToDafny.Simple::CharacterSequence, 
         DafnySequence._typeDescriptor(TypeDescriptor.CHAR));
   }
 
   public static Tag Tag(software.amazon.awssdk.services.dynamodb.model.Tag nativeValue) {
     DafnySequence<? extends Character> key;
-    key = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.key());
+    key = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.key());
     DafnySequence<? extends Character> value;
-    value = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.value());
+    value = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.value());
     return new Tag(key, value);
   }
 
   public static DafnySequence<? extends DafnySequence<? extends Character>> TagKeyList(
       List<String> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
-        software.amazon.dafny.conversion.ToDafny.Simple::CharacterSequence, 
+        software.amazon.smithy.dafny.conversion.ToDafny.Simple::CharacterSequence, 
         DafnySequence._typeDescriptor(TypeDescriptor.CHAR));
   }
 
   public static DafnySequence<? extends Tag> TagList(
       List<software.amazon.awssdk.services.dynamodb.model.Tag> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
         software.amazon.cryptography.services.dynamodb.internaldafny.ToDafny::Tag, 
         Tag._typeDescriptor());
@@ -4115,7 +4115,7 @@ public class ToDafny {
 
   public static TagResourceInput TagResourceInput(TagResourceRequest nativeValue) {
     DafnySequence<? extends Character> resourceArn;
-    resourceArn = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.resourceArn());
+    resourceArn = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.resourceArn());
     DafnySequence<? extends Tag> tags;
     tags = ToDafny.TagList(nativeValue.tags());
     return new TagResourceInput(resourceArn, tags);
@@ -4129,7 +4129,7 @@ public class ToDafny {
         : Option.create_None();
     Option<DafnySequence<? extends Character>> attributeName;
     attributeName = Objects.nonNull(nativeValue.attributeName()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.attributeName()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.attributeName()))
         : Option.create_None();
     return new TimeToLiveDescription(timeToLiveStatus, attributeName);
   }
@@ -4139,7 +4139,7 @@ public class ToDafny {
     Boolean enabled;
     enabled = (nativeValue.enabled());
     DafnySequence<? extends Character> attributeName;
-    attributeName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.attributeName());
+    attributeName = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.attributeName());
     return new TimeToLiveSpecification(enabled, attributeName);
   }
 
@@ -4152,7 +4152,7 @@ public class ToDafny {
 
   public static DafnySequence<? extends TransactGetItem> TransactGetItemList(
       List<software.amazon.awssdk.services.dynamodb.model.TransactGetItem> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
         software.amazon.cryptography.services.dynamodb.internaldafny.ToDafny::TransactGetItem, 
         TransactGetItem._typeDescriptor());
@@ -4204,7 +4204,7 @@ public class ToDafny {
 
   public static DafnySequence<? extends TransactWriteItem> TransactWriteItemList(
       List<software.amazon.awssdk.services.dynamodb.model.TransactWriteItem> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
         software.amazon.cryptography.services.dynamodb.internaldafny.ToDafny::TransactWriteItem, 
         TransactWriteItem._typeDescriptor());
@@ -4224,7 +4224,7 @@ public class ToDafny {
         : Option.create_None();
     Option<DafnySequence<? extends Character>> clientRequestToken;
     clientRequestToken = Objects.nonNull(nativeValue.clientRequestToken()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.clientRequestToken()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.clientRequestToken()))
         : Option.create_None();
     return new TransactWriteItemsInput(transactItems, returnConsumedCapacity, returnItemCollectionMetrics, clientRequestToken);
   }
@@ -4244,7 +4244,7 @@ public class ToDafny {
 
   public static UntagResourceInput UntagResourceInput(UntagResourceRequest nativeValue) {
     DafnySequence<? extends Character> resourceArn;
-    resourceArn = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.resourceArn());
+    resourceArn = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.resourceArn());
     DafnySequence<? extends DafnySequence<? extends Character>> tagKeys;
     tagKeys = ToDafny.TagKeyList(nativeValue.tagKeys());
     return new UntagResourceInput(resourceArn, tagKeys);
@@ -4254,12 +4254,12 @@ public class ToDafny {
     DafnyMap<? extends DafnySequence<? extends Character>, ? extends AttributeValue> key;
     key = ToDafny.Key(nativeValue.key());
     DafnySequence<? extends Character> updateExpression;
-    updateExpression = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.updateExpression());
+    updateExpression = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.updateExpression());
     DafnySequence<? extends Character> tableName;
-    tableName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName());
+    tableName = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName());
     Option<DafnySequence<? extends Character>> conditionExpression;
     conditionExpression = Objects.nonNull(nativeValue.conditionExpression()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.conditionExpression()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.conditionExpression()))
         : Option.create_None();
     Option<DafnyMap<? extends DafnySequence<? extends Character>, ? extends DafnySequence<? extends Character>>> expressionAttributeNames;
     expressionAttributeNames = (Objects.nonNull(nativeValue.expressionAttributeNames()) && nativeValue.expressionAttributeNames().size() > 0) ?
@@ -4279,7 +4279,7 @@ public class ToDafny {
   public static UpdateContinuousBackupsInput UpdateContinuousBackupsInput(
       UpdateContinuousBackupsRequest nativeValue) {
     DafnySequence<? extends Character> tableName;
-    tableName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName());
+    tableName = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName());
     PointInTimeRecoverySpecification pointInTimeRecoverySpecification;
     pointInTimeRecoverySpecification = ToDafny.PointInTimeRecoverySpecification(nativeValue.pointInTimeRecoverySpecification());
     return new UpdateContinuousBackupsInput(tableName, pointInTimeRecoverySpecification);
@@ -4297,10 +4297,10 @@ public class ToDafny {
   public static UpdateContributorInsightsInput UpdateContributorInsightsInput(
       UpdateContributorInsightsRequest nativeValue) {
     DafnySequence<? extends Character> tableName;
-    tableName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName());
+    tableName = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName());
     Option<DafnySequence<? extends Character>> indexName;
     indexName = Objects.nonNull(nativeValue.indexName()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.indexName()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.indexName()))
         : Option.create_None();
     ContributorInsightsAction contributorInsightsAction;
     contributorInsightsAction = ToDafny.ContributorInsightsAction(nativeValue.contributorInsightsAction());
@@ -4311,11 +4311,11 @@ public class ToDafny {
       UpdateContributorInsightsResponse nativeValue) {
     Option<DafnySequence<? extends Character>> tableName;
     tableName = Objects.nonNull(nativeValue.tableName()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> indexName;
     indexName = Objects.nonNull(nativeValue.indexName()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.indexName()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.indexName()))
         : Option.create_None();
     Option<ContributorInsightsStatus> contributorInsightsStatus;
     contributorInsightsStatus = Objects.nonNull(nativeValue.contributorInsightsStatus()) ?
@@ -4327,7 +4327,7 @@ public class ToDafny {
   public static UpdateGlobalSecondaryIndexAction UpdateGlobalSecondaryIndexAction(
       software.amazon.awssdk.services.dynamodb.model.UpdateGlobalSecondaryIndexAction nativeValue) {
     DafnySequence<? extends Character> indexName;
-    indexName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.indexName());
+    indexName = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.indexName());
     ProvisionedThroughput provisionedThroughput;
     provisionedThroughput = ToDafny.ProvisionedThroughput(nativeValue.provisionedThroughput());
     return new UpdateGlobalSecondaryIndexAction(indexName, provisionedThroughput);
@@ -4336,7 +4336,7 @@ public class ToDafny {
   public static UpdateGlobalTableInput UpdateGlobalTableInput(
       UpdateGlobalTableRequest nativeValue) {
     DafnySequence<? extends Character> globalTableName;
-    globalTableName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.globalTableName());
+    globalTableName = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.globalTableName());
     DafnySequence<? extends ReplicaUpdate> replicaUpdates;
     replicaUpdates = ToDafny.ReplicaUpdateList(nativeValue.replicaUpdates());
     return new UpdateGlobalTableInput(globalTableName, replicaUpdates);
@@ -4354,7 +4354,7 @@ public class ToDafny {
   public static UpdateGlobalTableSettingsInput UpdateGlobalTableSettingsInput(
       UpdateGlobalTableSettingsRequest nativeValue) {
     DafnySequence<? extends Character> globalTableName;
-    globalTableName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.globalTableName());
+    globalTableName = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.globalTableName());
     Option<BillingMode> globalTableBillingMode;
     globalTableBillingMode = Objects.nonNull(nativeValue.globalTableBillingMode()) ?
         Option.create_Some(ToDafny.BillingMode(nativeValue.globalTableBillingMode()))
@@ -4382,7 +4382,7 @@ public class ToDafny {
       UpdateGlobalTableSettingsResponse nativeValue) {
     Option<DafnySequence<? extends Character>> globalTableName;
     globalTableName = Objects.nonNull(nativeValue.globalTableName()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.globalTableName()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.globalTableName()))
         : Option.create_None();
     Option<DafnySequence<? extends ReplicaSettingsDescription>> replicaSettings;
     replicaSettings = (Objects.nonNull(nativeValue.replicaSettings()) && nativeValue.replicaSettings().size() > 0) ?
@@ -4393,7 +4393,7 @@ public class ToDafny {
 
   public static UpdateItemInput UpdateItemInput(UpdateItemRequest nativeValue) {
     DafnySequence<? extends Character> tableName;
-    tableName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName());
+    tableName = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName());
     DafnyMap<? extends DafnySequence<? extends Character>, ? extends AttributeValue> key;
     key = ToDafny.Key(nativeValue.key());
     Option<DafnyMap<? extends DafnySequence<? extends Character>, ? extends AttributeValueUpdate>> attributeUpdates;
@@ -4422,11 +4422,11 @@ public class ToDafny {
         : Option.create_None();
     Option<DafnySequence<? extends Character>> updateExpression;
     updateExpression = Objects.nonNull(nativeValue.updateExpression()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.updateExpression()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.updateExpression()))
         : Option.create_None();
     Option<DafnySequence<? extends Character>> conditionExpression;
     conditionExpression = Objects.nonNull(nativeValue.conditionExpression()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.conditionExpression()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.conditionExpression()))
         : Option.create_None();
     Option<DafnyMap<? extends DafnySequence<? extends Character>, ? extends DafnySequence<? extends Character>>> expressionAttributeNames;
     expressionAttributeNames = (Objects.nonNull(nativeValue.expressionAttributeNames()) && nativeValue.expressionAttributeNames().size() > 0) ?
@@ -4458,10 +4458,10 @@ public class ToDafny {
   public static UpdateReplicationGroupMemberAction UpdateReplicationGroupMemberAction(
       software.amazon.awssdk.services.dynamodb.model.UpdateReplicationGroupMemberAction nativeValue) {
     DafnySequence<? extends Character> regionName;
-    regionName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.regionName());
+    regionName = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.regionName());
     Option<DafnySequence<? extends Character>> kMSMasterKeyId;
     kMSMasterKeyId = Objects.nonNull(nativeValue.kmsMasterKeyId()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.kmsMasterKeyId()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.kmsMasterKeyId()))
         : Option.create_None();
     Option<ProvisionedThroughputOverride> provisionedThroughputOverride;
     provisionedThroughputOverride = Objects.nonNull(nativeValue.provisionedThroughputOverride()) ?
@@ -4484,7 +4484,7 @@ public class ToDafny {
         Option.create_Some(ToDafny.AttributeDefinitions(nativeValue.attributeDefinitions()))
         : Option.create_None();
     DafnySequence<? extends Character> tableName;
-    tableName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName());
+    tableName = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName());
     Option<BillingMode> billingMode;
     billingMode = Objects.nonNull(nativeValue.billingMode()) ?
         Option.create_Some(ToDafny.BillingMode(nativeValue.billingMode()))
@@ -4531,7 +4531,7 @@ public class ToDafny {
         Option.create_Some(ToDafny.GlobalSecondaryIndexAutoScalingUpdateList(nativeValue.globalSecondaryIndexUpdates()))
         : Option.create_None();
     DafnySequence<? extends Character> tableName;
-    tableName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName());
+    tableName = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName());
     Option<AutoScalingSettingsUpdate> provisionedWriteCapacityAutoScalingUpdate;
     provisionedWriteCapacityAutoScalingUpdate = Objects.nonNull(nativeValue.provisionedWriteCapacityAutoScalingUpdate()) ?
         Option.create_Some(ToDafny.AutoScalingSettingsUpdate(nativeValue.provisionedWriteCapacityAutoScalingUpdate()))
@@ -4554,7 +4554,7 @@ public class ToDafny {
 
   public static UpdateTimeToLiveInput UpdateTimeToLiveInput(UpdateTimeToLiveRequest nativeValue) {
     DafnySequence<? extends Character> tableName;
-    tableName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName());
+    tableName = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.tableName());
     TimeToLiveSpecification timeToLiveSpecification;
     timeToLiveSpecification = ToDafny.TimeToLiveSpecification(nativeValue.timeToLiveSpecification());
     return new UpdateTimeToLiveInput(tableName, timeToLiveSpecification);
@@ -4584,7 +4584,7 @@ public class ToDafny {
 
   public static DafnySequence<? extends WriteRequest> WriteRequests(
       List<software.amazon.awssdk.services.dynamodb.model.WriteRequest> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
         software.amazon.cryptography.services.dynamodb.internaldafny.ToDafny::WriteRequest, 
         WriteRequest._typeDescriptor());
@@ -4593,7 +4593,7 @@ public class ToDafny {
   public static Error Error(BackupInUseException nativeValue) {
     Option<DafnySequence<? extends Character>> message;
     message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
         : Option.create_None();
     return new Error_BackupInUseException(message);
   }
@@ -4601,7 +4601,7 @@ public class ToDafny {
   public static Error Error(BackupNotFoundException nativeValue) {
     Option<DafnySequence<? extends Character>> message;
     message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
         : Option.create_None();
     return new Error_BackupNotFoundException(message);
   }
@@ -4609,7 +4609,7 @@ public class ToDafny {
   public static Error Error(ConditionalCheckFailedException nativeValue) {
     Option<DafnySequence<? extends Character>> message;
     message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
         : Option.create_None();
     return new Error_ConditionalCheckFailedException(message);
   }
@@ -4617,7 +4617,7 @@ public class ToDafny {
   public static Error Error(ContinuousBackupsUnavailableException nativeValue) {
     Option<DafnySequence<? extends Character>> message;
     message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
         : Option.create_None();
     return new Error_ContinuousBackupsUnavailableException(message);
   }
@@ -4625,7 +4625,7 @@ public class ToDafny {
   public static Error Error(DuplicateItemException nativeValue) {
     Option<DafnySequence<? extends Character>> message;
     message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
         : Option.create_None();
     return new Error_DuplicateItemException(message);
   }
@@ -4633,7 +4633,7 @@ public class ToDafny {
   public static Error Error(ExportConflictException nativeValue) {
     Option<DafnySequence<? extends Character>> message;
     message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
         : Option.create_None();
     return new Error_ExportConflictException(message);
   }
@@ -4641,7 +4641,7 @@ public class ToDafny {
   public static Error Error(ExportNotFoundException nativeValue) {
     Option<DafnySequence<? extends Character>> message;
     message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
         : Option.create_None();
     return new Error_ExportNotFoundException(message);
   }
@@ -4649,7 +4649,7 @@ public class ToDafny {
   public static Error Error(GlobalTableAlreadyExistsException nativeValue) {
     Option<DafnySequence<? extends Character>> message;
     message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
         : Option.create_None();
     return new Error_GlobalTableAlreadyExistsException(message);
   }
@@ -4657,7 +4657,7 @@ public class ToDafny {
   public static Error Error(GlobalTableNotFoundException nativeValue) {
     Option<DafnySequence<? extends Character>> message;
     message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
         : Option.create_None();
     return new Error_GlobalTableNotFoundException(message);
   }
@@ -4665,7 +4665,7 @@ public class ToDafny {
   public static Error Error(IdempotentParameterMismatchException nativeValue) {
     Option<DafnySequence<? extends Character>> message;
     message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
         : Option.create_None();
     return new Error_IdempotentParameterMismatchException(message);
   }
@@ -4673,7 +4673,7 @@ public class ToDafny {
   public static Error Error(ImportConflictException nativeValue) {
     Option<DafnySequence<? extends Character>> message;
     message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
         : Option.create_None();
     return new Error_ImportConflictException(message);
   }
@@ -4681,7 +4681,7 @@ public class ToDafny {
   public static Error Error(ImportNotFoundException nativeValue) {
     Option<DafnySequence<? extends Character>> message;
     message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
         : Option.create_None();
     return new Error_ImportNotFoundException(message);
   }
@@ -4689,7 +4689,7 @@ public class ToDafny {
   public static Error Error(IndexNotFoundException nativeValue) {
     Option<DafnySequence<? extends Character>> message;
     message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
         : Option.create_None();
     return new Error_IndexNotFoundException(message);
   }
@@ -4697,7 +4697,7 @@ public class ToDafny {
   public static Error Error(InternalServerErrorException nativeValue) {
     Option<DafnySequence<? extends Character>> message;
     message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
         : Option.create_None();
     return new Error_InternalServerError(message);
   }
@@ -4705,7 +4705,7 @@ public class ToDafny {
   public static Error Error(InvalidExportTimeException nativeValue) {
     Option<DafnySequence<? extends Character>> message;
     message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
         : Option.create_None();
     return new Error_InvalidExportTimeException(message);
   }
@@ -4713,7 +4713,7 @@ public class ToDafny {
   public static Error Error(InvalidRestoreTimeException nativeValue) {
     Option<DafnySequence<? extends Character>> message;
     message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
         : Option.create_None();
     return new Error_InvalidRestoreTimeException(message);
   }
@@ -4721,7 +4721,7 @@ public class ToDafny {
   public static Error Error(ItemCollectionSizeLimitExceededException nativeValue) {
     Option<DafnySequence<? extends Character>> message;
     message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
         : Option.create_None();
     return new Error_ItemCollectionSizeLimitExceededException(message);
   }
@@ -4729,7 +4729,7 @@ public class ToDafny {
   public static Error Error(LimitExceededException nativeValue) {
     Option<DafnySequence<? extends Character>> message;
     message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
         : Option.create_None();
     return new Error_LimitExceededException(message);
   }
@@ -4737,7 +4737,7 @@ public class ToDafny {
   public static Error Error(PointInTimeRecoveryUnavailableException nativeValue) {
     Option<DafnySequence<? extends Character>> message;
     message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
         : Option.create_None();
     return new Error_PointInTimeRecoveryUnavailableException(message);
   }
@@ -4745,7 +4745,7 @@ public class ToDafny {
   public static Error Error(ProvisionedThroughputExceededException nativeValue) {
     Option<DafnySequence<? extends Character>> message;
     message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
         : Option.create_None();
     return new Error_ProvisionedThroughputExceededException(message);
   }
@@ -4753,7 +4753,7 @@ public class ToDafny {
   public static Error Error(ReplicaAlreadyExistsException nativeValue) {
     Option<DafnySequence<? extends Character>> message;
     message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
         : Option.create_None();
     return new Error_ReplicaAlreadyExistsException(message);
   }
@@ -4761,7 +4761,7 @@ public class ToDafny {
   public static Error Error(ReplicaNotFoundException nativeValue) {
     Option<DafnySequence<? extends Character>> message;
     message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
         : Option.create_None();
     return new Error_ReplicaNotFoundException(message);
   }
@@ -4769,7 +4769,7 @@ public class ToDafny {
   public static Error Error(RequestLimitExceededException nativeValue) {
     Option<DafnySequence<? extends Character>> message;
     message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
         : Option.create_None();
     return new Error_RequestLimitExceeded(message);
   }
@@ -4777,7 +4777,7 @@ public class ToDafny {
   public static Error Error(ResourceInUseException nativeValue) {
     Option<DafnySequence<? extends Character>> message;
     message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
         : Option.create_None();
     return new Error_ResourceInUseException(message);
   }
@@ -4785,7 +4785,7 @@ public class ToDafny {
   public static Error Error(ResourceNotFoundException nativeValue) {
     Option<DafnySequence<? extends Character>> message;
     message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
         : Option.create_None();
     return new Error_ResourceNotFoundException(message);
   }
@@ -4793,7 +4793,7 @@ public class ToDafny {
   public static Error Error(TableAlreadyExistsException nativeValue) {
     Option<DafnySequence<? extends Character>> message;
     message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
         : Option.create_None();
     return new Error_TableAlreadyExistsException(message);
   }
@@ -4801,7 +4801,7 @@ public class ToDafny {
   public static Error Error(TableInUseException nativeValue) {
     Option<DafnySequence<? extends Character>> message;
     message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
         : Option.create_None();
     return new Error_TableInUseException(message);
   }
@@ -4809,7 +4809,7 @@ public class ToDafny {
   public static Error Error(TableNotFoundException nativeValue) {
     Option<DafnySequence<? extends Character>> message;
     message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
         : Option.create_None();
     return new Error_TableNotFoundException(message);
   }
@@ -4817,7 +4817,7 @@ public class ToDafny {
   public static Error Error(TransactionCanceledException nativeValue) {
     Option<DafnySequence<? extends Character>> message;
     message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
         : Option.create_None();
     Option<DafnySequence<? extends CancellationReason>> cancellationReasons;
     cancellationReasons = (Objects.nonNull(nativeValue.cancellationReasons()) && nativeValue.cancellationReasons().size() > 0) ?
@@ -4829,7 +4829,7 @@ public class ToDafny {
   public static Error Error(TransactionConflictException nativeValue) {
     Option<DafnySequence<? extends Character>> message;
     message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
         : Option.create_None();
     return new Error_TransactionConflictException(message);
   }
@@ -4837,7 +4837,7 @@ public class ToDafny {
   public static Error Error(TransactionInProgressException nativeValue) {
     Option<DafnySequence<? extends Character>> message;
     message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
         : Option.create_None();
     return new Error_TransactionInProgressException(message);
   }

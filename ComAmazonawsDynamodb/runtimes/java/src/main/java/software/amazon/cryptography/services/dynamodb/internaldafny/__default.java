@@ -13,8 +13,8 @@ import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import dafny.DafnySequence;
 
 
-import static software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence;
-import static software.amazon.dafny.conversion.ToNative.Simple.String;
+import static software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence;
+import static software.amazon.smithy.dafny.conversion.ToNative.Simple.String;
 
 public class __default extends software.amazon.cryptography.services.dynamodb.internaldafny._ExternBase___default{
     public static Result<IDynamoDBClient, Error> DynamoDBClient() {

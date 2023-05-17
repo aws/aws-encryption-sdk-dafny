@@ -18,9 +18,9 @@ public class __default {
             TimeZone tz = TimeZone.getTimeZone("UTC");
             DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss:SSSSSS'Z'"); // Quoted "Z" to indicate UTC, no timezone offset
             df.setTimeZone(tz);
-            return  Result.create_Success(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(df.format(new Date())));
+            return  Result.create_Success(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(df.format(new Date())));
         } catch (Exception var1) {
-            return Result.create_Failure(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence("Could not generate a timestamp in ISO8601."));
+            return Result.create_Failure(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence("Could not generate a timestamp in ISO8601."));
         }
     }
 }

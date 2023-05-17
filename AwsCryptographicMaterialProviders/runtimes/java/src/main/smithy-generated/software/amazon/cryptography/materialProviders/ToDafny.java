@@ -162,7 +162,7 @@ public class ToDafny {
   }
 
   public static Error Error(CollectionOfErrors nativeValue) {
-    DafnySequence<? extends Error> list = software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    DafnySequence<? extends Error> list = software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue.list(), 
         ToDafny::Error, 
         Error._typeDescriptor());
@@ -174,7 +174,7 @@ public class ToDafny {
     AlgorithmSuiteId id;
     id = ToDafny.AlgorithmSuiteId(nativeValue.id());
     DafnySequence<? extends Byte> binaryId;
-    binaryId = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.binaryId());
+    binaryId = software.amazon.smithy.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.binaryId());
     Integer messageVersion;
     messageVersion = (nativeValue.messageVersion());
     Encrypt encrypt;
@@ -195,10 +195,10 @@ public class ToDafny {
   public static BeaconKeyMaterials BeaconKeyMaterials(
       software.amazon.cryptography.materialproviders.model.BeaconKeyMaterials nativeValue) {
     DafnySequence<? extends Character> beaconKeyIdentifier;
-    beaconKeyIdentifier = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.beaconKeyIdentifier());
+    beaconKeyIdentifier = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.beaconKeyIdentifier());
     Option<DafnySequence<? extends Byte>> beaconKey;
     beaconKey = Objects.nonNull(nativeValue.beaconKey()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.beaconKey()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.beaconKey()))
         : Option.create_None();
     Option<DafnyMap<? extends DafnySequence<? extends Character>, ? extends DafnySequence<? extends Byte>>> hmacKeys;
     hmacKeys = (Objects.nonNull(nativeValue.hmacKeys()) && nativeValue.hmacKeys().size() > 0) ?
@@ -210,9 +210,9 @@ public class ToDafny {
   public static BranchKeyMaterials BranchKeyMaterials(
       software.amazon.cryptography.materialproviders.model.BranchKeyMaterials nativeValue) {
     DafnySequence<? extends Byte> branchKeyVersion;
-    branchKeyVersion = software.amazon.dafny.conversion.ToDafny.Simple.DafnyUtf8Bytes(nativeValue.branchKeyVersion());
+    branchKeyVersion = software.amazon.smithy.dafny.conversion.ToDafny.Simple.DafnyUtf8Bytes(nativeValue.branchKeyVersion());
     DafnySequence<? extends Byte> branchKey;
-    branchKey = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.branchKey());
+    branchKey = software.amazon.smithy.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.branchKey());
     return new BranchKeyMaterials(branchKeyVersion, branchKey);
   }
 
@@ -254,7 +254,7 @@ public class ToDafny {
       software.amazon.cryptography.materialproviders.model.CreateAwsKmsHierarchicalKeyringInput nativeValue) {
     Option<DafnySequence<? extends Character>> branchKeyId;
     branchKeyId = Objects.nonNull(nativeValue.branchKeyId()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.branchKeyId()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.branchKeyId()))
         : Option.create_None();
     Option<software.amazon.cryptography.materialproviders.internaldafny.types.IBranchKeyIdSupplier> branchKeyIdSupplier;
     branchKeyIdSupplier = Objects.nonNull(nativeValue.branchKeyIdSupplier()) ?
@@ -274,7 +274,7 @@ public class ToDafny {
   public static CreateAwsKmsKeyringInput CreateAwsKmsKeyringInput(
       software.amazon.cryptography.materialproviders.model.CreateAwsKmsKeyringInput nativeValue) {
     DafnySequence<? extends Character> kmsKeyId;
-    kmsKeyId = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.kmsKeyId());
+    kmsKeyId = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.kmsKeyId());
     IKMSClient kmsClient;
     kmsClient = software.amazon.cryptography.services.kms.internaldafny.ToDafny.TrentService(nativeValue.kmsClient());
     Option<DafnySequence<? extends DafnySequence<? extends Character>>> grantTokens;
@@ -297,7 +297,7 @@ public class ToDafny {
         Option.create_Some(ToDafny.GrantTokenList(nativeValue.grantTokens()))
         : Option.create_None();
     DafnySequence<? extends Character> region;
-    region = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.region());
+    region = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.region());
     return new CreateAwsKmsMrkDiscoveryKeyringInput(kmsClient, discoveryFilter, grantTokens, region);
   }
 
@@ -323,7 +323,7 @@ public class ToDafny {
   public static CreateAwsKmsMrkKeyringInput CreateAwsKmsMrkKeyringInput(
       software.amazon.cryptography.materialproviders.model.CreateAwsKmsMrkKeyringInput nativeValue) {
     DafnySequence<? extends Character> kmsKeyId;
-    kmsKeyId = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.kmsKeyId());
+    kmsKeyId = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.kmsKeyId());
     IKMSClient kmsClient;
     kmsClient = software.amazon.cryptography.services.kms.internaldafny.ToDafny.TrentService(nativeValue.kmsClient());
     Option<DafnySequence<? extends DafnySequence<? extends Character>>> grantTokens;
@@ -337,7 +337,7 @@ public class ToDafny {
       software.amazon.cryptography.materialproviders.model.CreateAwsKmsMrkMultiKeyringInput nativeValue) {
     Option<DafnySequence<? extends Character>> generator;
     generator = Objects.nonNull(nativeValue.generator()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.generator()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.generator()))
         : Option.create_None();
     Option<DafnySequence<? extends DafnySequence<? extends Character>>> kmsKeyIds;
     kmsKeyIds = (Objects.nonNull(nativeValue.kmsKeyIds()) && nativeValue.kmsKeyIds().size() > 0) ?
@@ -358,7 +358,7 @@ public class ToDafny {
       software.amazon.cryptography.materialproviders.model.CreateAwsKmsMultiKeyringInput nativeValue) {
     Option<DafnySequence<? extends Character>> generator;
     generator = Objects.nonNull(nativeValue.generator()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.generator()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.generator()))
         : Option.create_None();
     Option<DafnySequence<? extends DafnySequence<? extends Character>>> kmsKeyIds;
     kmsKeyIds = (Objects.nonNull(nativeValue.kmsKeyIds()) && nativeValue.kmsKeyIds().size() > 0) ?
@@ -379,10 +379,10 @@ public class ToDafny {
       software.amazon.cryptography.materialproviders.model.CreateAwsKmsRsaKeyringInput nativeValue) {
     Option<DafnySequence<? extends Byte>> publicKey;
     publicKey = Objects.nonNull(nativeValue.publicKey()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.publicKey()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.publicKey()))
         : Option.create_None();
     DafnySequence<? extends Character> kmsKeyId;
-    kmsKeyId = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.kmsKeyId());
+    kmsKeyId = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.kmsKeyId());
     EncryptionAlgorithmSpec encryptionAlgorithm;
     encryptionAlgorithm = software.amazon.cryptography.services.kms.internaldafny.ToDafny.EncryptionAlgorithmSpec(nativeValue.encryptionAlgorithm());
     Option<IKMSClient> kmsClient;
@@ -448,11 +448,11 @@ public class ToDafny {
   public static CreateRawAesKeyringInput CreateRawAesKeyringInput(
       software.amazon.cryptography.materialproviders.model.CreateRawAesKeyringInput nativeValue) {
     DafnySequence<? extends Character> keyNamespace;
-    keyNamespace = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyNamespace());
+    keyNamespace = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyNamespace());
     DafnySequence<? extends Character> keyName;
-    keyName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyName());
+    keyName = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyName());
     DafnySequence<? extends Byte> wrappingKey;
-    wrappingKey = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.wrappingKey());
+    wrappingKey = software.amazon.smithy.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.wrappingKey());
     AesWrappingAlg wrappingAlg;
     wrappingAlg = ToDafny.AesWrappingAlg(nativeValue.wrappingAlg());
     return new CreateRawAesKeyringInput(keyNamespace, keyName, wrappingKey, wrappingAlg);
@@ -461,18 +461,18 @@ public class ToDafny {
   public static CreateRawRsaKeyringInput CreateRawRsaKeyringInput(
       software.amazon.cryptography.materialproviders.model.CreateRawRsaKeyringInput nativeValue) {
     DafnySequence<? extends Character> keyNamespace;
-    keyNamespace = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyNamespace());
+    keyNamespace = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyNamespace());
     DafnySequence<? extends Character> keyName;
-    keyName = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyName());
+    keyName = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.keyName());
     PaddingScheme paddingScheme;
     paddingScheme = ToDafny.PaddingScheme(nativeValue.paddingScheme());
     Option<DafnySequence<? extends Byte>> publicKey;
     publicKey = Objects.nonNull(nativeValue.publicKey()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.publicKey()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.publicKey()))
         : Option.create_None();
     Option<DafnySequence<? extends Byte>> privateKey;
     privateKey = Objects.nonNull(nativeValue.privateKey()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.privateKey()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.privateKey()))
         : Option.create_None();
     return new CreateRawRsaKeyringInput(keyNamespace, keyName, paddingScheme, publicKey, privateKey);
   }
@@ -487,15 +487,15 @@ public class ToDafny {
     requiredEncryptionContextKeys = ToDafny.EncryptionContextKeys(nativeValue.requiredEncryptionContextKeys());
     Option<DafnySequence<? extends Byte>> plaintextDataKey;
     plaintextDataKey = Objects.nonNull(nativeValue.plaintextDataKey()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.plaintextDataKey()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.plaintextDataKey()))
         : Option.create_None();
     Option<DafnySequence<? extends Byte>> verificationKey;
     verificationKey = Objects.nonNull(nativeValue.verificationKey()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.verificationKey()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.verificationKey()))
         : Option.create_None();
     Option<DafnySequence<? extends Byte>> symmetricSigningKey;
     symmetricSigningKey = Objects.nonNull(nativeValue.symmetricSigningKey()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.symmetricSigningKey()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.symmetricSigningKey()))
         : Option.create_None();
     return new DecryptionMaterials(algorithmSuite, encryptionContext, requiredEncryptionContextKeys, plaintextDataKey, verificationKey, symmetricSigningKey);
   }
@@ -527,7 +527,7 @@ public class ToDafny {
   public static DeleteCacheEntryInput DeleteCacheEntryInput(
       software.amazon.cryptography.materialproviders.model.DeleteCacheEntryInput nativeValue) {
     DafnySequence<? extends Byte> identifier;
-    identifier = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.identifier());
+    identifier = software.amazon.smithy.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.identifier());
     return new DeleteCacheEntryInput(identifier);
   }
 
@@ -540,7 +540,7 @@ public class ToDafny {
     DafnySequence<? extends DafnySequence<? extends Character>> accountIds;
     accountIds = ToDafny.AccountIdList(nativeValue.accountIds());
     DafnySequence<? extends Character> partition;
-    partition = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.partition());
+    partition = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.partition());
     return new DiscoveryFilter(accountIds, partition);
   }
 
@@ -554,11 +554,11 @@ public class ToDafny {
   public static EncryptedDataKey EncryptedDataKey(
       software.amazon.cryptography.materialproviders.model.EncryptedDataKey nativeValue) {
     DafnySequence<? extends Byte> keyProviderId;
-    keyProviderId = software.amazon.dafny.conversion.ToDafny.Simple.DafnyUtf8Bytes(nativeValue.keyProviderId());
+    keyProviderId = software.amazon.smithy.dafny.conversion.ToDafny.Simple.DafnyUtf8Bytes(nativeValue.keyProviderId());
     DafnySequence<? extends Byte> keyProviderInfo;
-    keyProviderInfo = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.keyProviderInfo());
+    keyProviderInfo = software.amazon.smithy.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.keyProviderInfo());
     DafnySequence<? extends Byte> ciphertext;
-    ciphertext = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.ciphertext());
+    ciphertext = software.amazon.smithy.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.ciphertext());
     return new EncryptedDataKey(keyProviderId, keyProviderInfo, ciphertext);
   }
 
@@ -574,11 +574,11 @@ public class ToDafny {
     requiredEncryptionContextKeys = ToDafny.EncryptionContextKeys(nativeValue.requiredEncryptionContextKeys());
     Option<DafnySequence<? extends Byte>> plaintextDataKey;
     plaintextDataKey = Objects.nonNull(nativeValue.plaintextDataKey()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.plaintextDataKey()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.plaintextDataKey()))
         : Option.create_None();
     Option<DafnySequence<? extends Byte>> signingKey;
     signingKey = Objects.nonNull(nativeValue.signingKey()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.signingKey()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.signingKey()))
         : Option.create_None();
     Option<DafnySequence<? extends DafnySequence<? extends Byte>>> symmetricSigningKeys;
     symmetricSigningKeys = (Objects.nonNull(nativeValue.symmetricSigningKeys()) && nativeValue.symmetricSigningKeys().size() > 0) ?
@@ -589,7 +589,7 @@ public class ToDafny {
 
   public static DafnySequence<? extends Byte> GetAlgorithmSuiteInfoInput(ByteBuffer nativeValue) {
     DafnySequence<? extends Byte> binaryId;
-    binaryId = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue);
+    binaryId = software.amazon.smithy.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue);
     return binaryId;
   }
 
@@ -603,14 +603,14 @@ public class ToDafny {
   public static GetBranchKeyIdOutput GetBranchKeyIdOutput(
       software.amazon.cryptography.materialproviders.model.GetBranchKeyIdOutput nativeValue) {
     DafnySequence<? extends Character> branchKeyId;
-    branchKeyId = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.branchKeyId());
+    branchKeyId = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.branchKeyId());
     return new GetBranchKeyIdOutput(branchKeyId);
   }
 
   public static GetCacheEntryInput GetCacheEntryInput(
       software.amazon.cryptography.materialproviders.model.GetCacheEntryInput nativeValue) {
     DafnySequence<? extends Byte> identifier;
-    identifier = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.identifier());
+    identifier = software.amazon.smithy.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.identifier());
     Option<Long> bytesUsed;
     bytesUsed = Objects.nonNull(nativeValue.bytesUsed()) ?
         Option.create_Some((nativeValue.bytesUsed()))
@@ -636,7 +636,7 @@ public class ToDafny {
   public static GetClientInput GetClientInput(
       software.amazon.cryptography.materialproviders.model.GetClientInput nativeValue) {
     DafnySequence<? extends Character> region;
-    region = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.region());
+    region = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.region());
     return new GetClientInput(region);
   }
 
@@ -706,11 +706,11 @@ public class ToDafny {
     requiredEncryptionContextKeys = ToDafny.EncryptionContextKeys(nativeValue.requiredEncryptionContextKeys());
     Option<DafnySequence<? extends Byte>> signingKey;
     signingKey = Objects.nonNull(nativeValue.signingKey()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.signingKey()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.signingKey()))
         : Option.create_None();
     Option<DafnySequence<? extends Byte>> verificationKey;
     verificationKey = Objects.nonNull(nativeValue.verificationKey()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.verificationKey()))
+        Option.create_Some(software.amazon.smithy.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.verificationKey()))
         : Option.create_None();
     return new InitializeEncryptionMaterialsInput(algorithmSuiteId, encryptionContext, requiredEncryptionContextKeys, signingKey, verificationKey);
   }
@@ -768,7 +768,7 @@ public class ToDafny {
   public static PutCacheEntryInput PutCacheEntryInput(
       software.amazon.cryptography.materialproviders.model.PutCacheEntryInput nativeValue) {
     DafnySequence<? extends Byte> identifier;
-    identifier = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.identifier());
+    identifier = software.amazon.smithy.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.identifier());
     Materials materials;
     materials = ToDafny.Materials(nativeValue.materials());
     Long creationTime;
@@ -789,7 +789,7 @@ public class ToDafny {
   public static UpdaterUsageMetadataInput UpdaterUsageMetadataInput(
       software.amazon.cryptography.materialproviders.model.UpdaterUsageMetadataInput nativeValue) {
     DafnySequence<? extends Byte> identifier;
-    identifier = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.identifier());
+    identifier = software.amazon.smithy.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.identifier());
     Integer bytesUsed;
     bytesUsed = (nativeValue.bytesUsed());
     return new UpdaterUsageMetadataInput(identifier, bytesUsed);
@@ -833,61 +833,61 @@ public class ToDafny {
 
   public static Error Error(AwsCryptographicMaterialProvidersException nativeValue) {
     DafnySequence<? extends Character> message;
-    message = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.message());
+    message = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.message());
     return new Error_AwsCryptographicMaterialProvidersException(message);
   }
 
   public static Error Error(EntryAlreadyExists nativeValue) {
     DafnySequence<? extends Character> message;
-    message = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.message());
+    message = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.message());
     return new Error_EntryAlreadyExists(message);
   }
 
   public static Error Error(EntryDoesNotExist nativeValue) {
     DafnySequence<? extends Character> message;
-    message = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.message());
+    message = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.message());
     return new Error_EntryDoesNotExist(message);
   }
 
   public static Error Error(InvalidAlgorithmSuiteInfo nativeValue) {
     DafnySequence<? extends Character> message;
-    message = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.message());
+    message = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.message());
     return new Error_InvalidAlgorithmSuiteInfo(message);
   }
 
   public static Error Error(InvalidAlgorithmSuiteInfoOnDecrypt nativeValue) {
     DafnySequence<? extends Character> message;
-    message = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.message());
+    message = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.message());
     return new Error_InvalidAlgorithmSuiteInfoOnDecrypt(message);
   }
 
   public static Error Error(InvalidAlgorithmSuiteInfoOnEncrypt nativeValue) {
     DafnySequence<? extends Character> message;
-    message = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.message());
+    message = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.message());
     return new Error_InvalidAlgorithmSuiteInfoOnEncrypt(message);
   }
 
   public static Error Error(InvalidDecryptionMaterials nativeValue) {
     DafnySequence<? extends Character> message;
-    message = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.message());
+    message = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.message());
     return new Error_InvalidDecryptionMaterials(message);
   }
 
   public static Error Error(InvalidDecryptionMaterialsTransition nativeValue) {
     DafnySequence<? extends Character> message;
-    message = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.message());
+    message = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.message());
     return new Error_InvalidDecryptionMaterialsTransition(message);
   }
 
   public static Error Error(InvalidEncryptionMaterials nativeValue) {
     DafnySequence<? extends Character> message;
-    message = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.message());
+    message = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.message());
     return new Error_InvalidEncryptionMaterials(message);
   }
 
   public static Error Error(InvalidEncryptionMaterialsTransition nativeValue) {
     DafnySequence<? extends Character> message;
-    message = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.message());
+    message = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.message());
     return new Error_InvalidEncryptionMaterialsTransition(message);
   }
 
@@ -1116,15 +1116,15 @@ public class ToDafny {
 
   public static DafnySequence<? extends DafnySequence<? extends Character>> AccountIdList(
       List<String> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
-        software.amazon.dafny.conversion.ToDafny.Simple::CharacterSequence, 
+        software.amazon.smithy.dafny.conversion.ToDafny.Simple::CharacterSequence, 
         DafnySequence._typeDescriptor(TypeDescriptor.CHAR));
   }
 
   public static DafnySequence<? extends EncryptedDataKey> EncryptedDataKeyList(
       List<software.amazon.cryptography.materialproviders.model.EncryptedDataKey> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
         software.amazon.cryptography.materialproviders.ToDafny::EncryptedDataKey, 
         EncryptedDataKey._typeDescriptor());
@@ -1132,23 +1132,23 @@ public class ToDafny {
 
   public static DafnySequence<? extends DafnySequence<? extends Byte>> EncryptionContextKeys(
       List<String> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
-        software.amazon.dafny.conversion.ToDafny.Simple::DafnyUtf8Bytes, 
+        software.amazon.smithy.dafny.conversion.ToDafny.Simple::DafnyUtf8Bytes, 
         DafnySequence._typeDescriptor(TypeDescriptor.BYTE));
   }
 
   public static DafnySequence<? extends DafnySequence<? extends Character>> GrantTokenList(
       List<String> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
-        software.amazon.dafny.conversion.ToDafny.Simple::CharacterSequence, 
+        software.amazon.smithy.dafny.conversion.ToDafny.Simple::CharacterSequence, 
         DafnySequence._typeDescriptor(TypeDescriptor.CHAR));
   }
 
   public static DafnySequence<? extends software.amazon.cryptography.materialproviders.internaldafny.types.IKeyring> KeyringList(
       List<IKeyring> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
         software.amazon.cryptography.materialproviders.ToDafny::Keyring, 
         TypeDescriptor.reference(software.amazon.cryptography.materialproviders.internaldafny.types.IKeyring.class));
@@ -1156,42 +1156,42 @@ public class ToDafny {
 
   public static DafnySequence<? extends DafnySequence<? extends Character>> KmsKeyIdList(
       List<String> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
-        software.amazon.dafny.conversion.ToDafny.Simple::CharacterSequence, 
+        software.amazon.smithy.dafny.conversion.ToDafny.Simple::CharacterSequence, 
         DafnySequence._typeDescriptor(TypeDescriptor.CHAR));
   }
 
   public static DafnySequence<? extends DafnySequence<? extends Character>> RegionList(
       List<String> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
-        software.amazon.dafny.conversion.ToDafny.Simple::CharacterSequence, 
+        software.amazon.smithy.dafny.conversion.ToDafny.Simple::CharacterSequence, 
         DafnySequence._typeDescriptor(TypeDescriptor.CHAR));
   }
 
   public static DafnySequence<? extends DafnySequence<? extends Byte>> SymmetricSigningKeyList(
       List<ByteBuffer> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
         nativeValue, 
-        software.amazon.dafny.conversion.ToDafny.Simple::ByteSequence, 
+        software.amazon.smithy.dafny.conversion.ToDafny.Simple::ByteSequence, 
         DafnySequence._typeDescriptor(TypeDescriptor.BYTE));
   }
 
   public static DafnyMap<? extends DafnySequence<? extends Byte>, ? extends DafnySequence<? extends Byte>> EncryptionContext(
       Map<String, String> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToMap(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToMap(
         nativeValue, 
-        software.amazon.dafny.conversion.ToDafny.Simple::DafnyUtf8Bytes, 
-        software.amazon.dafny.conversion.ToDafny.Simple::DafnyUtf8Bytes);
+        software.amazon.smithy.dafny.conversion.ToDafny.Simple::DafnyUtf8Bytes, 
+        software.amazon.smithy.dafny.conversion.ToDafny.Simple::DafnyUtf8Bytes);
   }
 
   public static DafnyMap<? extends DafnySequence<? extends Character>, ? extends DafnySequence<? extends Byte>> HmacKeyMap(
       Map<String, ByteBuffer> nativeValue) {
-    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToMap(
+    return software.amazon.smithy.dafny.conversion.ToDafny.Aggregate.GenericToMap(
         nativeValue, 
-        software.amazon.dafny.conversion.ToDafny.Simple::CharacterSequence, 
-        software.amazon.dafny.conversion.ToDafny.Simple::ByteSequence);
+        software.amazon.smithy.dafny.conversion.ToDafny.Simple::CharacterSequence, 
+        software.amazon.smithy.dafny.conversion.ToDafny.Simple::ByteSequence);
   }
 
   public static software.amazon.cryptography.materialproviders.internaldafny.types.IBranchKeyIdSupplier BranchKeyIdSupplier(

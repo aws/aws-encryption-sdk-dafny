@@ -17,8 +17,8 @@ import software.amazon.cryptography.services.kms.internaldafny.types.IKMSClient;
 import Wrappers_Compile.Option;
 import Wrappers_Compile.Result;
 
-import static software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence;
-import static software.amazon.dafny.conversion.ToNative.Simple.String;
+import static software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence;
+import static software.amazon.smithy.dafny.conversion.ToNative.Simple.String;
 
 public class __default extends software.amazon.cryptography.services.kms.internaldafny._ExternBase___default{
     public static Result<IKMSClient, Error> KMSClient() {
@@ -92,7 +92,7 @@ public class __default extends software.amazon.cryptography.services.kms.interna
 
     private static String UserAgentSuffix()
     {
-        final DafnySequence<? extends Character> runtime = software.amazon.dafny.conversion.ToDafny.Simple
+        final DafnySequence<? extends Character> runtime = software.amazon.smithy.dafny.conversion.ToDafny.Simple
           .CharacterSequence("Java");
         return new String(
           (char[]) DafnyUserAgentSuffix(runtime).toArray().unwrap()

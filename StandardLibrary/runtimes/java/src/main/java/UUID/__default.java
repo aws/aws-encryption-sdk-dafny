@@ -7,9 +7,9 @@ import dafny.DafnySequence;
 import java.nio.ByteBuffer;
 import java.util.UUID;
 
-import static software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence;
-import static software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence;
-import static software.amazon.dafny.conversion.ToNative.Simple.String;
+import static software.amazon.smithy.dafny.conversion.ToDafny.Simple.ByteSequence;
+import static software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence;
+import static software.amazon.smithy.dafny.conversion.ToNative.Simple.String;
 
 public class __default  {
 
