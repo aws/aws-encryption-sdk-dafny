@@ -57,7 +57,7 @@ repositories {
 
 dependencies {
     implementation("org.dafny:DafnyRuntime:4.0.0")
-    implementation("software.amazon.smithy.dafny:conversion:1.0-SNAPSHOT")
+    implementation("software.amazon.smithy.dafny:conversion:0.1")
     implementation("software.amazon.cryptography:StandardLibrary:1.0-SNAPSHOT")
     implementation("software.amazon.cryptography:AwsCryptographyPrimitives:1.0-SNAPSHOT")
     implementation("software.amazon.cryptography:ComAmazonawsKms:1.0-SNAPSHOT")
