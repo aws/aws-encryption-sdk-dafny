@@ -52,22 +52,6 @@ jobs:
       # it to verify the Dafny code. Instead we manually pull the submodule we DO need.
       - run: git submodule update --init libraries
 
-      # Set up env vars for CodeArtifact
-      - name: Set Up Env Vars for CodeArtifact
-        run: |
-          export URL=`aws codeartifact get-repository-endpoint \
-            --domain github-polymorph \
-            --domain-owner "370957321024" \
-            --repository DafnyJavaConversion \
-            --format maven | jq -r .repositoryEndpoint`
-          export TOKEN=`aws codeartifact get-authorization-token \
-            --domain github-polymorph \
-            --domain-owner "370957321024" \
-            --query authorizationToken \
-            --output text`
-          echo "CODEARTIFACT_URL_JAVA_CONVERSION=$URL" >> $GITHUB_ENV
-          echo "CODEARTIFACT_AUTH_TOKEN=$TOKEN" >> $GITHUB_ENV
-
       - name: Setup Dafny
         uses: dafny-lang/setup-dafny-action@v1.6.1
         with:
