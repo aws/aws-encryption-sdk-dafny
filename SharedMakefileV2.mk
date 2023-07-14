@@ -45,6 +45,18 @@ LIBRARY_ROOT := $(PWD)
 # but still build everything in their local library directory.
 SMITHY_MODEL_ROOT := $(LIBRARY_ROOT)/Model
 
+# Later versions of Dafny no longer default to adding "_Compile"
+# to the names of modules when translating.
+# Our target language code still assumes it does,
+# so IF the /compileSuffix option is available in our verion of Dafny
+# we need to provide it.
+COMPILE_SUFFIX_OPTION_CHECK_EXIT_CODE := $(shell dafny /help | grep -q /compileSuffix; echo $$?)
+ifeq ($(COMPILE_SUFFIX_OPTION_CHECK_EXIT_CODE), 0)
+	COMPILE_SUFFIX_OPTION := -compileSuffix:1
+else
+	COMPILE_SUFFIX_OPTION :=
+endif
+
 ########################## Dafny targets
 
 # Verify the entire project
@@ -151,6 +163,7 @@ transpile_implementation:
 		-spillTargetCode:3 \
 		-compile:0 \
 		-optimizeErasableDatatypeWrapper:0 \
+		$(COMPILE_SUFFIX_OPTION) \
 		-quantifierSyntax:3 \
 		-unicodeChar:0 \
 		-functionSyntax:3 \
@@ -173,6 +186,7 @@ transpile_test:
 		-runAllTests:1 \
 		-compile:0 \
 		-optimizeErasableDatatypeWrapper:0 \
+		$(COMPILE_SUFFIX_OPTION) \
 		-quantifierSyntax:3 \
 		-unicodeChar:0 \
 		-functionSyntax:3 \
