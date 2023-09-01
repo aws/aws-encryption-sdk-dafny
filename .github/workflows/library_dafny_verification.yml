@@ -30,13 +30,7 @@ jobs:
     strategy:
       matrix:
         library: [
-          AwsCryptographyPrimitives,
-          ComAmazonawsKms,
-          ComAmazonawsDynamodb,
-          AwsCryptographicMaterialProviders, 
-          # AwsEncryptionSDK,
-          TestVectorsAwsCryptographicMaterialProviders,
-          StandardLibrary,
+          AwsEncryptionSDK
         ]
         os: [ macos-latest ]
     runs-on: ${{ matrix.os }}
@@ -44,21 +38,21 @@ jobs:
       DOTNET_CLI_TELEMETRY_OPTOUT: 1
       DOTNET_NOLOGO: 1
     steps:
+      - uses: actions/checkout@v2
+      # The specification submodule is private so we don't have access, but we don't need
+      # it to verify the Dafny code. Instead we manually pull the submodules we DO need.
+      - run: git submodule update --init libraries
+      - run: git submodule update --init --recursive mpl
+
       - name: Support longpaths
         run: |
           git config --global core.longpaths true
-
-      - uses: actions/checkout@v2
-      # The specification submodule is private so we don't have access, but we don't need
-      # it to verify the Dafny code. Instead we manually pull the submodule we DO need.
-      - run: git submodule update --init libraries
 
       - name: Setup Dafny
         uses: dafny-lang/setup-dafny-action@v1.6.1
         with:
           # A && B || C is the closest thing to an if .. then ... else ... or ?: expression the GitHub Actions syntax supports.
-          dafny-version: ${{ (github.event_name == 'schedule' || inputs.nightly) && 'nightly-latest' || 'nightly-2023-04-12-f4836e9' }}
-
+          dafny-version: ${{ (github.event_name == 'schedule' || inputs.nightly) && 'nightly-latest' || '4.2.0' }}
 
       - name: Verify ${{ matrix.library }} Dafny code
         shell: bash

@@ -21,12 +21,7 @@ jobs:
     strategy:
       matrix:
         library: [
-          StandardLibrary,
-          AwsCryptographyPrimitives,
-          ComAmazonawsKms,
-          ComAmazonawsDynamodb,
-          AwsCryptographicMaterialProviders,
-          TestVectorsAwsCryptographicMaterialProviders,
+          AwsEncryptionSDK
         ]
         dotnet-version: [ '6.0.x' ]
         os: [
@@ -45,6 +40,9 @@ jobs:
       - name: Support longpaths on Git checkout
         run: |
           git config --global core.longpaths true
+      - uses: actions/checkout@v2
+      - run: git submodule update --init libraries
+      - run: git submodule update --init --recursive mpl
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -52,11 +50,6 @@ jobs:
           aws-region: us-west-2
           role-to-assume: arn:aws:iam::370957321024:role/GitHub-CI-ESDK-Dafny-Role-us-west-2
           role-session-name: NetTests
-
-      - uses: actions/checkout@v3
-      # The specification submodule is private so we don't have access, but we don't need
-      # it to verify the Dafny code. Instead we manually pull the submodule we DO need.
-      - run: git submodule update --init libraries
 
       - name: Setup .NET Core SDK ${{ matrix.dotnet-version }}
         uses: actions/setup-dotnet@v3
@@ -67,7 +60,7 @@ jobs:
         uses: dafny-lang/setup-dafny-action@v1.6.1
         with:
           # A && B || C is the closest thing to an if .. then ... else ... or ?: expression the GitHub Actions syntax supports.
-          dafny-version: ${{ (github.event_name == 'schedule' || inputs.nightly) && 'nightly-latest' || '4.0.0' }}
+          dafny-version: ${{ (github.event_name == 'schedule' || inputs.nightly) && 'nightly-latest' || '4.2.0' }}
 
       - name: Download Dependencies 
         working-directory: ./${{ matrix.library }}
