@@ -1,46 +1,53 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <RootNamespace>Encryption SDK .NET</RootNamespace>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>disable</Nullable>
-        <LangVersion>10</LangVersion>
-        <TargetFrameworks>net6.0</TargetFrameworks>
-        <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
-    </PropertyGroup>
+  <PropertyGroup>
+      <OutputType>Library</OutputType>
+      <TargetFrameworks>net6.0</TargetFrameworks>
+      <LangVersion>10</LangVersion>
+      <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+      <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+      <IsPackable>true</IsPackable>
+      
+      <Version>4.0.0</Version>
 
-    <ItemGroup>
-        <PackageReference Include="AWSSDK.Core" Version="3.7.103" />
-        <PackageReference Include="DafnyRuntime" Version="4.2.0" />
-        <PackageReference Include="Portable.BouncyCastle" Version="1.8.5.2" />
-        <!--
-          System.Collections.Immutable can be removed once dafny.msbuild is updated with
-          https://github.com/dafny-lang/dafny.msbuild/pull/10 and versioned
-        -->
-        <PackageReference Include="System.Collections.Immutable" Version="1.7.0" />
-        <!-- Work around for dafny-lang/dafny/issues/1951; remove once resolved -->
-        <PackageReference Include="System.ValueTuple" Version="4.5.0" />
+      <AssemblyName>AWS.Cryptography.EncryptionSDK</AssemblyName>
+      <PackageId>AWS.Cryptography.EncryptionSDK</PackageId>
+      <Title>AWS Encryption SDK for .NET</Title>
+      <Description>The AWS Encryption SDK is a client-side encryption library designed to make it easy for everyone to encrypt and decrypt data using industry standards and best practices.</Description>
+      <Authors>Amazon Web Services</Authors>
+      <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+      <RepositoryUrl>https://github.com/aws/aws-encryption-sdk-dafny</RepositoryUrl>
+      <PackageIcon>icon.png</PackageIcon>
+      <PackageReadmeFile>README.md</PackageReadmeFile>
+      <PackageTags>AWS;Amazon;KMS;Encryption;Cryptography</PackageTags>
+      <!--
+        Ignore errors from generated code. Ideally this would be scoped to just the relevant files.
+        CS0105: duplicate namespace, CS0618: obsolete members
+      -->
+      <NoWarn>CS0105,CS0618</NoWarn>
+      
+  </PropertyGroup>
 
-        <Compile Include="Extern/**/*.cs" />
-        <Compile Include="Generated/**/*.cs" />
-        <Compile Include="ImplementationFromDafny.cs" />
-    </ItemGroup>
+  <ItemGroup>
+      <PackageReference Include="AWSSDK.Core" Version="3.7.103" />
+      <PackageReference Include="DafnyRuntime" Version="4.2.0" />
+      <PackageReference Include="Portable.BouncyCastle" Version="1.8.5.2" />
+      <PackageReference Include="AWS.Cryptography.MaterialProviders" Version="1.0.0" />
+      <!--
+        System.Collections.Immutable can be removed once dafny.msbuild is updated with
+        https://github.com/dafny-lang/dafny.msbuild/pull/10 and versioned
+      -->
+      <PackageReference Include="System.Collections.Immutable" Version="1.7.0" />
+      <!-- Work around for dafny-lang/dafny/issues/1951; remove once resolved -->
+      <PackageReference Include="System.ValueTuple" Version="4.5.0" />
 
-    <ItemGroup>
-        <ProjectReference Include="..\..\..\mpl\AwsCryptographicMaterialProviders\runtimes\net\MPL.csproj" />
-    </ItemGroup>
+      <Compile Include="Generated/**/*.cs" />
+      <Compile Include="ImplementationFromDafny.cs" />
+  </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Generated" />
-    </ItemGroup>
-
-    <!--
-      TODO .NET assemblies are expected to have an ICON.
-      This MUST be replaced before launch.
-    -->
-    <!-- <ItemGroup>
-      <None Include="..\icon.png" Pack="true" PackagePath="" />
-      <None Include="..\README.md" Pack="true" PackagePath="" />
-    </ItemGroup> -->
+  <ItemGroup>
+    <None Include=".\icon.png" Pack="true" PackagePath="" />
+    <None Include=".\README.md" Pack="true" PackagePath="" />
+  </ItemGroup>
 
 </Project>
