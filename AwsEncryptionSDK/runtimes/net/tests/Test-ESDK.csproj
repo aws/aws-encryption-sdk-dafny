@@ -4,7 +4,7 @@
       <RootNamespace>TEST_Encryption SDK Library</RootNamespace>
       <ImplicitUsings>enable</ImplicitUsings>
       <Nullable>disable</Nullable>
-      <TargetFrameworks>net6.0</TargetFrameworks>
+      <TargetFrameworks>net6.0;net48</TargetFrameworks>
       <LangVersion>10</LangVersion>
       <OutputType>Exe</OutputType>
       <EnableDefaultCompileItems>false</EnableDefaultCompileItems>

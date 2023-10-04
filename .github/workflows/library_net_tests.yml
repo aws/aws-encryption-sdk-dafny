@@ -74,6 +74,21 @@ jobs:
           CORES=$(node -e 'console.log(os.cpus().length)')
           make transpile_net CORES=$CORES
 
+      - name: Test ${{ matrix.library }} .NET Framework net48
+        working-directory: ./${{ matrix.library }}
+        shell: bash
+        run: |
+          if [ "$RUNNER_OS" == "macOS" ]; then
+              DYLD_LIBRARY_PATH="/usr/local/opt/openssl@1.1/lib" 
+              dotnet run \
+                  --project runtimes/net/tests/ \
+                  --framework net48
+            else
+              dotnet run \
+                  --project runtimes/net/tests/ \
+                  --framework net48
+            fi
+
       - name: Test ${{ matrix.library }}
         working-directory: ./${{ matrix.library }}
         shell: bash
