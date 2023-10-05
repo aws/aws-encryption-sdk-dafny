@@ -23,23 +23,28 @@ phases:
     commands:
       - cd ..
       # Get Dafny
-      - curl https://github.com/dafny-lang/dafny/releases/download/v3.5.0/dafny-3.5.0-x64-ubuntu-16.04.zip -L -o dafny.zip
+      - curl https://github.com/dafny-lang/dafny/releases/download/v4.2.0/dafny-4.2.0-x64-ubuntu-20.04.zip  -L -o dafny.zip
       - unzip -qq dafny.zip && rm dafny.zip
       - export PATH="$PWD/dafny:$PATH"
       # Switch back to the main directory
-      - cd private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-net
+      - cd private-aws-encryption-sdk-dafny-staging/AwsEncryptionSDK
   pre_build:
     commands:
       # UNIQUE_ID should be passed in as an environment variable. It is used to tie
       # the different parts of the asynchronous signing process together
       - echo "Using unique id for flow $UNIQUE_ID"
+      #  Build unsigned source
+      - make transpile_net
+      - dotnet build runtimes/net /p:Configuration=Release -nowarn:CS0162,CS0168
+      # This step assumes signing has already happened and we just need to retrieve
+      # the signed artifacts
       # Build unsigned source
-      - dotnet build Source /p:Configuration=Release -nowarn:CS0162,CS0168
+      - dotnet build runtimes/net /p:Configuration=Release -nowarn:CS0162,CS0168
       # This step assumes signing has already happened and we just need to retrieve 
       # the signed artifacts
       - export BASE=codebuild/release
-      - python $BASE/retrieve_signed_assembly.py --target netstandard2.1 --unique-id $UNIQUE_ID
-      - python $BASE/retrieve_signed_assembly.py --target net452 --unique-id $UNIQUE_ID
+      - python $BASE/retrieve_signed_assembly.py --target net6.0 --unique-id $UNIQUE_ID
+      - python $BASE/retrieve_signed_assembly.py --target net48 --unique-id $UNIQUE_ID
   build:
     commands:
       - mkdir build
@@ -48,29 +53,22 @@ phases:
             --region us-east-1 \
             --tool dotnet \
             --domain crypto-tools-internal \
-            --repository net-esdk-staging \
+            --repository esdk-net-staging \
             --domain-owner 587316601012
       # Set a unique version for releasing to staging, because this may fail and we don't
       # want to collide with previous runs
-      - export VERSION=`grep '<Version>' Source/AWSEncryptionSDK.csproj | sed 's/.*<Version>\(.*\)<\/Version>/\1/'`
-      - export UNIQUE_VERSION=$VERSION-`git rev-parse --short HEAD`
-      - dotnet pack Source/AWSEncryptionSDK.csproj --no-build /p:Configuration=Release,Version=$UNIQUE_VERSION --output build
-      - dotnet nuget push build/AWS.EncryptionSDK.$UNIQUE_VERSION.nupkg --source crypto-tools-internal/net-esdk-staging
+      - export VERSION=`grep '<Version>' runtimes/net/ESDK.csproj | sed 's/.*<Version>\(.*\)<\/Version>/\1/'`
+      - dotnet pack runtimes/net/ESDK.csproj --no-build /p:Configuration=Release,Version=$VERSION --output build
+      - dotnet nuget push build/AWS.Cryptography.EncryptionSDK.$VERSION.nupkg --source crypto-tools-internal/esdk-net-staging
       # Now validate we can run examples
-      - sed -i.backup '/Source\/AWSEncryptionSDK.csproj/d' Examples/AWSEncryptionSDKExamples.csproj
-      - dotnet add Examples/AWSEncryptionSDKExamples.csproj package AWS.EncryptionSDK --version $UNIQUE_VERSION
-      # Run examples for just one supported version.
-      # Since all frameworks and OS's are tested on commit, we mainly want to
-      # run this as a smoke test and the confirm we can find the dependency,
-      # rather than a comprehensive test suite.
-      - dotnet test Examples -f net6.0
-  post_build:
-    commands:
-      - >-
-        aws codeartifact delete-package-versions \
-            --region us-east-1 \
-            --domain crypto-tools-internal \
-            --repository net-esdk-staging \
-            --format nuget \
-            --package aws.encryptionsdk \
-            --versions $UNIQUE_VERSION
+      - sed -i.backup  "/\<ProjectReference Include=\"..\/ESDK.csproj\" \/>/d" runtimes/net/tests/Test-ESDK.csproj
+      - dotnet add runtimes/net/tests/Test-ESDK.csproj package AWS.Cryptography.EncryptionSDK --version $VERSION
+
+      # run tests
+      - TMP_ROLE=$(aws sts assume-role --role-arn "arn:aws:iam::370957321024:role/GitHub-CI-MPL-Dafny-Role-us-west-2" --role-session-name "CB-TestVectorResources")
+      - export TMP_ROLE                                                                                                                                          
+      - export AWS_ACCESS_KEY_ID=$(echo "${TMP_ROLE}" | jq -r '.Credentials.AccessKeyId')                                                                        
+      - export AWS_SECRET_ACCESS_KEY=$(echo "${TMP_ROLE}" | jq -r '.Credentials.SecretAccessKey')                                                                
+      - export AWS_SESSION_TOKEN=$(echo "${TMP_ROLE}" | jq -r '.Credentials.SessionToken')                                                                       
+      - aws sts get-caller-identity
+      - make test_net

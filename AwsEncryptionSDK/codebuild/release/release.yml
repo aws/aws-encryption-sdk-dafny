@@ -4,29 +4,36 @@ batch:
   fast-fail: true
   build-graph:
     - identifier: sign
-      buildspec: aws-encryption-sdk-net/codebuild/release/sign.yml
+      buildspec: AwsEncryptionSDK/codebuild/release/sign.yml
       env:
         type: LINUX_CONTAINER
         image: aws/codebuild/standard:6.0
     - identifier: verify
-      buildspec: aws-encryption-sdk-net/codebuild/release/verify.yml
+      buildspec: AwsEncryptionSDK/codebuild/release/verify.yml
       env:
         type: WINDOWS_SERVER_2019_CONTAINER
         image: aws/codebuild/windows-base:2019-2.0
       depend-on:
         - sign
     - identifier: release_staging
-      buildspec: aws-encryption-sdk-net/codebuild/release/release-staging.yml
+      buildspec: AwsEncryptionSDK/codebuild/release/release-staging.yml
       env:
         type: LINUX_CONTAINER
         image: aws/codebuild/standard:6.0
       depend-on:
         - sign
-    # - identifier: release_prod
-    #   buildspec: aws-encryption-sdk-net/codebuild/release/release-prod.yml
-    #   env:
-    #     type: LINUX_CONTAINER
-    #     image: aws/codebuild/standard:6.0
-    #   depend-on:
-    #     - verify
-    #     - release_staging
+    - identifier: release_prod
+      buildspec: AwsEncryptionSDK/codebuild/release/release-prod.yml
+      env:
+        type: LINUX_CONTAINER
+        image: aws/codebuild/standard:6.0
+      depend-on:
+        - verify
+        - release_staging
+    - identifier: test_prod
+      buildspec: AwsEncryptionSDK/codebuild/release/test-prod.yml
+      env:
+        type: LINUX_CONTAINER
+        image: aws/codebuild/standard:6.0
+      depend-on:
+        - release_prod

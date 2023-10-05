@@ -6,23 +6,23 @@ import json
 import boto3
 from botocore.config import Config
 
-RELEASE_FOLDER = "Source/bin/Release"
-ASSEMBLY_NAME = "AWS.EncryptionSDK.dll"
+RELEASE_FOLDER = "runtimes/net/bin/Release"
+ASSEMBLY_NAME = "AWS.Cryptography.EncryptionSDK.dll"
 REGION = "us-west-2"
 
 # Variables to make it easier to reference our S3 objects
-UNSIGNED_BUCKET = "349032751102-unsigned-bucket"
-SIGNED_BUCKET = "349032751102-signed-bucket"
+UNSIGNED_BUCKET = "esdk-365847122878-unsigned-bucket"
+SIGNED_BUCKET = "esdk-365847122878-signed-bucket"
 KEY_PREFIX = "aws_encryption_sdk_net/AuthenticodeSigner-SHA256-RSA"
 
 CONFIG = Config(region_name = REGION)
 
 # Role which provides access to our signed and unsigned buckets
-ARTIFACT_ACCESS_ROLE_ARN = "arn:aws:iam::349032751102:role/EncryptionSDKNetSigning-ArtifactAccessRole"
+ARTIFACT_ACCESS_ROLE_ARN = "arn:aws:iam::365847122878:role/EncryptionSDKNetV4CodeSigning-ArtifactAccessRole"
 
 # Constants for accessing our API key
-API_KEY_ROLE_ARN = "arn:aws:iam::582595803497:role/aws-net-encryption-sdk-key-build-role"
-API_KEY_SECRET_ARN = "arn:aws:secretsmanager:us-west-2:582595803497:secret:production/build/aws-net-encryption-sdk-key-nuget-api-key-XXKzXF"
+API_KEY_ROLE_ARN = "arn:aws:iam::582595803497:role/aws-crypto-tools-build-role"
+API_KEY_SECRET_ARN = "arn:aws:secretsmanager:us-west-2:582595803497:secret:production/build/aws-crypto-tools-nuget-api-key-7ZY4pe"
 
 
 def parse_args():
@@ -62,7 +62,7 @@ def assume_artifact_access_role():
     creds = sts.assume_role(
         RoleArn=ARTIFACT_ACCESS_ROLE_ARN,
         RoleSessionName="CodeBuildRelease",
-        ExternalId="EncryptionSDKNetSigning",
+        ExternalId="EncryptionSDKNetV4CodeSigning",
     )
 
     return creds
