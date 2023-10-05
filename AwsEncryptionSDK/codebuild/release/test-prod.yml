@@ -12,16 +12,17 @@ phases:
       - unzip -qq dafny.zip && rm dafny.zip
       - export PATH="$PWD/dafny:$PATH"
       # Switch back to the main directory
-      - cd private-aws-encryption-sdk-dafny-staging
+      - cd private-aws-encryption-sdk-dafny-staging/AwsEncryptionSDK
   pre_build:
     commands:
-      # UNIQUE_ID should be passed in as an environment variable. It is used to tie
-      # the different parts of the asynchronous signing process together
-      - echo "Using unique id for flow $UNIQUE_ID"
+      - make transpile_net
   build:
     commands:
-      - cd AwsEncryptionSDK
-      - make transpile_net
+      - export VERSION=`grep '<Version>' runtimes/net/ESDK.csproj | sed 's/.*<Version>\(.*\)<\/Version>/\1/'`
+      - sed -i.backup  "/\<ProjectReference Include=\"..\/ESDK.csproj\" \/>/d" runtimes/net/tests/Test-ESDK.csproj
+      - dotnet add runtimes/net/tests/Test-ESDK.csproj package AWS.Cryptography.EncryptionSDK --version $VERSION
+      
+       # run tests
       - TMP_ROLE=$(aws sts assume-role --role-arn "arn:aws:iam::370957321024:role/GitHub-CI-MPL-Dafny-Role-us-west-2" --role-session-name "CB-TestVectorResources")
       - export TMP_ROLE                                                                                                                                          
       - export AWS_ACCESS_KEY_ID=$(echo "${TMP_ROLE}" | jq -r '.Credentials.AccessKeyId')                                                                        
@@ -29,15 +30,3 @@ phases:
       - export AWS_SESSION_TOKEN=$(echo "${TMP_ROLE}" | jq -r '.Credentials.SessionToken')                                                                       
       - aws sts get-caller-identity
       - make test_net
-
-      ## Unset temp creds so that we get dropped back into the aws codebuild service role
-      - unset AWS_ACCESS_KEY_ID; unset AWS_SECRET_ACCESS_KEY; unset AWS_SESSION_TOKEN; 
-
-      - dotnet build runtimes/net /p:Configuration=Release -nowarn:CS0162,CS0168
-      - export BASE=codebuild/release
-      - python $BASE/upload_assembly.py --target net6.0 --unique-id $UNIQUE_ID
-      - python $BASE/upload_assembly.py --target net48 --unique-id $UNIQUE_ID
-      # Retrieve the signed assembly. We're not going to use it, but this
-      # ensures that the signing process is complete
-      - python $BASE/retrieve_signed_assembly.py --target net6.0 --unique-id $UNIQUE_ID
-      - python $BASE/retrieve_signed_assembly.py --target net48 --unique-id $UNIQUE_ID

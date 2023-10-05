@@ -2,9 +2,8 @@ version: 0.2
 
 env:
   variables:
-    FILE_NAME: "AWS.EncryptionSDK.dll"
+    FILE_NAME: "AWS.Cryptography.EncryptionSDK.dll"
    
-
 phases:
   install:
     runtime-versions:
@@ -12,13 +11,13 @@ phases:
       python: 3.x
   build:
     commands:
-      # Check signature on net452 dll
-      - mkdir net452
-      - python aws-encryption-sdk-net/codebuild/release/retrieve_signed_assembly.py --target net452 --unique-id $Env:UNIQUE_ID --output net452
-      - $sig = Get-AuthenticodeSignature -FilePath net452/$Env:FILE_NAME
+      # Check signature on net48 dll
+      - mkdir net48
+      - python AwsEncryptionSDK/codebuild/release/retrieve_signed_assembly.py --target net48 --unique-id $Env:UNIQUE_ID --output net48
+      - $sig = Get-AuthenticodeSignature -FilePath net48/$Env:FILE_NAME
       - $sig | Format-List -Property *
-      # Check signature on netstandard2.1 dll
-      - mkdir netstandard2.1 
-      - python aws-encryption-sdk-net/codebuild/release/retrieve_signed_assembly.py --target netstandard2.1 --unique-id $Env:UNIQUE_ID --output netstandard2.1
-      - $sig = Get-AuthenticodeSignature -FilePath netstandard2.1/$Env:FILE_NAME
+      # Check signature on net6.0 dll
+      - mkdir net6.0 
+      - python AwsEncryptionSDK/codebuild/release/retrieve_signed_assembly.py --target net6.0 --unique-id $Env:UNIQUE_ID --output net6.0
+      - $sig = Get-AuthenticodeSignature -FilePath net6.0/$Env:FILE_NAME
       - $sig | Format-List -Property *
