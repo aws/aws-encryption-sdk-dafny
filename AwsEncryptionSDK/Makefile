@@ -10,7 +10,7 @@ PROJECT_SERVICES := \
 	AwsEncryptionSdk \
 
 SERVICE_NAMESPACE_AwsEncryptionSdk=aws.cryptography.encryptionSdk
-MAX_RESOURCE_COUNT=100000000
+MAX_RESOURCE_COUNT=90000000
 # Order is important
 # In java they MUST be built
 # in the order they depend on each other

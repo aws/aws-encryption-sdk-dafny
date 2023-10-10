@@ -184,7 +184,7 @@ public class EncryptInput {
       if (this._frameLengthSet && this.frameLength() < 1) {
         throw new IllegalArgumentException("`frameLength` must be greater than or equal to 1");
       }
-      if (this._frameLengthSet && this.frameLength() > 4294967296L) {
+      if (this._frameLengthSet && this.frameLength() > 4294967296) {
         throw new IllegalArgumentException("`frameLength` must be less than or equal to 4294967296.");
       }
       return new EncryptInput(this);

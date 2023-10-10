@@ -40,14 +40,6 @@ module {:options "/functionSyntax:4" } EncryptionContext {
     && KeysAreUnique(pairs)
   }
 
-  ghost predicate KeysAreUnique<K, V>(pairs: Linear<K, V>)
-  {
-    (forall i, j
-       // This satisfies every cardinality AND i != j
-       :: 0 <= i < j < |pairs|
-          ==> pairs[i].key != pairs[j].key)
-  }
-
   lemma {:vcs_split_on_every_assert} ESDKEncryptionContextMapImpliesESDKCanonicalEncryptionContext(encryptionContext: MPL.EncryptionContext)
     ensures IsESDKEncryptionContext(encryptionContext)
             ==> ESDKCanonicalEncryptionContext?(GetCanonicalLinearPairs(encryptionContext))
@@ -224,6 +216,59 @@ module {:options "/functionSyntax:4" } EncryptionContext {
       }
     }
 
+  }
+
+  lemma {:vcs_split_on_every_assert} SubsetOfESDKEncryptionContextIsESDKEncryptionContext(ec: MPL.EncryptionContext, subEC: MPL.EncryptionContext)
+    requires IsESDKEncryptionContext(ec)
+    requires subEC.Keys <= ec.Keys
+    requires forall k <- subEC.Keys :: ec[k] == subEC[k]
+    ensures IsESDKEncryptionContext(subEC)
+  { 
+    var complement := Complement(ec, subEC);
+
+    calc {
+      Length(complement) + Length(subEC);
+    ==
+      LinearLength(GetCanonicalLinearPairs(complement)) + LinearLength(GetCanonicalLinearPairs(subEC));
+    == {LinearLengthIsDistributive(GetCanonicalLinearPairs(complement), GetCanonicalLinearPairs(subEC));}
+      LinearLength(GetCanonicalLinearPairs(complement) + GetCanonicalLinearPairs(subEC));
+    == {
+        var pairs1 := GetCanonicalLinearPairs(complement + subEC);
+        var pairs2 := GetCanonicalLinearPairs(complement) + GetCanonicalLinearPairs(subEC);
+
+        GetCanonicalLinearPairsIsBijective(complement + subEC, pairs1);
+        GetCanonicalLinearPairsIsBijective(complement, GetCanonicalLinearPairs(complement));
+        GetCanonicalLinearPairsIsBijective(subEC, GetCanonicalLinearPairs(subEC));
+        assert forall p <- pairs1 :: p in pairs2;
+        assert forall p <- pairs2 :: p in pairs1 by {
+          forall p <- pairs2
+            ensures p in pairs1
+          {
+            calc ==>
+            {
+                p in pairs2;
+              ==>
+                p in GetCanonicalLinearPairs(complement) + GetCanonicalLinearPairs(subEC);
+              ==> {
+                  assert (forall p' <- GetCanonicalLinearPairs(complement) :: p' in GetCanonicalLinearPairs(complement + subEC));
+                  assert (forall p' <- GetCanonicalLinearPairs(subEC) :: p' in GetCanonicalLinearPairs(complement + subEC));
+                }
+                p in GetCanonicalLinearPairs(complement + subEC);
+              ==>
+                p in pairs1;
+            }
+          }
+        }
+        LinearLengthOfUniquePairsIsOrderIndependent(pairs1, pairs2);
+      }
+      LinearLength(GetCanonicalLinearPairs(complement + subEC));
+    ==
+      Length(complement + subEC);
+    == {assert ec == complement + subEC;}
+      Length(ec);
+    }
+
+    assert Length(subEC) <= Length(ec);
   }
 
   //= compliance/data-format/message-header.txt#2.5.1.7
@@ -608,7 +653,7 @@ module {:options "/functionSyntax:4" } EncryptionContext {
 
   // What it says on the can.
   // Need to be able to reason about subSeq of a given ESDKCanonicalEncryptionContext.
-  lemma WriteAADPairsIsDistributive(
+  lemma {:vcs_split_on_every_assert} WriteAADPairsIsDistributive(
     a: ESDKCanonicalEncryptionContext,
     b: ESDKCanonicalEncryptionContext
   )
@@ -899,6 +944,14 @@ module {:options "/functionSyntax:4" } EncryptionContext {
       var i := Seq.IndexOf(xs, value);
       assert xs == xs[..i] + [value] + xs[i+1..];
       xs[..i] + xs[i+1..]
+  }
+
+  ghost function Complement<X,Y>(universal: map<X,Y>, subset: map<X,Y>): (complement: map<X,Y>)
+    requires subset.Keys <= universal.Keys
+    requires forall k <- subset.Keys :: universal[k] == subset[k]
+    ensures complement + subset == universal
+  {
+    map k <- universal.Keys | k !in subset :: k := universal[k]
   }
 
 }

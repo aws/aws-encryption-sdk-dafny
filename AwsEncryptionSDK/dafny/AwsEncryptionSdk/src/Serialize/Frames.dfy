@@ -29,12 +29,20 @@ module Frames {
   const NONFRAMED_SEQUENCE_NUMBER: uint32 := 1
 
   type FramedHeader = h : Header.Header
-  | h.body.contentType.Framed?
+  | FramedHeader?(h)
   witness *
 
+  predicate FramedHeader?(h : Header.Header) {
+    h.body.contentType.Framed?
+  }
+
   type NonFramedHeader = h : Header.Header
-  | h.body.contentType.NonFramed?
+  | NonFramedHeader?(h)
   witness *
+
+  predicate NonFramedHeader?(h : Header.Header) {
+    h.body.contentType.NonFramed?
+  }
 
   datatype Frame =
   | RegularFrame(

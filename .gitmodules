@@ -7,7 +7,7 @@
 	url = https://github.com/awslabs/aws-encryption-sdk-specification.git
 [submodule "mpl"]
 	path = mpl
-	url = https://github.com/aws/aws-cryptographic-material-providers-library-java.git
+	url = https://github.com/aws/aws-cryptographic-material-providers-library-dafny.git
 [submodule "AwsEncryptionSDK/runtimes/net/TestVectorsV3/TestVectors/resources/aws-encryption-sdk-test-vectors"]
 	path = AwsEncryptionSDK/runtimes/net/TestVectorsV3/TestVectors/resources/aws-encryption-sdk-test-vectors
 	url = https://github.com/awslabs/aws-encryption-sdk-test-vectors.git

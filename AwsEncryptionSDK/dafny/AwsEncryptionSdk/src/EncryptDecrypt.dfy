@@ -25,6 +25,7 @@ module EncryptDecryptHelpers {
   import Header
   import EncryptionContext
   import Frames
+  import Seq
 
   type FrameLength = frameLength : int64 | 0 < frameLength <= 0xFFFF_FFFF witness *
 
@@ -407,10 +408,11 @@ module EncryptDecryptHelpers {
   }
 
     // We restrict this method to the encrypt path so that we can assume the body is framed.
-  method BuildHeaderForEncrypt(
+  method {:vcs_split_on_every_assert} BuildHeaderForEncrypt(
     messageId: HeaderTypes.MessageId,
     suite: HeaderTypes.ESDKAlgorithmSuite,
     encryptionContext: MPL.EncryptionContext,
+    requiredEncryptionContextKeys: MPL.EncryptionContextKeys,
     encryptedDataKeys: SerializableTypes.ESDKEncryptedDataKeys,
     frameLength: uint32,
     derivedDataKeys: KeyDerivation.ExpandedKeyMaterial,
@@ -425,6 +427,8 @@ module EncryptDecryptHelpers {
     ensures crypto.ValidState()
 
     requires SerializableTypes.IsESDKEncryptionContext(encryptionContext)
+    
+    requires forall k: UTF8.ValidUTF8Bytes | k in requiredEncryptionContextKeys :: k in encryptionContext
 
     requires suite.commitment.HKDF? ==>
         && derivedDataKeys.commitmentKey.Some?
@@ -442,17 +446,38 @@ module EncryptDecryptHelpers {
 
     ensures res.Success? ==> res.value.body.contentType.Framed?
   {
-      var canonicalEncryptionContext := EncryptionContext.GetCanonicalEncryptionContext(encryptionContext);
+
+      //= aws-encryption-sdk-specification/client-apis/encrypt.md#construct-the-header
+      //# - [AAD](../data-format/message-header.md#aad): MUST be the serialization of the [encryption context](../framework/structures.md#encryption-context)
+      //#  in the [encryption materials](../framework/structures.md#encryption-materials),
+      //#  and this serialization MUST NOT contain any key value pairs listed in
+      //#  the [encryption material's](../framework/structures.md#encryption-materials)
+      //#  [required encryption context keys](../framework/structures.md#required-encryption-context-keys).
+      var reqKeySet : set<UTF8.ValidUTF8Bytes> := set k <- requiredEncryptionContextKeys;
+      var storedEncryptionContext: MPL.EncryptionContext :=
+        map f | f in (encryptionContext - reqKeySet) :: f := encryptionContext[f];
+      EncryptionContext.SubsetOfESDKEncryptionContextIsESDKEncryptionContext(encryptionContext, storedEncryptionContext);
+
+      var canonicalStoredEncryptionContext := EncryptionContext.GetCanonicalEncryptionContext(storedEncryptionContext);
 
       var body := BuildHeaderBody(
           messageId,
           suite,
-          canonicalEncryptionContext,
+          canonicalStoredEncryptionContext,
           encryptedDataKeys,
           frameLength as uint32,
           derivedDataKeys.commitmentKey
       );
 
+      var requiredEncryptionContextMap: MPL.EncryptionContext := 
+        map r | r in reqKeySet :: r := encryptionContext[r];
+      EncryptionContext.SubsetOfESDKEncryptionContextIsESDKEncryptionContext(encryptionContext, requiredEncryptionContextMap);
+      
+      var canonicalReqEncryptionContext := 
+        EncryptionContext.GetCanonicalEncryptionContext(requiredEncryptionContextMap);
+      var serializedReqEncryptionContext := 
+        EncryptionContext.WriteAAD(canonicalReqEncryptionContext);
+       
       //= compliance/client-apis/encrypt.txt#2.6.2
       //# Before encrypting input plaintext, this operation MUST serialize the
       //# message header body (../data-format/message-header.md).
@@ -462,7 +487,7 @@ module EncryptDecryptHelpers {
       //# After serializing the message header body, this operation MUST
       //# calculate an authentication tag (../data-format/message-
       //# header.md#authentication-tag) over the message header body.
-      var headerAuth :- BuildHeaderAuthTag(suite, derivedDataKeys.dataKey, rawHeader, crypto);
+      var headerAuth :- BuildHeaderAuthTag(suite, derivedDataKeys.dataKey, rawHeader, serializedReqEncryptionContext, crypto);
 
       var header := Header.HeaderInfo(
           body := body,
@@ -530,6 +555,7 @@ module EncryptDecryptHelpers {
       frameLength := frameLength
     )
   {
+    reveal Header.HeaderVersionSupportsCommitment?();
 
     //= compliance/client-apis/encrypt.txt#2.8.1
     //# Implementations of the AWS Encryption SDK MUST NOT encrypt using the
@@ -563,6 +589,7 @@ module EncryptDecryptHelpers {
     suite: MPL.AlgorithmSuiteInfo,
     dataKey: seq<uint8>,
     rawHeader: seq<uint8>,
+    serializedReqEncryptionContext: seq<uint8>,
     crypto: Primitives.AtomicPrimitivesClient
   )
     returns (res: Result<HeaderTypes.HeaderAuth, Types.Error>)
@@ -595,9 +622,10 @@ module EncryptDecryptHelpers {
         key := dataKey,
         //#*  The plaintext is an empty byte array
         msg := [],
-        //#*  The AAD is the serialized message header body (../data-format/
-        //#   message-header.md#header-body).
-        aad := rawHeader
+        //#* The AAD MUST be the concatenation of the serialized 
+        //#  [message header body](../data-format/message-header.md#header-body)
+        //#  and the serialization of encryption context to only authenticate.
+        aad := rawHeader + serializedReqEncryptionContext
       )
     );
     var encryptionOutput :- maybeEncryptionOutput
@@ -690,6 +718,7 @@ module EncryptDecryptHelpers {
     cmm: MPL.ICryptographicMaterialsManager,
     algorithmSuiteId: MPL.AlgorithmSuiteId,
     headerBody: HeaderTypes.HeaderBody,
+    reproducedEncryptionContext: Option<MPL.EncryptionContext>,
     commitmentPolicy: MPL.ESDKCommitmentPolicy,
     mpl: MaterialProviders.MaterialProvidersClient
   ) returns (res: Result<MPL.DecryptionMaterials, Types.Error>)
@@ -701,6 +730,12 @@ module EncryptDecryptHelpers {
     ensures res.Success? ==>
       && mpl.DecryptionMaterialsWithPlaintextDataKey(res.value).Success?
       && SerializableTypes.IsESDKEncryptionContext(res.value.encryptionContext)
+
+    ensures old(cmm.History.DecryptMaterials) < cmm.History.DecryptMaterials
+
+    ensures res.Success? ==>
+      && Seq.Last(cmm.History.DecryptMaterials).output.Success?
+      && Seq.Last(cmm.History.DecryptMaterials).output.value.decryptionMaterials == res.value
   {
     var encryptionContext := EncryptionContext.GetEncryptionContext(headerBody.encryptionContext);
     //= compliance/client-apis/decrypt.txt#2.7.2
@@ -720,16 +755,22 @@ module EncryptDecryptHelpers {
       //#*  Encryption Context: This is the parsed encryption context
       //#   (../data-format/message-header.md#aad) from the message header.
       encryptionContext := encryptionContext,
-      reproducedEncryptionContext := None
+      //#* Reproduced Encryption Context: This is the
+      //# [input](#input) encryption context.
+      reproducedEncryptionContext := reproducedEncryptionContext
     );
     var decMatResult := cmm.DecryptMaterials(decMatRequest);
     var output :- decMatResult
       .MapFailure(e => Types.AwsCryptographyMaterialProviders(e));
     var materials := output.decryptionMaterials;
 
-    // Validate decryption materials
+    //= compliance/client-apis/decrypt.txt#2.7.2
+    //# If the
+    //# algorithm suite is not supported by the commitment policy
+    //# (client.md#commitment-policy) configured in the client (client.md)
+    //# decrypt MUST yield an error.
     var _ :- mpl
-      .ValidateCommitmentPolicyOnEncrypt(MPL.ValidateCommitmentPolicyOnEncryptInput(
+      .ValidateCommitmentPolicyOnDecrypt(MPL.ValidateCommitmentPolicyOnDecryptInput(
         algorithm := materials.algorithmSuite.id,
         commitmentPolicy := MPL.CommitmentPolicy.ESDK(commitmentPolicy)
       ))
@@ -806,23 +847,22 @@ module EncryptDecryptHelpers {
     requires |key| == SerializableTypes.GetEncryptKeyLength(header.suite) as nat
     ensures res.Success? ==>
         var (plaintext, tail) := res.value;
-        && tail.bytes == buffer.bytes
         && buffer.start <= tail.start <= |buffer.bytes|
-        && SerializeFunctions.CorrectlyReadRange(buffer, tail, tail.bytes[buffer.start..tail.start])
+        && SerializeFunctions.CorrectlyReadRange(buffer, tail, buffer.bytes[buffer.start..tail.start])
   {
-      reveal CorrectlyReadRange();
+      assert CorrectlyReadRange(buffer, buffer, []) by { reveal CorrectlyReadRange(); }
+      CorrectlyReadByteRange(buffer, buffer, []);
+
       var messageBody :- MessageBody.ReadFramedMessageBody(buffer, header, [], buffer)
           .MapFailure(MapSerializeFailure(": ReadFramedMessageBody"));
+
+      CorrectlyReadByteRange(buffer, messageBody.tail, MessageBody.WriteFramedMessageBody(messageBody.data));
 
       assert header == messageBody.data.finalFrame.header;
       assert |key| == SerializableTypes.GetEncryptKeyLength(messageBody.data.finalFrame.header.suite) as nat;
 
       var plaintext :- MessageBody.DecryptFramedMessageBody(messageBody.data, key, crypto);
       var messageBodyTail := messageBody.tail;
-
-      assert buffer.bytes == messageBodyTail.bytes by {
-        reveal CorrectlyReadRange();
-      }
 
       return Success((plaintext, messageBodyTail));
   }
@@ -843,13 +883,14 @@ module EncryptDecryptHelpers {
     requires |key| == SerializableTypes.GetEncryptKeyLength(header.suite) as nat
     ensures res.Success? ==>
         var (plaintext, tail) := res.value;
-        && tail.bytes == buffer.bytes
         && buffer.start <= tail.start <= |buffer.bytes|
-        && SerializeFunctions.CorrectlyReadRange(buffer, tail, tail.bytes[buffer.start..tail.start])
+        && SerializeFunctions.CorrectlyReadRange(buffer, tail, buffer.bytes[buffer.start..tail.start])
   {
-      reveal CorrectlyReadRange();
       var messageBody :- MessageBody.ReadNonFramedMessageBody(buffer, header)
           .MapFailure(MapSerializeFailure(": ReadNonFramedMessageBody"));
+
+      CorrectlyReadByteRange(buffer, messageBody.tail, MessageBody.WriteNonFramedMessageBody(messageBody.data));
+
       var frame: Frames.Frame := messageBody.data;
       assert frame.NonFramed?;
 
@@ -858,9 +899,7 @@ module EncryptDecryptHelpers {
 
       var plaintext :- MessageBody.DecryptFrame(frame, key, crypto);
       var messageBodyTail := messageBody.tail;
-      assert buffer.bytes == messageBodyTail.bytes by {
-        reveal SerializeFunctions.CorrectlyReadRange();
-      }
+
       return Success((plaintext, messageBodyTail));
   }
 

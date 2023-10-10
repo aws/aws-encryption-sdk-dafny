@@ -4,6 +4,7 @@
 package software.amazon.cryptography.encryptionsdk.model;
 
 import java.nio.ByteBuffer;
+import java.util.Map;
 import java.util.Objects;
 import software.amazon.cryptography.materialproviders.CryptographicMaterialsManager;
 import software.amazon.cryptography.materialproviders.ICryptographicMaterialsManager;
@@ -17,10 +18,13 @@ public class DecryptInput {
 
   private final IKeyring keyring;
 
+  private final Map<String, String> encryptionContext;
+
   protected DecryptInput(BuilderImpl builder) {
     this.ciphertext = builder.ciphertext();
     this.materialsManager = builder.materialsManager();
     this.keyring = builder.keyring();
+    this.encryptionContext = builder.encryptionContext();
   }
 
   public ByteBuffer ciphertext() {
@@ -33,6 +37,10 @@ public class DecryptInput {
 
   public IKeyring keyring() {
     return this.keyring;
+  }
+
+  public Map<String, String> encryptionContext() {
+    return this.encryptionContext;
   }
 
   public Builder toBuilder() {
@@ -56,6 +64,10 @@ public class DecryptInput {
 
     IKeyring keyring();
 
+    Builder encryptionContext(Map<String, String> encryptionContext);
+
+    Map<String, String> encryptionContext();
+
     DecryptInput build();
   }
 
@@ -66,6 +78,8 @@ public class DecryptInput {
 
     protected IKeyring keyring;
 
+    protected Map<String, String> encryptionContext;
+
     protected BuilderImpl() {
     }
 
@@ -73,6 +87,7 @@ public class DecryptInput {
       this.ciphertext = model.ciphertext();
       this.materialsManager = model.materialsManager();
       this.keyring = model.keyring();
+      this.encryptionContext = model.encryptionContext();
     }
 
     public Builder ciphertext(ByteBuffer ciphertext) {
@@ -100,6 +115,15 @@ public class DecryptInput {
 
     public IKeyring keyring() {
       return this.keyring;
+    }
+
+    public Builder encryptionContext(Map<String, String> encryptionContext) {
+      this.encryptionContext = encryptionContext;
+      return this;
+    }
+
+    public Map<String, String> encryptionContext() {
+      return this.encryptionContext;
     }
 
     public DecryptInput build() {

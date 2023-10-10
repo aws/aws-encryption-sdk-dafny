@@ -1,5 +1,8 @@
 namespace aws.cryptography.encryptionSdk
 
+use aws.cryptography.primitives#AwsCryptographicPrimitives
+use aws.cryptography.materialProviders#AwsCryptographicMaterialProviders
+
 /////////////
 // ESDK Client Creation
 
@@ -9,6 +12,10 @@ namespace aws.cryptography.encryptionSdk
 @aws.polymorph#localService(
   sdkId: "ESDK",
   config: AwsEncryptionSdkConfig,
+  dependencies: [
+    AwsCryptographicPrimitives,
+    AwsCryptographicMaterialProviders
+  ]
 )
 service AwsEncryptionSdk {
   version: "2020-10-24",
@@ -77,6 +84,12 @@ structure DecryptInput {
   // One of keyring or CMM are required
   materialsManager: aws.cryptography.materialProviders#CryptographicMaterialsManagerReference,
   keyring: aws.cryptography.materialProviders#KeyringReference,
+  //= aws-encryption-sdk-specification/client-apis/keyring-interface.md#onencrypt
+  //= type=implication
+  //# The following inputs to this behavior MUST be OPTIONAL:
+  // (blank line for duvet)
+  //# - [Encryption Context](#encryption-context)
+  encryptionContext: aws.cryptography.materialProviders#EncryptionContext,
 }
 
 structure DecryptOutput {

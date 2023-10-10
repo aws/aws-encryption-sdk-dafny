@@ -35,6 +35,8 @@ module AwsEncryptionSdkOperations refines AbstractAwsCryptographyEncryptionSdkOp
   import Frames
   import EncryptionContext
 
+  import opened Seq
+
   datatype Config = Config(
     nameonly crypto: Primitives.AtomicPrimitivesClient,
     nameonly mpl: MaterialProviders.MaterialProvidersClient,
@@ -122,7 +124,6 @@ module AwsEncryptionSdkOperations refines AbstractAwsCryptographyEncryptionSdkOp
     // ==>
     //     output.Failure?
   {
-
     var frameLength : Types.FrameLength :- if input.frameLength.Some? then
       :- Need(
       0 < input.frameLength.value <= 0xFFFF_FFFF,
@@ -202,6 +203,7 @@ module AwsEncryptionSdkOperations refines AbstractAwsCryptographyEncryptionSdkOp
       messageId,
       materials.algorithmSuite,
       materials.encryptionContext,
+      materials.requiredEncryptionContextKeys,
       encryptedDataKeys,
       frameLength as uint32,
       derivedDataKeys,
@@ -219,6 +221,51 @@ module AwsEncryptionSdkOperations refines AbstractAwsCryptographyEncryptionSdkOp
       config.crypto
     );
 
+    var maybeSignedMessage := SignAndSerializeMessage(config, header, framedMessage, materials);
+
+    output := maybeSignedMessage;
+  }
+
+  // Responsible for signing and serializing the message
+  // This method branches into two depending on if the algorithm suite used to encrypt
+  // this message has ECDSA signatures enabled.
+  // This method can fail if the message fails to serialize, materials do not contain a signing key,
+  // ECDSA signature fails,  or if signature byte length exceeds the UINT16 limit
+  method {:vcs_split_on_every_assert} SignAndSerializeMessage(
+    config: InternalConfig,
+    header: Header.HeaderInfo,
+    framedMessage: MessageBody.FramedMessage, 
+    materials: MPL.EncryptionMaterials
+  )
+    returns (output: Result<EncryptOutput, Error>)
+    requires header.suite.id.ESDK?
+    requires config.crypto.ValidState()
+    modifies config.crypto.Modifies
+    ensures config.crypto.ValidState()
+    ensures framedMessage.finalFrame.header.suite.signature.ECDSA? && output.Success?
+      ==>
+        && |config.crypto.History.ECDSASign| == |old(config.crypto.History.ECDSASign)| + 1
+        && EncryptDecryptHelpers.SerializeMessageWithoutSignature(framedMessage, materials.algorithmSuite).Success?
+        && materials.signingKey.Some?
+        && var message := EncryptDecryptHelpers.SerializeMessageWithoutSignature(framedMessage, materials.algorithmSuite).value;
+        && var ecdsaParams := framedMessage.finalFrame.header.suite.signature.ECDSA.curve;
+        && var ecdsaSignInput := Seq.Last(config.crypto.History.ECDSASign).input;
+        && var ecdsaSignOutput := Seq.Last(config.crypto.History.ECDSASign).output;
+        && ecdsaSignInput.signatureAlgorithm == ecdsaParams
+        && ecdsaSignInput.signingKey == materials.signingKey.value
+        && ecdsaSignInput.message == message
+
+        && ecdsaSignOutput.Success?
+        && var signatureBytes := ecdsaSignOutput.value;
+        && |signatureBytes| < UINT16_LIMIT
+        && var signature := UInt16ToSeq(|signatureBytes| as uint16) + signatureBytes;
+        && EncryptOutput(ciphertext := message + signature, encryptionContext := header.encryptionContext, algorithmSuiteId := header.suite.id.ESDK) == output.value
+    ensures framedMessage.finalFrame.header.suite.signature.None? && output.Success? 
+      ==>
+        && EncryptDecryptHelpers.SerializeMessageWithoutSignature(framedMessage, materials.algorithmSuite).Success?
+        && var message := EncryptDecryptHelpers.SerializeMessageWithoutSignature(framedMessage, materials.algorithmSuite).value;
+        && EncryptOutput(ciphertext := message, encryptionContext := header.encryptionContext, algorithmSuiteId := header.suite.id.ESDK) == output.value
+  {
     if framedMessage.finalFrame.header.suite.signature.ECDSA? {
       //= compliance/client-apis/encrypt.txt#2.7.2
       //# If the algorithm suite (../framework/algorithm-suites.md) contains a
@@ -267,7 +314,7 @@ module AwsEncryptionSdkOperations refines AbstractAwsCryptographyEncryptionSdkOp
 
       :- Need(|bytes| < UINT16_LIMIT,
       Types.AwsEncryptionSdkException(
-        message := "asdfasdf"));
+        message := "Length of signature bytes is larger than the uint16 limit."));
 
       // TODO
       // :- Need(|bytes| == ecdsaParams.SignatureLength() as int,
@@ -325,7 +372,7 @@ module AwsEncryptionSdkOperations refines AbstractAwsCryptographyEncryptionSdkOp
   predicate DecryptEnsuresPublicly(input: DecryptInput, output: Result<DecryptOutput, Error>)
   {true}
 
-  method {:vsc_split_on_every_assert} Decrypt ( config: InternalConfig,  input: DecryptInput )
+  method {:vcs_split_on_every_assert} Decrypt ( config: InternalConfig,  input: DecryptInput )
     returns (output: Result<DecryptOutput, Error>)
     //= compliance/client-apis/decrypt.txt#2.7
     //= type=TODO
@@ -353,40 +400,6 @@ module AwsEncryptionSdkOperations refines AbstractAwsCryptographyEncryptionSdkOp
     //# a Key Commitment (../framework/algorithm-suites.md#algorithm-
     //# suites-encryption-key-derivation-settings) value of True
 
-    //= compliance/client-apis/decrypt.txt#2.7.2
-    //= type=implication
-    //# If the
-    //# algorithm suite is not supported by the commitment policy
-    //# (client.md#commitment-policy) configured in the client (client.md)
-    //# decrypt MUST yield an error.
-    // TODO :: Consider removing from spec as this is redundant
-    ensures
-    (
-      && var buffer := SerializeFunctions.ReadableBuffer(input.ciphertext, 0);
-      && var headerBody := Header.ReadHeaderBody(buffer, config.maxEncryptedDataKeys, config.mpl);
-      && headerBody.Success?
-      && config.mpl.ValidateCommitmentPolicyOnDecrypt(MPL.ValidateCommitmentPolicyOnDecryptInput(
-        algorithm := headerBody.value.data.algorithmSuite.id,
-        commitmentPolicy := MPL.CommitmentPolicy.ESDK(config.commitmentPolicy)
-      )).Failure?
-    )
-    ==>
-      output.Failure?
-
-    //= compliance/client-apis/decrypt.txt#2.6
-    //= type=implication
-    //# The client MUST return as output to this operation:
-    ensures output.Success?
-    ==>
-      && var buffer := SerializeFunctions.ReadableBuffer(input.ciphertext, 0);
-      && var headerBody := Header.ReadHeaderBody(buffer, config.maxEncryptedDataKeys, config.mpl);
-      && headerBody.Success?
-      // *  Algorithm Suite (Section 2.6.3)
-      && headerBody.value.data.algorithmSuite.id.ESDK?
-      && output.value.algorithmSuiteId == headerBody.value.data.algorithmSuite.id.ESDK
-      // *  Encryption Context (Section 2.6.2)
-      && var ec := EncryptionContext.GetEncryptionContext(headerBody.value.data.encryptionContext);
-      && output.value.encryptionContext == ec
 
     //= compliance/client-apis/decrypt.txt#2.5
     //= type=implication
@@ -412,6 +425,64 @@ module AwsEncryptionSdkOperations refines AbstractAwsCryptographyEncryptionSdkOp
 
     var buffer := SerializeFunctions.ReadableBuffer(input.ciphertext, 0);
 
+    output := InternalDecrypt(config, cmm, buffer, input.encryptionContext);
+  }
+
+  method {:vcs_split_on_every_assert} InternalDecrypt
+   (
+    config: InternalConfig,
+    cmm: AwsCryptographyMaterialProvidersTypes.ICryptographicMaterialsManager,
+    buffer: SerializeFunctions.ReadableBuffer,
+    inputEncryptionContext: Option<AwsCryptographyMaterialProvidersTypes.EncryptionContext>
+  )
+    returns (output: Result<DecryptOutput, Error>)
+
+    requires cmm.ValidState()
+    modifies cmm.Modifies
+    ensures cmm.ValidState()
+
+    requires ValidInternalConfig?(config)
+    modifies ModifiesInternalConfig(config)
+    ensures ValidInternalConfig?(config)
+
+    //= compliance/client-apis/decrypt.txt#2.7.2
+    //= type=implication
+    //# If the
+    //# algorithm suite is not supported by the commitment policy
+    //# (client.md#commitment-policy) configured in the client (client.md)
+    //# decrypt MUST yield an error.
+    // TODO :: Consider removing from spec as this is redundant
+    ensures
+    (
+      && var headerBody := Header.ReadHeaderBody(buffer, config.maxEncryptedDataKeys, config.mpl);
+      && headerBody.Success?
+      && config.mpl.ValidateCommitmentPolicyOnDecrypt(MPL.ValidateCommitmentPolicyOnDecryptInput(
+        algorithm := headerBody.value.data.algorithmSuite.id,
+        commitmentPolicy := MPL.CommitmentPolicy.ESDK(config.commitmentPolicy)
+      )).Failure?
+    )
+    ==>
+      output.Failure?
+
+    //= compliance/client-apis/decrypt.txt#2.6
+    //= type=implication
+    //# The client MUST return as output to this operation:
+    ensures output.Success?
+    ==>
+      && var headerBody := Header.ReadHeaderBody(buffer, config.maxEncryptedDataKeys, config.mpl);
+      && headerBody.Success?
+      // *  Algorithm Suite (Section 2.6.3)
+      && headerBody.value.data.algorithmSuite.id.ESDK?
+      && output.value.algorithmSuiteId == headerBody.value.data.algorithmSuite.id.ESDK
+      && old(cmm.History.DecryptMaterials) < cmm.History.DecryptMaterials
+      && Seq.Last(cmm.History.DecryptMaterials).output.Success?
+      && var decMat := Seq.Last(cmm.History.DecryptMaterials).output.value.decryptionMaterials;
+      // *  Encryption Context (Section 2.6.2)
+      && var headerEncryptionContext := EncryptionContext.GetEncryptionContext(headerBody.value.data.encryptionContext);
+      && output.value.encryptionContext ==
+        headerEncryptionContext + buildEncryptionContextToOnlyAuthenticate(decMat, headerEncryptionContext)
+  {
+
     //= compliance/client-apis/decrypt.txt#2.5.1.1
     //= type=TODO
     //# To make diagnosing this mistake easier, implementations SHOULD detect
@@ -424,9 +495,9 @@ module AwsEncryptionSdkOperations refines AbstractAwsCryptographyEncryptionSdkOp
       .ReadHeaderBody(buffer, config.maxEncryptedDataKeys, config.mpl)
       .MapFailure(EncryptDecryptHelpers.MapSerializeFailure(": ReadHeaderBody"));
 
-    reveal SerializeFunctions.CorrectlyReadRange();
+    AnyCorrectlyReadByteRange(buffer, headerBody.tail);
     
-    var rawHeader := headerBody.tail.bytes[buffer.start..headerBody.tail.start];
+    var rawHeader := buffer.bytes[buffer.start..headerBody.tail.start];
 
     var algorithmSuite := headerBody.data.algorithmSuite;
 
@@ -461,9 +532,17 @@ module AwsEncryptionSdkOperations refines AbstractAwsCryptographyEncryptionSdkOp
       cmm,
       algorithmSuite.id,
       headerBody.data,
+      inputEncryptionContext,
       config.commitmentPolicy,
       config.mpl
     );
+    
+    // It SHOULD be the case that cmm.History !in config.crypto.Modifies;
+    // However proving this is very expensive.
+    // This is a HACK to address this history element
+    // See the end of the method, where I update the history.
+    ghost var DecryptMaterialsHistory := cmm.History.DecryptMaterials;
+    assert old(cmm.History.DecryptMaterials) < cmm.History.DecryptMaterials;
 
     var suite := decMat.algorithmSuite;
 
@@ -478,6 +557,20 @@ module AwsEncryptionSdkOperations refines AbstractAwsCryptographyEncryptionSdkOp
       .ReadHeaderAuthTag(headerBody.tail, suite)
       .MapFailure(EncryptDecryptHelpers.MapSerializeFailure(": ReadHeaderAuthTag"));
 
+    if suite.messageVersion == 1 {
+      reveal HeaderAuth.ReadHeaderAuthTag();
+      assert headerAuth == HeaderAuth.ReadHeaderAuthTagV1(headerBody.tail, suite).value;
+      SerializeFunctions.CorrectlyReadByteRange(headerBody.tail, headerAuth.tail, HeaderAuth.WriteHeaderAuthTagV1(headerAuth.data));
+    } else if suite.messageVersion == 2 {
+      reveal HeaderAuth.ReadHeaderAuthTag();
+      assert headerAuth == HeaderAuth.ReadHeaderAuthTagV2(headerBody.tail, suite).value;
+      SerializeFunctions.CorrectlyReadByteRange(headerBody.tail, headerAuth.tail, HeaderAuth.WriteHeaderAuthTagV2(headerAuth.data));
+    } else {
+      assert false;
+    }
+    
+    ConcatenateCorrectlyReadByteRanges(buffer, headerBody.tail, headerAuth.tail);
+
     var maybeDerivedDataKeys := KeyDerivation.DeriveKeys(
       headerBody.data.messageId, decMat.plaintextDataKey.value, suite, config.crypto
     );
@@ -490,8 +583,37 @@ module AwsEncryptionSdkOperations refines AbstractAwsCryptographyEncryptionSdkOp
       Types.AwsEncryptionSdkException(
       message := "Invalid commitment values found in header body"));
     if suite.commitment.HKDF? {
+      reveal Header.HeaderVersionSupportsCommitment?();
       var _ :- EncryptDecryptHelpers.ValidateSuiteData(suite, headerBody.data, derivedDataKeys.commitmentKey.value);
     }
+
+    var headerEncryptionContext := EncryptionContext.GetEncryptionContext(headerBody.data.encryptionContext);
+
+    EncryptionContext.LemmaESDKCanonicalEncryptionContextIsESDKEncryptionContext(
+      headerBody.data.encryptionContext,
+      headerEncryptionContext
+    );
+
+    //#*  The encryption context to only authenticate MUST be the [encryption context]
+    //#   (../framework/structures.md#encryption-context)
+    //#   in the [decryption materials](../framework/structures.md#decryption-materials)
+    //#   filtered to only contain key value pairs listed in
+    //#   the [decryption material's](../framework/structures.md#decryption-materials)
+    //#   [required encryption context keys]
+    //#   (../framework/structures.md#required-encryption-context-keys-1)
+    //#   serialized according to the [encryption context serialization specification]
+    //#   (../framework/structures.md#serialization).
+    var encryptionContextToOnlyAuthenticate := buildEncryptionContextToOnlyAuthenticate(decMat, headerEncryptionContext);
+
+    EncryptionContext.SubsetOfESDKEncryptionContextIsESDKEncryptionContext(
+        decMat.encryptionContext,
+        encryptionContextToOnlyAuthenticate
+      );
+
+    var canonicalReqEncryptionContext := 
+      EncryptionContext.GetCanonicalEncryptionContext(encryptionContextToOnlyAuthenticate);
+    var serializedReqEncryptionContext := 
+      EncryptionContext.WriteAAD(canonicalReqEncryptionContext);
 
     var maybeHeaderAuth :=
       //= compliance/client-apis/decrypt.txt#2.7.3
@@ -513,42 +635,30 @@ module AwsEncryptionSdkOperations refines AbstractAwsCryptographyEncryptionSdkOp
         //#*  the IV is the value serialized in the message header's IV field
         //#   (../data-format/message-header#iv).
         iv := headerAuth.data.headerIv,
-        //#*  the AAD is the serialized message header body (../data-format/
-        //#   message-header.md#header-body).
-        aad := rawHeader
+        //#*  MUST be the concatenation of the serialized [message header body]
+        //#   (../data-format/message-header.md#header-body)
+        //#   and the serialization of encryption context to only authenticate.
+        aad := rawHeader + serializedReqEncryptionContext
       ));
+
     //= compliance/client-apis/decrypt.txt#2.7.3
     //# If this tag verification fails, this operation MUST immediately halt
     //# and fail.
     var _ :- maybeHeaderAuth
       .MapFailure(e => Types.AwsCryptographyPrimitives(e));
-    assert {:split_here} true;
-
-    var receivedEncryptionContext := EncryptionContext.GetEncryptionContext(
-      headerBody.data.encryptionContext
-    );
-    :- Need(
-      SerializableTypes.IsESDKEncryptionContext(receivedEncryptionContext),
-      Types.AwsEncryptionSdkException(
-        message := "Received invalid encryption context")
-    );
 
     var header := Header.HeaderInfo(
       body := headerBody.data,
       rawHeader := rawHeader,
-      encryptionContext := receivedEncryptionContext,
+      encryptionContext := headerEncryptionContext,
       suite := suite,
       headerAuth := headerAuth.data
     );
 
-    assert {:split_here} true;
-
-    assert Header.HeaderAuth?(suite, headerAuth.data);
-    assert Header.IsHeader(header);
+    ghost var headerSubset: Header.Header := HeaderSubset(header);
 
     var key := derivedDataKeys.dataKey;
     var plaintext: seq<uint8>;
-
     var messageBodyTail: SerializeFunctions.ReadableBuffer;
 
     //= compliance/client-apis/decrypt.txt#2.7.4
@@ -564,6 +674,7 @@ module AwsEncryptionSdkOperations refines AbstractAwsCryptographyEncryptionSdkOp
     //# body.md#un-framed-data).
     match header.body.contentType {
       case NonFramed =>
+        assert Frames.NonFramedHeader?(headerSubset);
         //= compliance/client-apis/decrypt.txt#2.7.4
         //# If this decryption fails, this operation MUST immediately halt and
         //# fail.
@@ -572,6 +683,7 @@ module AwsEncryptionSdkOperations refines AbstractAwsCryptographyEncryptionSdkOp
         messageBodyTail := decryptRes.1;
 
       case Framed =>
+        assert Frames.FramedHeader?(headerSubset);
         //= compliance/client-apis/decrypt.txt#2.7.4
         //# If this decryption fails, this operation MUST immediately halt and
         //# fail.
@@ -579,8 +691,7 @@ module AwsEncryptionSdkOperations refines AbstractAwsCryptographyEncryptionSdkOp
         plaintext := decryptRes.0;
         messageBodyTail := decryptRes.1;
     }
-
-    assert {:split_here} true;
+    ConcatenateCorrectlyReadByteRanges(buffer, headerAuth.tail, messageBodyTail);
 
     //= compliance/client-apis/decrypt.txt#2.7.5
     //# If this verification is not successful, this operation MUST
@@ -608,13 +719,70 @@ module AwsEncryptionSdkOperations refines AbstractAwsCryptographyEncryptionSdkOp
     //# If the input encrypted message is not being streamed (streaming.md)
     //# to this operation, all output MUST NOT be released until after these
     //# steps complete successfully.
-    return Success(
+    output := Success(
       Types.DecryptOutput(
         plaintext := plaintext,
-        encryptionContext := header.encryptionContext,
+        encryptionContext := header.encryptionContext + encryptionContextToOnlyAuthenticate,
         algorithmSuiteId := header.suite.id.ESDK
       )
     );
+
+    // It SHOULD be the case that cmm.History !in config.crypto.Modifies;
+    // See var decMat :- EncryptDecryptHelpers.GetDecryptionMaterials(
+    cmm.History.DecryptMaterials := DecryptMaterialsHistory;
+
+    assert header.encryptionContext == headerEncryptionContext;
+    assert output.value.encryptionContext == header.encryptionContext + encryptionContextToOnlyAuthenticate;
+
+  }
+
+  function method buildEncryptionContextToOnlyAuthenticate(
+    decMat: MPL.DecryptionMaterials,
+    headerEncryptionContext: MPL.EncryptionContext
+  ): MPL.EncryptionContext
+  {
+    map
+      k <- decMat.encryptionContext
+      |
+        && k in decMat.requiredEncryptionContextKeys
+      :: k := decMat.encryptionContext[k]
+  }
+
+  lemma AnyCorrectlyReadByteRange(
+    buffer: SerializeFunctions.ReadableBuffer,
+    verifiedTail: SerializeFunctions.ReadableBuffer
+  )
+    requires exists readRange: seq<uint8> :: SerializeFunctions.CorrectlyReadRange(buffer, verifiedTail, readRange)
+    ensures
+      && buffer.start <= verifiedTail.start <= |buffer.bytes|
+      && SerializeFunctions.CorrectlyReadRange(buffer, verifiedTail, buffer.bytes[buffer.start..verifiedTail.start])
+      && buffer.bytes == verifiedTail.bytes
+  {
+    reveal SerializeFunctions.CorrectlyReadRange();
+  }
+
+  lemma ConcatenateCorrectlyReadByteRanges(
+    buffer: SerializeFunctions.ReadableBuffer,
+    verifiedMid: SerializeFunctions.ReadableBuffer,
+    verifiedTail: SerializeFunctions.ReadableBuffer
+  )
+    requires buffer.start <= verifiedMid.start <= verifiedTail.start <= |buffer.bytes|
+    requires SerializeFunctions.CorrectlyReadRange(buffer, verifiedMid, buffer.bytes[buffer.start..verifiedMid.start])
+    requires SerializeFunctions.CorrectlyReadRange(verifiedMid, verifiedTail, buffer.bytes[verifiedMid.start..verifiedTail.start])
+    ensures SerializeFunctions.CorrectlyReadRange(buffer, verifiedTail, buffer.bytes[buffer.start..verifiedTail.start])
+    ensures buffer.bytes == verifiedMid.bytes == verifiedTail.bytes
+  {
+    reveal SerializeFunctions.CorrectlyReadRange();
+  }
+
+  // There seems to be some complexity with Dafny doing this assignment
+  // So a lemma just works around this.
+  lemma HeaderSubset(i: Header.HeaderInfo)
+    returns (h: Header.Header)
+    requires Header.IsHeader(i)
+    ensures i == h
+  {
+    h := i;
   }
 
 }

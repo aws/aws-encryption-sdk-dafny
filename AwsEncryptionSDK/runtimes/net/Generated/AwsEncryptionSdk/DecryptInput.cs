@@ -7,6 +7,7 @@ using System;
  private System.IO.MemoryStream _ciphertext ;
  private AWS.Cryptography.MaterialProviders.ICryptographicMaterialsManager _materialsManager ;
  private AWS.Cryptography.MaterialProviders.IKeyring _keyring ;
+ private System.Collections.Generic.Dictionary<string, string> _encryptionContext ;
  public System.IO.MemoryStream Ciphertext {
  get { return this._ciphertext; }
  set { this._ciphertext = value; }
@@ -27,6 +28,13 @@ using System;
 }
  public bool IsSetKeyring () {
  return this._keyring != null;
+}
+ public System.Collections.Generic.Dictionary<string, string> EncryptionContext {
+ get { return this._encryptionContext; }
+ set { this._encryptionContext = value; }
+}
+ public bool IsSetEncryptionContext () {
+ return this._encryptionContext != null;
 }
  public void Validate() {
  if (!IsSetCiphertext()) throw new System.ArgumentException("Missing value for required property 'Ciphertext'");
