@@ -131,7 +131,7 @@ module HeaderAuth {
   }
 
 
-  function method ReadHeaderAuthTag(
+  function method {:opaque} ReadHeaderAuthTag(
     buffer: ReadableBuffer,
     suite: MPL.AlgorithmSuiteInfo
   )
@@ -142,6 +142,7 @@ module HeaderAuth {
     ==>
       && |res.value.data.headerIv| == GetIvLength(suite) as nat
       && |res.value.data.headerAuthTag| == GetTagLength(suite) as nat
+    ensures suite.messageVersion != 1 && suite.messageVersion != 2 ==> res.Failure?
   {
     match suite.messageVersion
       case 1 => ReadHeaderAuthTagV1(buffer, suite)

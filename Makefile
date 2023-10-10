@@ -1,19 +1,10 @@
-
+# Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
 
 verify:
-	$(MAKE) -C StandardLibrary verify CORES=4
-	$(MAKE) -C AwsCryptographyPrimitives verify CORES=4
-	$(MAKE) -C ComAmazonawsKms verify CORES=4
-	$(MAKE) -C ComAmazonawsDynamodb verify CORES=4
-	$(MAKE) -C AwsCryptographicMaterialProviders verify CORES=4
 	$(MAKE) -C AwsEncryptionSDK verify CORES=4
 
 dafny-reportgenerator:
-	$(MAKE) -C StandardLibrary dafny-reportgenerator
-	$(MAKE) -C AwsCryptographyPrimitives dafny-reportgenerator
-	$(MAKE) -C ComAmazonawsKms dafny-reportgenerator
-	$(MAKE) -C ComAmazonawsDynamodb dafny-reportgenerator
-	$(MAKE) -C AwsCryptographicMaterialProviders dafny-reportgenerator
 	$(MAKE) -C AwsEncryptionSDK dafny-reportgenerator
 
 duvet: | duvet_extract duvet_report

@@ -79,7 +79,11 @@ public class ToDafny {
     keyring = Objects.nonNull(nativeValue.keyring()) ?
         Option.create_Some(software.amazon.cryptography.materialproviders.ToDafny.Keyring(nativeValue.keyring()))
         : Option.create_None();
-    return new DecryptInput(ciphertext, materialsManager, keyring);
+    Option<DafnyMap<? extends DafnySequence<? extends Byte>, ? extends DafnySequence<? extends Byte>>> encryptionContext;
+    encryptionContext = (Objects.nonNull(nativeValue.encryptionContext()) && nativeValue.encryptionContext().size() > 0) ?
+        Option.create_Some(software.amazon.cryptography.materialproviders.ToDafny.EncryptionContext(nativeValue.encryptionContext()))
+        : Option.create_None();
+    return new DecryptInput(ciphertext, materialsManager, keyring, encryptionContext);
   }
 
   public static DecryptOutput DecryptOutput(

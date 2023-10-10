@@ -30,15 +30,28 @@ jobs:
           macos-latest
         ]
     runs-on: ${{ matrix.os }}
+    environment: "MPL_DAFNY"
     permissions:
       id-token: write
       contents: read
     steps:
       - uses: actions/checkout@v2
-      # The specification submodule is private so we don't have access, but we don't need
-      # it to verify the Dafny code. Instead we manually pull the submodules we DO need.
-      - run: git submodule update --init libraries
-      - run: git submodule update --init --recursive mpl
+      - name: Init Submodules
+        env:
+          # This secret is in the configured environment
+          # Token created on # 09/26/2023
+          # expires in ~30 days 10/26/2023
+          MPL_PAT: ${{ secrets.MPL_DAFNY }}
+        run: |
+            AUTH="$(echo -n "pat:${MPL_PAT}" | base64 | tr -d '\n')"
+            git config --global http.https://github.com/.extraheader "AUTHORIZATION: basic $AUTH"
+            git config --global --add url.https://github.com/.insteadOf git@github.com:
+            git submodule update --init libraries
+            git submodule update --init --recursive mpl
+
+      - name: Support longpaths
+        run: |
+          git config --global core.longpaths true
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:

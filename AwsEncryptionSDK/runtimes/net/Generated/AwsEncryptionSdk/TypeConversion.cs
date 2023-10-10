@@ -26,12 +26,14 @@ using System.Linq; using System; namespace AWS.Cryptography.EncryptionSDK {
  internal static AWS.Cryptography.EncryptionSDK.DecryptInput FromDafny_N3_aws__N12_cryptography__N13_encryptionSdk__S12_DecryptInput (software.amazon.cryptography.encryptionsdk.internaldafny.types._IDecryptInput value) {
  software.amazon.cryptography.encryptionsdk.internaldafny.types.DecryptInput concrete = (software.amazon.cryptography.encryptionsdk.internaldafny.types.DecryptInput)value; AWS.Cryptography.EncryptionSDK.DecryptInput converted = new AWS.Cryptography.EncryptionSDK.DecryptInput();  converted.Ciphertext = (System.IO.MemoryStream) FromDafny_N3_aws__N12_cryptography__N13_encryptionSdk__S12_DecryptInput__M10_ciphertext(concrete._ciphertext);
  if (concrete._materialsManager.is_Some) converted.MaterialsManager = (AWS.Cryptography.MaterialProviders.ICryptographicMaterialsManager) FromDafny_N3_aws__N12_cryptography__N13_encryptionSdk__S12_DecryptInput__M16_materialsManager(concrete._materialsManager);
- if (concrete._keyring.is_Some) converted.Keyring = (AWS.Cryptography.MaterialProviders.IKeyring) FromDafny_N3_aws__N12_cryptography__N13_encryptionSdk__S12_DecryptInput__M7_keyring(concrete._keyring); return converted;
+ if (concrete._keyring.is_Some) converted.Keyring = (AWS.Cryptography.MaterialProviders.IKeyring) FromDafny_N3_aws__N12_cryptography__N13_encryptionSdk__S12_DecryptInput__M7_keyring(concrete._keyring);
+ if (concrete._encryptionContext.is_Some) converted.EncryptionContext = (System.Collections.Generic.Dictionary<string, string>) FromDafny_N3_aws__N12_cryptography__N13_encryptionSdk__S12_DecryptInput__M17_encryptionContext(concrete._encryptionContext); return converted;
 }
  internal static software.amazon.cryptography.encryptionsdk.internaldafny.types._IDecryptInput ToDafny_N3_aws__N12_cryptography__N13_encryptionSdk__S12_DecryptInput (AWS.Cryptography.EncryptionSDK.DecryptInput value) {
  AWS.Cryptography.MaterialProviders.ICryptographicMaterialsManager var_materialsManager = value.IsSetMaterialsManager() ? value.MaterialsManager : (AWS.Cryptography.MaterialProviders.ICryptographicMaterialsManager) null;
  AWS.Cryptography.MaterialProviders.IKeyring var_keyring = value.IsSetKeyring() ? value.Keyring : (AWS.Cryptography.MaterialProviders.IKeyring) null;
- return new software.amazon.cryptography.encryptionsdk.internaldafny.types.DecryptInput ( ToDafny_N3_aws__N12_cryptography__N13_encryptionSdk__S12_DecryptInput__M10_ciphertext(value.Ciphertext) , ToDafny_N3_aws__N12_cryptography__N13_encryptionSdk__S12_DecryptInput__M16_materialsManager(var_materialsManager) , ToDafny_N3_aws__N12_cryptography__N13_encryptionSdk__S12_DecryptInput__M7_keyring(var_keyring) ) ;
+ System.Collections.Generic.Dictionary<string, string> var_encryptionContext = value.IsSetEncryptionContext() ? value.EncryptionContext : (System.Collections.Generic.Dictionary<string, string>) null;
+ return new software.amazon.cryptography.encryptionsdk.internaldafny.types.DecryptInput ( ToDafny_N3_aws__N12_cryptography__N13_encryptionSdk__S12_DecryptInput__M10_ciphertext(value.Ciphertext) , ToDafny_N3_aws__N12_cryptography__N13_encryptionSdk__S12_DecryptInput__M16_materialsManager(var_materialsManager) , ToDafny_N3_aws__N12_cryptography__N13_encryptionSdk__S12_DecryptInput__M7_keyring(var_keyring) , ToDafny_N3_aws__N12_cryptography__N13_encryptionSdk__S12_DecryptInput__M17_encryptionContext(var_encryptionContext) ) ;
 }
  internal static AWS.Cryptography.EncryptionSDK.DecryptOutput FromDafny_N3_aws__N12_cryptography__N13_encryptionSdk__S13_DecryptOutput (software.amazon.cryptography.encryptionsdk.internaldafny.types._IDecryptOutput value) {
  software.amazon.cryptography.encryptionsdk.internaldafny.types.DecryptOutput concrete = (software.amazon.cryptography.encryptionsdk.internaldafny.types.DecryptOutput)value; AWS.Cryptography.EncryptionSDK.DecryptOutput converted = new AWS.Cryptography.EncryptionSDK.DecryptOutput();  converted.Plaintext = (System.IO.MemoryStream) FromDafny_N3_aws__N12_cryptography__N13_encryptionSdk__S13_DecryptOutput__M9_plaintext(concrete._plaintext);
@@ -102,6 +104,12 @@ using System.Linq; using System; namespace AWS.Cryptography.EncryptionSDK {
 }
  internal static Wrappers_Compile._IOption<software.amazon.cryptography.materialproviders.internaldafny.types.IKeyring> ToDafny_N3_aws__N12_cryptography__N13_encryptionSdk__S12_DecryptInput__M7_keyring (AWS.Cryptography.MaterialProviders.IKeyring value) {
  return value == null ? Wrappers_Compile.Option<software.amazon.cryptography.materialproviders.internaldafny.types.IKeyring>.create_None() : Wrappers_Compile.Option<software.amazon.cryptography.materialproviders.internaldafny.types.IKeyring>.create_Some(ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S16_KeyringReference((AWS.Cryptography.MaterialProviders.IKeyring) value));
+}
+ internal static System.Collections.Generic.Dictionary<string, string> FromDafny_N3_aws__N12_cryptography__N13_encryptionSdk__S12_DecryptInput__M17_encryptionContext (Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<byte>, Dafny.ISequence<byte>>> value) {
+ return value.is_None ? (System.Collections.Generic.Dictionary<string, string>) null : FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S17_EncryptionContext(value.Extract());
+}
+ internal static Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<byte>, Dafny.ISequence<byte>>> ToDafny_N3_aws__N12_cryptography__N13_encryptionSdk__S12_DecryptInput__M17_encryptionContext (System.Collections.Generic.Dictionary<string, string> value) {
+ return value == null ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<byte>, Dafny.ISequence<byte>>>.create_None() : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<byte>, Dafny.ISequence<byte>>>.create_Some(ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S17_EncryptionContext((System.Collections.Generic.Dictionary<string, string>) value));
 }
  internal static System.IO.MemoryStream FromDafny_N3_aws__N12_cryptography__N13_encryptionSdk__S13_DecryptOutput__M9_plaintext (Dafny.ISequence<byte> value) {
  return FromDafny_N6_smithy__N3_api__S4_Blob(value);
@@ -293,6 +301,10 @@ return Dafny.Sequence<byte>.FromArray(utf8.GetBytes(value));
  case software.amazon.cryptography.encryptionsdk.internaldafny.types.Error_AwsCryptographyMaterialProviders dafnyVal:
   return AWS.Cryptography.MaterialProviders.TypeConversion.FromDafny_CommonError(
     dafnyVal._AwsCryptographyMaterialProviders
+  );
+ case software.amazon.cryptography.encryptionsdk.internaldafny.types.Error_AwsCryptographyPrimitives dafnyVal:
+  return AWS.Cryptography.Primitives.TypeConversion.FromDafny_CommonError(
+    dafnyVal._AwsCryptographyPrimitives
   );
  case software.amazon.cryptography.encryptionsdk.internaldafny.types.Error_AwsEncryptionSdkException dafnyVal:
 return FromDafny_N3_aws__N12_cryptography__N13_encryptionSdk__S25_AwsEncryptionSdkException(dafnyVal);

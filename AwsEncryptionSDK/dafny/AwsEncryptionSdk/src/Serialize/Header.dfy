@@ -46,8 +46,8 @@ module Header {
     // TODO: Even though we're not yet supporting non-framed content,
     // this assertion about non-framed messages has ripple effects on
     // other proofs
-    && h.body.contentType.NonFramed? <==> 0 == h.body.frameLength
-    && h.body.contentType.Framed? <==> 0 < h.body.frameLength
+    && (h.body.contentType.NonFramed? <==> 0 == h.body.frameLength)
+    && (h.body.contentType.Framed? <==> 0 < h.body.frameLength)
     && HeaderAuth?(h.suite, h.headerAuth)
     && HeaderVersionSupportsCommitment?(h.suite, h.body)
 
@@ -78,7 +78,7 @@ module Header {
       && |headerAuth.headerAuthTag| == GetTagLength(suite) as nat)
   }
 
-  predicate method HeaderVersionSupportsCommitment?(
+  predicate method {:opaque} HeaderVersionSupportsCommitment?(
     suite: MPL.AlgorithmSuiteInfo,
     body: HeaderTypes.HeaderBody
   )
@@ -108,7 +108,7 @@ module Header {
   //# This operation MUST attempt to deserialize all consumable encrypted
   //# message bytes until it has successfully deserialized a valid message
   //# header (../data-format/message-header.md).
-  function method ReadHeaderBody(
+  function method {:opaque} ReadHeaderBody(
      buffer: ReadableBuffer,
      maxEdks: Option<Types.CountingNumbers>,
      mpl: MaterialProviders.MaterialProvidersClient

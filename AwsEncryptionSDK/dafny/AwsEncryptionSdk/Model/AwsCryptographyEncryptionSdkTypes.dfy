@@ -113,7 +113,8 @@ include "../../../../mpl/StandardLibrary/src/Index.dfy"
  datatype DecryptInput = | DecryptInput (
  nameonly ciphertext: seq<uint8> ,
  nameonly materialsManager: Option<AwsCryptographyMaterialProvidersTypes.ICryptographicMaterialsManager> ,
- nameonly keyring: Option<AwsCryptographyMaterialProvidersTypes.IKeyring>
+ nameonly keyring: Option<AwsCryptographyMaterialProvidersTypes.IKeyring> ,
+ nameonly encryptionContext: Option<AwsCryptographyMaterialProvidersTypes.EncryptionContext>
  )
  datatype DecryptOutput = | DecryptOutput (
  nameonly plaintext: seq<uint8> ,

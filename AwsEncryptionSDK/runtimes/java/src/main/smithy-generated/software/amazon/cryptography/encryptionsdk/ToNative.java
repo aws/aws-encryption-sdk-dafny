@@ -51,6 +51,12 @@ public class ToNative {
     if (dafnyValue.is_CollectionOfErrors()) {
       return ToNative.Error((Error_CollectionOfErrors) dafnyValue);
     }
+    if (dafnyValue.is_AwsCryptographyPrimitives()) {
+      return software.amazon.cryptography.primitives.ToNative.Error(dafnyValue.dtor_AwsCryptographyPrimitives());
+    }
+    if (dafnyValue.is_AwsCryptographyMaterialProviders()) {
+      return software.amazon.cryptography.materialproviders.ToNative.Error(dafnyValue.dtor_AwsCryptographyMaterialProviders());
+    }
     OpaqueError.Builder nativeBuilder = OpaqueError.builder();
     nativeBuilder.obj(dafnyValue);
     return nativeBuilder.build();
@@ -77,6 +83,9 @@ public class ToNative {
     }
     if (dafnyValue.dtor_keyring().is_Some()) {
       nativeBuilder.keyring(software.amazon.cryptography.materialproviders.ToNative.Keyring(dafnyValue.dtor_keyring().dtor_value()));
+    }
+    if (dafnyValue.dtor_encryptionContext().is_Some()) {
+      nativeBuilder.encryptionContext(software.amazon.cryptography.materialproviders.ToNative.EncryptionContext(dafnyValue.dtor_encryptionContext().dtor_value()));
     }
     return nativeBuilder.build();
   }

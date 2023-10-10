@@ -104,6 +104,7 @@ module SerializableTypes {
   )
     :(ret: Linear<UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes>)
     ensures |encryptionContext| == |ret|
+    ensures KeysAreUnique(ret)
   {
     //= compliance/data-format/message-header.txt#2.5.1.7.2.2
     //# These entries MUST have entries sorted, by key, in ascending order
@@ -119,6 +120,33 @@ module SerializableTypes {
       => Pair(
         keys[i],
         encryptionContext[keys[i]]))
+  }
+
+  lemma GetCanonicalLinearPairsIsBijective(encryptionContext: MPL.EncryptionContext, ret: Linear<UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes>)
+    requires ret == GetCanonicalLinearPairs(encryptionContext)
+    ensures forall p <- ret :: p.key in encryptionContext && p.value == encryptionContext[p.key]
+    ensures forall k: UTF8.ValidUTF8Bytes <- encryptionContext :: Pair(k, encryptionContext[k]) in ret
+  {
+    forall k: UTF8.ValidUTF8Bytes <- encryptionContext
+      ensures Pair(k, encryptionContext[k]) in ret
+    {
+      var keys: seq<UTF8.ValidUTF8Bytes> := SortedSets.ComputeSetToOrderedSequence2<uint8>(
+        encryptionContext.Keys,
+        UInt.UInt8Less
+      );
+      var i :| 0 <= i < |keys| && k == keys[i];
+      var makePair := i requires 0 <= i < |keys| => Pair(keys[i], encryptionContext[keys[i]]);
+      assert Pair(k, encryptionContext[k]) == makePair(i);
+      assert forall i' | 0 <= i' < |keys| :: ret[i'] ==  makePair(i');
+    }
+  }
+
+  predicate KeysAreUnique<K, V>(pairs: Linear<K, V>)
+  {
+    (forall i, j
+       // This satisfies every cardinality AND i != j
+       :: 0 <= i < j < |pairs|
+          ==> pairs[i].key != pairs[j].key)
   }
 
   function method {:tailrecursion} LinearLength(

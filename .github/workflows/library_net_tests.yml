@@ -30,6 +30,7 @@ jobs:
           macos-latest,
         ]
     runs-on: ${{ matrix.os }}
+    environment: "MPL_DAFNY"
     permissions:
       id-token: write
       contents: read
@@ -41,8 +42,19 @@ jobs:
         run: |
           git config --global core.longpaths true
       - uses: actions/checkout@v2
-      - run: git submodule update --init libraries
-      - run: git submodule update --init --recursive mpl
+      - name: Init Submodules
+        shell: bash
+        env:
+          # This secret is in the configured environment
+          # Token created on # 09/26/2023
+          # expires in ~30 days 10/26/2023
+          MPL_PAT: ${{ secrets.MPL_DAFNY }}
+        run: |
+          AUTH="$(echo -n "pat:${MPL_PAT}" | base64 | tr -d '\n')"
+          git config --global http.https://github.com/.extraheader "AUTHORIZATION: basic $AUTH"
+          git config --global --add url.https://github.com/.insteadOf git@github.com:
+          git submodule update --init libraries
+          git submodule update --init --recursive mpl
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1

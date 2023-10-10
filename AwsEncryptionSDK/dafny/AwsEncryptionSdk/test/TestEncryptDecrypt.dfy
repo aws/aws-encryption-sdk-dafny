@@ -49,7 +49,8 @@ module TestEncryptDecrypt {
         var decryptOutput := esdk.Decrypt(Types.DecryptInput(
             ciphertext := esdkCiphertext,
             materialsManager := None,
-            keyring := Some(kmsKeyring)
+            keyring := Some(kmsKeyring),
+            encryptionContext := None
         ));
 
         expect decryptOutput.Success?;
