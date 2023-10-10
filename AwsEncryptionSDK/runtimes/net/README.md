@@ -10,15 +10,16 @@ The AWS Encryption SDK is available on [NuGet](https://www.nuget.org/) and can r
 
 Using the dotnet CLI:
 ```shell
-dotnet add <your-project-name>.csproj package AWS.EncryptionSDK
+dotnet add <your-project-name>.csproj package AWS.Cryptography.EncryptionSDK
 ```
 
 Alternatively, you may directly modify the `.csproj` and add the AWS Encryption SDK to `PackageReference` `ItemGroup`:
 ```xml
-<PackageReference Include="AWS.EncryptionSDK" />
+<PackageReference Include="AWS.Cryptography.EncryptionSDK" />
 ```
 
-The AWS Encryption SDK targets both [.NET/.NET Core](https://docs.microsoft.com/en-us/dotnet/core/introduction) 3.1 and newer on all platforms, and [.NET Framework](https://docs.microsoft.com/en-us/dotnet/framework/) 4.5.2 and newer on Windows only.
+The AWS Encryption SDK targets [.NET](https://learn.microsoft.com/en-us/dotnet/fundamentals/implementations#net-5-and-later-versions) 6.0
+and newer on all platforms, and [.NET Framework](https://docs.microsoft.com/en-us/dotnet/framework/) 4.8.0 and newer on Windows only.
 
 ### Additional setup for macOS only
 
@@ -31,13 +32,13 @@ Please refer to [the wiki](https://github.com/aws/aws-encryption-sdk-dafny/wiki/
 
 To build, the AWS Encryption SDK requires the most up to date version of [Dafny](https://github.com/dafny-lang/dafny) on your PATH.
 
-The AWS Encryption SDK targets frameworks [`netstandard2.1` and `net452`](https://docs.microsoft.com/en-us/dotnet/standard/frameworks#supported-target-frameworks).
-Tests and test vectors target frameworks `netcoreapp3.1` and `net452`.
-In all cases, `net452` and newer .NET Framework versions are only supported on Windows.
+The AWS Encryption SDK targets frameworks [`net48`](https://docs.microsoft.com/en-us/dotnet/standard/frameworks#supported-target-frameworks).
+Tests and test vectors target frameworks `net6.0`.
+In all cases, `net48` and newer .NET Framework versions are only supported on Windows.
 To build and test the AWS Encryption SDK, you must install the following .NET tools:
 
-* [.NET Core 3.1](https://dotnet.microsoft.com/en-us/download/dotnet/3.1) or newer
-* [.NET Framework 4.5.2](https://docs.microsoft.com/en-us/dotnet/framework/install/) or newer (if on Windows)
+* [.NET 6.0](https://dotnet.microsoft.com/en-us/download/dotnet/6.0) or newer
+* [.NET Framework 4.8.0](https://docs.microsoft.com/en-us/dotnet/framework/install/) or newer (if on Windows)
 
 You will also need to ensure that you fetch all submodules using either `git clone --recursive ...` when cloning the repository or `git submodule update --init` on an existing clone.
 
@@ -79,12 +80,6 @@ You can see more detail about what test cases are being run by increasing the ve
 dotnet test --logger:"console;verbosity=normal"
 ```
 
-Run the test vector suite after [set up](TestVectors/README.md) with:
-
-```
-dotnet test TestVectors
-```
-
 Run tests on examples, to ensure they are up to date:
 
 ```
@@ -92,44 +87,6 @@ dotnet test Examples
 ```
 
 Please note that tests and test vectors require internet access and valid AWS credentials, since calls to KMS are made as part of the test workflow.
-
-### Generate decryption test vectors
-
-See the [TestVectorGenerator README](TestVectorGenerator/README.md).
-
-### Generate code coverage results
-
-From the Test/ directory, you can generate a coverage.cobertura.xml file 
-containing code coverage results to the Test/TestResults/ directory with:
-
-```
-dotnet test --collect:"XPlat Code Coverage" --settings ../runsettings.xml
-```
-
-We use [Coverlet](https://github.com/coverlet-coverage/coverlet) for our code coverage. 
-For a list of Coverlet commands/additional options, 
-please see the following [usage guide](https://github.com/coverlet-coverage/coverlet#usage).
-
-We use [ReportGenerator](https://github.com/danielpalme/ReportGenerator) to visualize code coverage.
-
-Install ReportGenerator with:
-
-```
-dotnet new tool-manifest
-```
-```
-dotnet tool install dotnet-reportgenerator-globaltool
-```
-
-From Source/, generate a human readable index.html file of our code coverage to Test/TestResults/ with:
-
-```
-dotnet reportgenerator
-"-reports:../Test/TestResults/coverage.cobertura.xml" 
-"-targetdir:../Test/TestResults"
-```
-
-To view the code coverage report, open the index.html file in any browser.
 
 ## License
 
