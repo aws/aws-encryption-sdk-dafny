@@ -1,5 +1,21 @@
 # Changelog
 
+## 4.0.0
+
+### BREAKING CHANGES
+
+* AWS Encryption SDK for .NET now directly depends on the AWS Cryptographic Material Providers Library for .NET
+* Required Encryption Context CMM generates messages that the Encryption SDK for .NET < 4.0.0 cannot read
+ * This feature does not yet exist in other Encryption SDKs, as such, messages written using this feature are not interoperable
+   with other runtimes.
+* AWS Encryption SDK now only supports .NET 6.0 and later, and .NET Framework 4.8.0 and later.
+
+### Features
+* Required Encryption Context CMM
+* AWS KMS RSA Keyring
+* AWS KMS Hierarchical Keyring
+
+
 ## 3.1.0
 
 ### Fixes
