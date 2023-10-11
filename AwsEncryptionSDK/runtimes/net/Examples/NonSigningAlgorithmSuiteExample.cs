@@ -4,8 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using AWS.EncryptionSDK;
-using AWS.EncryptionSDK.Core;
+using AWS.Cryptography.MaterialProviders;
+using AWS.Cryptography.EncryptionSDK;
 using Org.BouncyCastle.Security; // In this example, we use BouncyCastle to generate a wrapping key.
 using Xunit;
 
@@ -44,9 +44,8 @@ public class NonSigningAlgorithmSuiteExample
         var keyName = "My 256-bit AES wrapping key";
 
         // Instantiate the Material Providers and the AWS Encryption SDK
-        var materialProviders =
-            AwsCryptographicMaterialProvidersFactory.CreateDefaultAwsCryptographicMaterialProviders();
-        var encryptionSdk = AwsEncryptionSdkFactory.CreateDefaultAwsEncryptionSdk();
+        var materialProviders = new MaterialProviders(new MaterialProvidersConfig());
+        var encryptionSdk = new ESDK(new AwsEncryptionSdkConfig());
 
         // Create the keyring that determines how your data keys are protected.
         var createKeyringInput = new CreateRawAesKeyringInput
@@ -73,7 +72,7 @@ public class NonSigningAlgorithmSuiteExample
             // consider using an algorithm suite that does not include signing.
             // See more about Digital Signatures:
             // https://docs.aws.amazon.com/encryption-sdk/latest/developer-guide/concepts.html#digital-sigs
-            AlgorithmSuiteId = AlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY
+            AlgorithmSuiteId = ESDKAlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY
         };
         var encryptOutput = encryptionSdk.Encrypt(encryptInput);
         var ciphertext = encryptOutput.Ciphertext;

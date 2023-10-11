@@ -8,9 +8,15 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Amazon;
-using AWS.EncryptionSDK;
-using AWS.EncryptionSDK.Core;
+using Amazon.KeyManagementService;
+using Amazon.KeyManagementService.Model;
+using AWS.Cryptography.EncryptionSDK;
+using AWS.Cryptography.MaterialProviders;
 using Org.BouncyCastle.Security;
+using AesWrappingAlg = AWS.Cryptography.MaterialProviders.AesWrappingAlg;
+using CreateAwsKmsMrkMultiKeyringInput = AWS.Cryptography.MaterialProviders.CreateAwsKmsMrkMultiKeyringInput;
+using CreateRawAesKeyringInput = AWS.Cryptography.MaterialProviders.CreateRawAesKeyringInput;
+using IKeyring = AWS.Cryptography.MaterialProviders.IKeyring;
 
 namespace ExampleUtils {
     class ExampleUtils {
@@ -24,6 +30,10 @@ namespace ExampleUtils {
         // The name of the environment variable storing the IAM Role Arn to use in examples
         private static string TEST_AWS_LIMITED_ROLE_ENV_VAR = "AWS_ENCRYPTION_SDK_EXAMPLE_LIMITED_ROLE_ARN_US_EAST_1";
         private static string TEST_AWS_LIMITED_ROLE_ENV_VAR_2 = "AWS_ENCRYPTION_SDK_EXAMPLE_LIMITED_ROLE_ARN_EU_WEST_1";
+        // THESE ARE PUBLIC RESOURCES. DO NOT USE IN A PRODUCTION ENVIRONMENT.
+        private static string BRANCH_KEY_STORE_NAME = "KeyStoreDdbTable";
+        private static string LOGICAL_KEY_STORE_NAME = BRANCH_KEY_STORE_NAME;
+        private static string BRANCH_KEY_ARN = "arn:aws:kms:us-west-2:370957321024:key/9d989aa2-2f9c-438c-a745-cc57d3ad0126";
 
         private const string ENCRYPTED_MESSAGE_PATH = "../../../resources/";
 
@@ -40,6 +50,22 @@ namespace ExampleUtils {
             return new MemoryStream(Encoding.UTF8.GetBytes(
                         "Lorem ipsum dolor sit amet, consectetur adipiscing elit."
                         ));
+        }
+
+        static public MemoryStream GetKmsRSAPublicKey()
+        {
+            // THIS IS A PUBLIC RESOURCE AND SHOULD NOT BE USED IN A PRODUCTION ENVIRONMENT
+            return new MemoryStream(Encoding.UTF8.GetBytes(
+                "-----BEGIN PUBLIC KEY-----"+ 
+                "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA27Uc/fBaMVhxCE/SpCMQ"+ 
+                "oSBRSzQJw+o2hBaA+FiPGtiJ/aPy7sn18aCkelaSj4kwoC79b/arNHlkjc7OJFsN"+
+                "/GoFKgNvaiY4lOeJqEiWQGSSgHtsJLdbO2u4OOSxh8qIRAMKbMgQDVX4FR/PLKeK"+ 
+                "fc2aCDvcNSpAM++8NlNmv7+xQBJydr5ce91eISbHkFRkK3/bAM+1iddupoRw4Wo2"+
+                "r3avzrg5xBHmzR7u1FTab22Op3Hgb2dBLZH43wNKAceVwKqKA8UNAxashFON7xK9" + 
+                "yy4kfOL0Z/nhxRKe4jRZ/5v508qIzgzCksYy7Y3QbMejAtiYnr7s5/d5KWw0swou"+ 
+                "twIDAQAB"+
+                "-----END PUBLIC KEY-----"
+                ));
         }
 
         static public string GetEnvVariable(string keyName)
@@ -98,8 +124,24 @@ namespace ExampleUtils {
             };
         }
 
+        static public string GetBranchKeyArn()
+        {
+            return BRANCH_KEY_ARN;
+        }
+
+        static public string GetKeyStoreName()
+        {
+            return BRANCH_KEY_STORE_NAME;
+        }
+
+        static public string GetLogicalKeyStoreName()
+        {
+            return LOGICAL_KEY_STORE_NAME;
+        }
+        
+
         // Helper method to create RawAESKeyring for examples.
-        public static IKeyring GetRawAESKeyring(IAwsCryptographicMaterialProviders materialProviders)
+        public static IKeyring GetRawAESKeyring(MaterialProviders materialProviders)
         {
             // Generate a 256-bit AES key to use with your keyring.
             // Here we use BouncyCastle, but you don't have to.
@@ -128,6 +170,26 @@ namespace ExampleUtils {
             return aesKeyring;
         }
 
+        public static ICryptographicMaterialsManager GetRequiredEncryptionContextCMM(
+            MaterialProviders materialProviders, List<string> requiredEncryptionContextKeys, IKeyring keyring
+        )
+        {
+            // Create a Required Encryption Context CMM
+            var requiredEncryptionContextCMMInput = new CreateRequiredEncryptionContextCMMInput
+            {
+                
+                UnderlyingCMM = materialProviders.CreateDefaultCryptographicMaterialsManager(
+                    new CreateDefaultCryptographicMaterialsManagerInput{Keyring = keyring}),
+                // If you pass in a keyring but no underlying cmm, it will result in a failure because only cmm is supported.
+                RequiredEncryptionContextKeys = requiredEncryptionContextKeys 
+            };
+
+            var requiredEncryptionContextCMM =
+                materialProviders.CreateRequiredEncryptionContextCMM(requiredEncryptionContextCMMInput);
+            
+            return requiredEncryptionContextCMM;
+        }
+
         public static Dictionary<string, string> GetEncryptionContext()
         {
             return ENCRYPTION_CONTEXT.ToDictionary(p => p.Key, p => p.Value);
@@ -135,9 +197,8 @@ namespace ExampleUtils {
 
         public static MemoryStream EncryptMessageWithKMSKey(MemoryStream plaintext, string kmsKeyArn)
         {
-            var materialProviders =
-                AwsCryptographicMaterialProvidersFactory.CreateDefaultAwsCryptographicMaterialProviders();
-            var encryptionSdk = AwsEncryptionSdkFactory.CreateDefaultAwsEncryptionSdk();
+            var materialProviders = new MaterialProviders(new MaterialProvidersConfig());
+            var encryptionSdk = new ESDK(new AwsEncryptionSdkConfig());
             var createKeyringInput = new CreateAwsKmsMrkMultiKeyringInput()
             {
                 Generator = kmsKeyArn

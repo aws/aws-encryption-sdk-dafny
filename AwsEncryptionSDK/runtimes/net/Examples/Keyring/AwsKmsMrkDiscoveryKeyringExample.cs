@@ -5,8 +5,8 @@ using System;
 using System.IO;
 using Amazon;
 using Amazon.KeyManagementService;
-using AWS.EncryptionSDK;
-using AWS.EncryptionSDK.Core;
+using AWS.Cryptography.EncryptionSDK;
+using AWS.Cryptography.MaterialProviders;
 using Xunit;
 using static ExampleUtils.ExampleUtils;
 using static ExampleUtils.WriteExampleResources;
@@ -19,9 +19,8 @@ public class AwsKmsMrkDiscoveryKeyringExample
     private static void Run(MemoryStream plaintext, RegionEndpoint decryptRegion)
     {
         // Instantiate the Material Providers and the AWS Encryption SDK
-        var materialProviders =
-            AwsCryptographicMaterialProvidersFactory.CreateDefaultAwsCryptographicMaterialProviders();
-        var encryptionSdk = AwsEncryptionSdkFactory.CreateDefaultAwsEncryptionSdk();
+        var materialProviders = new MaterialProviders(new MaterialProvidersConfig());
+        var encryptionSdk = new ESDK(new AwsEncryptionSdkConfig());
 
         // To focus on the AWS KMS MRK Discovery Keyring,
         // we will rely on a helper method
