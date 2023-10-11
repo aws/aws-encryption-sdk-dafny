@@ -4,8 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using AWS.EncryptionSDK;
-using AWS.EncryptionSDK.Core;
+using AWS.Cryptography.EncryptionSDK;
+using AWS.Cryptography.MaterialProviders;
 using Xunit;
 using static ExampleUtils.ExampleUtils;
 
@@ -28,9 +28,8 @@ public class SigningOnlyExample
         };
 
         // Instantiate the Material Providers and the AWS Encryption SDK
-        var materialProviders =
-            AwsCryptographicMaterialProvidersFactory.CreateDefaultAwsCryptographicMaterialProviders();
-        var encryptionSdk = AwsEncryptionSdkFactory.CreateDefaultAwsEncryptionSdk();
+        var materialProviders = new MaterialProviders(new MaterialProvidersConfig());
+        var encryptionSdk = new ESDK(new AwsEncryptionSdkConfig());
 
         // Create a keyring via a helper method.
         var keyring = GetRawAESKeyring(materialProviders);
@@ -44,7 +43,7 @@ public class SigningOnlyExample
             Plaintext = plaintext,
             MaterialsManager = cmm,
             EncryptionContext = encryptionContext,
-            AlgorithmSuiteId = AlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384
+            AlgorithmSuiteId = ESDKAlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384
         };
         var encryptOutput = encryptionSdk.Encrypt(encryptInput);
         var ciphertext = encryptOutput.Ciphertext;
@@ -75,16 +74,16 @@ public class SigningOnlyExample
             Plaintext = plaintext,
             MaterialsManager = cmm,
             EncryptionContext = encryptionContext,
-            AlgorithmSuiteId = AlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY
+            AlgorithmSuiteId = ESDKAlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY
         };
         try
         {
             encryptionSdk.Encrypt(encryptInput);
         }
         // The Encryption SDK converts the custom exception
-        // to an AwsEncryptionSdkBaseException, while retaining
+        // to an AwsCryptographicMaterialProvidersException, while retaining
         // the exception message.
-        catch (AwsEncryptionSdkBaseException baseException)
+        catch (AwsCryptographicMaterialProvidersException baseException)
         {
             Assert.Equal("Algorithm Suite must use Signing", baseException.Message);
             encryptFailed = true;
@@ -103,7 +102,7 @@ public class SigningOnlyExample
         {
             Plaintext = plaintext,
             EncryptionContext = encryptionContext,
-            AlgorithmSuiteId = AlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY,
+            AlgorithmSuiteId = ESDKAlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY,
             Keyring = keyring
         };
         encryptOutput = encryptionSdk.Encrypt(keyringEncryptInput);
@@ -116,7 +115,7 @@ public class SigningOnlyExample
         {
             encryptionSdk.Decrypt(decryptInput);
         }
-        catch (AwsEncryptionSdkBaseException)
+        catch (AwsCryptographicMaterialProvidersException)
         {
             decryptFailed = true;
         }

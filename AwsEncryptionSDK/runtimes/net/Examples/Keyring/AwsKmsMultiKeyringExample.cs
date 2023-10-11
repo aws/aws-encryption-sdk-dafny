@@ -6,8 +6,8 @@ using System.Collections.Generic;
 using System.IO;
 using Amazon;
 using Amazon.KeyManagementService;
-using AWS.EncryptionSDK;
-using AWS.EncryptionSDK.Core;
+using AWS.Cryptography.EncryptionSDK;
+using AWS.Cryptography.MaterialProviders;
 using Xunit;
 using static ExampleUtils.ExampleUtils;
 
@@ -32,9 +32,8 @@ public class AwsKmsMultiKeyring
         };
 
         // Instantiate the Material Providers and the AWS Encryption SDK
-        var materialProviders =
-            AwsCryptographicMaterialProvidersFactory.CreateDefaultAwsCryptographicMaterialProviders();
-        var encryptionSdk = AwsEncryptionSdkFactory.CreateDefaultAwsEncryptionSdk();
+        var materialProviders = new MaterialProviders(new MaterialProvidersConfig());
+        var encryptionSdk = new ESDK(new AwsEncryptionSdkConfig());
 
         // Create a AwsKmsMultiKeyring that protects your data under two different KMS Keys.
         // Either KMS Key individually is capable of decrypting data encrypted under this AwsKmsMultiKeyring.

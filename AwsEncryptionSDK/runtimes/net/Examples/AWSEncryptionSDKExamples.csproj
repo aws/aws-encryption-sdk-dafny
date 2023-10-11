@@ -6,8 +6,9 @@
     So we specify netcoreapp3.1 instead of the more general netstandard2.1.
     See https://xunit.net/docs/why-no-netstandard.
     -->
-    <TargetFrameworks>netcoreapp3.1;net452</TargetFrameworks>
-    <LangVersion>7.3</LangVersion>
+    <TargetFrameworks>net6.0;net48</TargetFrameworks>
+    <LangVersion>10</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
     <IsPackable>false</IsPackable>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <!--
@@ -18,7 +19,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../Source/AWSEncryptionSDK.csproj" />
+    <ProjectReference Include="../ESDK.csproj" />
     <PackageReference Include="System.Collections.Immutable" Version="1.7.0" />
     <PackageReference Include="xunit" Version="2.4.0" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.0" />

@@ -4,8 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using AWS.EncryptionSDK;
-using AWS.EncryptionSDK.Core;
+using AWS.Cryptography.EncryptionSDK;
+using AWS.Cryptography.MaterialProviders;
 using Org.BouncyCastle.Security; // In this example, we use BouncyCastle to generate a wrapping key.
 using Xunit;
 
@@ -41,9 +41,8 @@ public class RawAESKeyringExample
         var keyName = "My 256-bit AES wrapping key";
 
         // Instantiate the Material Providers and the AWS Encryption SDK
-        var materialProviders =
-            AwsCryptographicMaterialProvidersFactory.CreateDefaultAwsCryptographicMaterialProviders();
-        var encryptionSdk = AwsEncryptionSdkFactory.CreateDefaultAwsEncryptionSdk();
+        var materialProviders = new MaterialProviders(new MaterialProvidersConfig());
+        var encryptionSdk = new ESDK(new AwsEncryptionSdkConfig());
 
         // Create the keyring that determines how your data keys are protected.
         var createKeyringInput = new CreateRawAesKeyringInput

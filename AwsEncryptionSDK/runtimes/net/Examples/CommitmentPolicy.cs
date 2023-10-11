@@ -4,8 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using AWS.EncryptionSDK;
-using AWS.EncryptionSDK.Core;
+using AWS.Cryptography.EncryptionSDK;
+using AWS.Cryptography.MaterialProviders;
 using Xunit;
 using static ExampleUtils.ExampleUtils;
 
@@ -32,15 +32,14 @@ public class CommitmentPolicyExample
         };
 
         // Instantiate the Material Providers
-        var materialProviders =
-            AwsCryptographicMaterialProvidersFactory.CreateDefaultAwsCryptographicMaterialProviders();
+        var materialProviders = new MaterialProviders(new MaterialProvidersConfig());
         // Set the EncryptionSDK's commitment policy parameter
         var esdkConfig = new AwsEncryptionSdkConfig
         {
-            CommitmentPolicy = CommitmentPolicy.FORBID_ENCRYPT_ALLOW_DECRYPT
+            CommitmentPolicy = ESDKCommitmentPolicy.FORBID_ENCRYPT_ALLOW_DECRYPT
         };
         // Instantiate the EncryptionSDK with the configuration
-        var encryptionSdk = AwsEncryptionSdkFactory.CreateAwsEncryptionSdk(esdkConfig);
+        var encryptionSdk = new ESDK(esdkConfig);
 
         // For illustrative purposes we create a Raw AES Keyring. You can use any keyring in its place.
         var keyring = GetRawAESKeyring(materialProviders);
@@ -94,10 +93,10 @@ public class CommitmentPolicyExample
         var failedDecryption = false;
         esdkConfig = new AwsEncryptionSdkConfig
         {
-            CommitmentPolicy = CommitmentPolicy.REQUIRE_ENCRYPT_REQUIRE_DECRYPT
+            CommitmentPolicy = ESDKCommitmentPolicy.REQUIRE_ENCRYPT_REQUIRE_DECRYPT
         };
         // Instantiate the EncryptionSDK with the configuration
-        encryptionSdk = AwsEncryptionSdkFactory.CreateAwsEncryptionSdk(esdkConfig);
+        encryptionSdk = new ESDK(esdkConfig);
 
         // Repeat the earlier decryption steps, proving that they fail
         try
@@ -105,7 +104,7 @@ public class CommitmentPolicyExample
             encryptionSdk.Decrypt(decryptInput);
         }
 #pragma warning disable 168
-        catch (AwsEncryptionSdkException ignore)
+        catch (InvalidAlgorithmSuiteInfoOnDecrypt ignore)
 #pragma warning restore 168
         {
             failedDecryption = true;
@@ -123,7 +122,7 @@ public class CommitmentPolicyExample
             Plaintext = plaintext,
             Keyring = keyring,
             EncryptionContext = encryptionContext,
-            AlgorithmSuiteId = AlgorithmSuiteId.ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384
+            AlgorithmSuiteId = ESDKAlgorithmSuiteId.ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384
         };
         // The encryption will fail.
         try
@@ -131,7 +130,7 @@ public class CommitmentPolicyExample
             encryptionSdk.Encrypt(encryptInput);
         }
 #pragma warning disable 168
-        catch (AwsEncryptionSdkException ignore)
+        catch (InvalidAlgorithmSuiteInfoOnEncrypt ignore)
 #pragma warning restore 168
         {
             failedEncrypt = true;

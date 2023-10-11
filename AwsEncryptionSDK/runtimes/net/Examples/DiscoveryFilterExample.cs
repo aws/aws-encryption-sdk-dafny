@@ -5,8 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Amazon.KeyManagementService;
-using AWS.EncryptionSDK;
-using AWS.EncryptionSDK.Core;
+using AWS.Cryptography.EncryptionSDK;
+using AWS.Cryptography.MaterialProviders;
 using Xunit;
 using static ExampleUtils.ExampleUtils;
 using static ExampleUtils.WriteExampleResources;
@@ -54,8 +54,7 @@ public class DiscoveryFilterExample
     )
     {
         /* 1. Instantiate the Material Providers and Encryption SDK */
-        var materialProviders =
-            AwsCryptographicMaterialProvidersFactory.CreateDefaultAwsCryptographicMaterialProviders();
+        var materialProviders = new MaterialProviders(new MaterialProvidersConfig());
         // Instantiate the Encryption SDK such that it limits the number of
         // Encrypted Data Keys a ciphertext may contain.
         // Discovery Keyrings are an excellent tool
@@ -67,7 +66,7 @@ public class DiscoveryFilterExample
         {
             MaxEncryptedDataKeys = 1
         };
-        var encryptionSdk = AwsEncryptionSdkFactory.CreateAwsEncryptionSdk(esdkConfig);
+        var encryptionSdk = new ESDK(esdkConfig);
 
         /* 2. Create a Discovery Keyring with a Discovery Filter */
         // We create a Discovery keyring to use for decryption.
@@ -123,7 +122,7 @@ public class DiscoveryFilterExample
         {
             encryptionSdk.Decrypt(decryptInput);
         }
-        catch (AwsEncryptionSdkException)
+        catch (AwsCryptographicMaterialProvidersException)
         {
             decryptFailed = true;
         }

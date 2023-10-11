@@ -5,8 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using AWS.EncryptionSDK;
-using AWS.EncryptionSDK.Core;
+using AWS.Cryptography.EncryptionSDK;
+using AWS.Cryptography.MaterialProviders;
 using Xunit;
 using static ExampleUtils.ExampleUtils;
 
@@ -36,15 +36,14 @@ public class LimitEncryptedDataKeysExample
         };
 
         // Instantiate the Material Providers
-        var materialProviders =
-            AwsCryptographicMaterialProvidersFactory.CreateDefaultAwsCryptographicMaterialProviders();
+        var materialProviders = new MaterialProviders(new MaterialProvidersConfig());
         // Set the EncryptionSDK's MaxEncryptedDataKeys parameter
         var esdkConfig = new AwsEncryptionSdkConfig
         {
             MaxEncryptedDataKeys = maxEncryptedDataKeys
         };
         // Instantiate the EncryptionSDK with the configuration
-        var encryptionSdk = AwsEncryptionSdkFactory.CreateAwsEncryptionSdk(esdkConfig);
+        var encryptionSdk = new ESDK(esdkConfig);
 
         // We will use a helper method to create a Multi Keyring with `maxEncryptedDataKeys` AES Keyrings
         var keyrings = new Queue<IKeyring>();
@@ -109,16 +108,14 @@ public class LimitEncryptedDataKeysExample
             MaxEncryptedDataKeys = maxEncryptedDataKeys - 1
         };
         // Instantiate the EncryptionSDK with the configuration
-        encryptionSdk = AwsEncryptionSdkFactory.CreateAwsEncryptionSdk(esdkConfig);
+        encryptionSdk = new ESDK(esdkConfig);
 
         // Repeat the earlier decryption steps, proving that they fail
         try
         {
             encryptionSdk.Decrypt(decryptInput);
         }
-#pragma warning disable 168
         catch (AwsEncryptionSdkException ignore)
-#pragma warning restore 168
         {
             failedDecryption = true;
         }

@@ -4,8 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using AWS.EncryptionSDK;
-using AWS.EncryptionSDK.Core;
+using AWS.Cryptography.MaterialProviders;
 
 /// <summary>
 /// Demonstrates creating a custom Cryptographic Materials Manager (CMM).
@@ -19,15 +18,15 @@ public class SigningSuiteOnlyCMM : CryptographicMaterialsManagerBase
 {
     private readonly ICryptographicMaterialsManager _cmm;
 
-    private readonly ImmutableHashSet<AlgorithmSuiteId> _approvedAlgos = new HashSet<AlgorithmSuiteId>()
+    private readonly ImmutableHashSet<ESDKAlgorithmSuiteId> _approvedAlgos = new HashSet<ESDKAlgorithmSuiteId>()
     {
-        AlgorithmSuiteId.ALG_AES_128_GCM_IV12_TAG16_HKDF_SHA256_ECDSA_P256,
-        AlgorithmSuiteId.ALG_AES_192_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384,
-        AlgorithmSuiteId.ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384,
-        AlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384
+        ESDKAlgorithmSuiteId.ALG_AES_128_GCM_IV12_TAG16_HKDF_SHA256_ECDSA_P256,
+        ESDKAlgorithmSuiteId.ALG_AES_192_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384,
+        ESDKAlgorithmSuiteId.ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384,
+        ESDKAlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384
     }.ToImmutableHashSet();
 
-    public SigningSuiteOnlyCMM(IKeyring keyring, IAwsCryptographicMaterialProviders materialProviders)
+    public SigningSuiteOnlyCMM(IKeyring keyring, MaterialProviders materialProviders)
     {
         // Create a DefaultCryptographicMaterialsManager to facilitate
         // GetEncryptionMaterials and DecryptionMaterials
@@ -41,7 +40,7 @@ public class SigningSuiteOnlyCMM : CryptographicMaterialsManagerBase
 
     protected override GetEncryptionMaterialsOutput _GetEncryptionMaterials(GetEncryptionMaterialsInput input)
     {
-        if (!_approvedAlgos.Contains(input.AlgorithmSuiteId))
+        if (!_approvedAlgos.Contains(input.AlgorithmSuiteId.ESDK))
         {
             throw new NonSigningSuiteException();
         }
@@ -50,7 +49,7 @@ public class SigningSuiteOnlyCMM : CryptographicMaterialsManagerBase
 
     protected override DecryptMaterialsOutput _DecryptMaterials(DecryptMaterialsInput input)
     {
-        if (!_approvedAlgos.Contains(input.AlgorithmSuiteId))
+        if (!_approvedAlgos.Contains(input.AlgorithmSuiteId.ESDK))
         {
             throw new NonSigningSuiteException();
         }
@@ -63,7 +62,7 @@ public class SigningSuiteOnlyCMM : CryptographicMaterialsManagerBase
 // but the exception message will be altered.
 // By extending from the Library's Base Exception,
 // you can ensure the exception's message will be as intended.
-public class NonSigningSuiteException : AwsCryptographicMaterialProvidersBaseException
+public class NonSigningSuiteException : AwsCryptographicMaterialProvidersException
 {
     public NonSigningSuiteException() : base("Algorithm Suite must use Signing") { }
 }

@@ -7,7 +7,7 @@ using Amazon;
 using Amazon.KeyManagementService;
 using Amazon.SecurityToken;
 using Amazon.SecurityToken.Model;
-using AWS.EncryptionSDK.Core;
+using AWS.Cryptography.MaterialProviders;
 using static ExampleUtils.ExampleUtils;
 
 /// <summary>
@@ -90,7 +90,7 @@ public class RegionalRoleClientSupplier : ClientSupplierBase
 // but the exception message will be altered.
 // By extending from the Library's Base Exception,
 // you can ensure the exception's message will be as intended.
-public class MissingRegionException : AwsCryptographicMaterialProvidersBaseException
+public class MissingRegionException : AwsCryptographicMaterialProvidersException
 {
     public MissingRegionException(string region) : base(
         $"Region {region} is not supported by this client supplier")
@@ -98,7 +98,7 @@ public class MissingRegionException : AwsCryptographicMaterialProvidersBaseExcep
     }
 }
 
-public class AssumeRoleException : AwsCryptographicMaterialProvidersBaseException
+public class AssumeRoleException : AwsCryptographicMaterialProvidersException
 {
     public AssumeRoleException(string region, string roleArn, Exception e) : base(
         $"Attempt to assume Role Arn {roleArn} for Region {region}" +
