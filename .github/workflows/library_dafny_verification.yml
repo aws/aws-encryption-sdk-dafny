@@ -41,15 +41,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Init Submodules
-        env:
-          # This secret is in the configured environment
-          # Token created on # 09/26/2023
-          # expires in ~30 days 10/26/2023
-          MPL_PAT: ${{ secrets.MPL_DAFNY }}
         run: |
-            AUTH="$(echo -n "pat:${MPL_PAT}" | base64 | tr -d '\n')"
-            git config --global http.https://github.com/.extraheader "AUTHORIZATION: basic $AUTH"
-            git config --global --add url.https://github.com/.insteadOf git@github.com:
             git submodule update --init libraries
             git submodule update --init --recursive mpl
 

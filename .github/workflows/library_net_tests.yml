@@ -54,15 +54,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: Init Submodules
         shell: bash
-        env:
-          # This secret is in the configured environment
-          # Token created on # 09/26/2023
-          # expires in ~30 days 10/26/2023
-          MPL_PAT: ${{ secrets.MPL_DAFNY }}
         run: |
-          AUTH="$(echo -n "pat:${MPL_PAT}" | base64 | tr -d '\n')"
-          git config --global http.https://github.com/.extraheader "AUTHORIZATION: basic $AUTH"
-          git config --global --add url.https://github.com/.insteadOf git@github.com:
           git submodule update --init libraries
           git submodule update --init --recursive mpl
 
@@ -70,7 +62,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-region: us-west-2
-          role-to-assume: arn:aws:iam::370957321024:role/GitHub-CI-ESDK-Dafny-Role-us-west-2
+          role-to-assume: arn:aws:iam::370957321024:role/GitHub-CI-Public-ESDK-Dafny-Role-us-west-2
           role-session-name: NetTests
 
       - name: Setup .NET Core SDK ${{ matrix.dotnet-version }}
