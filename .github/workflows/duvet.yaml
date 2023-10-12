@@ -20,13 +20,13 @@ jobs:
       DOTNET_CLI_TELEMETRY_OPTOUT: 1
       DOTNET_NOLOGO: 1
     steps:
+      - name: Support longpaths on Git checkout
+        run: |
+          git config --global core.longpaths true
+      
       - uses: actions/checkout@v3
         with:
-          # This secret is in the configured environment
-          # Token created on # 12/14/2022
-          # expires in ~30 days 01/13/2023
-          token: ${{ secrets.PAT_SPEC }}
-          submodules: true
+         submodules: true
 
       - name: Install duvet
         shell: bash
