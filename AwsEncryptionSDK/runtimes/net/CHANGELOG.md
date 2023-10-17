@@ -15,6 +15,12 @@
 * AWS KMS RSA Keyring
 * AWS KMS Hierarchical Keyring
 
+### NuGet Rename
+_Added on October 16th, 2023_
+As of version 4.0.0, the AWS Encryption SDK for .NET is on NuGet as [AWS.Cryptography.EncryptionSDK](https://www.nuget.org/packages/AWS.Cryptography.EncryptionSDK).
+
+Prior versions are under [AWS.EncryptionSDK](https://www.nuget.org/packages/AWS.EncryptionSDK).
+
 
 ## 3.1.0
 
