@@ -48,7 +48,6 @@ using Xunit;
 /// 
 /// This example also requires using a KMS Key.
 /// You need the following access on this key:
-/// - GenerateDataKeyWithoutPlaintext
 /// - Decrypt
 /// </summary>
 public class AwsKmsHierarchicalKeyringBranchKeySupplier

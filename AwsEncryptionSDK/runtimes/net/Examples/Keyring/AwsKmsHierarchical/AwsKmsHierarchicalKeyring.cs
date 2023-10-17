@@ -45,7 +45,7 @@ using Xunit;
 ///   with a static branch key configuration to ensure we are restricting
 ///   access to a single tenant. 
 /// 
-/// This example requires access to the DDB Table where you are storing the Branch Keys.
+/// This example requires read, write, and DescribeTable access to the DDB Table where you are storing the Branch Keys.
 /// This table must be configured with the following
 /// primary key configuration:
 /// - Partition key is named "partition_key" with type (S)
@@ -54,6 +54,7 @@ using Xunit;
 /// This example also requires using a KMS Key.
 /// You need the following access on this key:
 /// - GenerateDataKeyWithoutPlaintext
+/// - ReEncrypt
 /// - Decrypt
 /// </summary>
 public class AwsKmsHierarchicalKeyring
@@ -82,8 +83,14 @@ public class AwsKmsHierarchicalKeyring
         //    the table's configuration and will error if the configuration is incorrect.
         //    It may take a couple minutes for the table to become ACTIVE,
         //    at which point it is ready to store branch and beacon keys.
-        
-        // keyStore.CreateKeyStore(new CreateKeyStoreInput());
+        //    To create a KeyStore table, you need:
+        //     - "dynamodb:DescribeTable",
+        //     - "dynamodb:CreateTable",
+       
+        // This will NOT create a Key Store but check that the configured table name exists and it validates
+        // its construction. In order to check the construction is correct the configured IAM role
+        // MUST have `DescribeTable` permission on the Key Store resource.
+        keyStore.CreateKeyStore(new CreateKeyStoreInput());
         
         // We have already created a Table with the specified configuration.
         // For testing purposes we will not create a table when we run this example.
@@ -92,10 +99,14 @@ public class AwsKmsHierarchicalKeyring
         //    Both the branch key and the beacon key will share an Id.
         //    This creation is eventually consistent. See the CreateBranchKey
         //    Example for how to populate this table.
+        //    To create a Branch Key and a Beacon Key you need:
+        //    - "dynamodb:PutItem",
+        //    - "dynamodb:ConditionCheckItem",
+        //    - "dynamodb:UpdateItem" 
         
         // var branchKeyId = CreateBranchKey.createBranchKey();
         
-        // For testing purposes we will not create a table when we run this example.
+        // For testing purposes we will not create another Branch Key when we run this example.
         // We will use an existing branch key created using the above code to run this
         // example.
         
@@ -105,9 +116,9 @@ public class AwsKmsHierarchicalKeyring
         // 4. Create the Hierarchical Keyring, using the Branch Key ID Supplier above.
         //    With this configuration, the AWS SDK Client ultimately configured will be capable
         //    of encrypting or decrypting items for either tenant (assuming correct KMS access).
-        //    If you want to restrict the client to only encrypt or decrypt for a single tenant,
-        //    configure this Hierarchical Keyring using `BranchKeyId = tenant1BranchKeyId` instead
-        //    of `BranchKeyIdSupplier = branchKeySupplier`.
+        //    We are restricting the keyring to only branch key by statically configuring
+        //    it with a branch key id. For an examples on how to decide on which branch key to 
+        //    use see the `AwsKmsHierarchicalKeyringBranhcKeySupplier` example in this directory.
         var createKeyringInput = new CreateAwsKmsHierarchicalKeyringInput
         {
             KeyStore = keyStore,
@@ -145,6 +156,9 @@ public class AwsKmsHierarchicalKeyring
         };
         
         // 6. Encrypt the Data
+        //    To encrypt data using the Hierarchical Keyring you need:
+        //    - "dynamodb:Query",
+        //    - "kms:Decrypt"
         var encryptOutput = encryptionSdk.Encrypt(encryptInput);
         
         // Demonstrate that the ciphertext and plaintext are different.
@@ -158,20 +172,28 @@ public class AwsKmsHierarchicalKeyring
         };
 
         // 7. Decrypt the Data
+        //    To decrypt data using the Hierarchical Keyring you need:
+        //    - "dynamodb:GetItem"
+        //    - "kms:Decrypt"
         var decryptOutput = encryptionSdk.Decrypt(decryptInput);
         
         // Demonstrate that the decrypted ciphertext and plaintext are the same
         Assert.Equal(decryptOutput.Plaintext.ToArray(), plaintext.ToArray());
         
-        // 8. Version the Branch Key in our KeyStore.
+        // 8. Rotate the Branch Key in our KeyStore.
         //    Only the branch key will be rotated. 
         //    This rotation is eventually consistent. See the VersionBranchKey
-        //    Example for how to version a branch key.
+        //    Example for how to rotate a branch key.
+        //    To rotate a branch key you need:
+        //    - "dynamodb:GetItem"
+        //    - "kms:ReEncrypt*"
+        //    - "kms:GenerateDataKeyWithoutPlaintext"
         
         // For testing purposes we will not version this key when we run this example.
         // VersionBranchKey.versionBranchKey(branchKeyId);
     }
 
+    [Fact]
     public void TestAwsKmsHierarchicalKeyring()
     {
         Run(ExampleUtils.ExampleUtils.GetPlaintextStream());
