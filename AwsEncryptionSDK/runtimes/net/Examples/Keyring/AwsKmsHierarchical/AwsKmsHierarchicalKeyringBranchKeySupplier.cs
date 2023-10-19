@@ -40,12 +40,21 @@ using Xunit;
 /// with a Branch Key ID Supplier to encrypt and decrypt data for
 /// two separate tenants.
 /// 
-/// This example requires access to the DDB Table where you are storing the Branch Keys.
+/// This example requires read access to the DDB Table where you are storing the Branch Keys.
 /// This table must be configured with the following
 /// primary key configuration:
 /// - Partition key is named "partition_key" with type (S)
 /// - Sort key is named "sort_key" with type (S)
-/// 
+///
+/// This example assumes there are Branch Keys in the Key Store.
+/// For a more detailed example on how to create a Key Store and add
+/// branch keys to it, see the `AwsKmsHierarchicalKeyring` Example in this directory.
+///  
+/// In order to run this example you need:
+///   - "dynamodb:Query"
+///   - "dynamodb:GetItem"
+///   - "kms:Decrypt"
+///  
 /// This example also requires using a KMS Key.
 /// You need the following access on this key:
 /// - Decrypt

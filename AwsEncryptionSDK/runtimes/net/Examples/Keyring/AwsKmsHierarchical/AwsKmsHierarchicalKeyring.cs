@@ -50,7 +50,10 @@ using Xunit;
 /// primary key configuration:
 /// - Partition key is named "partition_key" with type (S)
 /// - Sort key is named "sort_key" with type (S)
-/// 
+///
+/// For more information on the AWS KMS Hierarchical Keyring visit the Developer Guide:
+/// https://docs.aws.amazon.com/encryption-sdk/latest/developer-guide/use-hierarchical-keyring.html
+///
 /// This example also requires using a KMS Key.
 /// You need the following access on this key:
 /// - GenerateDataKeyWithoutPlaintext
@@ -113,7 +116,7 @@ public class AwsKmsHierarchicalKeyring
         // THIS IS A PUBLIC RESOURCE DO NOT USE IN A PRODUCTION ENVIRONMENT
         var branchKeyId = "43574aa0-de30-424e-bad4-0b06f6e89478";
         
-        // 4. Create the Hierarchical Keyring, using the Branch Key ID Supplier above.
+        // 4. Create the Hierarchical Keyring, with a static Branch Key ID.
         //    With this configuration, the AWS SDK Client ultimately configured will be capable
         //    of encrypting or decrypting items for either tenant (assuming correct KMS access).
         //    We are restricting the keyring to only branch key by statically configuring
@@ -182,12 +185,15 @@ public class AwsKmsHierarchicalKeyring
         
         // 8. Rotate the Branch Key in our KeyStore.
         //    Only the branch key will be rotated. 
-        //    This rotation is eventually consistent. See the VersionBranchKey
+        //    This rotation is eventually consistent. 
+        //    See the VersionBranchKey for a narrower example.
+        //    See the Developer Guide for details:
+        //    https://docs.aws.amazon.com/encryption-sdk/latest/developer-guide/use-hierarchical-keyring.html#rotate-branch-key
         //    Example for how to rotate a branch key.
         //    To rotate a branch key you need:
         //    - "dynamodb:GetItem"
         //    - "kms:ReEncrypt*"
-        //    - "kms:GenerateDataKeyWithoutPlaintext"
+        //    - "kms:GenerateDataKeyWithoutPlaintext" 
         
         // For testing purposes we will not version this key when we run this example.
         // VersionBranchKey.versionBranchKey(branchKeyId);
