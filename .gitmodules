@@ -11,3 +11,9 @@
 [submodule "smithy-dafny"]
 	path = smithy-dafny
 	url = https://github.com/awslabs/smithy-dafny
+[submodule "AwsEncryptionSDK/runtimes/net/TestVectorsV3/TestVectors/resources/aws-encryption-sdk-test-vectors"]
+	path = AwsEncryptionSDK/runtimes/net/TestVectorsV3/TestVectors/resources/aws-encryption-sdk-test-vectors
+	url = https://github.com/awslabs/aws-encryption-sdk-test-vectors.git
+[submodule "TestVectors/aws-encryption-sdk-test-vectors"]
+	path = TestVectors/aws-encryption-sdk-test-vectors
+	url = https://github.com/awslabs/aws-encryption-sdk-test-vectors.git
