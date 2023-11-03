@@ -5,7 +5,7 @@ on:
   pull_request:
   push:
     branches:
-      - main
+      - public-v4
   workflow_dispatch:
     # Manual trigger for this workflow, either the normal version
     # or the nightly build that uses the latest Dafny prerelease
