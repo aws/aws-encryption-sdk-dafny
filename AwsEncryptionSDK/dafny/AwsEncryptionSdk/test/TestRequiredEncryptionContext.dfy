@@ -806,10 +806,10 @@ module TestRequiredEncryptionContext {
     method {:test} TestRemoveECAndSupplyMismatchedReprECFailure()
     {
 
-        // encrypt remove(a) RSA {a, b} => decrypt {b:c} => fail
-        // encrypt remove(a) KMS {a, b} => decrypt {b:c} => fail
-        // encrypt remove(a) AES {a, b} => decrypt {b:c} => fail
-        // encrypt remove(a) Hie {a, b} => decrypt {b:c} => fail
+        // encrypt remove(a) RSA {a, b} => decrypt {a:c} => fail
+        // encrypt remove(a) KMS {a, b} => decrypt {a:c} => fail
+        // encrypt remove(a) AES {a, b} => decrypt {a:c} => fail
+        // encrypt remove(a) Hie {a, b} => decrypt {a:c} => fail
         
         // The string "asdf" as bytes
         var asdf := [ 97, 115, 100, 102 ];
