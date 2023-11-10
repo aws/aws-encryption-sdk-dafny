@@ -18,13 +18,30 @@ using Exception = System.Exception;
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 
 namespace TestVectors.Runner {
+    
+    static class RunnerUtils
+    {
+        internal static NetV4_0_0_RetryPolicy fromString(string input)
+        {
+            return input.ToLower() switch
+            {
+                "forbid" => NetV4_0_0_RetryPolicy.FORBID_NET_4_0_0_RETRY,
+                "allow" => NetV4_0_0_RetryPolicy.ALLOW_NET_4_0_0_RETRY,
+                _ => throw new ArgumentException(
+                    $"Net v4.0.0 retry policy MUST be forbid or allow, got: {input}")
+            };
+        }
+    }
     public abstract class TestVectorData : IEnumerable<object[]> {
         protected readonly Dictionary<string, DecryptVector> VectorMap;
         protected readonly Dictionary<string, Key> KeyMap;
         protected readonly string VectorRoot;
+        protected readonly NetV4_0_0_RetryPolicy _netV400RetryPolicy;
 
         protected TestVectorData() {
             this.VectorRoot = Utils.GetEnvironmentVariableOrError("DAFNY_AWS_ESDK_TEST_VECTOR_MANIFEST_PATH");
+            this._netV400RetryPolicy = Utils.GetEnvironmentVariableOrDefault("ESDK_NET_V400_POLICY",
+                NetV4_0_0_RetryPolicy.ALLOW_NET_4_0_0_RETRY, RunnerUtils.fromString);
             DecryptManifest manifest = Utils.LoadObjectFromPath<DecryptManifest>(VectorRoot);
             this.VectorMap = manifest.VectorMap;
             string keysPath = Utils.ManifestUriToPath(manifest.KeysUri, VectorRoot);
@@ -95,7 +112,7 @@ namespace TestVectors.Runner {
 
                 MemoryStream ciphertextStream = new MemoryStream(ciphertext);
 
-                yield return new object[] { vectorEntry.Key, vector, KeyMap, plaintext, errorMessage, ciphertextStream };
+                yield return new object[] { vectorEntry.Key, vector, KeyMap, plaintext, errorMessage, ciphertextStream, _netV400RetryPolicy };
                 count++;
             }
 
@@ -123,7 +140,8 @@ namespace TestVectors.Runner {
             Dictionary<string, Key> keyMap,
             byte[] expectedPlaintext,
             string expectedError,
-            MemoryStream ciphertextStream
+            MemoryStream ciphertextStream,
+            NetV4_0_0_RetryPolicy _netV400RetryPolicy
         ) {
             if (expectedPlaintext != null && expectedError != null)
             {
@@ -137,7 +155,8 @@ namespace TestVectors.Runner {
             {
                 AwsEncryptionSdkConfig config = new AwsEncryptionSdkConfig
                 {
-                    CommitmentPolicy = ESDKCommitmentPolicy.REQUIRE_ENCRYPT_ALLOW_DECRYPT
+                    CommitmentPolicy = ESDKCommitmentPolicy.REQUIRE_ENCRYPT_ALLOW_DECRYPT,
+                    NetV4__0__0__RetryPolicy = _netV400RetryPolicy
                 };
                 ESDK encryptionSdk = new ESDK(config);
 

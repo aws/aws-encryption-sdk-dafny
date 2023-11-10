@@ -21,6 +21,30 @@ namespace TestVectors
             return nullableResult;
         }
 
+        /// <summary>
+        /// Check the Environment for a variable.
+        /// If it exists, pass to function.
+        /// Otherwise, return default.
+        /// </summary>
+        /// <param name="key">Key for Environmental Variable</param>
+        /// <param name="_default">If key does not exist, use this</param>
+        /// <param name="stringToValue">If key does exist, pass to this function</param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static T GetEnvironmentVariableOrDefault<T>(
+            string key,
+            T _default,
+            Func<string, T> stringToValue)
+        {
+            string? nullableResult = Environment.GetEnvironmentVariable(key);
+            if (nullableResult is null)
+            {
+                return _default;
+            }
+
+            return stringToValue(nullableResult);
+        }
+
         public static T LoadObjectFromPath<T>(string path)
         {
             if (!File.Exists(path)) {

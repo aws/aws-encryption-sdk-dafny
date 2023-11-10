@@ -41,7 +41,8 @@ module AwsEncryptionSdkOperations refines AbstractAwsCryptographyEncryptionSdkOp
     nameonly crypto: Primitives.AtomicPrimitivesClient,
     nameonly mpl: MaterialProviders.MaterialProvidersClient,
     nameonly commitmentPolicy: AwsCryptographyMaterialProvidersTypes.ESDKCommitmentPolicy,
-    nameonly maxEncryptedDataKeys: Option<CountingNumbers>
+    nameonly maxEncryptedDataKeys: Option<CountingNumbers>,
+    nameonly netV4_0_0_RetryPolicy: NetV4_0_0_RetryPolicy
   )
 
   type InternalConfig = Config
@@ -193,9 +194,12 @@ module AwsEncryptionSdkOperations refines AbstractAwsCryptographyEncryptionSdkOp
     //# cmm-interface.md#get-encryption-materials) call.
     var messageId: HeaderTypes.MessageId :- EncryptDecryptHelpers.GenerateMessageId(materials.algorithmSuite, config.crypto);
 
+    // TODO Post-#619: Remove Net v4.0.0 references
+    // TODO Post-#619: Formally Verify Message ID is in info of HKDF
     var maybeDerivedDataKeys := KeyDerivation.DeriveKeys(
-      messageId, materials.plaintextDataKey.value, materials.algorithmSuite, config.crypto
+      messageId, materials.plaintextDataKey.value, materials.algorithmSuite, config.crypto, config.netV4_0_0_RetryPolicy, false
     );
+      
     var derivedDataKeys :- maybeDerivedDataKeys
       .MapFailure(e => Types.AwsEncryptionSdkException( message := "Failed to derive data keys"));
 
@@ -482,7 +486,9 @@ module AwsEncryptionSdkOperations refines AbstractAwsCryptographyEncryptionSdkOp
       && output.value.encryptionContext ==
         headerEncryptionContext + buildEncryptionContextToOnlyAuthenticate(decMat, headerEncryptionContext)
   {
-
+    // Track if a failure has triggered a V4 Retry
+    var v4Retry := false;
+    
     //= compliance/client-apis/decrypt.txt#2.5.1.1
     //= type=TODO
     //# To make diagnosing this mistake easier, implementations SHOULD detect
@@ -570,9 +576,9 @@ module AwsEncryptionSdkOperations refines AbstractAwsCryptographyEncryptionSdkOp
     }
     
     ConcatenateCorrectlyReadByteRanges(buffer, headerBody.tail, headerAuth.tail);
-
+    
     var maybeDerivedDataKeys := KeyDerivation.DeriveKeys(
-      headerBody.data.messageId, decMat.plaintextDataKey.value, suite, config.crypto
+      headerBody.data.messageId, decMat.plaintextDataKey.value, suite, config.crypto, config.netV4_0_0_RetryPolicy, false
     );
     :- Need(maybeDerivedDataKeys.Success?,
       Types.AwsEncryptionSdkException(
@@ -612,7 +618,7 @@ module AwsEncryptionSdkOperations refines AbstractAwsCryptographyEncryptionSdkOp
 
     var canonicalReqEncryptionContext := 
       EncryptionContext.GetCanonicalEncryptionContext(encryptionContextToOnlyAuthenticate);
-    var serializedReqEncryptionContext := 
+    var serializedReqEncryptionContext :=
       EncryptionContext.WriteAADPairs(canonicalReqEncryptionContext);
 
     var maybeHeaderAuth :=
@@ -641,6 +647,60 @@ module AwsEncryptionSdkOperations refines AbstractAwsCryptographyEncryptionSdkOp
         aad := rawHeader + serializedReqEncryptionContext
       ));
 
+
+    // TODO Post-#619: Add to the ESDK Specification the following:
+    // ESDK-NET v4.0.0 Header Auth Catch
+    // This will catch the Header Auth failure,
+    // The Retry MUST
+    // calculate the HKDF without the Message ID in the info and
+    // use EncryptionContext.WriteAAD to serialize the
+    // the Canonical Required Encryption Context.
+
+    // TODO Post-#619: Formally Verify this section
+    // TODO Post-#619: Duvet this section
+    // TODO Post-#619: Refactor this to eliminate duplicate code
+    if maybeHeaderAuth.Failure?
+      && config.netV4_0_0_RetryPolicy == NetV4_0_0_RetryPolicy.ALLOW_NET_4_0_0_RETRY
+      && v4Retry == false
+    {
+      v4Retry := true;
+      // Derive Keys following ESDK-NET @ v4.0.0 Behavior
+      maybeDerivedDataKeys := KeyDerivation.DeriveKeys(
+        headerBody.data.messageId, decMat.plaintextDataKey.value, suite, config.crypto, config.netV4_0_0_RetryPolicy, true
+      );
+      :- Need(maybeDerivedDataKeys.Success?,
+        Types.AwsEncryptionSdkException(
+        message := "Failed to derive data keys")
+      );
+      derivedDataKeys := maybeDerivedDataKeys.value;
+      // Serialize Required Encryption Context following ESDK-NET @ v4.0.0 Behavior
+      serializedReqEncryptionContext := EncryptionContext.WriteAAD(canonicalReqEncryptionContext);
+      maybeHeaderAuth :=
+        //= compliance/client-apis/decrypt.txt#2.7.3
+        //# Once a valid message header is deserialized and decryption materials
+        //# are available, this operation MUST validate the message header body
+        //# (../data-format/message-header.md#header-body) by using the
+        //# authenticated encryption algorithm (../framework/algorithm-
+        //# suites.md#encryption-algorithm) to decrypt with the following inputs:
+        config.crypto.AESDecrypt(Primitives.Types.AESDecryptInput(
+          encAlg := suite.encrypt.AES_GCM,
+          //#*  the cipherkey is the derived data key
+          key := derivedDataKeys.dataKey,
+          //#*  the ciphertext is an empty byte array
+          cipherTxt := [],
+          //#*  the tag is the value serialized in the message header's
+          //#   authentication tag field (../data-format/message-
+          //#   header.md#authentication-tag)
+          authTag := headerAuth.data.headerAuthTag,
+          //#*  the IV is the value serialized in the message header's IV field
+          //#   (../data-format/message-header#iv).
+          iv := headerAuth.data.headerIv,
+          //#*  MUST be the concatenation of the serialized [message header body]
+          //#   (../data-format/message-header.md#header-body)
+          //#   and the serialization of encryption context to only authenticate.
+          aad := rawHeader + serializedReqEncryptionContext
+          ));
+    }
     //= compliance/client-apis/decrypt.txt#2.7.3
     //# If this tag verification fails, this operation MUST immediately halt
     //# and fail.
@@ -660,7 +720,7 @@ module AwsEncryptionSdkOperations refines AbstractAwsCryptographyEncryptionSdkOp
     var key := derivedDataKeys.dataKey;
     var plaintext: seq<uint8>;
     var messageBodyTail: SerializeFunctions.ReadableBuffer;
-
+    
     //= compliance/client-apis/decrypt.txt#2.7.4
     //# Once the message header is successfully parsed, the next sequential
     //# bytes MUST be deserialized according to the message body spec

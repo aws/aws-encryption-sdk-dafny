@@ -11,11 +11,14 @@ module
   import MaterialProviders
   import AwsCryptographyMaterialProvidersTypes
 
+  // TODO Post-#619: Formally Verify this section
+  // TODO Post-#619: Duvet this section
   function method DefaultAwsEncryptionSdkConfig(): AwsEncryptionSdkConfig
   {
     AwsEncryptionSdkConfig(
       commitmentPolicy := Some(AwsCryptographyMaterialProvidersTypes.ESDKCommitmentPolicy.REQUIRE_ENCRYPT_REQUIRE_DECRYPT),
-      maxEncryptedDataKeys := None
+      maxEncryptedDataKeys := None,
+      netV4_0_0_RetryPolicy := Some(NetV4_0_0_RetryPolicy.ALLOW_NET_4_0_0_RETRY)
     )
   }
 
@@ -33,8 +36,8 @@ module
       crypto := crypto,
       mpl := mpl,
       commitmentPolicy := config.commitmentPolicy.UnwrapOr(AwsCryptographyMaterialProvidersTypes.ESDKCommitmentPolicy.REQUIRE_ENCRYPT_REQUIRE_DECRYPT),
-      maxEncryptedDataKeys := config.maxEncryptedDataKeys
-
+      maxEncryptedDataKeys := config.maxEncryptedDataKeys,
+      netV4_0_0_RetryPolicy := config.netV4_0_0_RetryPolicy.UnwrapOr(NetV4_0_0_RetryPolicy.ALLOW_NET_4_0_0_RETRY)
     );
     var client := new ESDKClient(internalConfig);
     return Success(client);

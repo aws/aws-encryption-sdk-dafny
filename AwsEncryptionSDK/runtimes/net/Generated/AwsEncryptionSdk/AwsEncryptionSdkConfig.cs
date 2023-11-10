@@ -6,6 +6,7 @@ using System;
  public class AwsEncryptionSdkConfig {
  private AWS.Cryptography.MaterialProviders.ESDKCommitmentPolicy _commitmentPolicy ;
  private long? _maxEncryptedDataKeys ;
+ private AWS.Cryptography.EncryptionSDK.NetV4_0_0_RetryPolicy _netV4_0_0_RetryPolicy ;
  public AWS.Cryptography.MaterialProviders.ESDKCommitmentPolicy CommitmentPolicy {
  get { return this._commitmentPolicy; }
  set { this._commitmentPolicy = value; }
@@ -19,6 +20,13 @@ using System;
 }
  public bool IsSetMaxEncryptedDataKeys () {
  return this._maxEncryptedDataKeys.HasValue;
+}
+ public AWS.Cryptography.EncryptionSDK.NetV4_0_0_RetryPolicy NetV4__0__0__RetryPolicy {
+ get { return this._netV4_0_0_RetryPolicy; }
+ set { this._netV4_0_0_RetryPolicy = value; }
+}
+ public bool IsSetNetV4__0__0__RetryPolicy () {
+ return this._netV4_0_0_RetryPolicy != null;
 }
  public void Validate() {
  

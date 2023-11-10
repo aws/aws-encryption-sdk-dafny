@@ -31,7 +31,9 @@ module KeyDerivation {
     messageId: HeaderTypes.MessageId,
     plaintextDataKey: seq<uint8>,
     suite: MPL.AlgorithmSuiteInfo,
-    crypto: Primitives.AtomicPrimitivesClient
+    crypto: Primitives.AtomicPrimitivesClient,
+    // TODO Post-#619: Refactor, breaking Net v4.0.0 logic out into independent method
+    onNetV4Retry: bool
   )
     returns (res: Result<ExpandedKeyMaterial, Types.Error>)
 
@@ -80,6 +82,17 @@ module KeyDerivation {
           info := suite.binaryId + messageId,
           expectedLength := hkdf.outputKeyLength
         );
+        // TODO Post-#619: Formally Verify this section
+        // TODO Post-#619: Duvet this section
+        if onNetV4Retry {
+          hkdfInput := AwsCryptographyPrimitivesTypes.HkdfInput(
+            digestAlgorithm := hkdf.hmac,
+            salt := None,
+            ikm := plaintextDataKey,
+            info := suite.binaryId,
+            expectedLength := hkdf.outputKeyLength
+            );
+        }
         var maybeDerivedKey := crypto.Hkdf(hkdfInput);
         var derivedKey :- maybeDerivedKey.MapFailure(e => Types.AwsCryptographyPrimitives(e));
 
@@ -209,7 +222,10 @@ module KeyDerivation {
     messageId: HeaderTypes.MessageId,
     plaintextKey: seq<uint8>,
     suite: MPL.AlgorithmSuiteInfo,
-    crypto: Primitives.AtomicPrimitivesClient
+    crypto: Primitives.AtomicPrimitivesClient,
+    // TODO Post-#619: Refactor, breaking Net v4.0.0 logic out into independent method
+    netV4_0_0_RetryPolicy: Types.NetV4_0_0_RetryPolicy,
+    onNetV4Retry: bool
   )
     returns (res: Result<ExpandedKeyMaterial, Types.Error>)
 
@@ -261,7 +277,12 @@ module KeyDerivation {
         }, Types.AwsEncryptionSdkException(
         message := "Suites with message version 1 must not have commitment"));
 
-      keys :- DeriveKey(messageId, plaintextKey, suite, crypto);
+        if netV4_0_0_RetryPolicy == Types.NetV4_0_0_RetryPolicy.ALLOW_NET_4_0_0_RETRY && onNetV4Retry {
+          keys :- DeriveKey(messageId, plaintextKey, suite, crypto, true);
+        } else {
+          keys :- DeriveKey(messageId, plaintextKey, suite, crypto, false);
+        }
+        
     } else {
       return Failure(Types.AwsEncryptionSdkException(
           message := "Unknown message version"));

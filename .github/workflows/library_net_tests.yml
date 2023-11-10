@@ -210,25 +210,35 @@ jobs:
           DOWNLOAD_NAME=net400.zip
           unzip -o -qq $DOWNLOAD_NAME -d $NET_400_VECTOR_PATH
 
-      - name: Run ESDK-NET @ v4.0.0 Vectors on .NET Framework net48
+      - name: Run ESDK-NET @ v4.0.0 Vectors on .NET Framework net48 expect failure
         continue-on-error: true
         working-directory: ./AwsEncryptionSDK/runtimes/net/TestVectorsNative/TestVectors
         shell: bash
         run: |
           NET_400_VECTOR_PATH=$GITHUB_WORKSPACE/net400/vectors
+          ESDK_NET_V400_POLICY="forbid" \
           DAFNY_AWS_ESDK_TEST_VECTOR_MANIFEST_PATH="$NET_400_VECTOR_PATH/manifest.json" \
           dotnet test --framework net6.0 &> /dev/null
           # Dotnet test returns 1 for failure.
           TEMP=$?; if [[ "$TEMP" -eq 1 ]]; then true; else false; fi;
           # We want this to fail, so if it returned 1, step passes, else it fails
-                    
-      - name: Run ESDK-NET @ v4.0.0 Vectors on .NET Framework net6.0
+
+      - name: Run ESDK-NET @ v4.0.0 Vectors on .NET Framework net48 expect success
+        working-directory: ./AwsEncryptionSDK/runtimes/net/TestVectorsNative/TestVectors
+        shell: bash
+        run: |
+          NET_400_VECTOR_PATH=$GITHUB_WORKSPACE/net400/vectors
+          DAFNY_AWS_ESDK_TEST_VECTOR_MANIFEST_PATH="$NET_400_VECTOR_PATH/manifest.json" \
+          dotnet test --framework net6.0
+          
+      - name: Run ESDK-NET @ v4.0.0 Vectors on .NET Framework net6.0 expect failure
         continue-on-error: true
         working-directory: ./AwsEncryptionSDK/runtimes/net/TestVectorsNative/TestVectors
         shell: bash
         run: |
           NET_400_VECTOR_PATH=$GITHUB_WORKSPACE/net400/vectors
           if [ "$RUNNER_OS" == "macOS" ]; then
+            ESDK_NET_V400_POLICY="forbid" \
             DAFNY_AWS_ESDK_TEST_VECTOR_MANIFEST_PATH="$NET_400_VECTOR_PATH/manifest.json" \
             DYLD_LIBRARY_PATH="/usr/local/opt/openssl@1.1/lib" \
             dotnet test --framework net6.0 &> /dev/null
@@ -236,6 +246,7 @@ jobs:
             TEMP=$?; if [[ "$TEMP" -eq 1 ]]; then true; else false; fi;
             # We want this to fail, so if it returned 1, step passes, else it fails
           else
+            ESDK_NET_V400_POLICY="forbid" \
             DAFNY_AWS_ESDK_TEST_VECTOR_MANIFEST_PATH="$NET_400_VECTOR_PATH/manifest.json" \
             dotnet test --framework net6.0 &> /dev/null
             # Dotnet test returns 1 for failure.
@@ -243,3 +254,17 @@ jobs:
             # We want this to fail, so if it returned 1, step passes, else it fails
           fi
 
+      - name: Run ESDK-NET @ v4.0.0 Vectors on .NET Framework net6.0 expect success
+        working-directory: ./AwsEncryptionSDK/runtimes/net/TestVectorsNative/TestVectors
+        shell: bash
+        run: |
+          NET_400_VECTOR_PATH=$GITHUB_WORKSPACE/net400/vectors
+          if [ "$RUNNER_OS" == "macOS" ]; then
+            DAFNY_AWS_ESDK_TEST_VECTOR_MANIFEST_PATH="$NET_400_VECTOR_PATH/manifest.json" \
+            DYLD_LIBRARY_PATH="/usr/local/opt/openssl@1.1/lib" \
+            dotnet test --framework net6.0
+          else
+            DAFNY_AWS_ESDK_TEST_VECTOR_MANIFEST_PATH="$NET_400_VECTOR_PATH/manifest.json" \
+            dotnet test --framework net6.0
+          fi
+          

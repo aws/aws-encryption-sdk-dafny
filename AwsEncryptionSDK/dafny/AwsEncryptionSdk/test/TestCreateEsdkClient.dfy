@@ -15,5 +15,6 @@ module TestCreateEsdkClient {
         
         expect esdk.config.commitmentPolicy == defaultConfig.commitmentPolicy.value;
         expect esdk.config.maxEncryptedDataKeys == defaultConfig.maxEncryptedDataKeys;
+        expect esdk.config.netV4_0_0_RetryPolicy == Types.NetV4_0_0_RetryPolicy.ALLOW_NET_4_0_0_RETRY;
     }
 }
