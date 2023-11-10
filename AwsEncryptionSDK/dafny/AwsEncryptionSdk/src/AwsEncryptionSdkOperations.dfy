@@ -613,7 +613,7 @@ module AwsEncryptionSdkOperations refines AbstractAwsCryptographyEncryptionSdkOp
     var canonicalReqEncryptionContext := 
       EncryptionContext.GetCanonicalEncryptionContext(encryptionContextToOnlyAuthenticate);
     var serializedReqEncryptionContext := 
-      EncryptionContext.WriteAAD(canonicalReqEncryptionContext);
+      EncryptionContext.WriteAADPairs(canonicalReqEncryptionContext);
 
     var maybeHeaderAuth :=
       //= compliance/client-apis/decrypt.txt#2.7.3

@@ -77,7 +77,7 @@ module KeyDerivation {
           digestAlgorithm := hkdf.hmac,
           salt := None,
           ikm := plaintextDataKey,
-          info := suite.binaryId,
+          info := suite.binaryId + messageId,
           expectedLength := hkdf.outputKeyLength
         );
         var maybeDerivedKey := crypto.Hkdf(hkdfInput);
