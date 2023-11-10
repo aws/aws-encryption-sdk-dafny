@@ -113,5 +113,10 @@ namespace TestVectors
                 }
             }
         }
+        
+        public class InvalidDecryptVectorException : Exception
+        {
+            public InvalidDecryptVectorException(string message) : base(message) { }
+        }
     }
 }

@@ -1,14 +1,11 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
 using Amazon;
 using Amazon.KeyManagementService;
-using AWS.EncryptionSDK.Core;
+using AWS.Cryptography.MaterialProviders;
+
 using RSAEncryption;
 
 namespace TestVectors
@@ -20,19 +17,44 @@ namespace TestVectors
 
     public static class MaterialProviderFactory
     {
-        public static IAwsCryptographicMaterialProviders materialProviders =
-                AwsCryptographicMaterialProvidersFactory.CreateDefaultAwsCryptographicMaterialProviders();
+        private static readonly MaterialProviders materialProviders = new(new MaterialProvidersConfig());
 
-        public static ICryptographicMaterialsManager CreateDecryptCmm(DecryptVector vector, Dictionary<string, Key> keys) {
-            CreateDefaultCryptographicMaterialsManagerInput input = new CreateDefaultCryptographicMaterialsManagerInput
+        public static ICryptographicMaterialsManager CreateDecryptCmm(
+            DecryptVector vector,
+            Dictionary<string, Key> keys, 
+            string vectorId
+            ) {
+            ICryptographicMaterialsManager cmm;
+            ICryptographicMaterialsManager defaultCMM = materialProviders.CreateDefaultCryptographicMaterialsManager(
+                new CreateDefaultCryptographicMaterialsManagerInput
+                {
+                    Keyring = CreateDecryptKeyring(vector, keys)
+                });
+            switch (vector.CMM)
             {
-                Keyring = CreateDecryptKeyring(vector, keys)
-            };
-            return materialProviders.CreateDefaultCryptographicMaterialsManager(input);
+                case "RequiredEncryptionContext":
+                    if (vector.EncryptionContext is null)
+                    {
+                        throw new Utils.InvalidDecryptVectorException(
+                            $"RequiredEncryptionContext requires Encryption Context! ID = {vector}");
+                    }
+                    CreateRequiredEncryptionContextCMMInput requiredCMM = new CreateRequiredEncryptionContextCMMInput
+                    {
+                        UnderlyingCMM = defaultCMM,
+                        RequiredEncryptionContextKeys = new List<string>(vector.EncryptionContext.Keys)
+                    };
+                    cmm = materialProviders.CreateRequiredEncryptionContextCMM(requiredCMM);
+                    break;
+                default:
+                    cmm = defaultCMM;
+                    break;
+            }
+            return cmm; 
         }
 
         private static IKeyring CreateDecryptKeyring(DecryptVector vector, Dictionary<string, Key> keys) {
             List<IKeyring> children = new List<IKeyring>();
+            Debug.Assert(vector.MasterKeys != null, "vector.MasterKeys != null");
             foreach (MasterKey keyInfo in vector.MasterKeys)
             {
                 // Some keyrings, like discovery KMS keyrings, do not specify keys
@@ -48,13 +70,32 @@ namespace TestVectors
             return materialProviders.CreateMultiKeyring(createMultiKeyringInput);
         }
 
-        public static ICryptographicMaterialsManager CreateEncryptCmm(EncryptVector vector, Dictionary<string, Key> keys) {
-            CreateDefaultCryptographicMaterialsManagerInput input = new CreateDefaultCryptographicMaterialsManagerInput
+        public static ICryptographicMaterialsManager CreateEncryptCmm(EncryptVector vector,
+            Dictionary<string, Key> keys)
+        {
+            ICryptographicMaterialsManager cmm;
+            ICryptographicMaterialsManager defaultCMM = materialProviders.CreateDefaultCryptographicMaterialsManager(
+                new CreateDefaultCryptographicMaterialsManagerInput
+                {
+                    Keyring = CreateEncryptKeyring(vector, keys)
+                });
+            switch (vector.Scenario.CMM)
             {
-                Keyring = CreateEncryptKeyring(vector, keys)
-            };
-            return materialProviders.CreateDefaultCryptographicMaterialsManager(input);
+                case "RequiredEncryptionContext":
+                    CreateRequiredEncryptionContextCMMInput requiredCMM = new CreateRequiredEncryptionContextCMMInput
+                    {
+                        UnderlyingCMM = defaultCMM,
+                        RequiredEncryptionContextKeys = new List<string>(vector.Scenario.EncryptionContext.Keys)
+                    };
+                    cmm = materialProviders.CreateRequiredEncryptionContextCMM(requiredCMM);
+                    break;
+                default:
+                    cmm = defaultCMM;
+                    break;
+            }
+            return cmm;
         }
+        
 
         private static IKeyring CreateEncryptKeyring(EncryptVector vector, Dictionary<string, Key> keys)
         {
@@ -100,10 +141,10 @@ namespace TestVectors
             }
 
             if (keyInfo.Type == "aws-kms-mrk-aware-discovery" && operation == CryptoOperation.DECRYPT) {
-                AWS.EncryptionSDK.Core.DiscoveryFilter filter = null;
+                AWS.Cryptography.MaterialProviders.DiscoveryFilter filter = null;
                 if (keyInfo.AwsKmsDiscoveryFilter != null)
                 {
-                    filter = new AWS.EncryptionSDK.Core.DiscoveryFilter
+                    filter = new AWS.Cryptography.MaterialProviders.DiscoveryFilter
                     {
                         AccountIds = (List<string>)keyInfo.AwsKmsDiscoveryFilter.AccountIds,
                         Partition = keyInfo.AwsKmsDiscoveryFilter.Partition,
@@ -165,9 +206,9 @@ namespace TestVectors
                 return materialProviders.CreateRawRsaKeyring(createKeyringInput);
             }
 
-            string operationStr = operation == CryptoOperation.ENCRYPT
-                ? "encryption"
-                : "decryption";
+            // string operationStr = operation == CryptoOperation.ENCRYPT
+            //     ? "encryption"
+            //     : "decryption";
             throw new Exception($"Unsupported keyring type for {operation}");
         }
 
@@ -180,7 +221,7 @@ namespace TestVectors
                 case 256:
                     return AesWrappingAlg.ALG_AES256_GCM_IV12_TAG16;
                 default: throw new Exception("Unsupported AES wrapping algorithm");
-            };
+            }
         }
 
         private static PaddingScheme RSAPaddingFromStrings(string strAlg, string strHash) {
@@ -197,7 +238,7 @@ namespace TestVectors
                         case "sha512": return PaddingScheme.OAEP_SHA512_MGF1;
                     }
                     break;
-            };
+            }
             throw new Exception("Unsupported RSA Padding " + strAlg + strHash);
         }
 
@@ -207,7 +248,7 @@ namespace TestVectors
             {
                 Arn arn = Arn.Parse(keyId);
                 return RegionEndpoint.GetBySystemName(arn.Region);
-            } catch (ArgumentException e)
+            } catch (ArgumentException)
             {
                 // Some of our test vector key definitions use a variety of
                 // malformed key ids.

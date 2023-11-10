@@ -1,0 +1,1992 @@
+{
+    "manifest": {
+        "type": "awses-decrypt-generate",
+        "version": 4
+    },
+    "keys": "file://net4x-keys.json",
+    "plaintexts": {
+        "small": 10240
+    },
+    "tests": {
+        "e38c1e38-02aa-4451-8347-9f3a8d98f600": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0014",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "aws-kms",
+                        "key": "us-west-2-decryptable"
+                    }
+                ],
+                "cmm": "Default"
+            }
+        },
+        "2c41e91f-9312-4368-9663-279c4780c09a": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0014",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "aws-kms",
+                        "key": "us-west-2-decryptable"
+                    }
+                ],
+                "cmm": "RequiredEncryptionContext"
+            }
+        },
+        "cbdd275b-7916-4e4f-b23e-a272384f888f": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0014",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "raw",
+                        "key": "aes-256",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "aes"
+                    }
+                ],
+                "cmm": "Default"
+            }
+        },
+        "3a8bc054-43e0-4a0e-b644-058cd8b44114": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0014",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "raw",
+                        "key": "aes-256",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "aes"
+                    }
+                ],
+                "cmm": "RequiredEncryptionContext"
+            }
+        },
+        "6f08a610-eba5-472d-aa53-957ed46e4e27": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0014",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "raw",
+                        "key": "rsa-4096-private",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "rsa",
+                        "padding-algorithm": "oaep-mgf1",
+                        "padding-hash": "sha512"
+                    }
+                ],
+                "cmm": "Default"
+            }
+        },
+        "66907871-5dfb-4316-a1f8-f571013d0639": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0014",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "raw",
+                        "key": "rsa-4096-private",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "rsa",
+                        "padding-algorithm": "oaep-mgf1",
+                        "padding-hash": "sha512"
+                    }
+                ],
+                "cmm": "RequiredEncryptionContext"
+            }
+        },
+        "3338b4d4-06fd-43fa-8f81-f079d2f297b5": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0014",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "raw",
+                        "key": "rsa-4096-private",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "rsa",
+                        "padding-algorithm": "oaep-mgf1",
+                        "padding-hash": "sha512"
+                    },
+                    {
+                        "type": "raw",
+                        "key": "rsa-4096-public",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "rsa",
+                        "padding-algorithm": "oaep-mgf1",
+                        "padding-hash": "sha256"
+                    }
+                ],
+                "cmm": "Default"
+            }
+        },
+        "343e65ff-85bf-4b13-909d-78f5b84ca66c": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0014",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "raw",
+                        "key": "rsa-4096-private",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "rsa",
+                        "padding-algorithm": "oaep-mgf1",
+                        "padding-hash": "sha512"
+                    },
+                    {
+                        "type": "raw",
+                        "key": "rsa-4096-public",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "rsa",
+                        "padding-algorithm": "oaep-mgf1",
+                        "padding-hash": "sha256"
+                    }
+                ],
+                "cmm": "RequiredEncryptionContext"
+            }
+        },
+        "b4ab3428-739a-460a-8b98-215696638294": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0046",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "aws-kms",
+                        "key": "us-west-2-decryptable"
+                    }
+                ],
+                "cmm": "Default"
+            }
+        },
+        "46e88591-06be-42ed-bed3-059230f45c44": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0046",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "aws-kms",
+                        "key": "us-west-2-decryptable"
+                    }
+                ],
+                "cmm": "RequiredEncryptionContext"
+            }
+        },
+        "407af355-7e31-4db0-82ad-97b0a7421340": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0046",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "raw",
+                        "key": "aes-256",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "aes"
+                    }
+                ],
+                "cmm": "Default"
+            }
+        },
+        "b6ccf572-1e29-4f51-b462-cea189ec9844": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0046",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "raw",
+                        "key": "aes-256",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "aes"
+                    }
+                ],
+                "cmm": "RequiredEncryptionContext"
+            }
+        },
+        "1dc21483-1742-4ac7-81e6-cdad69a9b638": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0046",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "raw",
+                        "key": "rsa-4096-private",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "rsa",
+                        "padding-algorithm": "oaep-mgf1",
+                        "padding-hash": "sha512"
+                    }
+                ],
+                "cmm": "Default"
+            }
+        },
+        "504f9da0-b16a-4760-9f9c-479edc064690": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0046",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "raw",
+                        "key": "rsa-4096-private",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "rsa",
+                        "padding-algorithm": "oaep-mgf1",
+                        "padding-hash": "sha512"
+                    }
+                ],
+                "cmm": "RequiredEncryptionContext"
+            }
+        },
+        "432c54c2-2324-4721-8d7b-08e1a605c322": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0046",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "raw",
+                        "key": "rsa-4096-private",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "rsa",
+                        "padding-algorithm": "oaep-mgf1",
+                        "padding-hash": "sha512"
+                    },
+                    {
+                        "type": "raw",
+                        "key": "rsa-4096-public",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "rsa",
+                        "padding-algorithm": "oaep-mgf1",
+                        "padding-hash": "sha256"
+                    }
+                ],
+                "cmm": "Default"
+            }
+        },
+        "4c4865b6-d5b2-46af-b4a7-c6c6d1cb1daf": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0046",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "raw",
+                        "key": "rsa-4096-private",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "rsa",
+                        "padding-algorithm": "oaep-mgf1",
+                        "padding-hash": "sha512"
+                    },
+                    {
+                        "type": "raw",
+                        "key": "rsa-4096-public",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "rsa",
+                        "padding-algorithm": "oaep-mgf1",
+                        "padding-hash": "sha256"
+                    }
+                ],
+                "cmm": "RequiredEncryptionContext"
+            }
+        },
+        "708830b3-f657-489d-bf7c-609cd2dfcb48": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0078",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "aws-kms",
+                        "key": "us-west-2-decryptable"
+                    }
+                ],
+                "cmm": "Default"
+            }
+        },
+        "acedbcf6-a009-4ceb-8335-05fe14ace085": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0078",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "aws-kms",
+                        "key": "us-west-2-decryptable"
+                    }
+                ],
+                "cmm": "RequiredEncryptionContext"
+            }
+        },
+        "92f3a3e4-8647-4878-a341-d9d39022720d": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0078",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "raw",
+                        "key": "aes-256",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "aes"
+                    }
+                ],
+                "cmm": "Default"
+            }
+        },
+        "9f307da8-1376-4187-a0bb-1e60c4714902": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0078",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "raw",
+                        "key": "aes-256",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "aes"
+                    }
+                ],
+                "cmm": "RequiredEncryptionContext"
+            }
+        },
+        "4cacdd99-d2ae-4457-8bea-52c112f484be": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0078",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "raw",
+                        "key": "rsa-4096-private",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "rsa",
+                        "padding-algorithm": "oaep-mgf1",
+                        "padding-hash": "sha512"
+                    }
+                ],
+                "cmm": "Default"
+            }
+        },
+        "ba7843ad-8763-411e-88b9-30c4b8479f47": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0078",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "raw",
+                        "key": "rsa-4096-private",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "rsa",
+                        "padding-algorithm": "oaep-mgf1",
+                        "padding-hash": "sha512"
+                    }
+                ],
+                "cmm": "RequiredEncryptionContext"
+            }
+        },
+        "7885b49b-c31f-4466-84c5-42c74f7c7906": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0078",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "raw",
+                        "key": "rsa-4096-private",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "rsa",
+                        "padding-algorithm": "oaep-mgf1",
+                        "padding-hash": "sha512"
+                    },
+                    {
+                        "type": "raw",
+                        "key": "rsa-4096-public",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "rsa",
+                        "padding-algorithm": "oaep-mgf1",
+                        "padding-hash": "sha256"
+                    }
+                ],
+                "cmm": "Default"
+            }
+        },
+        "f44b1d71-dbb9-45e4-ad89-bdfff058e3c3": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0078",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "raw",
+                        "key": "rsa-4096-private",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "rsa",
+                        "padding-algorithm": "oaep-mgf1",
+                        "padding-hash": "sha512"
+                    },
+                    {
+                        "type": "raw",
+                        "key": "rsa-4096-public",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "rsa",
+                        "padding-algorithm": "oaep-mgf1",
+                        "padding-hash": "sha256"
+                    }
+                ],
+                "cmm": "RequiredEncryptionContext"
+            }
+        },
+        "ec063389-6206-4ac0-ab83-ffd48c7a3eb8": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0114",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "aws-kms",
+                        "key": "us-west-2-decryptable"
+                    }
+                ],
+                "cmm": "Default"
+            }
+        },
+        "f13ef145-e490-4ec9-a475-c9f2314e78ab": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0114",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "aws-kms",
+                        "key": "us-west-2-decryptable"
+                    }
+                ],
+                "cmm": "RequiredEncryptionContext"
+            }
+        },
+        "86dde97f-cf9e-4fbb-9ba9-1c99b38c4e15": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0114",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "raw",
+                        "key": "aes-256",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "aes"
+                    }
+                ],
+                "cmm": "Default"
+            }
+        },
+        "2ffd307a-f060-4578-b3d9-abbba2101ff8": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0114",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "raw",
+                        "key": "aes-256",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "aes"
+                    }
+                ],
+                "cmm": "RequiredEncryptionContext"
+            }
+        },
+        "1e089c81-7f92-46b0-84d9-a8795d253e11": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0114",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "raw",
+                        "key": "rsa-4096-private",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "rsa",
+                        "padding-algorithm": "oaep-mgf1",
+                        "padding-hash": "sha512"
+                    }
+                ],
+                "cmm": "Default"
+            }
+        },
+        "9d5c09f3-9126-49b9-a8b9-8d14b386df5d": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0114",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "raw",
+                        "key": "rsa-4096-private",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "rsa",
+                        "padding-algorithm": "oaep-mgf1",
+                        "padding-hash": "sha512"
+                    }
+                ],
+                "cmm": "RequiredEncryptionContext"
+            }
+        },
+        "51638ac5-83fc-4edb-9596-4922d49a8637": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0114",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "raw",
+                        "key": "rsa-4096-private",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "rsa",
+                        "padding-algorithm": "oaep-mgf1",
+                        "padding-hash": "sha512"
+                    },
+                    {
+                        "type": "raw",
+                        "key": "rsa-4096-public",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "rsa",
+                        "padding-algorithm": "oaep-mgf1",
+                        "padding-hash": "sha256"
+                    }
+                ],
+                "cmm": "Default"
+            }
+        },
+        "3d07cd8c-af8d-477e-95c6-4e6a400dba86": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0114",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "raw",
+                        "key": "rsa-4096-private",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "rsa",
+                        "padding-algorithm": "oaep-mgf1",
+                        "padding-hash": "sha512"
+                    },
+                    {
+                        "type": "raw",
+                        "key": "rsa-4096-public",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "rsa",
+                        "padding-algorithm": "oaep-mgf1",
+                        "padding-hash": "sha256"
+                    }
+                ],
+                "cmm": "RequiredEncryptionContext"
+            }
+        },
+        "40fbfc68-aa86-4b89-a96a-748db1e5deda": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0146",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "aws-kms",
+                        "key": "us-west-2-decryptable"
+                    }
+                ],
+                "cmm": "Default"
+            }
+        },
+        "c17c2c05-58ab-4010-8264-a1c7af256284": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0146",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "aws-kms",
+                        "key": "us-west-2-decryptable"
+                    }
+                ],
+                "cmm": "RequiredEncryptionContext"
+            }
+        },
+        "3d1701d3-be6d-4c1f-9797-3fbc1713f6e1": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0146",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "raw",
+                        "key": "aes-256",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "aes"
+                    }
+                ],
+                "cmm": "Default"
+            }
+        },
+        "9c4511e0-c0b1-43bd-9ecf-2ca6241d3475": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0146",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "raw",
+                        "key": "aes-256",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "aes"
+                    }
+                ],
+                "cmm": "RequiredEncryptionContext"
+            }
+        },
+        "d7bb852d-06d8-448a-80f2-5a6d99840c02": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0146",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "raw",
+                        "key": "rsa-4096-private",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "rsa",
+                        "padding-algorithm": "oaep-mgf1",
+                        "padding-hash": "sha512"
+                    }
+                ],
+                "cmm": "Default"
+            }
+        },
+        "dc71daa8-dbc2-4f65-8438-6af8c55b35d3": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0146",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "raw",
+                        "key": "rsa-4096-private",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "rsa",
+                        "padding-algorithm": "oaep-mgf1",
+                        "padding-hash": "sha512"
+                    }
+                ],
+                "cmm": "RequiredEncryptionContext"
+            }
+        },
+        "f2187b3e-68dd-4e6e-a46c-d1c74da5b4dd": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0146",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "raw",
+                        "key": "rsa-4096-private",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "rsa",
+                        "padding-algorithm": "oaep-mgf1",
+                        "padding-hash": "sha512"
+                    },
+                    {
+                        "type": "raw",
+                        "key": "rsa-4096-public",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "rsa",
+                        "padding-algorithm": "oaep-mgf1",
+                        "padding-hash": "sha256"
+                    }
+                ],
+                "cmm": "Default"
+            }
+        },
+        "5c91a7a0-16de-4a4a-af6f-c3c06f82a268": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0146",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "raw",
+                        "key": "rsa-4096-private",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "rsa",
+                        "padding-algorithm": "oaep-mgf1",
+                        "padding-hash": "sha512"
+                    },
+                    {
+                        "type": "raw",
+                        "key": "rsa-4096-public",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "rsa",
+                        "padding-algorithm": "oaep-mgf1",
+                        "padding-hash": "sha256"
+                    }
+                ],
+                "cmm": "RequiredEncryptionContext"
+            }
+        },
+        "61d59305-9b9b-41c4-b57d-ed67991300c1": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0178",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "aws-kms",
+                        "key": "us-west-2-decryptable"
+                    }
+                ],
+                "cmm": "Default"
+            }
+        },
+        "360fc085-5e81-47cf-87ab-ec52bd7c1a79": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0178",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "aws-kms",
+                        "key": "us-west-2-decryptable"
+                    }
+                ],
+                "cmm": "RequiredEncryptionContext"
+            }
+        },
+        "7ea1e159-5b91-4f56-8934-67fd08a349cf": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0178",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "raw",
+                        "key": "aes-256",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "aes"
+                    }
+                ],
+                "cmm": "Default"
+            }
+        },
+        "05c00d5a-65c1-4ad6-8212-056d9660ee75": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0178",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "raw",
+                        "key": "aes-256",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "aes"
+                    }
+                ],
+                "cmm": "RequiredEncryptionContext"
+            }
+        },
+        "8da6b2e0-64b5-454e-8b8a-fc5c4334de0d": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0178",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "raw",
+                        "key": "rsa-4096-private",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "rsa",
+                        "padding-algorithm": "oaep-mgf1",
+                        "padding-hash": "sha512"
+                    }
+                ],
+                "cmm": "Default"
+            }
+        },
+        "bf8fad23-3b30-4435-a026-93e9a7e50eeb": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0178",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "raw",
+                        "key": "rsa-4096-private",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "rsa",
+                        "padding-algorithm": "oaep-mgf1",
+                        "padding-hash": "sha512"
+                    }
+                ],
+                "cmm": "RequiredEncryptionContext"
+            }
+        },
+        "affa191f-9264-4917-b0e5-0df90be11c81": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0178",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "raw",
+                        "key": "rsa-4096-private",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "rsa",
+                        "padding-algorithm": "oaep-mgf1",
+                        "padding-hash": "sha512"
+                    },
+                    {
+                        "type": "raw",
+                        "key": "rsa-4096-public",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "rsa",
+                        "padding-algorithm": "oaep-mgf1",
+                        "padding-hash": "sha256"
+                    }
+                ],
+                "cmm": "Default"
+            }
+        },
+        "0c6058ca-49b7-4955-a23d-753317a2d960": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0178",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "raw",
+                        "key": "rsa-4096-private",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "rsa",
+                        "padding-algorithm": "oaep-mgf1",
+                        "padding-hash": "sha512"
+                    },
+                    {
+                        "type": "raw",
+                        "key": "rsa-4096-public",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "rsa",
+                        "padding-algorithm": "oaep-mgf1",
+                        "padding-hash": "sha256"
+                    }
+                ],
+                "cmm": "RequiredEncryptionContext"
+            }
+        },
+        "b65333af-54f4-4c4a-9e0e-d357bffc9e6b": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0214",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "aws-kms",
+                        "key": "us-west-2-decryptable"
+                    }
+                ],
+                "cmm": "Default"
+            }
+        },
+        "69a74aaa-baa8-4aef-bf86-8d27ee7bffd9": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0214",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "aws-kms",
+                        "key": "us-west-2-decryptable"
+                    }
+                ],
+                "cmm": "RequiredEncryptionContext"
+            }
+        },
+        "699cd954-2aac-48be-9a66-4813fb0a7797": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0214",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "raw",
+                        "key": "aes-256",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "aes"
+                    }
+                ],
+                "cmm": "Default"
+            }
+        },
+        "1c6ca123-0cd5-40b8-87b4-c33f9056754c": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0214",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "raw",
+                        "key": "aes-256",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "aes"
+                    }
+                ],
+                "cmm": "RequiredEncryptionContext"
+            }
+        },
+        "52b07f9d-0cfa-453d-a2a1-e2fa3d2059d4": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0214",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "raw",
+                        "key": "rsa-4096-private",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "rsa",
+                        "padding-algorithm": "oaep-mgf1",
+                        "padding-hash": "sha512"
+                    }
+                ],
+                "cmm": "Default"
+            }
+        },
+        "054a3ad3-1966-4c4e-9fbe-4f42522fe995": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0214",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "raw",
+                        "key": "rsa-4096-private",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "rsa",
+                        "padding-algorithm": "oaep-mgf1",
+                        "padding-hash": "sha512"
+                    }
+                ],
+                "cmm": "RequiredEncryptionContext"
+            }
+        },
+        "09e32aee-941e-4872-a5d9-5b9c73bd1a89": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0214",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "raw",
+                        "key": "rsa-4096-private",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "rsa",
+                        "padding-algorithm": "oaep-mgf1",
+                        "padding-hash": "sha512"
+                    },
+                    {
+                        "type": "raw",
+                        "key": "rsa-4096-public",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "rsa",
+                        "padding-algorithm": "oaep-mgf1",
+                        "padding-hash": "sha256"
+                    }
+                ],
+                "cmm": "Default"
+            }
+        },
+        "9120bb0d-a1ea-4f3a-8510-4c8e9d5f19b4": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0214",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "raw",
+                        "key": "rsa-4096-private",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "rsa",
+                        "padding-algorithm": "oaep-mgf1",
+                        "padding-hash": "sha512"
+                    },
+                    {
+                        "type": "raw",
+                        "key": "rsa-4096-public",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "rsa",
+                        "padding-algorithm": "oaep-mgf1",
+                        "padding-hash": "sha256"
+                    }
+                ],
+                "cmm": "RequiredEncryptionContext"
+            }
+        },
+        "ee26e279-23ee-4268-8cb0-e7d4f3b56c20": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0346",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "aws-kms",
+                        "key": "us-west-2-decryptable"
+                    }
+                ],
+                "cmm": "Default"
+            }
+        },
+        "89183cb3-4777-4836-883d-cce88e8e11b1": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0346",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "aws-kms",
+                        "key": "us-west-2-decryptable"
+                    }
+                ],
+                "cmm": "RequiredEncryptionContext"
+            }
+        },
+        "1f0df6ab-eb24-4343-bcbd-2371a40bd12b": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0346",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "raw",
+                        "key": "aes-256",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "aes"
+                    }
+                ],
+                "cmm": "Default"
+            }
+        },
+        "4c3f22f5-aa1a-4db4-9e00-f6e439e09f75": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0346",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "raw",
+                        "key": "aes-256",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "aes"
+                    }
+                ],
+                "cmm": "RequiredEncryptionContext"
+            }
+        },
+        "befc2944-8f7c-46ee-9f10-da29efa864bd": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0346",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "raw",
+                        "key": "rsa-4096-private",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "rsa",
+                        "padding-algorithm": "oaep-mgf1",
+                        "padding-hash": "sha512"
+                    }
+                ],
+                "cmm": "Default"
+            }
+        },
+        "b21cc785-3ac0-48b9-b13d-c69e3fed7cc5": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0346",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "raw",
+                        "key": "rsa-4096-private",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "rsa",
+                        "padding-algorithm": "oaep-mgf1",
+                        "padding-hash": "sha512"
+                    }
+                ],
+                "cmm": "RequiredEncryptionContext"
+            }
+        },
+        "09ef28f2-dfe9-483d-a611-05ef3089dcdd": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0346",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "raw",
+                        "key": "rsa-4096-private",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "rsa",
+                        "padding-algorithm": "oaep-mgf1",
+                        "padding-hash": "sha512"
+                    },
+                    {
+                        "type": "raw",
+                        "key": "rsa-4096-public",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "rsa",
+                        "padding-algorithm": "oaep-mgf1",
+                        "padding-hash": "sha256"
+                    }
+                ],
+                "cmm": "Default"
+            }
+        },
+        "e21df8dd-5db1-488d-8b66-4730a81b155d": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0346",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "raw",
+                        "key": "rsa-4096-private",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "rsa",
+                        "padding-algorithm": "oaep-mgf1",
+                        "padding-hash": "sha512"
+                    },
+                    {
+                        "type": "raw",
+                        "key": "rsa-4096-public",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "rsa",
+                        "padding-algorithm": "oaep-mgf1",
+                        "padding-hash": "sha256"
+                    }
+                ],
+                "cmm": "RequiredEncryptionContext"
+            }
+        },
+        "2757fcaf-7a28-4e93-98ea-a24cd0f8361c": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0378",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "aws-kms",
+                        "key": "us-west-2-decryptable"
+                    }
+                ],
+                "cmm": "Default"
+            }
+        },
+        "39975947-577d-4396-a443-be5b9127e093": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0378",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "aws-kms",
+                        "key": "us-west-2-decryptable"
+                    }
+                ],
+                "cmm": "RequiredEncryptionContext"
+            }
+        },
+        "54d55171-ba5d-406c-893a-22db73fc6465": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0378",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "raw",
+                        "key": "aes-256",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "aes"
+                    }
+                ],
+                "cmm": "Default"
+            }
+        },
+        "4091ccd1-c72f-4d38-9566-59ea0b9f0805": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0378",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "raw",
+                        "key": "aes-256",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "aes"
+                    }
+                ],
+                "cmm": "RequiredEncryptionContext"
+            }
+        },
+        "1782b8e9-e5a7-4d2a-a01c-acdbea3549fb": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0378",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "raw",
+                        "key": "rsa-4096-private",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "rsa",
+                        "padding-algorithm": "oaep-mgf1",
+                        "padding-hash": "sha512"
+                    }
+                ],
+                "cmm": "Default"
+            }
+        },
+        "2b7983b4-d1cf-40f4-bc5f-28a4be64cf86": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0378",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "raw",
+                        "key": "rsa-4096-private",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "rsa",
+                        "padding-algorithm": "oaep-mgf1",
+                        "padding-hash": "sha512"
+                    }
+                ],
+                "cmm": "RequiredEncryptionContext"
+            }
+        },
+        "d3b7616f-cdc6-49da-a8df-9902d9bd34e4": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0378",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "raw",
+                        "key": "rsa-4096-private",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "rsa",
+                        "padding-algorithm": "oaep-mgf1",
+                        "padding-hash": "sha512"
+                    },
+                    {
+                        "type": "raw",
+                        "key": "rsa-4096-public",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "rsa",
+                        "padding-algorithm": "oaep-mgf1",
+                        "padding-hash": "sha256"
+                    }
+                ],
+                "cmm": "Default"
+            }
+        },
+        "c1cfa977-99f6-4686-88d4-0ab07ca221bd": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0378",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "raw",
+                        "key": "rsa-4096-private",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "rsa",
+                        "padding-algorithm": "oaep-mgf1",
+                        "padding-hash": "sha512"
+                    },
+                    {
+                        "type": "raw",
+                        "key": "rsa-4096-public",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "rsa",
+                        "padding-algorithm": "oaep-mgf1",
+                        "padding-hash": "sha256"
+                    }
+                ],
+                "cmm": "RequiredEncryptionContext"
+            }
+        },
+        "69bf9e29-67c2-4ebf-9642-0994aab374b0": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0478",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "aws-kms",
+                        "key": "us-west-2-decryptable"
+                    }
+                ],
+                "cmm": "Default"
+            }
+        },
+        "5f353e15-8423-4bad-a60d-50d47756b9f4": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0478",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "aws-kms",
+                        "key": "us-west-2-decryptable"
+                    }
+                ],
+                "cmm": "RequiredEncryptionContext"
+            }
+        },
+        "47aae29d-9ddc-4765-a81a-e17bf3467534": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0478",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "raw",
+                        "key": "aes-256",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "aes"
+                    }
+                ],
+                "cmm": "Default"
+            }
+        },
+        "d1b8acc9-2c90-4ea7-96aa-09099431c054": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0478",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "raw",
+                        "key": "aes-256",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "aes"
+                    }
+                ],
+                "cmm": "RequiredEncryptionContext"
+            }
+        },
+        "f805b49f-8424-4a3a-8ae8-2fc64be57b22": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0478",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "raw",
+                        "key": "rsa-4096-private",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "rsa",
+                        "padding-algorithm": "oaep-mgf1",
+                        "padding-hash": "sha512"
+                    }
+                ],
+                "cmm": "Default"
+            }
+        },
+        "3996330f-8741-4cde-90bd-a67dd8bb84f7": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0478",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "raw",
+                        "key": "rsa-4096-private",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "rsa",
+                        "padding-algorithm": "oaep-mgf1",
+                        "padding-hash": "sha512"
+                    }
+                ],
+                "cmm": "RequiredEncryptionContext"
+            }
+        },
+        "847e4ac9-a36f-48e2-a63c-75aec14f4236": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0478",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "raw",
+                        "key": "rsa-4096-private",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "rsa",
+                        "padding-algorithm": "oaep-mgf1",
+                        "padding-hash": "sha512"
+                    },
+                    {
+                        "type": "raw",
+                        "key": "rsa-4096-public",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "rsa",
+                        "padding-algorithm": "oaep-mgf1",
+                        "padding-hash": "sha256"
+                    }
+                ],
+                "cmm": "Default"
+            }
+        },
+        "b3bc93f4-9b73-45cd-b804-9f46b8e15716": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0478",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "raw",
+                        "key": "rsa-4096-private",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "rsa",
+                        "padding-algorithm": "oaep-mgf1",
+                        "padding-hash": "sha512"
+                    },
+                    {
+                        "type": "raw",
+                        "key": "rsa-4096-public",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "rsa",
+                        "padding-algorithm": "oaep-mgf1",
+                        "padding-hash": "sha256"
+                    }
+                ],
+                "cmm": "RequiredEncryptionContext"
+            }
+        },
+        "2c25f227-0754-4f6b-bd29-8b0714a183cb": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0578",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "aws-kms",
+                        "key": "us-west-2-decryptable"
+                    }
+                ],
+                "cmm": "Default"
+            }
+        },
+        "c0da4c9f-3250-4c0a-9c91-4ceb41ac59b5": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0578",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "aws-kms",
+                        "key": "us-west-2-decryptable"
+                    }
+                ],
+                "cmm": "RequiredEncryptionContext"
+            }
+        },
+        "3da9208a-1e5a-492f-a8c4-58e866f9f13e": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0578",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "raw",
+                        "key": "aes-256",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "aes"
+                    }
+                ],
+                "cmm": "Default"
+            }
+        },
+        "d3ea0453-2e7b-4f4e-a3c6-77f1a6f38e0e": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0578",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "raw",
+                        "key": "aes-256",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "aes"
+                    }
+                ],
+                "cmm": "RequiredEncryptionContext"
+            }
+        },
+        "9a255119-9d9c-4813-af53-65c8fa2de68e": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0578",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "raw",
+                        "key": "rsa-4096-private",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "rsa",
+                        "padding-algorithm": "oaep-mgf1",
+                        "padding-hash": "sha512"
+                    }
+                ],
+                "cmm": "Default"
+            }
+        },
+        "41be19f4-0594-4e03-aa98-f58cada64aba": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0578",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "raw",
+                        "key": "rsa-4096-private",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "rsa",
+                        "padding-algorithm": "oaep-mgf1",
+                        "padding-hash": "sha512"
+                    }
+                ],
+                "cmm": "RequiredEncryptionContext"
+            }
+        },
+        "7d3e6e3f-b1d4-4440-b9ef-3f0e861b883f": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0578",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "raw",
+                        "key": "rsa-4096-private",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "rsa",
+                        "padding-algorithm": "oaep-mgf1",
+                        "padding-hash": "sha512"
+                    },
+                    {
+                        "type": "raw",
+                        "key": "rsa-4096-public",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "rsa",
+                        "padding-algorithm": "oaep-mgf1",
+                        "padding-hash": "sha256"
+                    }
+                ],
+                "cmm": "Default"
+            }
+        },
+        "9e798f80-b4cf-448d-af99-f1b63dee454d": {
+            "encryption-scenario": {
+                "plaintext": "small",
+                "algorithm": "0578",
+                "frame-size": 512,
+                "encryption-context": {
+                    "key1": "val1",
+                    "key2": "val2"
+                },
+                "master-keys": [
+                    {
+                        "type": "raw",
+                        "key": "rsa-4096-private",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "rsa",
+                        "padding-algorithm": "oaep-mgf1",
+                        "padding-hash": "sha512"
+                    },
+                    {
+                        "type": "raw",
+                        "key": "rsa-4096-public",
+                        "provider-id": "aws-raw-vectors-persistant",
+                        "encryption-algorithm": "rsa",
+                        "padding-algorithm": "oaep-mgf1",
+                        "padding-hash": "sha256"
+                    }
+                ],
+                "cmm": "RequiredEncryptionContext"
+            }
+        }
+    }
+}

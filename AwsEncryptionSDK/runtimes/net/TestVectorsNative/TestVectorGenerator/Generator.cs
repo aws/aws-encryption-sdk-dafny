@@ -1,15 +1,10 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-using System;
-using System.Collections.Generic;
 using System.CommandLine;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
 using System.Security.Cryptography;
-using AWS.EncryptionSDK.Core;
-using AWS.EncryptionSDK;
+using AWS.Cryptography.EncryptionSDK;
+using AWS.Cryptography.MaterialProviders;
 
 namespace TestVectors {
     class Generator
@@ -42,9 +37,11 @@ namespace TestVectors {
         private readonly DirectoryInfo _plaintextDir;
         private readonly DirectoryInfo _ciphertextDir;
         private readonly bool _quiet;
+        private RandomNumberGenerator _randomNumberGenerator;
 
         private Generator(FileInfo encryptManifestFile, DirectoryInfo outputDir, bool quiet)
         {
+            _randomNumberGenerator = RandomNumberGenerator.Create();
             _encryptManifest = Utils.LoadObjectFromPath<EncryptManifest>(encryptManifestFile.FullName);
             Console.Error.WriteLine(
                 $"Loaded {_encryptManifest.VectorMap.Count} vectors from {encryptManifestFile.FullName}");
@@ -83,7 +80,7 @@ namespace TestVectors {
             Console.Error.WriteLine($"Wrote {targetedVectors.Count} ciphertexts");
 
             DecryptManifest decryptManifest = GenerateDecryptManifest(targetedVectors, plaintexts);
-            string decryptManifestPath = Path.Join(_outputDir.FullName, "manifest.json");
+            string decryptManifestPath = Path.Combine(_outputDir.FullName, "manifest.json");
             Utils.WriteObjectToPath(decryptManifest, decryptManifestPath);
             Console.Error.WriteLine("Wrote decrypt vector manifest");
 
@@ -93,30 +90,27 @@ namespace TestVectors {
             Console.Error.WriteLine("Wrote key manifest");
         }
 
-        private static Dictionary<string, MemoryStream> GeneratePlaintexts(Dictionary<string, uint> sizes)
+        private Dictionary<string, MemoryStream> GeneratePlaintexts(Dictionary<string, uint> sizes)
         {
             var plaintexts = new Dictionary<string, MemoryStream>();
-            foreach (var (name, size) in sizes)
+            foreach (var entry in sizes)
             {
-                if (size > int.MaxValue)
+                if (entry.Value > int.MaxValue)
                 {
-                    throw new ArgumentException($"Can't generate a {size}-byte plaintext");
+                    throw new ArgumentException($"Can't generate a {entry.Value}-byte plaintext");
                 }
-
-                var buffer = new MemoryStream((int)size);
-                RandomNumberGenerator.Fill(buffer.GetBuffer());
-                plaintexts.Add(name, buffer);
+                var bytes = new byte[(int)entry.Value];
+                _randomNumberGenerator.GetBytes(bytes);
+                var buffer = new MemoryStream(bytes);
+                plaintexts.Add(entry.Key, buffer);
             }
 
             return plaintexts;
         }
 
-        // We don't have a better way to query this information right now.
-        // This could be a use case for Smithy enums' "tags" property, that we'd need to support in codegen.
-        // https://awslabs.github.io/smithy/1.0/spec/core/constraint-traits.html#enum-trait
-        private static readonly AlgorithmSuiteId[] COMMITTING_ALGORITHM_SUITES = {
-            AlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY,
-            AlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384,
+        private static readonly ESDKAlgorithmSuiteId[] COMMITTING_ALGORITHM_SUITES = {
+            ESDKAlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY,
+            ESDKAlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384,
         };
 
         /// <summary>
@@ -130,22 +124,24 @@ namespace TestVectors {
         }
 
         private void GenerateAndWriteVectors(
-            IList<KeyValuePair<string, EncryptVector>> targetedVectors, Dictionary<string, MemoryStream> plaintexts)
+            IList<KeyValuePair<string, EncryptVector>> targetedVectors, 
+            Dictionary<string, MemoryStream> plaintexts
+            ) 
         {
-            foreach (var (id, vector) in targetedVectors)
+            foreach (var entry in targetedVectors)
             {
                 try
                 {
-                    var ciphertext = GenerateDecryptVector(vector, plaintexts);
-                    Utils.WriteBinaryFile(_ciphertextDir, id, ciphertext);
+                    var ciphertext = GenerateDecryptVector(entry.Value, plaintexts);
+                    Utils.WriteBinaryFile(_ciphertextDir, entry.Key, ciphertext);
                     if (!_quiet)
                     {
-                        Console.Error.WriteLine($"Wrote ciphertext file for vector {id}");
+                        Console.Error.WriteLine($"Wrote ciphertext file for vector {entry.Key}");
                     }
                 }
                 catch (AwsEncryptionSdkException ex)
                 {
-                    throw new ApplicationException($"Failed to encrypt vector {id}", ex);
+                    throw new ApplicationException($"Failed to encrypt vector {entry.Key}", ex);
                 }
             }
         }
@@ -154,14 +150,16 @@ namespace TestVectors {
             IList<KeyValuePair<string, EncryptVector>> targetedVectors, Dictionary<string, MemoryStream> plaintexts)
         {
             var decryptVectors = new Dictionary<string, DecryptVector>();
-            foreach (var (id, encryptVector) in targetedVectors)
+            foreach (var entry in targetedVectors)
             {
-                var plaintextPath = "file://" + Path.Join(_plaintextDir.Name, encryptVector.Scenario.PlaintextName);
-                var ciphertextPath = "file://" + Path.Join(_ciphertextDir.Name, id);
-                decryptVectors[id] = new DecryptVector
+                var plaintextPath = "file://" + Path.Combine(_plaintextDir.Name, entry.Value.Scenario.PlaintextName);
+                var ciphertextPath = "file://" + Path.Combine(_ciphertextDir.Name, entry.Key);
+                decryptVectors[entry.Key] = new DecryptVector
                 {
                     Ciphertext = ciphertextPath,
-                    MasterKeys = encryptVector.Scenario.MasterKeys,
+                    MasterKeys = entry.Value.Scenario.MasterKeys,
+                    CMM = entry.Value.Scenario.CMM,
+                    EncryptionContext = entry.Value.Scenario.EncryptionContext,
                     Result = new DecryptResult
                     {
                         Output = new DecryptOutput { Plaintext = plaintextPath }
@@ -174,20 +172,13 @@ namespace TestVectors {
                 Meta = new ManifestMeta
                 {
                     Type = "awses-decrypt",
-                    // This manifest format is described by version 3 of "AWS Encryption SDK Message Decryption":
-                    // https://github.com/awslabs/aws-crypto-tools-test-vector-framework/blob/master/features/0004-awses-message-decryption.md
-                    //
-                    // Although the Python ESDK's test vector handler would correctly handle/decrypt the vectors,
-                    // it incorrectly rejects the version "3" during manifest loading,
-                    // so for expedience we'll just advertise what Python can handle.
-                    // TODO: fix Python's vector handler version validation, and change this value to 3
-                    Version = 2
+                    Version = 4
                 },
                 Client = new Client
                 {
-                    Name = "awslabs/aws-encryption-sdk-dafny",
+                    Name = "ESDK-NET",
                     // TODO pass this by env var
-                    Version = "0.1.0-alpha"
+                    Version = "4.0.0"
                 },
                 KeysUri = OutputKeysManifestUri,
                 VectorMap = decryptVectors
@@ -199,17 +190,16 @@ namespace TestVectors {
         {
             EncryptScenario scenario = vector.Scenario;
 
-            AlgorithmSuiteId algSuiteId = new AlgorithmSuiteId("0x" + scenario.Algorithm);
-            Debug.Assert(AlgorithmSuiteId.Values.Contains(algSuiteId));
+            ESDKAlgorithmSuiteId algSuiteId = new ESDKAlgorithmSuiteId("0x" + scenario.Algorithm);
 
-            CommitmentPolicy commitmentPolicy = COMMITTING_ALGORITHM_SUITES.Contains(algSuiteId)
-                ? CommitmentPolicy.REQUIRE_ENCRYPT_REQUIRE_DECRYPT
-                : CommitmentPolicy.FORBID_ENCRYPT_ALLOW_DECRYPT;
+            ESDKCommitmentPolicy commitmentPolicy = COMMITTING_ALGORITHM_SUITES.Contains(algSuiteId)
+                ? ESDKCommitmentPolicy.REQUIRE_ENCRYPT_REQUIRE_DECRYPT
+                : ESDKCommitmentPolicy.FORBID_ENCRYPT_ALLOW_DECRYPT;
             AwsEncryptionSdkConfig config = new AwsEncryptionSdkConfig
             {
                 CommitmentPolicy = commitmentPolicy
             };
-            IAwsEncryptionSdk client = AwsEncryptionSdkFactory.CreateAwsEncryptionSdk(config);
+            ESDK encryptionSdk = new ESDK(config);
             ICryptographicMaterialsManager cmm = MaterialProviderFactory.CreateEncryptCmm(vector, _keyManifest.Keys);
 
             EncryptInput encryptInput = new EncryptInput
@@ -220,7 +210,7 @@ namespace TestVectors {
                 MaterialsManager = cmm,
                 Plaintext = plaintexts[scenario.PlaintextName]
             };
-            return client.Encrypt(encryptInput).Ciphertext;
+            return encryptionSdk.Encrypt(encryptInput).Ciphertext;
         }
     }
 }

@@ -32,9 +32,7 @@ Please refer to [the wiki](https://github.com/aws/aws-encryption-sdk-dafny/wiki/
 
 To build, the AWS Encryption SDK requires the most up to date version of [Dafny](https://github.com/dafny-lang/dafny) on your PATH.
 
-The AWS Encryption SDK targets frameworks [`net48`](https://docs.microsoft.com/en-us/dotnet/standard/frameworks#supported-target-frameworks).
-Tests and test vectors target frameworks `net6.0`.
-In all cases, `net48` and newer .NET Framework versions are only supported on Windows.
+The AWS Encryption SDK targets frameworks [`net48` and `net6.0`](https://docs.microsoft.com/en-us/dotnet/standard/frameworks#supported-target-frameworks).
 To build and test the AWS Encryption SDK, you must install the following .NET tools:
 
 * [.NET 6.0](https://dotnet.microsoft.com/en-us/download/dotnet/6.0) or newer
@@ -45,7 +43,13 @@ You will also need to ensure that you fetch all submodules using either `git clo
 To build all source files into one dll:
 
 ```
-dotnet build
+# Transpile Dafny to .NET
+cd AwsEncryptionSDK
+make transpile_implementation_net
+# Run dotnet restore
+make setup_net
+# Run dotnet build
+dotnet build runtimes/net
 ```
 
 ### (Optional) Set up the AWS Encryption SDK to work with AWS KMS
@@ -62,7 +66,7 @@ Instructions for setting up AWS credentials are available in the [AWS Docs for t
 ### Configure AWS credentials
 
 To run the test suite you must first set up AWS credentials for use with the AWS SDK.
-This is required in order to run the integration tests, which use a KMS Keyring against a publically accessible KMS CMK.
+This is required in order to run the integration tests, which use a KMS Keyring against a publicly accessible KMS CMK.
 
 Instructions for setting up AWS credentials are available in the [AWS Docs for the AWS SDK for .NET](https://docs.aws.amazon.com/sdk-for-net/v3/developer-guide/net-dg-config-creds.html).
 
@@ -71,22 +75,34 @@ Instructions for setting up AWS credentials are available in the [AWS Docs for t
 Run the test suite with:
 
 ```
-dotnet test
-```
-
-You can see more detail about what test cases are being run by increasing the verbosity:
-
-```
-dotnet test --logger:"console;verbosity=normal"
+cd AwsEncryptionSDK
+make transpile_test_net
+# Windows/Linux
+make test_net 
+# On Mac
+make test_net_mac_brew
 ```
 
 Run tests on examples, to ensure they are up to date:
 
 ```
+cd AwsEncryptionSDK/runtimes/net
 dotnet test Examples
 ```
 
 Please note that tests and test vectors require internet access and valid AWS credentials, since calls to KMS are made as part of the test workflow.
+
+## Other Development advice
+
+Most c# IDEs appreciate Solution files.
+To generate one Solution file for all the projects here,
+run:
+```
+cd AwsEncryptionSDK/runtimes/net
+dotnet new sln --name ESDK
+dotnet sln add $(find . -name '*.csproj')
+```
+Then ask your IDE to open `ESDK.sln`.
 
 ## License
 
