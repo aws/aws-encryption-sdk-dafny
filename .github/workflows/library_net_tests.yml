@@ -185,11 +185,6 @@ jobs:
         run: |
           NET_41_VECTOR_PATH=$GITHUB_WORKSPACE/net41/vectors
           cd $NET_41_VECTOR_PATH
-          # debug
-          echo $NET_41_VECTOR_PATH
-          # debug
-          ls -al
-          # end debug
           zip -qq net41.zip -r .
 
       - name: Decrypt Generated Test Vectors with ESDK-JS
