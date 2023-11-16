@@ -202,7 +202,7 @@ jobs:
         run: |
           NET_400_VECTOR_PATH=$GITHUB_WORKSPACE/net400/vectors
           mkdir -p $NET_400_VECTOR_PATH
-          DOWNLOAD_NAME=net400.zip
+          DOWNLOAD_NAME=net4.0.0.zip
           unzip -o -qq $DOWNLOAD_NAME -d $NET_400_VECTOR_PATH
 
       - name: Run ESDK-NET @ v4.0.0 Vectors on .NET Framework net48 expect failure
