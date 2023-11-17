@@ -320,6 +320,40 @@ module {:options "/functionSyntax:4" } EncryptionContext {
       WriteUint16(|aad| as uint16) + aad
   }
 
+  // To Calculate the Authenication Only AAD for the Encryption Context,
+  // the Encryption Context MUST be:
+  // - filtered,
+  // - Canonicalized
+  // Finally, if the result of the above is an empy Encryption Context,
+  // it is serialized as [].
+  // Otherwise, it is serialized following the spec's
+  // compliance/data-format/message-header.txt#2.5.1.7.2
+  // This method ONLY handles the last porition.
+  //
+  // On Decrypt, the Decryption Materials' filtering is done
+  // via buildEncryptionContextToOnlyAuthenticate,
+  // which returns the pairs that exist in requiredEncryptionContextKeys.
+  // On Encrypt, the filtering is done inside of `BuildHeaderForEncrypt`,
+  // (currently) on lines 472 to 474.
+  // Both Decrypt & Encrypt Canonicalize via GetCanonicalEncryptionContext.
+  function WriteEmptyEcOrWriteAAD(
+    ec: ESDKCanonicalEncryptionContext
+  ):
+    (ret: seq<uint8>)
+    ensures HasUint16Len(ret)
+  {
+    // The Serialization of No Encryption Context is NOT `[0, [0, 0]]`,
+    // but `[]`. 
+    if |ec| == 0 then
+      []
+    else
+      WriteAAD(ec)
+  }
+
+  lemma WriteEmptyEcOrWriteAADIsCorrect(ec: ESDKCanonicalEncryptionContext)
+    ensures WriteEmptyEcOrWriteAAD(ec) == WriteAADSection(ec)[2..]
+  {}
+
   //= compliance/data-format/message-header.txt#2.5.1.7.2
   //#The following table describes the fields that form the Key Value
   //#Pairs.  The bytes are appended in the order shown.
@@ -342,8 +376,12 @@ module {:options "/functionSyntax:4" } EncryptionContext {
     ensures HasUint16Len(ret)
     // To support older versions of the ESDK
     // |ec| == 0 is encoded as 0 count.
-    // However, this is never called on write path.
-    // See WriteAADSection
+    // However,
+    // this |ec| == 0 behavior is never invoked,
+    // as this method is protected by 
+    // WriteAADSection and WriteEmptyEcOrWriteAAD,
+    // which both handle |ec| == 0 independently
+    // of this method.
     ensures |ec| == 0 ==> ret == WriteUint16(0)
   {
     WriteUint16(|ec| as uint16) + WriteAADPairs(ec)

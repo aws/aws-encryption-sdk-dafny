@@ -484,7 +484,7 @@ module AwsEncryptionSdkOperations refines AbstractAwsCryptographyEncryptionSdkOp
       // *  Encryption Context (Section 2.6.2)
       && var headerEncryptionContext := EncryptionContext.GetEncryptionContext(headerBody.value.data.encryptionContext);
       && output.value.encryptionContext ==
-        headerEncryptionContext + buildEncryptionContextToOnlyAuthenticate(decMat, headerEncryptionContext)
+        headerEncryptionContext + buildEncryptionContextToOnlyAuthenticate(decMat)
   {
     // Track if a failure has triggered a V4 Retry
     var v4Retry := false;
@@ -609,7 +609,7 @@ module AwsEncryptionSdkOperations refines AbstractAwsCryptographyEncryptionSdkOp
     //#   (../framework/structures.md#required-encryption-context-keys-1)
     //#   serialized according to the [encryption context serialization specification]
     //#   (../framework/structures.md#serialization).
-    var encryptionContextToOnlyAuthenticate := buildEncryptionContextToOnlyAuthenticate(decMat, headerEncryptionContext);
+    var encryptionContextToOnlyAuthenticate := buildEncryptionContextToOnlyAuthenticate(decMat);
 
     EncryptionContext.SubsetOfESDKEncryptionContextIsESDKEncryptionContext(
         decMat.encryptionContext,
@@ -619,7 +619,7 @@ module AwsEncryptionSdkOperations refines AbstractAwsCryptographyEncryptionSdkOp
     var canonicalReqEncryptionContext := 
       EncryptionContext.GetCanonicalEncryptionContext(encryptionContextToOnlyAuthenticate);
     var serializedReqEncryptionContext :=
-      EncryptionContext.WriteAADPairs(canonicalReqEncryptionContext);
+      EncryptionContext.WriteEmptyEcOrWriteAAD(canonicalReqEncryptionContext);
 
     var maybeHeaderAuth :=
       //= compliance/client-apis/decrypt.txt#2.7.3
@@ -796,9 +796,13 @@ module AwsEncryptionSdkOperations refines AbstractAwsCryptographyEncryptionSdkOp
 
   }
 
+  // The encryption context to only authenticate MUST be
+  // the encryption context in the decryption materials filtered
+  // to only contain key value pairs listed
+  // in the decryption material's required encryption context keys.
+  // TODO Post-#619: Duvet this section
   function method buildEncryptionContextToOnlyAuthenticate(
-    decMat: MPL.DecryptionMaterials,
-    headerEncryptionContext: MPL.EncryptionContext
+    decMat: MPL.DecryptionMaterials
   ): MPL.EncryptionContext
   {
     map
