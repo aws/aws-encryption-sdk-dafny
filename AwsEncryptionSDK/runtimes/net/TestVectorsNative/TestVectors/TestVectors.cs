@@ -25,8 +25,8 @@ namespace TestVectors.Runner {
         {
             return input.ToLower() switch
             {
-                "forbid" => NetV4_0_0_RetryPolicy.FORBID_NET_4_0_0_RETRY,
-                "allow" => NetV4_0_0_RetryPolicy.ALLOW_NET_4_0_0_RETRY,
+                "forbid" => NetV4_0_0_RetryPolicy.FORBID_RETRY,
+                "allow" => NetV4_0_0_RetryPolicy.ALLOW_RETRY,
                 _ => throw new ArgumentException(
                     $"Net v4.0.0 retry policy MUST be forbid or allow, got: {input}")
             };
@@ -41,7 +41,7 @@ namespace TestVectors.Runner {
         protected TestVectorData() {
             this.VectorRoot = Utils.GetEnvironmentVariableOrError("DAFNY_AWS_ESDK_TEST_VECTOR_MANIFEST_PATH");
             this._netV400RetryPolicy = Utils.GetEnvironmentVariableOrDefault("ESDK_NET_V400_POLICY",
-                NetV4_0_0_RetryPolicy.ALLOW_NET_4_0_0_RETRY, RunnerUtils.fromString);
+                NetV4_0_0_RetryPolicy.ALLOW_RETRY, RunnerUtils.fromString);
             DecryptManifest manifest = Utils.LoadObjectFromPath<DecryptManifest>(VectorRoot);
             this.VectorMap = manifest.VectorMap;
             string keysPath = Utils.ManifestUriToPath(manifest.KeysUri, VectorRoot);

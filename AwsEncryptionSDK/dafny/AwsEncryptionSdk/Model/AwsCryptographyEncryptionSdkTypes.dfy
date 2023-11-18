@@ -140,8 +140,8 @@ module {:extern "software.amazon.cryptography.encryptionsdk.internaldafny.types"
     ( 1 <= x <= 4294967296 )
   }
   datatype NetV4_0_0_RetryPolicy =
-    | FORBID_NET_4_0_0_RETRY
-    | ALLOW_NET_4_0_0_RETRY
+    | FORBID_RETRY
+    | ALLOW_RETRY
   datatype Error =
       // Local Error structures are listed here
     | AwsEncryptionSdkException (

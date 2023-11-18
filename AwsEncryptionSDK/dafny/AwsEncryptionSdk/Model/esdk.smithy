@@ -45,12 +45,12 @@ structure AwsEncryptionSdkConfig {
 )
 @enum([
   {
-    name: "FORBID_NET_4_0_0_RETRY",
-    value: "FORBID_NET_4_0_0_RETRY",
+    name: "FORBID_RETRY",
+    value: "FORBID_RETRY",
   },
   {
-    name: "ALLOW_NET_4_0_0_RETRY",
-    value: "ALLOW_NET_4_0_0_RETRY",
+    name: "ALLOW_RETRY",
+    value: "ALLOW_RETRY",
   }
 ])
 string NetV4_0_0_RetryPolicy

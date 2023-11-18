@@ -277,7 +277,7 @@ module KeyDerivation {
         }, Types.AwsEncryptionSdkException(
         message := "Suites with message version 1 must not have commitment"));
 
-        if netV4_0_0_RetryPolicy == Types.NetV4_0_0_RetryPolicy.ALLOW_NET_4_0_0_RETRY && onNetV4Retry {
+        if netV4_0_0_RetryPolicy == Types.NetV4_0_0_RetryPolicy.ALLOW_RETRY && onNetV4Retry {
           keys :- DeriveKey(messageId, plaintextKey, suite, crypto, true);
         } else {
           keys :- DeriveKey(messageId, plaintextKey, suite, crypto, false);

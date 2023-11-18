@@ -660,7 +660,7 @@ module AwsEncryptionSdkOperations refines AbstractAwsCryptographyEncryptionSdkOp
     // TODO Post-#619: Duvet this section
     // TODO Post-#619: Refactor this to eliminate duplicate code
     if maybeHeaderAuth.Failure?
-      && config.netV4_0_0_RetryPolicy == NetV4_0_0_RetryPolicy.ALLOW_NET_4_0_0_RETRY
+      && config.netV4_0_0_RetryPolicy == NetV4_0_0_RetryPolicy.ALLOW_RETRY
       && v4Retry == false
     {
       v4Retry := true;

@@ -18,7 +18,7 @@ module
     AwsEncryptionSdkConfig(
       commitmentPolicy := Some(AwsCryptographyMaterialProvidersTypes.ESDKCommitmentPolicy.REQUIRE_ENCRYPT_REQUIRE_DECRYPT),
       maxEncryptedDataKeys := None,
-      netV4_0_0_RetryPolicy := Some(NetV4_0_0_RetryPolicy.ALLOW_NET_4_0_0_RETRY)
+      netV4_0_0_RetryPolicy := Some(NetV4_0_0_RetryPolicy.ALLOW_RETRY)
     )
   }
 
@@ -37,7 +37,7 @@ module
       mpl := mpl,
       commitmentPolicy := config.commitmentPolicy.UnwrapOr(AwsCryptographyMaterialProvidersTypes.ESDKCommitmentPolicy.REQUIRE_ENCRYPT_REQUIRE_DECRYPT),
       maxEncryptedDataKeys := config.maxEncryptedDataKeys,
-      netV4_0_0_RetryPolicy := config.netV4_0_0_RetryPolicy.UnwrapOr(NetV4_0_0_RetryPolicy.ALLOW_NET_4_0_0_RETRY)
+      netV4_0_0_RetryPolicy := config.netV4_0_0_RetryPolicy.UnwrapOr(NetV4_0_0_RetryPolicy.ALLOW_RETRY)
     );
     var client := new ESDKClient(internalConfig);
     return Success(client);
