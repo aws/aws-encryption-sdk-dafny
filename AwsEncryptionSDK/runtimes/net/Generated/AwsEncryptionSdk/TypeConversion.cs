@@ -30,7 +30,7 @@ namespace AWS.Cryptography.EncryptionSDK
             // BEGIN MANUAL EDIT
             if (concrete._netV4__0__0__RetryPolicy.is_Some)
                 // END MANUAL EDIT
-                converted.NetV4__0__0__RetryPolicy =
+                converted.NetV4_0_0_RetryPolicy =
                     (AWS.Cryptography.EncryptionSDK.NetV4_0_0_RetryPolicy)
                     FromDafny_N3_aws__N12_cryptography__N13_encryptionSdk__S22_AwsEncryptionSdkConfig__M21_netV4_0_0_RetryPolicy(
                         // BEGIN MANUAL EDIT
@@ -50,7 +50,7 @@ namespace AWS.Cryptography.EncryptionSDK
                 value.IsSetMaxEncryptedDataKeys() ? value.MaxEncryptedDataKeys : (long?)null;
             AWS.Cryptography.EncryptionSDK.NetV4_0_0_RetryPolicy var_netV4_0_0_RetryPolicy =
                 value.IsSetNetV4__0__0__RetryPolicy()
-                    ? value.NetV4__0__0__RetryPolicy
+                    ? value.NetV4_0_0_RetryPolicy
                     : (AWS.Cryptography.EncryptionSDK.NetV4_0_0_RetryPolicy)null;
             return new software.amazon.cryptography.encryptionsdk.internaldafny.types.AwsEncryptionSdkConfig(
                 ToDafny_N3_aws__N12_cryptography__N13_encryptionSdk__S22_AwsEncryptionSdkConfig__M16_commitmentPolicy(

@@ -156,7 +156,7 @@ namespace TestVectors.Runner {
                 AwsEncryptionSdkConfig config = new AwsEncryptionSdkConfig
                 {
                     CommitmentPolicy = ESDKCommitmentPolicy.REQUIRE_ENCRYPT_ALLOW_DECRYPT,
-                    NetV4__0__0__RetryPolicy = _netV400RetryPolicy
+                    NetV4_0_0_RetryPolicy = _netV400RetryPolicy
                 };
                 ESDK encryptionSdk = new ESDK(config);
 

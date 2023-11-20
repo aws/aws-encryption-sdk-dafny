@@ -13,6 +13,7 @@ using Amazon.KeyManagementService.Model;
 using AWS.Cryptography.EncryptionSDK;
 using AWS.Cryptography.MaterialProviders;
 using Org.BouncyCastle.Security;
+using Xunit;
 using AesWrappingAlg = AWS.Cryptography.MaterialProviders.AesWrappingAlg;
 using CreateAwsKmsMrkMultiKeyringInput = AWS.Cryptography.MaterialProviders.CreateAwsKmsMrkMultiKeyringInput;
 using CreateRawAesKeyringInput = AWS.Cryptography.MaterialProviders.CreateRawAesKeyringInput;
@@ -232,6 +233,39 @@ namespace ExampleUtils {
             using (var file = new FileStream(GetResourcePath(path), FileMode.Open, FileAccess.Read))
                 file.CopyTo(rtn);
             return rtn;
+        }
+
+        /// <summary>
+        ///     For this example, we break out encryption context verification
+        ///     into a helper method.
+        ///     While encryption context verification is a best practice, it is not
+        ///     the topic of this example.
+        /// </summary>
+        public static void VerifyEncryptionContext(
+            DecryptOutput decryptOutput,
+            Dictionary<string, string> encryptionContext
+        )
+        {
+            // Before your application uses plaintext data, verify that the encryption context that
+            // you used to encrypt the message is included in the encryption context that was used to
+            // decrypt the message. The AWS Encryption SDK can add pairs, so don't require an exact match.
+            //
+            // In production, always use a meaningful encryption context.
+            foreach (var expectedPair in encryptionContext)
+                if (!decryptOutput.EncryptionContext.TryGetValue(expectedPair.Key, out var decryptedValue)
+                    || !decryptedValue.Equals(expectedPair.Value))
+                    throw new Exception("Encryption context does not match expected values");
+        }
+
+        /// <summary>
+        ///     This helper method ensures the decrypted message is the same as the
+        ///     encrypted message.
+        /// </summary>
+        public static void VerifyDecryptedIsPlaintext(DecryptOutput decryptOutput, MemoryStream plaintext)
+        {
+            // Demonstrate that the decrypted plaintext is identical to the original plaintext.
+            var decrypted = decryptOutput.Plaintext;
+            Assert.Equal(decrypted.ToArray(), plaintext.ToArray());
         }
     }
 }
