@@ -7,7 +7,7 @@
 The ESDK-NET’s Message Header AAD
 incorrectly appended two empty bytes
 when using the DefaultCMM.
-The HKDF invocation of non-commuting alforithm suites
+The HKDF invocation of non-committing algorithm suites
 failed to include the Message ID in the info parameter.
 
 Neither of these issues 
