@@ -14,6 +14,9 @@ env:
       arn:aws:iam::587316601012:role/GitHub-DotNet-KMS-US-East-1-Only
     AWS_ENCRYPTION_SDK_EXAMPLE_LIMITED_ROLE_ARN_EU_WEST_1: >-
       arn:aws:iam::587316601012:role/GitHub-DotNet-KMS-EU-West-1-Only
+    VECTORS_URL: >-
+      https://github.com/awslabs/aws-encryption-sdk-test-vectors/raw/master/vectors/awses-decrypt/python-2.3.0.zip
+
 
 phases:
   install:
@@ -26,6 +29,13 @@ phases:
       - curl https://github.com/dafny-lang/dafny/releases/download/v4.2.0/dafny-4.2.0-x64-ubuntu-20.04.zip  -L -o dafny.zip
       - unzip -qq dafny.zip && rm dafny.zip
       - export PATH="$PWD/dafny:$PATH"
+      # install mono to run net48 copied from 
+      # https://www.mono-project.com/download/stable/#download-lin
+      - sudo apt install ca-certificates gnupg
+      - sudo gpg --homedir /tmp --no-default-keyring --keyring /usr/share/keyrings/mono-official-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
+      - echo "deb [signed-by=/usr/share/keyrings/mono-official-archive-keyring.gpg] https://download.mono-project.com/repo/ubuntu stable-focal main" | sudo tee /etc/apt/sources.list.d/mono-official-stable.list
+      - sudo apt update
+      - sudo apt-get install mono-devel -y
       # Switch back to the main directory
       - cd private-aws-encryption-sdk-dafny-staging/AwsEncryptionSDK
   pre_build:
@@ -72,3 +82,42 @@ phases:
       - export AWS_SESSION_TOKEN=$(echo "${TMP_ROLE}" | jq -r '.Credentials.SessionToken')                                                                       
       - aws sts get-caller-identity
       - make test_net
+
+      # add staged artifact to testvectors
+      - sed -i.backup  "/\<ProjectReference Include=\"..\/..\/ESDK.csproj\" \/>/d" runtimes/net/TestVectorsNative/TestVectorLib/AWSEncryptionSDKTestVectorLib.csproj
+      - dotnet add runtimes/net/TestVectorsNative/TestVectorLib/AWSEncryptionSDKTestVectorLib.csproj package AWS.Cryptography.EncryptionSDK --version $VERSION
+
+      # Fetch awses-decrypt/python-2.3.0.zip
+      - cd ../
+      - pwd
+      - export PYTHON_23_VECTOR_PATH=$(pwd)/python23/vectors
+      - mkdir -p $PYTHON_23_VECTOR_PATH
+      - export DOWNLOAD_NAME=python23.zip
+      - curl --no-progress-meter --output $DOWNLOAD_NAME --location $VECTORS_URL
+      - unzip -o -qq $DOWNLOAD_NAME  -d $PYTHON_23_VECTOR_PATH
+      - rm $DOWNLOAD_NAME
+
+      # Run Decrypt Test Vectors on .NET Framework net48
+      - cd ./AwsEncryptionSDK/runtimes/net/TestVectorsNative/TestVectors
+      - export DAFNY_AWS_ESDK_TEST_VECTOR_MANIFEST_PATH="$PYTHON_23_VECTOR_PATH/manifest.json" \
+      - dotnet test --framework net48
+
+      # Run Decrypt Test Vectors on .NET net6.0
+      - dotnet test --framework net6.0
+
+      # Generate Test Vectors with .NET Framework net6.0
+      - cd ../../../../
+      - export NET_41_VECTOR_PATH=$(pwd)/net41/vectors
+      - mkdir -p $NET_41_VECTOR_PATH
+      - GEN_PATH=runtimes/net/TestVectorsNative/TestVectorGenerator
+      - >-
+        dotnet run --project $GEN_PATH --framework net6.0 -- \
+            --encrypt-manifest $GEN_PATH/resources/0006-awses-message-decryption-generation.v2.json \
+            --output-dir $NET_41_VECTOR_PATH
+      
+      # Zip the Generated Test Vectors for ESDK-JS on Mac/Linux
+      - cd $NET_41_VECTOR_PATH
+      - zip -qq net41.zip -r .
+
+      # Decrypt Generated Test Vectors with ESDK-JS
+      - npx -y @aws-crypto/integration-node decrypt -v $NET_41_VECTOR_PATH/net41.zip -c cpu
