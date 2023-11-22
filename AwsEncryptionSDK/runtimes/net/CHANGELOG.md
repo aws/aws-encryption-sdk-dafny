@@ -1,5 +1,36 @@
 # Changelog
 
+## 4.0.1
+
+### Fixes
+
+The ESDK-NET’s Message Header AAD
+incorrectly appended two empty bytes
+when using the DefaultCMM.
+The HKDF invocation of non-committing algorithm suites
+failed to include the Message ID in the info parameter.
+
+Neither of these issues 
+effect the security of messages 
+written by the 4.0.0 release.
+
+However, 
+these messages diverge 
+from the Encryption SDK Message Specification.
+Thus:
+
+* ESDK-NET v4.0.0 writes messages that only ESDK-NET v4.0.0 and greater can read.
+* ESDK-NET v4.0.0 is ONLY able to read messages that are written by ESDK-NET v4.0.0
+
+These issues are fixed in 4.0.1, 
+which writes messages according to the Encryption SDK Message Specification,
+and are interoperable with other implementations of this library.
+
+The option NetV4_RetryPolicy can be use to decrypt v4.0.0 messages.
+See [NetV4_0_0Example.cs](Examples/NetV4_0_0Example.cs) on how to use the NetV4_RetryPolicy
+and details on distributed applications.
+
+
 ## 4.0.0
 
 ### BREAKING CHANGES

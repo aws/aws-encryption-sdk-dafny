@@ -5,7 +5,7 @@ on:
   pull_request:
   push:
     branches:
-      - main
+      - public-v4
   schedule:
     # Nightly build against Dafny's nightly prereleases,
     # for early warning of verification issues or regressions.

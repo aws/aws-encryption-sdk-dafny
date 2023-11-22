@@ -35,7 +35,26 @@ long FrameLength
 structure AwsEncryptionSdkConfig {
   commitmentPolicy: aws.cryptography.materialProviders#ESDKCommitmentPolicy,
   maxEncryptedDataKeys: CountingNumbers,
+  netV4_0_0_RetryPolicy: NetV4_0_0_RetryPolicy
 }
+
+// Allow or Forbid ESDK-NET v4.0.0 Behavior on a retry
+// The default, for ESDK-NET 4.x, is Allow
+@aws.polymorph#javadoc(
+  "During Decryption, Allow or Forbid ESDK-NET v4.0.0 Behavior if the ESDK Message Header fails the Header Authentication check."
+)
+@enum([
+  {
+    name: "FORBID_RETRY",
+    value: "FORBID_RETRY",
+  },
+  {
+    name: "ALLOW_RETRY",
+    value: "ALLOW_RETRY",
+  }
+])
+string NetV4_0_0_RetryPolicy
+
 
 /////////////
 // ESDK Operations

@@ -476,7 +476,7 @@ module EncryptDecryptHelpers {
       var canonicalReqEncryptionContext := 
         EncryptionContext.GetCanonicalEncryptionContext(requiredEncryptionContextMap);
       var serializedReqEncryptionContext := 
-        EncryptionContext.WriteAAD(canonicalReqEncryptionContext);
+        EncryptionContext.WriteEmptyEcOrWriteAAD(canonicalReqEncryptionContext);
        
       //= compliance/client-apis/encrypt.txt#2.6.2
       //# Before encrypting input plaintext, this operation MUST serialize the
