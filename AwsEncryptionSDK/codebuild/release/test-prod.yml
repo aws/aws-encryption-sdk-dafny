@@ -82,9 +82,3 @@ phases:
       # Decrypt Generated Test Vectors with ESDK-JS
       - npx -y @aws-crypto/integration-node decrypt -v $NET_41_VECTOR_PATH/net41.zip -c cpu
 
-      # Unzip ESDK-NET @ v4.0.0 Valid Vectors
-      - cd runtimes/net/TestVectorsNative/TestVectors/resources
-      - NET_400_VALID_VECTORS=$(pwd)/v4Net400Valid/vectors
-      - mkdir -p $NET_400_VALID_VECTORS
-      - DOWNLOAD_NAME=valid-Net-4.0.0.zip
-      - unzip -o -qq $DOWNLOAD_NAME -d $NET_400_VALID_VECTORS
