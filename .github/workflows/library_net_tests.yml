@@ -5,7 +5,7 @@ on:
   pull_request:
   push:
     branches:
-      - public-v4
+      - mainline 
   schedule:
     # Nightly build against Dafny's nightly prereleases,
     # for early warning of verification issues or regressions.
@@ -37,7 +37,6 @@ jobs:
           macos-latest,
         ]
     runs-on: ${{ matrix.os }}
-    environment: "MPL_DAFNY"
     permissions:
       id-token: write
       contents: read
@@ -59,7 +58,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-region: us-west-2
-          role-to-assume: arn:aws:iam::370957321024:role/GitHub-CI-ESDK-Dafny-Role-us-west-2
+          role-to-assume: arn:aws:iam::370957321024:role/GitHub-CI-Public-ESDK-Dafny-Role-us-west-2 
           role-session-name: NetTests
           
       - name: Setup .NET Core SDK 6
