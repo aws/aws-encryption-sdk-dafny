@@ -5,10 +5,6 @@ on:
   pull_request:
 
 jobs:
-  pr-ci-format:
-    uses: ./.github/workflows/library_dafny_format.yml
-    with:
-      dafny: '4.2.0'
   pr-ci-verification:
     uses: ./.github/workflows/library_dafny_verification.yml
     with:
