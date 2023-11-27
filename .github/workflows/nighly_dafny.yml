@@ -1,0 +1,35 @@
+# This workflow invokes other workflows with the nightly Dafny build
+name: Dafny Nightly
+
+on:
+  schedule:
+    # Nightly build against Dafny's nightly prereleases,
+    # for early warning of verification issues or regressions.
+    # Timing chosen to be adequately after Dafny's own nightly build,
+    # but this might need to be tweaked:
+    # https://github.com/dafny-lang/dafny/blob/master/.github/workflows/deep-tests.yml#L16
+    - cron: "30 16 * * *"
+
+jobs:
+  dafny-nightly-format:
+    # Don't run the cron builds on forks
+    if: github.event_name != 'schedule' || github.repository_owner == 'aws'
+    uses: ./.github/workflows/library_dafny_verification.yml
+    with:
+      dafny: 'nightly-latest'
+  dafny-nightly-verification:
+    # Don't run the cron builds on forks
+    if: github.event_name != 'schedule' || github.repository_owner == 'aws'
+    uses: ./.github/workflows/library_dafny_verification.yml
+    with:
+      dafny: 'nightly-latest'
+  dafny-nightly-java:
+    if: github.event_name != 'schedule' || github.repository_owner == 'aws'
+    uses: ./.github/workflows/library_java_tests.yml
+    with:
+      dafny: 'nightly-latest'
+  dafny-nightly-net:
+    if: github.event_name != 'schedule' || github.repository_owner == 'aws'
+    uses: ./.github/workflows/library_net_tests.yml
+    with:
+      dafny: 'nightly-latest'
