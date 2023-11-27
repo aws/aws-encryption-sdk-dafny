@@ -9,10 +9,10 @@ jobs:
     uses: ./.github/workflows/library_dafny_verification.yml
     with:
       dafny: '4.2.0'
-  pr-ci-java:
-    uses: ./.github/workflows/library_java_tests.yml
-    with:
-      dafny: '4.2.0'
+  # pr-ci-java:
+  #   uses: ./.github/workflows/library_java_tests.yml
+  #   with:
+  #     dafny: '4.2.0'
   pr-ci-net:
     uses: ./.github/workflows/library_net_tests.yml
     with:

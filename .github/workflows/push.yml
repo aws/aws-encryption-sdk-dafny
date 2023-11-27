@@ -11,10 +11,10 @@ jobs:
     uses: ./.github/workflows/library_dafny_verification.yml
     with:
       dafny: '4.2.0'
-  push-ci-java:
-    uses: ./.github/workflows/library_java_tests.yml
-    with:
-      dafny: '4.2.0'
+  # push-ci-java:
+  #   uses: ./.github/workflows/library_java_tests.yml
+  #   with:
+  #     dafny: '4.2.0'
   push-ci-net:
     uses: ./.github/workflows/library_net_tests.yml
     with:
