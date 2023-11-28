@@ -2,31 +2,15 @@
 name: Library Dafny verification
 
 on:
-  pull_request:
-  push:
-    branches:
-      - public-v4
-  workflow_dispatch:
-    # Manual trigger for this workflow, either the normal version
-    # or the nightly build that uses the latest Dafny prerelease
-    # (accordingly to the "nightly" parameter).
+  workflow_call:
     inputs:
-      nightly:
-        description: 'Run the nightly build'
-        required: false
-        type: boolean
-  schedule:
-    # Nightly build against Dafny's nightly prereleases,
-    # for early warning of verification issues or regressions.
-    # Timing chosen to be adequately after Dafny's own nightly build,
-    # but this might need to be tweaked:
-    # https://github.com/dafny-lang/dafny/blob/master/.github/workflows/deep-tests.yml#L16
-    - cron: "30 16 * * *"
+      dafny:
+        description: 'The Dafny version to run'
+        required: true
+        type: string  
 
 jobs:
   verification:
-    # Don't run the nightly build on forks
-    if: github.event_name != 'schedule' || github.repository_owner == 'aws'
     strategy:
       matrix:
         library: [
@@ -34,26 +18,24 @@ jobs:
         ]
         os: [ macos-latest ]
     runs-on: ${{ matrix.os }}
-    environment: "MPL_DAFNY"
     env:
       DOTNET_CLI_TELEMETRY_OPTOUT: 1
       DOTNET_NOLOGO: 1
     steps:
+      - name: Support longpaths
+        run: |
+          git config --global core.longpaths true
+          
       - uses: actions/checkout@v2
       - name: Init Submodules
         run: |
             git submodule update --init libraries
             git submodule update --init --recursive mpl
 
-      - name: Support longpaths
-        run: |
-          git config --global core.longpaths true
-
       - name: Setup Dafny
         uses: dafny-lang/setup-dafny-action@v1.6.1
         with:
-          # A && B || C is the closest thing to an if .. then ... else ... or ?: expression the GitHub Actions syntax supports.
-          dafny-version: ${{ (github.event_name == 'schedule' || inputs.nightly) && 'nightly-latest' || '4.2.0' }}
+          dafny-version: ${{ inputs.dafny }}
 
       - name: Verify ${{ matrix.library }} Dafny code
         shell: bash
