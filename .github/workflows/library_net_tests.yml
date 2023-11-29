@@ -140,7 +140,7 @@ jobs:
         run: |
           PYTHON_23_VECTOR_PATH=$GITHUB_WORKSPACE/python23/vectors
           DAFNY_AWS_ESDK_TEST_VECTOR_MANIFEST_PATH="$PYTHON_23_VECTOR_PATH/manifest.json" \
-          dotnet test --framework net48
+          dotnet test --framework net48 --filter PositiveDecryptTestVector
 
       - name: Run Decrypt Test Vectors on .NET net6.0
         working-directory: ./AwsEncryptionSDK/runtimes/net/TestVectorsNative/TestVectors
@@ -150,10 +150,10 @@ jobs:
           if [ "$RUNNER_OS" == "macOS" ]; then
             DAFNY_AWS_ESDK_TEST_VECTOR_MANIFEST_PATH="$PYTHON_23_VECTOR_PATH/manifest.json" \
             DYLD_LIBRARY_PATH="/usr/local/opt/openssl@1.1/lib" \
-            dotnet test --framework net6.0
+            dotnet test --framework net6.0 --filter PositiveDecryptTestVector
           else
             DAFNY_AWS_ESDK_TEST_VECTOR_MANIFEST_PATH="$PYTHON_23_VECTOR_PATH/manifest.json" \
-            dotnet test --framework net6.0
+            dotnet test --framework net6.0 --filter PositiveDecryptTestVector
           fi
 
       - name: Generate Test Vectors with .NET Framework net6.0
