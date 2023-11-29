@@ -263,7 +263,7 @@ module {:options "/functionSyntax:4" } EncryptedDataKeys {
     }
   }
 
-  lemma ReadEncryptedDataKeysSectionIsComplete(
+  lemma {:vcs_split_on_every_assert} ReadEncryptedDataKeysSectionIsComplete(
     data: ESDKEncryptedDataKeys,
     bytes: seq<uint8>,
     buffer: ReadableBuffer,

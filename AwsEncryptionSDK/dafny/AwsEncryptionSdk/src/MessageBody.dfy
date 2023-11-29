@@ -653,7 +653,7 @@ module MessageBody {
     return Success(finalFrame);
   }
 
-  method DecryptFramedMessageBody(
+  method {:vcs_split_on_every_assert} DecryptFramedMessageBody(
     body: FramedMessage,
     key: seq<uint8>,
     crypto: Primitives.AtomicPrimitivesClient
