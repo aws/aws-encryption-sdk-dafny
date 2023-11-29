@@ -2,17 +2,12 @@
 name: Library net tests
 
 on: 
-  pull_request:
-  push:
-    branches:
-      - mainline 
-  schedule:
-    # Nightly build against Dafny's nightly prereleases,
-    # for early warning of verification issues or regressions.
-    # Timing chosen to be adequately after Dafny's own nightly build,
-    # but this might need to be tweaked:
-    # https://github.com/dafny-lang/dafny/blob/master/.github/workflows/deep-tests.yml#L16
-    - cron: "30 16 * * *"
+  workflow_call:
+    inputs:
+      dafny:
+        description: 'The Dafny version to run'
+        required: true
+        type: string  
 
 env:
   # Used in examples
@@ -27,8 +22,6 @@ env:
 
 jobs:
   testDotNet:
-    # Don't run the nightly build on forks
-    if: github.event_name != 'schedule' || github.repository_owner == 'aws'
     strategy:
       matrix:
         os: [
@@ -69,8 +62,7 @@ jobs:
       - name: Setup Dafny
         uses: dafny-lang/setup-dafny-action@v1.6.1
         with:
-          # A && B || C is the closest thing to an if .. then ... else ... or ?: expression the GitHub Actions syntax supports.
-          dafny-version: ${{ (github.event_name == 'schedule' || inputs.nightly) && 'nightly-latest' || '4.2.0' }}
+          dafny-version: ${{ inputs.dafny }}
 
       - name: Download Dependencies 
         working-directory: ./AwsEncryptionSDK

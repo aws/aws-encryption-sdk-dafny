@@ -2,22 +2,15 @@
 name: Library Java tests
 
 on: 
-  pull_request:
-  push:
-    branches:
-      - public-v4
-  schedule:
-    # Nightly build against Dafny's nightly prereleases,
-    # for early warning of verification issues or regressions.
-    # Timing chosen to be adequately after Dafny's own nightly build,
-    # but this might need to be tweaked:
-    # https://github.com/dafny-lang/dafny/blob/master/.github/workflows/deep-tests.yml#L16
-    - cron: "30 16 * * *"
+  workflow_call:
+    inputs:
+      dafny:
+        description: 'The Dafny version to run'
+        required: true
+        type: string
 
 jobs:
   testJava:
-    # Don't run the nightly build on forks
-    if: github.event_name != 'schedule' || github.repository_owner == 'aws'
     strategy:
       matrix:
         library: [
@@ -30,41 +23,31 @@ jobs:
           macos-latest
         ]
     runs-on: ${{ matrix.os }}
-    environment: "MPL_DAFNY"
     permissions:
       id-token: write
       contents: read
     steps:
-      - uses: actions/checkout@v2
-      - name: Init Submodules
-        env:
-          # This secret is in the configured environment
-          # Token created on # 09/26/2023
-          # expires in ~30 days 10/26/2023
-          MPL_PAT: ${{ secrets.MPL_DAFNY }}
-        run: |
-            AUTH="$(echo -n "pat:${MPL_PAT}" | base64 | tr -d '\n')"
-            git config --global http.https://github.com/.extraheader "AUTHORIZATION: basic $AUTH"
-            git config --global --add url.https://github.com/.insteadOf git@github.com:
-            git submodule update --init libraries
-            git submodule update --init --recursive mpl
-
       - name: Support longpaths
         run: |
           git config --global core.longpaths true
+      
+      - uses: actions/checkout@v3
+      - name: Init Submodules
+        run: |
+            git submodule update --init libraries
+            git submodule update --init --recursive mpl
+
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-region: us-west-2
-          # TODO: This role was manually created.
-          role-to-assume: arn:aws:iam::370957321024:role/ESDK-Dafny-Private-CA-Read
-          role-session-name: JavaPrivateESDKDafnyTests
+          role-to-assume: arn:aws:iam::370957321024:role/GitHub-CI-Public-ESDK-Dafny-Role-us-west-2
+          role-session-name: JavaTests
 
       - name: Setup Dafny
         uses: dafny-lang/setup-dafny-action@v1.6.1
         with:
-          # A && B || C is the closest thing to an if .. then ... else ... or ?: expression the GitHub Actions syntax supports.
-          dafny-version: ${{ (github.event_name == 'schedule' || inputs.nightly) && 'nightly-latest' || '4.2.0' }}
+          dafny-version: ${{ inputs.dafny }}
 
       - name: Setup Java 8
         uses: actions/setup-java@v3
@@ -80,19 +63,8 @@ jobs:
           CORES=$(node -e 'console.log(os.cpus().length)')
           make build_java CORES=$CORES
 
-      # KMS and MPL tests need to use credentials which can call KMS
-      - name: Configure AWS Credentials for Tests
-        uses: aws-actions/configure-aws-credentials@v1
-        if: matrix.library == 'ComAmazonawsKms' || matrix.library == 'AwsCryptographicMaterialProviders' || matrix.library == 'TestVectorsAwsCryptographicMaterialProviders'
-        with:
-          aws-region: us-west-2
-          role-to-assume: arn:aws:iam::370957321024:role/GitHub-CI-ESDK-Dafny-Role-us-west-2
-          role-session-name: JavaTests
-
       - name: Test ${{ matrix.library }}
         working-directory: ./${{ matrix.library }}
-        # TODO: DDB currently has no tests
-        if: matrix.library != 'ComAmazonawsDynamodb'
         run: |
           make test_java
 
