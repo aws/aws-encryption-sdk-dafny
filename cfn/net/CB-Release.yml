@@ -14,7 +14,7 @@ Parameters:
   SourceLocation:
     Type: String
     Description: The https GitHub URL for the project
-    Default: "https://github.com/aws/private-aws-encryption-sdk-dafny-staging.git"
+    Default: "https://github.com/aws/aws-encryption-sdk-dafny.git"
   NumberOfBuildsInBatch:
     Type: Number
     MaxValue: 100
