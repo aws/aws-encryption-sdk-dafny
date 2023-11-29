@@ -204,18 +204,17 @@ jobs:
           DOWNLOAD_NAME=valid-Net-4.0.0.zip
           unzip -o -qq $DOWNLOAD_NAME -d $NET_400_VALID_VECTORS
 
-      - name: Run ESDK-NET @ v4.0.0 Valid Vectors expect success
+      - name: Run ESDK-NET @ v4.0.0 Valid Vectors Positive Decrypt Test
         working-directory: ./AwsEncryptionSDK/runtimes/net/TestVectorsNative/TestVectors
-        continue-on-error: true
         shell: bash
         run: |
           NET_400_VALID_VECTORS=$GITHUB_WORKSPACE/v4Net400Valid/vectors
           ESDK_NET_V400_POLICY="forbid" \
           DAFNY_AWS_ESDK_TEST_VECTOR_MANIFEST_PATH="$NET_400_VALID_VECTORS/manifest.json" \
-          dotnet test --framework net48
+          dotnet test --framework net48 --filter PositiveDecryptTestVector
           ESDK_NET_V400_POLICY="forbid" \
           DAFNY_AWS_ESDK_TEST_VECTOR_MANIFEST_PATH="$NET_400_VALID_VECTORS/manifest.json" \
-          dotnet test --framework net6.0 --logger "console;verbosity=quiet"
+          dotnet test --framework net6.0 --logger "console;verbosity=quiet" --filter PositiveDecryptTestVector
 
       - name: Unzip ESDK-NET @ v4.0.0 Invalid Vectors
         working-directory: ./AwsEncryptionSDK/runtimes/net/TestVectorsNative/TestVectors/resources
@@ -226,24 +225,17 @@ jobs:
           DOWNLOAD_NAME=invalid-Net-4.0.0.zip
           unzip -o -qq $DOWNLOAD_NAME -d $NET_400_INVALID_VECTORS
 
-      - name: Run ESDK-NET @ v4.0.0 Invalid Vectors .NET 48 expect failure
+      - name: Run ESDK-NET @ v4.0.0 Invalid Vectors .NET 48 Negative Decrypt Test
         working-directory: ./AwsEncryptionSDK/runtimes/net/TestVectorsNative/TestVectors
-        continue-on-error: true
         shell: bash
         run: |
           NET_400_INVALID_VECTORS=$GITHUB_WORKSPACE/v4Net400Invalid/vectors
           ESDK_NET_V400_POLICY="forbid" \
           DAFNY_AWS_ESDK_TEST_VECTOR_MANIFEST_PATH="$NET_400_INVALID_VECTORS/manifest.json" \
-          dotnet test --framework net48
-          # Dotnet test returns 1 for failure.
-          TEMP=$?; if [[ "$TEMP" -eq 1 ]]; then true; else false; fi;
-          # We want this to fail, so if it returned 1, step passes, else it fails
-          # TODO Post-#619: Refactor Test Vectors to expect failure,
-          # as I doubt this true false logic works
+          dotnet test --framework net48 --filter NegativeDecryptTestVector
 
-      - name: Run ESDK-NET @ v4.0.0 Invalid Vectors .NET 6.0 expect failure
+      - name: Run ESDK-NET @ v4.0.0 Invalid Vectors .NET 6.0 Negative Decrypt Test
         working-directory: ./AwsEncryptionSDK/runtimes/net/TestVectorsNative/TestVectors
-        continue-on-error: true
         shell: bash
         run: |
           NET_400_INVALID_VECTORS=$GITHUB_WORKSPACE/v4Net400Invalid/vectors
@@ -251,30 +243,25 @@ jobs:
             ESDK_NET_V400_POLICY="forbid" \
             DAFNY_AWS_ESDK_TEST_VECTOR_MANIFEST_PATH="$NET_400_INVALID_VECTORS/manifest.json" \
             DYLD_LIBRARY_PATH="/usr/local/opt/openssl@1.1/lib" \
-            dotnet test --framework net6.0
+            dotnet test --framework net6.0 --filter NegativeDecryptTestVector
           else
             ESDK_NET_V400_POLICY="forbid" \
             DAFNY_AWS_ESDK_TEST_VECTOR_MANIFEST_PATH="$NET_400_INVALID_VECTORS/manifest.json" \
-            dotnet test --framework net6.0
+            dotnet test --framework net6.0 --filter NegativeDecryptTestVector
           fi
-          # Dotnet test returns 1 for failure.
-          TEMP=$?; if [[ "$TEMP" -eq 1 ]]; then true; else false; fi;
-          # We want this to fail, so if it returned 1, step passes, else it fails
-          # TODO Post-#619: Refactor Test Vectors to expect failure,
-          # as I doubt this true false logic works
           
-      - name: Run ESDK-NET @ v4.0.0 Invalid Vectors .NET expect Success
+      - name: Run ESDK-NET @ v4.0.0 Invalid Vectors .NET Positive Decrypt Test
         working-directory: ./AwsEncryptionSDK/runtimes/net/TestVectorsNative/TestVectors
         shell: bash
         run: |
           NET_400_INVALID_VECTORS=$GITHUB_WORKSPACE/v4Net400Invalid/vectors
           DAFNY_AWS_ESDK_TEST_VECTOR_MANIFEST_PATH="$NET_400_INVALID_VECTORS/manifest.json" \
-          dotnet test --framework net48 --logger "console;verbosity=quiet"
+          dotnet test --framework net48 --logger "console;verbosity=quiet" --filter PositiveDecryptTestVector
           if [ "$RUNNER_OS" == "macOS" ]; then
             DAFNY_AWS_ESDK_TEST_VECTOR_MANIFEST_PATH="$NET_400_INVALID_VECTORS/manifest.json" \
             DYLD_LIBRARY_PATH="/usr/local/opt/openssl@1.1/lib" \
-            dotnet test --framework net6.0 --logger "console;verbosity=quiet"
+            dotnet test --framework net6.0 --logger "console;verbosity=quiet" --filter PositiveDecryptTestVector
           else
             DAFNY_AWS_ESDK_TEST_VECTOR_MANIFEST_PATH="$NET_400_INVALID_VECTORS/manifest.json" \
-            dotnet test --framework net6.0 --logger "console;verbosity=quiet"
+            dotnet test --framework net6.0 --logger "console;verbosity=quiet" --filter PositiveDecryptTestVector
           fi
