@@ -9,6 +9,7 @@ on:
     # but this might need to be tweaked:
     # https://github.com/dafny-lang/dafny/blob/master/.github/workflows/deep-tests.yml#L16
     - cron: "30 16 * * *"
+  workflow_dispatch:
 
 jobs:
   dafny-nightly-verification:
