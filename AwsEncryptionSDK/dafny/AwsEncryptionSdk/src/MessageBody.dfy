@@ -1063,8 +1063,6 @@ module MessageBody {
       );
 
       assert {:split_here} true;
-      assert MessageFramesAreMonotonic(regularFrames + [finalFrame.data]);
-      assert MessageFramesAreForTheSameMessage(regularFrames + [finalFrame.data]);
 
       var body: FramedMessage := FramedMessageBody(
         regularFrames := regularFrames,
@@ -1075,6 +1073,8 @@ module MessageBody {
       assert CorrectlyRead(continuation, Success(finalFrame), Frames.WriteFinalFrame);
       assert {:split_here} true;
       assert CorrectlyRead(buffer, Success(SuccessfulRead(body, finalFrame.tail)), WriteFramedMessageBody) by {
+        assert MessageFramesAreMonotonic(regularFrames + [finalFrame.data]);
+        assert MessageFramesAreForTheSameMessage(regularFrames + [finalFrame.data]);
         reveal CorrectlyReadRange();
       }
       Success(SuccessfulRead(body, finalFrame.tail))
