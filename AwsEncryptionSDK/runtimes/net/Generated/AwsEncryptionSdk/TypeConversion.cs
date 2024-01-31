@@ -754,6 +754,17 @@ namespace AWS.Cryptography.EncryptionSDK
 
         public static Dafny.ISequence<byte> ToDafny_N6_smithy__N3_api__S4_Blob(System.IO.MemoryStream value)
         {
+            // BEGIN MANUAL EDIT
+            // It is possible for a MemoryStream to be implemented by another stream,
+            // which may or may not be backed with an array.
+            // If the array is empty, but the stream isn't, then
+            // the backing stream cannot be treated as a MemoryStream
+            // for purposes of type conversion through ToArray().
+            if (value.ToArray().Length == 0 && value.Length > 0)
+            {
+                throw new System.ArgumentException("Fatal Error: MemoryStream instance not backed by an array!");
+            }
+            // END MANUAL EDIT
             return Dafny.Sequence<byte>.FromArray(value.ToArray());
         }
 
