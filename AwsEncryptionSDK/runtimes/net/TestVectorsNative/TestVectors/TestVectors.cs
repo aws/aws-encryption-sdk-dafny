@@ -13,6 +13,8 @@ using Xunit.Abstractions;
 using AWS.Cryptography.EncryptionSDK;
 using AWS.Cryptography.MaterialProviders;
 using Exception = System.Exception;
+using OpaqueError = AWS.Cryptography.Primitives.OpaqueError;
+
 // ReSharper disable SuggestVarOrType_SimpleTypes
 // ReSharper disable SuggestVarOrType_Elsewhere
 // ReSharper disable SuggestVarOrType_BuiltInTypes
@@ -133,8 +135,61 @@ namespace TestVectors.Runner {
         }
 
         [SkippableTheory]
+        [ClassData(typeof(DecryptTestVectors))]
+        public void PositiveDecryptTestVector(
+            string vectorId,
+            DecryptVector vector,
+            Dictionary<string, Key> keyMap,
+            byte[] expectedPlaintext,
+            string expectedError,
+            MemoryStream ciphertextStream,
+            NetV4_0_0_RetryPolicy _netV400RetryPolicy
+        )
+        {
+            if (expectedPlaintext != null && expectedError != null)
+            {
+                throw new ArgumentException(
+                    $"Test vector {vectorId} has both plaintext and error in its expected result, this is not possible"
+                );
+            }
+            AwsEncryptionSdkConfig config = new AwsEncryptionSdkConfig
+            {
+                CommitmentPolicy = ESDKCommitmentPolicy.REQUIRE_ENCRYPT_ALLOW_DECRYPT,
+                NetV4_0_0_RetryPolicy = _netV400RetryPolicy
+            };
+            ESDK encryptionSdk = new ESDK(config);
+
+            ICryptographicMaterialsManager cmm = MaterialProviderFactory.CreateDecryptCmm(vector, keyMap, vectorId);
+
+            DecryptInput decryptInput = new DecryptInput
+            {
+                Ciphertext = ciphertextStream,
+                MaterialsManager = cmm,
+            };
+            if (vector.CMM is "RequiredEncryptionContext")
+            {
+                decryptInput = new DecryptInput
+                {
+                    Ciphertext = ciphertextStream,
+                    MaterialsManager = cmm,
+                    EncryptionContext = vector.EncryptionContext
+                };
+            }
+            AWS.Cryptography.EncryptionSDK.DecryptOutput decryptOutput = encryptionSdk.Decrypt(decryptInput);
+            if (expectedError != null)
+            {
+                throw new TestVectorShouldHaveFailedException(
+                    $"Test vector {vectorId} succeeded when it shouldn't have"
+                );
+            }
+
+            byte[] result = decryptOutput.Plaintext.ToArray();
+            Assert.Equal(expectedPlaintext, result);
+        }
+        
+        [SkippableTheory]
         [ClassData (typeof(DecryptTestVectors))]
-        public void CanDecryptTestVector(
+        public void NegativeDecryptTestVector(
             string vectorId,
             DecryptVector vector,
             Dictionary<string, Key> keyMap,
@@ -149,128 +204,126 @@ namespace TestVectors.Runner {
                     $"Test vector {vectorId} has both plaintext and error in its expected result, this is not possible"
                 );
             }
-            Exception exceptionHolder = null;
-            bool exceptionHasBeenCaught = false;
-            try
+            
+            AwsEncryptionSdkConfig config = new AwsEncryptionSdkConfig
             {
-                AwsEncryptionSdkConfig config = new AwsEncryptionSdkConfig
-                {
-                    CommitmentPolicy = ESDKCommitmentPolicy.REQUIRE_ENCRYPT_ALLOW_DECRYPT,
-                    NetV4_0_0_RetryPolicy = _netV400RetryPolicy
-                };
-                ESDK encryptionSdk = new ESDK(config);
+                CommitmentPolicy = ESDKCommitmentPolicy.REQUIRE_ENCRYPT_ALLOW_DECRYPT,
+                NetV4_0_0_RetryPolicy = _netV400RetryPolicy
+            };
+            ESDK encryptionSdk = new ESDK(config);
 
-                ICryptographicMaterialsManager cmm = MaterialProviderFactory.CreateDecryptCmm(vector, keyMap, vectorId);
+            ICryptographicMaterialsManager cmm = MaterialProviderFactory.CreateDecryptCmm(vector, keyMap, vectorId);
 
-                DecryptInput decryptInput = new DecryptInput
+            DecryptInput decryptInput = new DecryptInput
+            {
+                Ciphertext = ciphertextStream,
+                MaterialsManager = cmm,
+            };
+            if (vector.CMM is "RequiredEncryptionContext")
+            {
+                decryptInput = new DecryptInput
                 {
                     Ciphertext = ciphertextStream,
                     MaterialsManager = cmm,
+                    EncryptionContext = vector.EncryptionContext
                 };
-                if (vector.CMM is "RequiredEncryptionContext")
-                {
-                    decryptInput = new DecryptInput
-                    {
-                        Ciphertext = ciphertextStream,
-                        MaterialsManager = cmm,
-                        EncryptionContext = vector.EncryptionContext
-                    };
-                }
-                AWS.Cryptography.EncryptionSDK.DecryptOutput decryptOutput = encryptionSdk.Decrypt(decryptInput);
-                if (expectedError != null)
-                {
-                    throw new TestVectorShouldHaveFailedException(
-                        $"Test vector {vectorId} succeeded when it shouldn't have"
-                    );
-                }
+            }
+            // if no exception is thrown this will error - this is good because we are not supposed to succeed here.
+            // ensures we erroring the expected way
+            var ex = Assert.Throws<OpaqueError>(() =>encryptionSdk.Decrypt(decryptInput));
+            
+            // if it is an unknown error we will fail otherwise move on.
+            // if this is not an error we expect we will fail 
+            Assert.Throws<TestVectorShouldHaveFailedException>(() => EvaluateThrownError(ex, vector, expectedPlaintext));
+        }
 
-                byte[] result = decryptOutput.Plaintext.ToArray();
-                Assert.Equal(expectedPlaintext, result);
-            }
-            // Ensure Test Failure is not caught
-            catch (TestVectorShouldHaveFailedException)
+        private void EvaluateThrownError(Exception e, DecryptVector vector, byte[] expectedPlaintext)
+        {
+            Exception exceptionHolder = null;
+            bool exceptionHasBeenCaught = false;
+
+            switch (e)
             {
-                throw;
-            }
-            catch (Exception e) when (
-                e is AWS.Cryptography.Primitives.CollectionOfErrors
+                case AWS.Cryptography.Primitives.CollectionOfErrors
                     or AWS.Cryptography.KeyStore.CollectionOfErrors
                     or AWS.Cryptography.MaterialProviders.CollectionOfErrors
-                    or AWS.Cryptography.EncryptionSDK.CollectionOfErrors
-            )
-            {
-                exceptionHasBeenCaught = true;
-                exceptionHolder = e;
-                // Use Reflection to get the common list field
-                Type collectionType = e.GetType();
-                FieldInfo listFieldInfo = collectionType.GetField("list");
-                List<Exception> list = (List<Exception>)listFieldInfo?.GetValue(e);
-                List<string> debugList = new List<string>();
-                if (vector.MasterKeys != null) debugList.AddRange(vector.MasterKeys.Select(keyInfo => $"Key: {keyInfo.Key}, Type: {keyInfo.Type}"));
-
-                testLogging.WriteLine($"CollectionOfErrors Logging. List:\n{string.Join("\n\t", list!)}");
-                testLogging.WriteLine($"CollectionOfErrors Logging. master-keys:\n{string.Join("\n\t", debugList)}");
-            }
-            catch (Exception e) when (
-                e is AWS.Cryptography.Primitives.OpaqueError
+                    or AWS.Cryptography.EncryptionSDK.CollectionOfErrors:
+                {
+                    exceptionHasBeenCaught = true;
+                    exceptionHolder = e;
+                    // Use Reflection to get the common list field
+                    Type collectionType = e.GetType();
+                    FieldInfo listFieldInfo = collectionType.GetField("list");
+                    List<Exception> list = (List<Exception>)listFieldInfo?.GetValue(e);
+                    List<string> debugList = new List<string>();
+                    if (vector.MasterKeys != null) debugList.AddRange(vector.MasterKeys.Select(keyInfo => $"Key: {keyInfo.Key}, Type: {keyInfo.Type}"));
+                
+                    testLogging.WriteLine($"CollectionOfErrors Logging. List:\n{string.Join("\n\t", list!)}");
+                    testLogging.WriteLine($"CollectionOfErrors Logging. master-keys:\n{string.Join("\n\t", debugList)}");
+                    break;
+                }
+                case AWS.Cryptography.Primitives.OpaqueError
                     or AWS.Cryptography.KeyStore.OpaqueError
                     or AWS.Cryptography.MaterialProviders.OpaqueError
-                    or AWS.Cryptography.EncryptionSDK.OpaqueError
-            )
-            {
-                exceptionHasBeenCaught = true;
-                // Use Reflection to get the common Obj field
-                Type opaqueType = e.GetType();
-                FieldInfo objFieldInfo = opaqueType.GetField("obj");
-                object obj = objFieldInfo?.GetValue(e);
-                switch (obj)
+                    or AWS.Cryptography.EncryptionSDK.OpaqueError:
                 {
-                    case null when e.Message.Equals(OPAQUE_ERROR_NULL_OBJ_MSG):
-                        testLogging.WriteLine($"OpaqueError Logging: Obj was null. Error Type is {opaqueType}");
-                        exceptionHolder = e;
-                        break;
-                    case Exception nestedException:
-                        testLogging.WriteLine($"OpaqueError Logging: Obj is an Exception. " +
-                                              $"Error Type is {opaqueType}.\n" +
-                                              $"Nested Exception is {nestedException.GetType()}.\n" +
-                                              $"Nested Exceptions message is: \n\t{nestedException.Message}\n"
-                                              // + $"Nested Exceptions StackTrace is: \n\t{nestedException.StackTrace}"
-                                              );
-                        exceptionHolder = nestedException;
-                        break;
-                    default:
-                        testLogging.WriteLine($"OpaqueError Logging: Obj is an arbitrary object. " +
-                                              $"Error Type is {opaqueType}. " +
-                                              $"Type of Obj is {obj!.GetType()}.");
-                        exceptionHolder = e;
-                        break;
+                    exceptionHasBeenCaught = true;
+                    // Use Reflection to get the common Obj field
+                    Type opaqueType = e.GetType();
+                    FieldInfo objFieldInfo = opaqueType.GetField("obj");
+                    object obj = objFieldInfo?.GetValue(e);
+                    switch (obj)
+                    {
+                        case null when e.Message.Equals(OPAQUE_ERROR_NULL_OBJ_MSG):
+                            testLogging.WriteLine($"OpaqueError Logging: Obj was null. Error Type is {opaqueType}");
+                            exceptionHolder = e;
+                            break;
+                        case Exception nestedException:
+                            testLogging.WriteLine($"OpaqueError Logging: Obj is an Exception. " +
+                                                  $"Error Type is {opaqueType}.\n" +
+                                                  $"Nested Exception is {nestedException.GetType()}.\n" +
+                                                  $"Nested Exceptions message is: \n\t{nestedException.Message}\n"
+                                // + $"Nested Exceptions StackTrace is: \n\t{nestedException.StackTrace}"
+                            );
+                            exceptionHolder = nestedException;
+                            break;
+                        default:
+                            testLogging.WriteLine($"OpaqueError Logging: Obj is an arbitrary object. " +
+                                                  $"Error Type is {opaqueType}. " +
+                                                  $"Type of Obj is {obj!.GetType()}.");
+                            exceptionHolder = e;
+                            break;
+                    }
+
+                    break;
                 }
+                default:
+                    exceptionHasBeenCaught = true;
+                    exceptionHolder = e;
+                    testLogging.WriteLine($"Unexpected Exception: {e}");
+                    testLogging.WriteLine($"Unexpected Exception: Error Type is {e.GetType()}. " +
+                                          $"Exception's message is: {e.Message}");
+                    break;
             }
-            catch (Exception e)
+            
+            if (expectedPlaintext != null && exceptionHasBeenCaught)
             {
-                exceptionHasBeenCaught = true;
-                exceptionHolder = e;
-                testLogging.WriteLine($"Unexpected Exception: {e}");
-                testLogging.WriteLine($"Unexpected Exception: Error Type is {e.GetType()}. " +
-                                      $"Exception's message is: {e.Message}");
+                testLogging.WriteLine("Decrypt Failed, and should not have!");
             }
-            finally
-            {
-                if (expectedPlaintext == null && exceptionHasBeenCaught)
-                {
-                    testLogging.WriteLine("Decrypt Failed, possibly correctly?");
-                }
-                if (expectedPlaintext != null && exceptionHasBeenCaught)
-                {
-                    testLogging.WriteLine("Decrypt Failed, and should not have!");
-                }
-            }
+            
             if (exceptionHolder != null && expectedPlaintext != null)
             {
-                // Should succeed but did not, throw exception
+                if (exceptionHolder is System.Security.Cryptography.CryptographicException
+                    or Org.BouncyCastle.Crypto.InvalidCipherTextException)
+                {
+                    // Should succeed but did not, throw exception
+                    throw new TestVectorShouldHaveFailedException(exceptionHolder.Message);
+                }
+
                 throw exceptionHolder;
             }
         }
+        
 
         private class TestVectorShouldHaveFailedException : Exception
         {
