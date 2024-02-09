@@ -270,3 +270,25 @@ jobs:
             DAFNY_AWS_ESDK_TEST_VECTOR_MANIFEST_PATH="$NET_400_INVALID_VECTORS/manifest.json" \
             dotnet test --framework net6.0 --logger "console;verbosity=quiet"
           fi
+
+      - name: Unzip ESDK-NET @ v4.0.1 Vectors
+        working-directory: ./AwsEncryptionSDK/runtimes/net/TestVectorsNative/TestVectors/resources
+        shell: bash
+        run: |
+          NET_401_VECTORS=$GITHUB_WORKSPACE/v4Net401/vectors
+          mkdir -p $NET_401_VECTORS
+          DOWNLOAD_NAME=v4-Net-4.0.1.zip
+          unzip -o -qq $DOWNLOAD_NAME -d $NET_401_VECTORS
+
+      - name: Run ESDK-NET @ v4.0.1 Vectors expect success
+        working-directory: ./AwsEncryptionSDK/runtimes/net/TestVectorsNative/TestVectors
+        continue-on-error: true
+        shell: bash
+        run: |
+          NET_401_VECTORS=$GITHUB_WORKSPACE/v4Net401/vectors
+          ESDK_NET_V400_POLICY="forbid" \
+          DAFNY_AWS_ESDK_TEST_VECTOR_MANIFEST_PATH="$NET_401_VECTORS/manifest.json" \
+          dotnet test --framework net48
+          ESDK_NET_V400_POLICY="forbid" \
+          DAFNY_AWS_ESDK_TEST_VECTOR_MANIFEST_PATH="$NET_401_VECTORS/manifest.json" \
+          dotnet test --framework net6.0 --logger "console;verbosity=quiet"
