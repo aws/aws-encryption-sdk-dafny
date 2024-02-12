@@ -286,9 +286,19 @@ jobs:
         shell: bash
         run: |
           NET_401_VECTORS=$GITHUB_WORKSPACE/v4Net401/vectors
-          ESDK_NET_V400_POLICY="forbid" \
-          DAFNY_AWS_ESDK_TEST_VECTOR_MANIFEST_PATH="$NET_401_VECTORS/manifest.json" \
-          dotnet test --framework net48
-          ESDK_NET_V400_POLICY="forbid" \
-          DAFNY_AWS_ESDK_TEST_VECTOR_MANIFEST_PATH="$NET_401_VECTORS/manifest.json" \
-          dotnet test --framework net6.0 --logger "console;verbosity=quiet"
+          # We expect net48 to run only for Windows
+          if [ "$RUNNER_OS" == "Windows" ]; then
+            ESDK_NET_V400_POLICY="forbid" \
+            DAFNY_AWS_ESDK_TEST_VECTOR_MANIFEST_PATH="$NET_401_VECTORS/manifest.json" \
+            dotnet test --framework net48
+          fi
+          if [ "$RUNNER_OS" == "macOS" ]; then
+            DYLD_LIBRARY_PATH="/usr/local/opt/openssl@1.1/lib" \
+            ESDK_NET_V400_POLICY="forbid" \
+            DAFNY_AWS_ESDK_TEST_VECTOR_MANIFEST_PATH="$NET_401_VECTORS/manifest.json" \
+            dotnet test --framework net6.0 --logger "console;verbosity=quiet"
+          else
+            ESDK_NET_V400_POLICY="forbid" \
+            DAFNY_AWS_ESDK_TEST_VECTOR_MANIFEST_PATH="$NET_401_VECTORS/manifest.json" \
+            dotnet test --framework net6.0 --logger "console;verbosity=quiet"
+          fi
