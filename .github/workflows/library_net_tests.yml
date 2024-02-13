@@ -282,7 +282,6 @@ jobs:
 
       - name: Run ESDK-NET @ v4.0.1 Vectors expect success
         working-directory: ./AwsEncryptionSDK/runtimes/net/TestVectorsNative/TestVectors
-        continue-on-error: true
         shell: bash
         run: |
           NET_401_VECTORS=$GITHUB_WORKSPACE/v4Net401/vectors
