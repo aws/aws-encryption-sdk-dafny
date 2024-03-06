@@ -77,6 +77,7 @@ jobs:
           dafny: ${{ env.DAFNY_VERSION }}
           library: AwsEncryptionSDK
           diff-generated-code: false
+          update-and-regenerate-mpl: true
 
       - name: Download Dependencies 
         working-directory: ./AwsEncryptionSDK

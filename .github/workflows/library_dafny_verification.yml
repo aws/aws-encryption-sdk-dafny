@@ -50,6 +50,7 @@ jobs:
           dafny: ${{ env.DAFNY_VERSION }}
           library: ${{ matrix.library }}
           diff-generated-code: false
+          update-and-regenerate-mpl: true
             
       - name: Verify ${{ matrix.library }} Dafny code
         shell: bash
