@@ -91,7 +91,7 @@ runs:
       # smithy-dafny also formats generated code itself now,
       # so prettier is a necessary dependency.
       run: |
-        make -C .. setup_prettier
+        make setup_prettier
         make polymorph_java ${{ steps.dependencies.outputs.PROJECT_DEPENDENCIES }}
 
     - name: Regenerate .NET code using smithy-dafny
