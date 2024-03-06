@@ -61,15 +61,6 @@ outputs:
 runs:
   using: "composite"
   steps:
-    # Replace the project.properties file so that we pick up the right runtimes etc.,
-    # in cases where inputs.dafny is different from the current value in that file.
-    - name: Update top-level project.properties file
-      env:
-        DAFNY_VERSION: ${{ inputs.dafny }}
-      shell: bash
-      run: |
-        make generate_properties_file
-
     - name: Update MPL submodule locally
       if: inputs.update-and-regenerate-mpl == 'true'
       shell: bash
