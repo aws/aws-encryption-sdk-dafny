@@ -72,11 +72,13 @@ runs:
 
     - name: Update MPL submodule locally
       if: inputs.update-and-regenerate-mpl == 'true'
+      shell: bash
       run: |
         git submodule update --init --recursive --remote --merge mpl
 
     - name: Don't regenerate dependencies
       if: inputs.update-and-regenerate-mpl != 'true'
+      shell: bash
       run: |
         echo "POLYMORPH_DEPENDENCIES=" >> $GITHUB_ENV
 
