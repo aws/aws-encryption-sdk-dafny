@@ -61,17 +61,17 @@ outputs:
 runs:
   using: "composite"
   steps:
-    - name: Update MPL submodule locally
+    - name: Update MPL submodule locally if requested
       if: inputs.update-and-regenerate-mpl == 'true'
       shell: bash
       run: |
         git submodule update --init --recursive --remote --merge mpl
 
-    - name: Don't regenerate dependencies
+    - name: Don't regenerate dependencies unless requested
       if: inputs.update-and-regenerate-mpl != 'true'
       shell: bash
       run: |
-        echo "POLYMORPH_DEPENDENCIES=" >> $GITHUB_ENV
+        echo "SKIP_DEPENDENCIES=POLYMORPH_DEPENDENCIES=" >> $GITHUB_ENV
 
     - name: Regenerate Dafny code using smithy-dafny
       # Unfortunately Dafny codegen doesn't work on Windows:
@@ -80,7 +80,7 @@ runs:
       working-directory: ./${{ inputs.library }}
       shell: bash
       run: |
-        make polymorph_dafny
+        make polymorph_dafny $SKIP_DEPENDENCIES
 
     - name: Regenerate Java code using smithy-dafny
       # npx seems to be unavailable on Windows GHA runners,
@@ -92,13 +92,13 @@ runs:
       # so prettier is a necessary dependency.
       run: |
         make -C .. setup_prettier
-        make polymorph_java
+        make polymorph_java $SKIP_DEPENDENCIES
 
     - name: Regenerate .NET code using smithy-dafny
       working-directory: ./${{ inputs.library }}
       shell: bash
       run: |
-        make polymorph_dotnet
+        make polymorph_dotnet $SKIP_DEPENDENCIES
 
     - name: Check regenerated code against commited code
       # Composite action inputs seem to not actually support booleans properly for some reason
