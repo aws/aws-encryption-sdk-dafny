@@ -1,0 +1,34 @@
+# This workflow invokes other workflows with the requested Dafny build.
+# It is primarily meant for manual compatibility testing,
+# such as trying out what the next pending nightly build will do ahead of time.
+name: Manual CI
+
+on:
+  workflow_dispatch:
+    inputs:
+      dafny:
+        description: "The Dafny version to use"
+        required: true
+        type: string
+      regenerate-code:
+        description: "Regenerate code using smithy-dafny"
+        required: false
+        default: true
+        type: boolean
+
+jobs:
+  manual-ci-verification:
+    uses: ./.github/workflows/library_dafny_verification.yml
+    with:
+      dafny: ${{ inputs.dafny }}
+      regenerate-code: ${{ inputs.regenerate-code }}
+  # manual-ci-java:
+  #   uses: ./.github/workflows/library_java_tests.yml
+  #   with:
+  #     dafny: ${{ inputs.dafny }}
+  #     regenerate-code: ${{ inputs.regenerate-code }}
+  manual-ci-net:
+    uses: ./.github/workflows/library_net_tests.yml
+    with:
+      dafny: ${{ inputs.dafny }}
+      regenerate-code: ${{ inputs.regenerate-code }}

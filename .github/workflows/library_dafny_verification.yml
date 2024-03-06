@@ -7,7 +7,12 @@ on:
       dafny:
         description: 'The Dafny version to run'
         required: true
-        type: string  
+        type: string
+      regenerate-code:
+        description: "Regenerate code using smithy-dafny"
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   verification:
@@ -33,10 +38,18 @@ jobs:
             git submodule update --init --recursive mpl
 
       - name: Setup Dafny
-        uses: dafny-lang/setup-dafny-action@v1.6.1
+        uses: dafny-lang/setup-dafny-action@v1.7.0
         with:
           dafny-version: ${{ inputs.dafny }}
 
+      - name: Regenerate code using smithy-dafny if necessary
+        if: ${{ inputs.regenerate-code }}
+        uses: ./.github/actions/polymorph_codegen
+        with:
+          dafny: ${{ env.DAFNY_VERSION }}
+          library: ${{ matrix.library }}
+          diff-generated-code: false
+            
       - name: Verify ${{ matrix.library }} Dafny code
         shell: bash
         working-directory: ./${{ matrix.library }}
