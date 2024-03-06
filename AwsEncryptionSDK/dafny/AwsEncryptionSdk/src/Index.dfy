@@ -23,7 +23,7 @@ module
   }
 
   method ESDK(config: AwsEncryptionSdkConfig)
-    returns (res: Result<ESDKClient, Error>)
+    returns (res: Result<IAwsEncryptionSdkClient, Error>)
   {
     var maybeCrypto := Primitives.AtomicPrimitives();
     var crypto :- maybeCrypto
