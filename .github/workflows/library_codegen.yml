@@ -15,12 +15,7 @@ jobs:
       matrix:
         library:
           [
-            TestVectorsAwsCryptographicMaterialProviders,
-            AwsCryptographyPrimitives,
-            ComAmazonawsKms,
-            ComAmazonawsDynamodb,
-            AwsCryptographicMaterialProviders,
-            StandardLibrary,
+            AwsEncryptionSDK,
           ]
         # Note dotnet is only used for formatting generated code
         # in this workflow
