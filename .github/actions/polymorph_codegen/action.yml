@@ -71,7 +71,7 @@ runs:
       id: dependencies
       shell: bash
       run: |
-        echo "POLYMORPH_DEPENDENCIES=${{ inputs.update-and-regenerate-mpl != 'true' && 'POLYMORPH_DEPENDENCIES=' || '' }}" >> $GITHUB_OUTPUT
+        echo "PROJECT_DEPENDENCIES=${{ inputs.update-and-regenerate-mpl != 'true' && 'PROJECT_DEPENDENCIES=' || '' }}" >> $GITHUB_OUTPUT
 
     - name: Regenerate Dafny code using smithy-dafny
       # Unfortunately Dafny codegen doesn't work on Windows:
@@ -80,7 +80,7 @@ runs:
       working-directory: ./${{ inputs.library }}
       shell: bash
       run: |
-        make polymorph_dafny ${{ steps.dependencies.outputs.POLYMORPH_DEPENDENCIES }}
+        make polymorph_dafny ${{ steps.dependencies.outputs.PROJECT_DEPENDENCIES }}
 
     - name: Regenerate Java code using smithy-dafny
       # npx seems to be unavailable on Windows GHA runners,
@@ -92,13 +92,13 @@ runs:
       # so prettier is a necessary dependency.
       run: |
         make -C .. setup_prettier
-        make polymorph_java ${{ steps.dependencies.outputs.POLYMORPH_DEPENDENCIES }}
+        make polymorph_java ${{ steps.dependencies.outputs.PROJECT_DEPENDENCIES }}
 
     - name: Regenerate .NET code using smithy-dafny
       working-directory: ./${{ inputs.library }}
       shell: bash
       run: |
-        make polymorph_dotnet ${{ steps.dependencies.outputs.POLYMORPH_DEPENDENCIES }}
+        make polymorph_dotnet ${{ steps.dependencies.outputs.PROJECT_DEPENDENCIES }}
 
     - name: Check regenerated code against commited code
       # Composite action inputs seem to not actually support booleans properly for some reason
