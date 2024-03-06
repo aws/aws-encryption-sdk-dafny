@@ -6,6 +6,12 @@ on:
     - cron: "00 15 * * 1-5"
 
 jobs:
+  daily-ci-codegen:
+    # Don't run the cron builds on forks
+    if: github.event_name != 'schedule' || github.repository_owner == 'aws'
+    uses: ./.github/workflows/library_dafny_codegen.yml
+    with:
+      dafny: '4.2.0'
   daily-ci-verification:
     # Don't run the cron builds on forks
     if: github.event_name != 'schedule' || github.repository_owner == 'aws'
