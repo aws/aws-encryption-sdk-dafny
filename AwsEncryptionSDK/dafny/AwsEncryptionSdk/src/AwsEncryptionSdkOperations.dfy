@@ -38,8 +38,8 @@ module AwsEncryptionSdkOperations refines AbstractAwsCryptographyEncryptionSdkOp
   import opened Seq
 
   datatype Config = Config(
-    nameonly crypto: Primitives.AtomicPrimitivesClient,
-    nameonly mpl: MaterialProviders.MaterialProvidersClient,
+    nameonly crypto: Primitives.Types.IAwsCryptographicPrimitivesClient,
+    nameonly mpl: MaterialProviders.Types.IAwsCryptographicMaterialProvidersClient,
     nameonly commitmentPolicy: AwsCryptographyMaterialProvidersTypes.ESDKCommitmentPolicy,
     nameonly maxEncryptedDataKeys: Option<CountingNumbers>,
     nameonly netV4_0_0_RetryPolicy: NetV4_0_0_RetryPolicy
