@@ -95,6 +95,7 @@ jobs:
 
       - name: Test Examples on .NET Framework net48
         working-directory: ./AwsEncryptionSDK
+        if: matrix.os == 'windows-latest' 
         shell: bash
         run: |
           dotnet test \
@@ -129,6 +130,7 @@ jobs:
 
       - name: Run Test Vectors on .NET Framework net48
         working-directory: ./AwsEncryptionSDK/runtimes/net/TestVectorsNative/TestVectors
+        if: matrix.os == 'windows-latest' 
         shell: bash
         run: |
           PYTHON_23_VECTOR_PATH=$GITHUB_WORKSPACE/python23/vectors
