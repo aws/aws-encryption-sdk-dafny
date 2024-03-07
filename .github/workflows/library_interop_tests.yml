@@ -48,7 +48,7 @@ jobs:
           git submodule update --init --recursive mpl
           
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v2
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: us-west-2
           role-to-assume: arn:aws:iam::370957321024:role/GitHub-CI-Public-ESDK-Dafny-Role-us-west-2 
@@ -138,7 +138,7 @@ jobs:
           git submodule update --init --recursive mpl
           
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v2
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: us-west-2
           role-to-assume: arn:aws:iam::370957321024:role/GitHub-CI-Public-ESDK-Dafny-Role-us-west-2 
@@ -172,7 +172,7 @@ jobs:
         working-directory: ./AwsEncryptionSDK
         shell: bash
         run: |
-          NET_41_VECTOR_PATH=$GITHUB_WORKSPACE/net41/vectors
+          NET_41_VECTOR_PATH=net41/vectors
           mkdir -p $NET_41_VECTOR_PATH
           GEN_PATH=runtimes/net/TestVectorsNative/TestVectorGenerator
           dotnet run --project $GEN_PATH --framework net6.0 -- \
@@ -181,9 +181,10 @@ jobs:
      
       - name: Zip the Generated Test Vectors for ESDK-JS on Mac/Linux
         if: matrix.os != 'windows-latest'
+        working-directory: ./AwsEncryptionSDK
         shell: bash
         run: |
-          NET_41_VECTOR_PATH=$GITHUB_WORKSPACE/net41/vectors
+          NET_41_VECTOR_PATH=net41/vectors
           cd $NET_41_VECTOR_PATH
           zip -qq net41.zip -r .
       
@@ -192,7 +193,7 @@ jobs:
         if: matrix.os != 'windows-latest'
         with:
           name: ${{matrix.os}}_vector_artifact
-          path: $GITHUB_WORKSPACE/net41/vectors/*.zip
+          path: AwsEncryptionSDK/net41/vectors/*.zip
     
   decrypt_net_vectors_with_js:
     needs: generate_vectors
@@ -215,7 +216,7 @@ jobs:
           git submodule update --init --recursive mpl
           
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v2
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: us-west-2
           role-to-assume: arn:aws:iam::370957321024:role/GitHub-CI-Public-ESDK-Dafny-Role-us-west-2 
