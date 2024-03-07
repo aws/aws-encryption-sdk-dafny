@@ -78,6 +78,7 @@ jobs:
 
       - name: Test .NET Framework net48
         working-directory: ./AwsEncryptionSDK
+        if: matrix.os == 'windows-latest' 
         shell: bash
         run: |
           make test_net FRAMEWORK=net48
