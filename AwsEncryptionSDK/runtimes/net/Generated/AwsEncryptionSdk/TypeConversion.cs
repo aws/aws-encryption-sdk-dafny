@@ -12,14 +12,16 @@ namespace AWS.Cryptography.EncryptionSDK
             software.amazon.cryptography.encryptionsdk.internaldafny.types.AwsEncryptionSdkConfig concrete = (software.amazon.cryptography.encryptionsdk.internaldafny.types.AwsEncryptionSdkConfig)value; AWS.Cryptography.EncryptionSDK.AwsEncryptionSdkConfig converted = new AWS.Cryptography.EncryptionSDK.AwsEncryptionSdkConfig(); if (concrete._commitmentPolicy.is_Some) converted.CommitmentPolicy = (AWS.Cryptography.MaterialProviders.ESDKCommitmentPolicy)FromDafny_N3_aws__N12_cryptography__N13_encryptionSdk__S22_AwsEncryptionSdkConfig__M16_commitmentPolicy(concrete._commitmentPolicy);
             if (concrete._maxEncryptedDataKeys.is_Some) converted.MaxEncryptedDataKeys = (long)FromDafny_N3_aws__N12_cryptography__N13_encryptionSdk__S22_AwsEncryptionSdkConfig__M20_maxEncryptedDataKeys(concrete._maxEncryptedDataKeys);
             // BEGIN MANUAL EDIT
-            if (concrete._netV4__0__0__RetryPolicy.is_Some) converted.NetV4__0__0__RetryPolicy = (AWS.Cryptography.EncryptionSDK.NetV4_0_0_RetryPolicy)FromDafny_N3_aws__N12_cryptography__N13_encryptionSdk__S22_AwsEncryptionSdkConfig__M21_netV4_0_0_RetryPolicy(concrete._netV4__0__0__RetryPolicy); return converted;
+            if (concrete._netV4__0__0__RetryPolicy.is_Some) converted.NetV4_0_0_RetryPolicy = (AWS.Cryptography.EncryptionSDK.NetV4_0_0_RetryPolicy)FromDafny_N3_aws__N12_cryptography__N13_encryptionSdk__S22_AwsEncryptionSdkConfig__M21_netV4_0_0_RetryPolicy(concrete._netV4__0__0__RetryPolicy); return converted;
             // END MANUAL EDIT
         }
         public static software.amazon.cryptography.encryptionsdk.internaldafny.types._IAwsEncryptionSdkConfig ToDafny_N3_aws__N12_cryptography__N13_encryptionSdk__S22_AwsEncryptionSdkConfig(AWS.Cryptography.EncryptionSDK.AwsEncryptionSdkConfig value)
         {
             AWS.Cryptography.MaterialProviders.ESDKCommitmentPolicy var_commitmentPolicy = value.IsSetCommitmentPolicy() ? value.CommitmentPolicy : (AWS.Cryptography.MaterialProviders.ESDKCommitmentPolicy)null;
             long? var_maxEncryptedDataKeys = value.IsSetMaxEncryptedDataKeys() ? value.MaxEncryptedDataKeys : (long?)null;
-            AWS.Cryptography.EncryptionSDK.NetV4_0_0_RetryPolicy var_netV4_0_0_RetryPolicy = value.IsSetNetV4__0__0__RetryPolicy() ? value.NetV4__0__0__RetryPolicy : (AWS.Cryptography.EncryptionSDK.NetV4_0_0_RetryPolicy)null;
+            // BEGIN MANUAL EDIT
+            AWS.Cryptography.EncryptionSDK.NetV4_0_0_RetryPolicy var_netV4_0_0_RetryPolicy = value.IsSetNetV4__0__0__RetryPolicy() ? value.NetV4_0_0_RetryPolicy : (AWS.Cryptography.EncryptionSDK.NetV4_0_0_RetryPolicy)null;
+            // END MANUAL EDIT
             return new software.amazon.cryptography.encryptionsdk.internaldafny.types.AwsEncryptionSdkConfig(ToDafny_N3_aws__N12_cryptography__N13_encryptionSdk__S22_AwsEncryptionSdkConfig__M16_commitmentPolicy(var_commitmentPolicy), ToDafny_N3_aws__N12_cryptography__N13_encryptionSdk__S22_AwsEncryptionSdkConfig__M20_maxEncryptedDataKeys(var_maxEncryptedDataKeys), ToDafny_N3_aws__N12_cryptography__N13_encryptionSdk__S22_AwsEncryptionSdkConfig__M21_netV4_0_0_RetryPolicy(var_netV4_0_0_RetryPolicy));
         }
         public static AWS.Cryptography.EncryptionSDK.AwsEncryptionSdkException FromDafny_N3_aws__N12_cryptography__N13_encryptionSdk__S25_AwsEncryptionSdkException(software.amazon.cryptography.encryptionsdk.internaldafny.types.Error_AwsEncryptionSdkException value)

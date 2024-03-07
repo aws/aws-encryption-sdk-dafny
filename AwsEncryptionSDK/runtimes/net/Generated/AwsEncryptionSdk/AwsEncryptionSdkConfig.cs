@@ -28,7 +28,7 @@ namespace AWS.Cryptography.EncryptionSDK
         {
             return this._maxEncryptedDataKeys.HasValue;
         }
-        public AWS.Cryptography.EncryptionSDK.NetV4_0_0_RetryPolicy NetV4__0__0__RetryPolicy
+        public AWS.Cryptography.EncryptionSDK.NetV4_0_0_RetryPolicy NetV4_0_0_RetryPolicy
         {
             get { return this._netV4_0_0_RetryPolicy; }
             set { this._netV4_0_0_RetryPolicy = value; }
