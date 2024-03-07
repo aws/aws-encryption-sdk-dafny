@@ -88,10 +88,10 @@ runs:
       # so prettier is a necessary dependency.
       run: |
         make setup_prettier
-        make -C mpl/AwsCryptographyPrimitives setup_prettier
-        make -C mpl/AwsCryptographicMaterialProviders setup_prettier
-        make -C mpl/ComAmazonawsKms setup_prettier
-        make -C mpl/ComAmazonawsDynamodb setup_prettier
+        make -C ../mpl/AwsCryptographyPrimitives setup_prettier
+        make -C ../mpl/AwsCryptographicMaterialProviders setup_prettier
+        make -C ../mpl/ComAmazonawsKms setup_prettier
+        make -C ../mpl/ComAmazonawsDynamodb setup_prettier
         make polymorph_java ${{ steps.dependencies.outputs.PROJECT_DEPENDENCIES }}
 
     - name: Regenerate .NET code using smithy-dafny
