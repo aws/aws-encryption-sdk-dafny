@@ -239,7 +239,7 @@ jobs:
     
       - uses: actions/setup-node@v4
         with:
-            node-version: 18
+            node-version: 17
       
       - name: Decrypt Generated Test Vectors with ESDK-JS
         working-directory: ./AwsEncryptionSDK
