@@ -47,6 +47,7 @@ module
     predicate ValidState()
     {
       && Operations.ValidInternalConfig?(config)
+      && History !in Operations.ModifiesInternalConfig(config)
       && Modifies == Operations.ModifiesInternalConfig(config) + {History}
     }
 
