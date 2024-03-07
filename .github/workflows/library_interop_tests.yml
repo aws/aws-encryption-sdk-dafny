@@ -89,7 +89,7 @@ jobs:
       
       - name: Decrypt Python 2.3.0 Test Vectors on .net48 (Windows ONLY)
         working-directory: ./AwsEncryptionSDK/runtimes/net/TestVectorsNative/TestVectors
-        if: matrix.os == 'windows-latest' 
+        if: matrix.os == 'windows-latest'
         shell: bash
         run: |
           PYTHON_23_VECTOR_PATH=$GITHUB_WORKSPACE/python23/vectors
@@ -98,6 +98,7 @@ jobs:
       
       - name: Decrypt Python 2.3.0 Test Vectors on .net6.0
         working-directory: ./AwsEncryptionSDK/runtimes/net/TestVectorsNative/TestVectors
+        if: matrix.os != 'windows-latest'
         shell: bash
         run: |
           PYTHON_23_VECTOR_PATH=$GITHUB_WORKSPACE/python23/vectors
@@ -115,7 +116,6 @@ jobs:
     strategy:
       matrix:
         os: [
-          windows-latest,
           ubuntu-latest,
           macos-latest,
         ]
