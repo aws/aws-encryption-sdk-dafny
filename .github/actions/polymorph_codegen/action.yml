@@ -78,6 +78,17 @@ runs:
       run: |
         make polymorph_dafny ${{ steps.dependencies.outputs.PROJECT_DEPENDENCIES }}
 
+    - name: Set up prettier in MPL
+      if: inputs.update-and-regenerate-mpl == 'true'
+      shell: bash
+      # Annoyingly, prettier has to be installed in each library individually.
+      # And this is only necessary or even possible if we've updated the mpl submodule.
+      run: |
+        make -C mpl/AwsCryptographyPrimitives setup_prettier
+        make -C mpl/AwsCryptographicMaterialProviders setup_prettier
+        make -C mpl/ComAmazonawsKms setup_prettier
+        make -C mpl/ComAmazonawsDynamodb setup_prettier
+
     - name: Regenerate Java code using smithy-dafny
       # npx seems to be unavailable on Windows GHA runners,
       # so we don't regenerate Java code on them either.
@@ -88,10 +99,6 @@ runs:
       # so prettier is a necessary dependency.
       run: |
         make setup_prettier
-        make -C ../mpl/AwsCryptographyPrimitives setup_prettier
-        make -C ../mpl/AwsCryptographicMaterialProviders setup_prettier
-        make -C ../mpl/ComAmazonawsKms setup_prettier
-        make -C ../mpl/ComAmazonawsDynamodb setup_prettier
         make polymorph_java ${{ steps.dependencies.outputs.PROJECT_DEPENDENCIES }}
 
     - name: Regenerate .NET code using smithy-dafny
