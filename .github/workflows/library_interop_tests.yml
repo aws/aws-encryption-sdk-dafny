@@ -226,21 +226,23 @@ jobs:
           role-session-name: NetTests
      
       - name: Set up Dirs
+        working-directory: ./AwsEncryptionSDK
         run: |
-          NET_41_VECTOR_PATH=$GITHUB_WORKSPACE/net41/vectors
+          NET_41_VECTOR_PATH=AwsEncryptionSDK/net41/vectors
           mkdir -p $NET_41_VECTOR_PATH
         
       - name: Download Encrypt Manifest Artifact
         uses: actions/download-artifact@v4
         with:
           name: ${{matrix.os}}_vector_artifact
-          path: ./$GITHUB_WORKSPACE/net41/vectors
+          path: AwsEncryptionSDK/net41/vectors
       
       - name: Decrypt Generated Test Vectors with ESDK-JS
+        working-directory: ./AwsEncryptionSDK
         # TODO Post-#619: Fix Zip file creation on Windows
         shell: bash
         run: |
-          NET_41_VECTOR_PATH=$GITHUB_WORKSPACE/net41/vectors
+          NET_41_VECTOR_PATH=net41/vectors
           cd $NET_41_VECTOR_PATH
           npx -y @aws-crypto/integration-node decrypt -v $NET_41_VECTOR_PATH/net41.zip -c cpu
     
