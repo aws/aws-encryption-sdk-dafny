@@ -236,6 +236,10 @@ jobs:
         with:
           name: ${{matrix.os}}_vector_artifact
           path: AwsEncryptionSDK/net41/vectors
+    
+      - uses: actions/setup-node@v4
+        with:
+            node-version: 18
       
       - name: Decrypt Generated Test Vectors with ESDK-JS
         working-directory: ./AwsEncryptionSDK
