@@ -253,6 +253,6 @@ jobs:
         run: |
           NET_41_VECTOR_PATH=net41/vectors
           cd $NET_41_VECTOR_PATH
-          npx -y @aws-crypto/integration-node decrypt -v net41.zip -c cpu
+          npx -y @aws-crypto/integration-node decrypt -v net41.zip -c cpu -f 100
     
 
