@@ -243,6 +243,7 @@ jobs:
 
       - name: Install deps
         run: |
+          openssl version
           npm install @aws-crypto/integration-node
           npm install fast-xml-parser
       
