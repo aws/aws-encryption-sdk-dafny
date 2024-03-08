@@ -243,7 +243,8 @@ jobs:
 
       - name: Install deps
         run: |
-          npm install @aws-crypto/integration-node 
+          npm install @aws-crypto/integration-node
+          npm install fast-xml-parser
       
       - name: Decrypt Generated Test Vectors with ESDK-JS
         working-directory: ./AwsEncryptionSDK
