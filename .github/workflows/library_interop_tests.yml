@@ -240,6 +240,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
             node-version: 21
+
+      - name: Install deps
+        run: |
+          npm install @aws-crypto/integration-node 
       
       - name: Decrypt Generated Test Vectors with ESDK-JS
         working-directory: ./AwsEncryptionSDK
