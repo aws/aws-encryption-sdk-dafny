@@ -165,18 +165,6 @@ jobs:
           CORES=$(node -e 'console.log(os.cpus().length)')
           make transpile_net CORES=$CORES
       
-      # - name: Generate Test Vectors with .NET Framework net6.0
-      #   # TODO Post-#619: Fix Zip file creation on Windows
-      #   if: matrix.os != 'windows-latest'
-      #   working-directory: ./AwsEncryptionSDK
-      #   shell: bash
-      #   run: |
-      #     NET_41_VECTOR_PATH=$GITHUB_WORKSPACE/net41/vectors
-      #     mkdir -p $NET_41_VECTOR_PATH
-      #     GEN_PATH=runtimes/net/TestVectorsNative/TestVectorGenerator
-      #     dotnet run --project $GEN_PATH --framework net6.0 -- \
-      #       --encrypt-manifest $GEN_PATH/resources/0006-awses-message-decryption-generation.v2.json \
-      #       --output-dir $NET_41_VECTOR_PATH
 
       # # TODO: Fix Zip file creation on Windows
       # # - name: Zip the Generated Test Vectors for ESDK-JS on Windows
