@@ -26,12 +26,17 @@ module
     returns (res: Result<IAwsEncryptionSdkClient, Error>)
   {
     var maybeCrypto := Primitives.AtomicPrimitives();
-    var crypto :- maybeCrypto
+    var cryptoX: AwsCryptographyPrimitivesTypes.IAwsCryptographicPrimitivesClient :- maybeCrypto
       .MapFailure(e => AwsCryptographyPrimitives(e));
+    assert cryptoX is Primitives.AtomicPrimitivesClient;
+    var crypto := cryptoX as Primitives.AtomicPrimitivesClient;
 
     var maybeMpl := MaterialProviders.MaterialProviders();
-    var mpl :- maybeMpl
+    var mplX: AwsCryptographyMaterialProvidersTypes.IAwsCryptographicMaterialProvidersClient :- maybeMpl
       .MapFailure(e => AwsCryptographyMaterialProviders(e));
+    assert mplX is MaterialProviders.MaterialProvidersClient;
+    var mpl := mplX as MaterialProviders.MaterialProvidersClient;
+
     var internalConfig := Operations.Config(
       crypto := crypto,
       mpl := mpl,
