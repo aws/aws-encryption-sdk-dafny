@@ -974,7 +974,6 @@ module MessageBody {
     ==>
       && res.value.data.finalFrame.header == header
   {
-    reveal CorrectlyReadRange();
     var sequenceNumber :- ReadUInt32(continuation);
 
     //= compliance/client-apis/decrypt.txt#2.7.4
@@ -1034,6 +1033,12 @@ module MessageBody {
       assert CorrectlyRead(buffer, Success(SuccessfulRead(nextRegularFrames, regularFrame.tail)), WriteMessageRegularFrames) by {
         reveal CorrectlyReadRange();
       }
+      assert buffer.start <= regularFrame.tail.start by {
+        reveal CorrectlyReadRange();
+      }
+      assert CorrectlyReadRange(buffer, regularFrame.tail, buffer.bytes[buffer.start..regularFrame.tail.start]) by {
+        reveal CorrectlyReadRange();
+      }
 
       ReadFramedMessageBody(
         buffer,
@@ -1058,8 +1063,6 @@ module MessageBody {
       );
 
       assert {:split_here} true;
-      assert MessageFramesAreMonotonic(regularFrames + [finalFrame.data]);
-      assert MessageFramesAreForTheSameMessage(regularFrames + [finalFrame.data]);
 
       var body: FramedMessage := FramedMessageBody(
         regularFrames := regularFrames,
@@ -1069,6 +1072,11 @@ module MessageBody {
       assert {:split_here} true;
       assert CorrectlyRead(continuation, Success(finalFrame), Frames.WriteFinalFrame);
       assert {:split_here} true;
+      assert CorrectlyRead(buffer, Success(SuccessfulRead(body, finalFrame.tail)), WriteFramedMessageBody) by {
+        assert MessageFramesAreMonotonic(regularFrames + [finalFrame.data]);
+        assert MessageFramesAreForTheSameMessage(regularFrames + [finalFrame.data]);
+        reveal CorrectlyReadRange();
+      }
       Success(SuccessfulRead(body, finalFrame.tail))
   }
 

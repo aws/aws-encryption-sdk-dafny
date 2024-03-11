@@ -29,18 +29,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-      <PackageReference Include="AWSSDK.Core" Version="3.7.103" />
       <PackageReference Include="DafnyRuntime" Version="4.2.0" />
-      <PackageReference Include="BouncyCastle.Cryptography" Version="2.2.1" />
-      <PackageReference Include="AWS.Cryptography.MaterialProviders" Version="1.0.0" />
-      <!--
-        System.Collections.Immutable can be removed once dafny.msbuild is updated with
-        https://github.com/dafny-lang/dafny.msbuild/pull/10 and versioned
-      -->
-      <PackageReference Include="System.Collections.Immutable" Version="1.7.0" />
-      <!-- Work around for dafny-lang/dafny/issues/1951; remove once resolved -->
-      <PackageReference Include="System.ValueTuple" Version="4.5.0" />
-
+      <PackageReference Include="AWS.Cryptography.MaterialProviders" Version="1.2.0" />
       <Compile Include="Generated/**/*.cs" />
       <Compile Include="ImplementationFromDafny.cs" />
   </ItemGroup>
