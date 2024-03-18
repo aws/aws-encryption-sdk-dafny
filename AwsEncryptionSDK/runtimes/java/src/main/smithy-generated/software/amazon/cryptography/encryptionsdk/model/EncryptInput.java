@@ -13,6 +13,7 @@ import software.amazon.cryptography.materialproviders.Keyring;
 import software.amazon.cryptography.materialproviders.model.ESDKAlgorithmSuiteId;
 
 public class EncryptInput {
+
   private final ByteBuffer plaintext;
 
   private final Map<String, String> encryptionContext;
@@ -95,6 +96,7 @@ public class EncryptInput {
   }
 
   static class BuilderImpl implements Builder {
+
     protected ByteBuffer plaintext;
 
     protected Map<String, String> encryptionContext;
@@ -109,8 +111,7 @@ public class EncryptInput {
 
     private boolean _frameLengthSet = false;
 
-    protected BuilderImpl() {
-    }
+    protected BuilderImpl() {}
 
     protected BuilderImpl(EncryptInput model) {
       this.plaintext = model.plaintext();
@@ -140,8 +141,11 @@ public class EncryptInput {
       return this.encryptionContext;
     }
 
-    public Builder materialsManager(ICryptographicMaterialsManager materialsManager) {
-      this.materialsManager = CryptographicMaterialsManager.wrap(materialsManager);
+    public Builder materialsManager(
+      ICryptographicMaterialsManager materialsManager
+    ) {
+      this.materialsManager =
+        CryptographicMaterialsManager.wrap(materialsManager);
       return this;
     }
 
@@ -178,14 +182,20 @@ public class EncryptInput {
     }
 
     public EncryptInput build() {
-      if (Objects.isNull(this.plaintext()))  {
-        throw new IllegalArgumentException("Missing value for required field `plaintext`");
+      if (Objects.isNull(this.plaintext())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `plaintext`"
+        );
       }
       if (this._frameLengthSet && this.frameLength() < 1) {
-        throw new IllegalArgumentException("`frameLength` must be greater than or equal to 1");
+        throw new IllegalArgumentException(
+          "`frameLength` must be greater than or equal to 1"
+        );
       }
       if (this._frameLengthSet && this.frameLength() > 4294967296) {
-        throw new IllegalArgumentException("`frameLength` must be less than or equal to 4294967296.");
+        throw new IllegalArgumentException(
+          "`frameLength` must be less than or equal to 4294967296."
+        );
       }
       return new EncryptInput(this);
     }

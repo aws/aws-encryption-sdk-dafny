@@ -12,6 +12,7 @@ import software.amazon.cryptography.materialproviders.IKeyring;
 import software.amazon.cryptography.materialproviders.Keyring;
 
 public class DecryptInput {
+
   private final ByteBuffer ciphertext;
 
   private final ICryptographicMaterialsManager materialsManager;
@@ -72,6 +73,7 @@ public class DecryptInput {
   }
 
   static class BuilderImpl implements Builder {
+
     protected ByteBuffer ciphertext;
 
     protected ICryptographicMaterialsManager materialsManager;
@@ -80,8 +82,7 @@ public class DecryptInput {
 
     protected Map<String, String> encryptionContext;
 
-    protected BuilderImpl() {
-    }
+    protected BuilderImpl() {}
 
     protected BuilderImpl(DecryptInput model) {
       this.ciphertext = model.ciphertext();
@@ -99,8 +100,11 @@ public class DecryptInput {
       return this.ciphertext;
     }
 
-    public Builder materialsManager(ICryptographicMaterialsManager materialsManager) {
-      this.materialsManager = CryptographicMaterialsManager.wrap(materialsManager);
+    public Builder materialsManager(
+      ICryptographicMaterialsManager materialsManager
+    ) {
+      this.materialsManager =
+        CryptographicMaterialsManager.wrap(materialsManager);
       return this;
     }
 
@@ -127,8 +131,10 @@ public class DecryptInput {
     }
 
     public DecryptInput build() {
-      if (Objects.isNull(this.ciphertext()))  {
-        throw new IllegalArgumentException("Missing value for required field `ciphertext`");
+      if (Objects.isNull(this.ciphertext())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `ciphertext`"
+        );
       }
       return new DecryptInput(this);
     }

@@ -23,15 +23,20 @@ module
   }
 
   method ESDK(config: AwsEncryptionSdkConfig)
-    returns (res: Result<ESDKClient, Error>)
+    returns (res: Result<IAwsEncryptionSdkClient, Error>)
   {
     var maybeCrypto := Primitives.AtomicPrimitives();
-    var crypto :- maybeCrypto
+    var cryptoX: AwsCryptographyPrimitivesTypes.IAwsCryptographicPrimitivesClient :- maybeCrypto
       .MapFailure(e => AwsCryptographyPrimitives(e));
+    assert cryptoX is Primitives.AtomicPrimitivesClient;
+    var crypto := cryptoX as Primitives.AtomicPrimitivesClient;
 
     var maybeMpl := MaterialProviders.MaterialProviders();
-    var mpl :- maybeMpl
+    var mplX: AwsCryptographyMaterialProvidersTypes.IAwsCryptographicMaterialProvidersClient :- maybeMpl
       .MapFailure(e => AwsCryptographyMaterialProviders(e));
+    assert mplX is MaterialProviders.MaterialProvidersClient;
+    var mpl := mplX as MaterialProviders.MaterialProvidersClient;
+
     var internalConfig := Operations.Config(
       crypto := crypto,
       mpl := mpl,
@@ -47,6 +52,7 @@ module
     predicate ValidState()
     {
       && Operations.ValidInternalConfig?(config)
+      && History !in Operations.ModifiesInternalConfig(config)
       && Modifies == Operations.ModifiesInternalConfig(config) + {History}
     }
 

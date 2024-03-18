@@ -8,6 +8,11 @@ on:
         description: 'The Dafny version to run'
         required: true
         type: string  
+      regenerate-code:
+        description: "Regenerate code using smithy-dafny"
+        required: false
+        default: false
+        type: boolean
 
 env:
   # Used in examples
@@ -23,6 +28,7 @@ env:
 jobs:
   testDotNet:
     strategy:
+      fail-fast: false
       matrix:
         os: [
           windows-latest,
@@ -46,6 +52,7 @@ jobs:
         run: |
           git submodule update --init libraries
           git submodule update --init --recursive mpl
+          git submodule update --init smithy-dafny
           
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
@@ -60,9 +67,18 @@ jobs:
           dotnet-version: '6.0.x'
 
       - name: Setup Dafny
-        uses: dafny-lang/setup-dafny-action@v1.6.1
+        uses: dafny-lang/setup-dafny-action@v1.7.0
         with:
           dafny-version: ${{ inputs.dafny }}
+
+      - name: Regenerate code using smithy-dafny if necessary
+        if: ${{ inputs.regenerate-code }}
+        uses: ./.github/actions/polymorph_codegen
+        with:
+          dafny: ${{ env.DAFNY_VERSION }}
+          library: AwsEncryptionSDK
+          diff-generated-code: false
+          update-and-regenerate-mpl: true
 
       - name: Download Dependencies 
         working-directory: ./AwsEncryptionSDK

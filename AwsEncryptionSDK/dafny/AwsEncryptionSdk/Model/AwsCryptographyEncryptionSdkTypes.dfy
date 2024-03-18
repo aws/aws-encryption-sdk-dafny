@@ -103,9 +103,9 @@ module {:extern "software.amazon.cryptography.encryptionsdk.internaldafny.types"
 
   }
   datatype AwsEncryptionSdkConfig = | AwsEncryptionSdkConfig (
-    nameonly commitmentPolicy: Option<AwsCryptographyMaterialProvidersTypes.ESDKCommitmentPolicy> ,
-    nameonly maxEncryptedDataKeys: Option<CountingNumbers> ,
-    nameonly netV4_0_0_RetryPolicy: Option<NetV4_0_0_RetryPolicy>
+    nameonly commitmentPolicy: Option<AwsCryptographyMaterialProvidersTypes.ESDKCommitmentPolicy> := Option.None ,
+    nameonly maxEncryptedDataKeys: Option<CountingNumbers> := Option.None ,
+    nameonly netV4_0_0_RetryPolicy: Option<NetV4_0_0_RetryPolicy> := Option.None
   )
   type CountingNumbers = x: int64 | IsValid_CountingNumbers(x) witness *
   predicate method IsValid_CountingNumbers(x: int64) {
@@ -113,9 +113,9 @@ module {:extern "software.amazon.cryptography.encryptionsdk.internaldafny.types"
   }
   datatype DecryptInput = | DecryptInput (
     nameonly ciphertext: seq<uint8> ,
-    nameonly materialsManager: Option<AwsCryptographyMaterialProvidersTypes.ICryptographicMaterialsManager> ,
-    nameonly keyring: Option<AwsCryptographyMaterialProvidersTypes.IKeyring> ,
-    nameonly encryptionContext: Option<AwsCryptographyMaterialProvidersTypes.EncryptionContext>
+    nameonly materialsManager: Option<AwsCryptographyMaterialProvidersTypes.ICryptographicMaterialsManager> := Option.None ,
+    nameonly keyring: Option<AwsCryptographyMaterialProvidersTypes.IKeyring> := Option.None ,
+    nameonly encryptionContext: Option<AwsCryptographyMaterialProvidersTypes.EncryptionContext> := Option.None
   )
   datatype DecryptOutput = | DecryptOutput (
     nameonly plaintext: seq<uint8> ,
@@ -124,11 +124,11 @@ module {:extern "software.amazon.cryptography.encryptionsdk.internaldafny.types"
   )
   datatype EncryptInput = | EncryptInput (
     nameonly plaintext: seq<uint8> ,
-    nameonly encryptionContext: Option<AwsCryptographyMaterialProvidersTypes.EncryptionContext> ,
-    nameonly materialsManager: Option<AwsCryptographyMaterialProvidersTypes.ICryptographicMaterialsManager> ,
-    nameonly keyring: Option<AwsCryptographyMaterialProvidersTypes.IKeyring> ,
-    nameonly algorithmSuiteId: Option<AwsCryptographyMaterialProvidersTypes.ESDKAlgorithmSuiteId> ,
-    nameonly frameLength: Option<FrameLength>
+    nameonly encryptionContext: Option<AwsCryptographyMaterialProvidersTypes.EncryptionContext> := Option.None ,
+    nameonly materialsManager: Option<AwsCryptographyMaterialProvidersTypes.ICryptographicMaterialsManager> := Option.None ,
+    nameonly keyring: Option<AwsCryptographyMaterialProvidersTypes.IKeyring> := Option.None ,
+    nameonly algorithmSuiteId: Option<AwsCryptographyMaterialProvidersTypes.ESDKAlgorithmSuiteId> := Option.None ,
+    nameonly frameLength: Option<FrameLength> := Option.None
   )
   datatype EncryptOutput = | EncryptOutput (
     nameonly ciphertext: seq<uint8> ,
@@ -187,13 +187,20 @@ abstract module AbstractAwsCryptographyEncryptionSdkService
   import Operations : AbstractAwsCryptographyEncryptionSdkOperations
   function method DefaultAwsEncryptionSdkConfig(): AwsEncryptionSdkConfig
   method ESDK(config: AwsEncryptionSdkConfig := DefaultAwsEncryptionSdkConfig())
-    returns (res: Result<ESDKClient, Error>)
+    returns (res: Result<IAwsEncryptionSdkClient, Error>)
     ensures res.Success? ==>
               && fresh(res.value)
               && fresh(res.value.Modifies)
               && fresh(res.value.History)
               && res.value.ValidState()
 
+  // Helper function for the benefit of native code to create a Success(client) without referring to Dafny internals
+  function method CreateSuccessOfClient(client: IAwsEncryptionSdkClient): Result<IAwsEncryptionSdkClient, Error> {
+    Success(client)
+  } // Helper function for the benefit of native code to create a Failure(error) without referring to Dafny internals
+  function method CreateFailureOfError(error: Error): Result<IAwsEncryptionSdkClient, Error> {
+    Failure(error)
+  }
   class ESDKClient extends IAwsEncryptionSdkClient
   {
     constructor(config: Operations.InternalConfig)

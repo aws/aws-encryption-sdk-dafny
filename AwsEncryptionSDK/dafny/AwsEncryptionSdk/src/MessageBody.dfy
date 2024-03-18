@@ -190,7 +190,7 @@ module MessageBody {
     ensures IsMessageRegularFrames(regularFrames + [nextRegularFrame])
   {}
 
-  method EncryptMessageBody(
+  method {:vcs_split_on_every_assert} EncryptMessageBody(
     plaintext: seq<uint8>,
     header : Header.Header,
     key: seq<uint8>,

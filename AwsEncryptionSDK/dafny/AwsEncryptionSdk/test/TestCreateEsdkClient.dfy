@@ -52,11 +52,13 @@ module TestCreateEsdkClient {
     method {:test} TestClientCreation() {
         var defaultConfig := EncryptionSdk.DefaultAwsEncryptionSdkConfig();
         
-        var esdk :- expect EncryptionSdk.ESDK(config := defaultConfig);
-        
-        expect esdk.config.commitmentPolicy == defaultConfig.commitmentPolicy.value;
-        expect esdk.config.maxEncryptedDataKeys == defaultConfig.maxEncryptedDataKeys;
-        expect esdk.config.netV4_0_0_RetryPolicy == Types.NetV4_0_0_RetryPolicy.ALLOW_RETRY;
+        var esdk: Types.IAwsEncryptionSdkClient :- expect EncryptionSdk.ESDK(config := defaultConfig);
+        expect esdk is EncryptionSdk.ESDKClient;
+        var esdkClient := esdk as EncryptionSdk.ESDKClient;
+
+        expect esdkClient.config.commitmentPolicy == defaultConfig.commitmentPolicy.value;
+        expect esdkClient.config.maxEncryptedDataKeys == defaultConfig.maxEncryptedDataKeys;
+        expect esdkClient.config.netV4_0_0_RetryPolicy == Types.NetV4_0_0_RetryPolicy.ALLOW_RETRY;
     }
 
     method {:test} TestNetRetryFlag() {

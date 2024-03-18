@@ -6,6 +6,7 @@ package software.amazon.cryptography.encryptionsdk.model;
 import java.util.List;
 
 public class CollectionOfErrors extends RuntimeException {
+
   /**
    * The list of Exceptions encountered.
    */
@@ -90,14 +91,14 @@ public class CollectionOfErrors extends RuntimeException {
   }
 
   static class BuilderImpl implements Builder {
+
     protected String message;
 
     protected Throwable cause;
 
     protected List<RuntimeException> list;
 
-    protected BuilderImpl() {
-    }
+    protected BuilderImpl() {}
 
     protected BuilderImpl(CollectionOfErrors model) {
       this.cause = model.getCause();
