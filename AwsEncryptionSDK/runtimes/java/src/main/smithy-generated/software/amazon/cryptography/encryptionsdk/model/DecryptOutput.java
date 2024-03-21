@@ -9,6 +9,7 @@ import java.util.Objects;
 import software.amazon.cryptography.materialproviders.model.ESDKAlgorithmSuiteId;
 
 public class DecryptOutput {
+
   private final ByteBuffer plaintext;
 
   private final Map<String, String> encryptionContext;
@@ -58,14 +59,14 @@ public class DecryptOutput {
   }
 
   static class BuilderImpl implements Builder {
+
     protected ByteBuffer plaintext;
 
     protected Map<String, String> encryptionContext;
 
     protected ESDKAlgorithmSuiteId algorithmSuiteId;
 
-    protected BuilderImpl() {
-    }
+    protected BuilderImpl() {}
 
     protected BuilderImpl(DecryptOutput model) {
       this.plaintext = model.plaintext();
@@ -101,14 +102,20 @@ public class DecryptOutput {
     }
 
     public DecryptOutput build() {
-      if (Objects.isNull(this.plaintext()))  {
-        throw new IllegalArgumentException("Missing value for required field `plaintext`");
+      if (Objects.isNull(this.plaintext())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `plaintext`"
+        );
       }
-      if (Objects.isNull(this.encryptionContext()))  {
-        throw new IllegalArgumentException("Missing value for required field `encryptionContext`");
+      if (Objects.isNull(this.encryptionContext())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `encryptionContext`"
+        );
       }
-      if (Objects.isNull(this.algorithmSuiteId()))  {
-        throw new IllegalArgumentException("Missing value for required field `algorithmSuiteId`");
+      if (Objects.isNull(this.algorithmSuiteId())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `algorithmSuiteId`"
+        );
       }
       return new DecryptOutput(this);
     }

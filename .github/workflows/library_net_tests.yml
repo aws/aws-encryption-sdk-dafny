@@ -8,6 +8,11 @@ on:
         description: 'The Dafny version to run'
         required: true
         type: string  
+      regenerate-code:
+        description: "Regenerate code using smithy-dafny"
+        required: false
+        default: false
+        type: boolean
 
 env:
   # Used in examples
@@ -23,6 +28,7 @@ env:
 jobs:
   testDotNet:
     strategy:
+      fail-fast: false
       matrix:
         os: [
           windows-latest,
@@ -46,6 +52,7 @@ jobs:
         run: |
           git submodule update --init libraries
           git submodule update --init --recursive mpl
+          git submodule update --init smithy-dafny
           
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
@@ -60,9 +67,18 @@ jobs:
           dotnet-version: '6.0.x'
 
       - name: Setup Dafny
-        uses: dafny-lang/setup-dafny-action@v1.6.1
+        uses: dafny-lang/setup-dafny-action@v1.7.0
         with:
           dafny-version: ${{ inputs.dafny }}
+
+      - name: Regenerate code using smithy-dafny if necessary
+        if: ${{ inputs.regenerate-code }}
+        uses: ./.github/actions/polymorph_codegen
+        with:
+          dafny: ${{ env.DAFNY_VERSION }}
+          library: AwsEncryptionSDK
+          diff-generated-code: false
+          update-and-regenerate-mpl: true
 
       - name: Download Dependencies 
         working-directory: ./AwsEncryptionSDK
@@ -78,6 +94,7 @@ jobs:
 
       - name: Test .NET Framework net48
         working-directory: ./AwsEncryptionSDK
+        if: matrix.os == 'windows-latest' 
         shell: bash
         run: |
           make test_net FRAMEWORK=net48
@@ -94,6 +111,7 @@ jobs:
 
       - name: Test Examples on .NET Framework net48
         working-directory: ./AwsEncryptionSDK
+        if: matrix.os == 'windows-latest' 
         shell: bash
         run: |
           dotnet test \
@@ -114,78 +132,6 @@ jobs:
               runtimes/net/Examples \
               --framework net6.0
           fi
-
-      - name: Fetch awses-decrypt/python-2.3.0.zip
-        working-directory: ./
-        shell: bash
-        run: |
-          PYTHON_23_VECTOR_PATH=$GITHUB_WORKSPACE/python23/vectors
-          mkdir -p $PYTHON_23_VECTOR_PATH
-          DOWNLOAD_NAME=python23.zip
-          curl --no-progress-meter --output $DOWNLOAD_NAME --location $VECTORS_URL
-          unzip -o -qq $DOWNLOAD_NAME  -d $PYTHON_23_VECTOR_PATH
-          rm  $DOWNLOAD_NAME
-
-      - name: Run Test Vectors on .NET Framework net48
-        working-directory: ./AwsEncryptionSDK/runtimes/net/TestVectorsNative/TestVectors
-        shell: bash
-        run: |
-          PYTHON_23_VECTOR_PATH=$GITHUB_WORKSPACE/python23/vectors
-          DAFNY_AWS_ESDK_TEST_VECTOR_MANIFEST_PATH="$PYTHON_23_VECTOR_PATH/manifest.json" \
-          dotnet test --framework net48
-
-      - name: Run Decrypt Test Vectors on .NET net6.0
-        working-directory: ./AwsEncryptionSDK/runtimes/net/TestVectorsNative/TestVectors
-        shell: bash
-        run: |
-          PYTHON_23_VECTOR_PATH=$GITHUB_WORKSPACE/python23/vectors
-          if [ "$RUNNER_OS" == "macOS" ]; then
-            DAFNY_AWS_ESDK_TEST_VECTOR_MANIFEST_PATH="$PYTHON_23_VECTOR_PATH/manifest.json" \
-            DYLD_LIBRARY_PATH="/usr/local/opt/openssl@1.1/lib" \
-            dotnet test --framework net6.0
-          else
-            DAFNY_AWS_ESDK_TEST_VECTOR_MANIFEST_PATH="$PYTHON_23_VECTOR_PATH/manifest.json" \
-            dotnet test --framework net6.0
-          fi
-
-      - name: Generate Test Vectors with .NET Framework net6.0
-        # TODO Post-#619: Fix Zip file creation on Windows
-        if: matrix.os != 'windows-latest'
-        working-directory: ./AwsEncryptionSDK
-        shell: bash
-        run: |
-          NET_41_VECTOR_PATH=$GITHUB_WORKSPACE/net41/vectors
-          mkdir -p $NET_41_VECTOR_PATH
-          GEN_PATH=runtimes/net/TestVectorsNative/TestVectorGenerator
-          dotnet run --project $GEN_PATH --framework net6.0 -- \
-            --encrypt-manifest $GEN_PATH/resources/0006-awses-message-decryption-generation.v2.json \
-            --output-dir $NET_41_VECTOR_PATH
-
-      # TODO: Fix Zip file creation on Windows
-      # - name: Zip the Generated Test Vectors for ESDK-JS on Windows
-      #   if: matrix.os == 'windows-latest'
-      #   shell: pwsh
-      #   run: |
-      #     # NET_41_VECTOR_PATH=$GITHUB_WORKSPACE/net41/vectors
-      #     Set-Location -Path "$env:GITHUB_WORKSPACE\net41\vectors"
-      #     Compress-Archive -Path "$env:GITHUB_WORKSPACE\net41\vectors\*" -DestinationPath "$env:GITHUB_WORKSPACE\net41\vectors\net41.zip"        
-
-      - name: Zip the Generated Test Vectors for ESDK-JS on Mac/Linux
-        if: matrix.os != 'windows-latest'
-        shell: bash
-        run: |
-          NET_41_VECTOR_PATH=$GITHUB_WORKSPACE/net41/vectors
-          cd $NET_41_VECTOR_PATH
-          zip -qq net41.zip -r .
-
-      - name: Decrypt Generated Test Vectors with ESDK-JS
-        # TODO Post-#619: Fix Zip file creation on Windows
-        if: matrix.os != 'windows-latest'
-        shell: bash
-        run: |
-          NET_41_VECTOR_PATH=$GITHUB_WORKSPACE/net41/vectors
-          cd $NET_41_VECTOR_PATH
-          npx -y @aws-crypto/integration-node decrypt -v $NET_41_VECTOR_PATH/net41.zip -c cpu
 
       - name: Unzip ESDK-NET @ v4.0.0 Valid Vectors
         working-directory: ./AwsEncryptionSDK/runtimes/net/TestVectorsNative/TestVectors/resources
@@ -268,5 +214,36 @@ jobs:
             dotnet test --framework net6.0 --logger "console;verbosity=quiet"
           else
             DAFNY_AWS_ESDK_TEST_VECTOR_MANIFEST_PATH="$NET_400_INVALID_VECTORS/manifest.json" \
+            dotnet test --framework net6.0 --logger "console;verbosity=quiet"
+          fi
+
+      - name: Unzip ESDK-NET @ v4.0.1 Vectors
+        working-directory: ./AwsEncryptionSDK/runtimes/net/TestVectorsNative/TestVectors/resources
+        shell: bash
+        run: |
+          NET_401_VECTORS=$GITHUB_WORKSPACE/v4Net401/vectors
+          mkdir -p $NET_401_VECTORS
+          DOWNLOAD_NAME=v4-Net-4.0.1.zip
+          unzip -o -qq $DOWNLOAD_NAME -d $NET_401_VECTORS
+
+      - name: Run ESDK-NET @ v4.0.1 Vectors expect success
+        working-directory: ./AwsEncryptionSDK/runtimes/net/TestVectorsNative/TestVectors
+        shell: bash
+        run: |
+          NET_401_VECTORS=$GITHUB_WORKSPACE/v4Net401/vectors
+          # We expect net48 to run only for Windows
+          if [ "$RUNNER_OS" == "Windows" ]; then
+            ESDK_NET_V400_POLICY="forbid" \
+            DAFNY_AWS_ESDK_TEST_VECTOR_MANIFEST_PATH="$NET_401_VECTORS/manifest.json" \
+            dotnet test --framework net48
+          fi
+          if [ "$RUNNER_OS" == "macOS" ]; then
+            DYLD_LIBRARY_PATH="/usr/local/opt/openssl@1.1/lib" \
+            ESDK_NET_V400_POLICY="forbid" \
+            DAFNY_AWS_ESDK_TEST_VECTOR_MANIFEST_PATH="$NET_401_VECTORS/manifest.json" \
+            dotnet test --framework net6.0 --logger "console;verbosity=quiet"
+          else
+            ESDK_NET_V400_POLICY="forbid" \
+            DAFNY_AWS_ESDK_TEST_VECTOR_MANIFEST_PATH="$NET_401_VECTORS/manifest.json" \
             dotnet test --framework net6.0 --logger "console;verbosity=quiet"
           fi

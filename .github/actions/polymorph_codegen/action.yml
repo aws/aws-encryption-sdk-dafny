@@ -1,0 +1,116 @@
+#
+# This local action serves two purposes:
+#
+# 1. For core workflows like pull.yml and push.yml,
+#    it is uses to check that the checked in copy of generated code
+#    matches what the current submodule version of smithy-dafny generates.
+#    This is important to ensure whenever someone changes the models
+#    or needs to regenerate to pick up smithy-dafny improvements,
+#    they don't have to deal with unpleasant surprises.
+#
+# 2. For workflows that check compatibility with other Dafny versions,
+#    such as nightly_dafny.yml, it is necessary to regenerate the code
+#    for that version of Dafny first.
+#    This is ultimately because some of the code smithy-dafny generates
+#    is tightly coupled to what code Dafny itself generates.
+#    A concrete example is that Dafny 4.3 added TypeDescriptors
+#    as parameters when constructing datatypes like Option and Result.
+#
+#    This is why this is a composite action instead of a reusable workflow:
+#    the latter executes in a separate runner environment,
+#    but here we need to actually overwrite the generated code in place
+#    so that subsequent steps can work correctly.
+#
+# This action assumes that the given version of Dafny and .NET 6.0.x
+# have already been set up, since they are used to format generated code.
+#
+# Note that recursively generating code doesn't currently work in this repo
+# with the version of the mpl pinned by the submodule,
+# because the SharedMakefileV2.mk in it doesn't work with newer versions of smithy-dafny.
+# Therefore by default we don't recursively regenerate code
+# (accomplished by setting the POLYMORPH_DEPENDENCIES environment variable to "").
+# If `update-and-regenerate-mpl` is true, we first pull the latest mpl,
+# which is necessary both for Makefile compatibility and so we can regenerate mpl code
+# for compatibility with newer versions of Dafny.
+#
+
+name: "Polymorph code generation"
+description: "Regenerates code using smithy-dafny, and optionally checks that the result matches the checked in state"
+inputs:
+  dafny:
+    description: "The Dafny version to run"
+    required: true
+    type: string
+  library:
+    description: "Name of the library to regenerate code for"
+    required: true
+    type: string
+  diff-generated-code:
+    description: "Diff regenerated code against committed state"
+    required: true
+    type: boolean
+  update-and-regenerate-mpl:
+    description: "Locally update MPL to the tip of master and regenerate its code too"
+    required: false
+    default: false
+    type: boolean
+runs:
+  using: "composite"
+  steps:
+    - name: Update MPL submodule locally if requested
+      if: inputs.update-and-regenerate-mpl == 'true'
+      shell: bash
+      run: |
+        git submodule update --init --recursive --remote --merge mpl
+
+    - name: Don't regenerate dependencies unless requested
+      id: dependencies
+      shell: bash
+      run: |
+        echo "PROJECT_DEPENDENCIES=${{ inputs.update-and-regenerate-mpl != 'true' && 'PROJECT_DEPENDENCIES=' || '' }}" >> $GITHUB_OUTPUT
+
+    - name: Regenerate Dafny code using smithy-dafny
+      # Unfortunately Dafny codegen doesn't work on Windows:
+      # https://github.com/smithy-lang/smithy-dafny/issues/317
+      if: runner.os != 'Windows'
+      working-directory: ./${{ inputs.library }}
+      shell: bash
+      run: |
+        make polymorph_dafny ${{ steps.dependencies.outputs.PROJECT_DEPENDENCIES }}
+
+    - name: Set up prettier in MPL
+      if: inputs.update-and-regenerate-mpl == 'true'
+      shell: bash
+      # Annoyingly, prettier has to be installed in each library individually.
+      # And this is only necessary or even possible if we've updated the mpl submodule.
+      run: |
+        make -C mpl/AwsCryptographyPrimitives setup_prettier
+        make -C mpl/AwsCryptographicMaterialProviders setup_prettier
+        make -C mpl/ComAmazonawsKms setup_prettier
+        make -C mpl/ComAmazonawsDynamodb setup_prettier
+
+    - name: Regenerate Java code using smithy-dafny
+      # npx seems to be unavailable on Windows GHA runners,
+      # so we don't regenerate Java code on them either.
+      if: runner.os != 'Windows'
+      working-directory: ./${{ inputs.library }}
+      shell: bash
+      # smithy-dafny also formats generated code itself now,
+      # so prettier is a necessary dependency.
+      run: |
+        make setup_prettier
+        make polymorph_java ${{ steps.dependencies.outputs.PROJECT_DEPENDENCIES }}
+
+    - name: Regenerate .NET code using smithy-dafny
+      working-directory: ./${{ inputs.library }}
+      shell: bash
+      run: |
+        make polymorph_dotnet ${{ steps.dependencies.outputs.PROJECT_DEPENDENCIES }}
+
+    - name: Check regenerated code against commited code
+      # Composite action inputs seem to not actually support booleans properly for some reason
+      if: inputs.diff-generated-code == 'true'
+      working-directory: ./${{ inputs.library }}
+      shell: bash
+      run: |
+        make check_polymorph_diff

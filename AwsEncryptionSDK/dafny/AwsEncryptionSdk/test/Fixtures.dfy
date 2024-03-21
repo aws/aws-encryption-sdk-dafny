@@ -140,7 +140,9 @@ module Fixtures {
   method GenerateKeyPair( keyModulusLength: primitivesTypes.RSAModulusLengthBitsToGenerate )
     returns (keys: primitivesTypes.GenerateRSAKeyPairOutput)
   {
-      var crypto :- expect Primitives.AtomicPrimitives();
+      var cryptoX: primitivesTypes.IAwsCryptographicPrimitivesClient :- expect Primitives.AtomicPrimitives();
+      assert cryptoX is Primitives.AtomicPrimitivesClient;
+      var crypto := cryptoX as Primitives.AtomicPrimitivesClient;
 
       keys :- expect crypto.GenerateRSAKeyPair(
       primitivesTypes.GenerateRSAKeyPairInput(

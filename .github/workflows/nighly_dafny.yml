@@ -18,13 +18,16 @@ jobs:
     uses: ./.github/workflows/library_dafny_verification.yml
     with:
       dafny: 'nightly-latest'
+      regenerate-code: true
   # dafny-nightly-java:
   #   if: github.event_name != 'schedule' || github.repository_owner == 'aws'
   #   uses: ./.github/workflows/library_java_tests.yml
   #   with:
   #     dafny: 'nightly-latest'
+  #     regenerate-code: true
   dafny-nightly-net:
     if: github.event_name != 'schedule' || github.repository_owner == 'aws'
     uses: ./.github/workflows/library_net_tests.yml
     with:
       dafny: 'nightly-latest'
+      regenerate-code: true

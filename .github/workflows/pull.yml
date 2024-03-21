@@ -5,6 +5,10 @@ on:
   pull_request:
 
 jobs:
+  pr-ci-codegen:
+    uses: ./.github/workflows/library_codegen.yml
+    with:
+      dafny: '4.2.0'
   pr-ci-verification:
     uses: ./.github/workflows/library_dafny_verification.yml
     with:
@@ -15,5 +19,9 @@ jobs:
   #     dafny: '4.2.0'
   pr-ci-net:
     uses: ./.github/workflows/library_net_tests.yml
+    with:
+      dafny: '4.2.0'
+  pr-test-vectors:
+    uses: ./.github/workflows/library_interop_tests.yml
     with:
       dafny: '4.2.0'

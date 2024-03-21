@@ -4,6 +4,7 @@
 package software.amazon.cryptography.encryptionsdk.model;
 
 public class OpaqueError extends RuntimeException {
+
   /**
    * The unexpected object encountered. It MIGHT BE an Exception, but that is not guaranteed.
    */
@@ -88,14 +89,14 @@ public class OpaqueError extends RuntimeException {
   }
 
   static class BuilderImpl implements Builder {
+
     protected String message;
 
     protected Throwable cause;
 
     protected Object obj;
 
-    protected BuilderImpl() {
-    }
+    protected BuilderImpl() {}
 
     protected BuilderImpl(OpaqueError model) {
       this.cause = model.getCause();
@@ -131,7 +132,9 @@ public class OpaqueError extends RuntimeException {
     }
 
     public OpaqueError build() {
-      if (this.obj != null && this.cause == null && this.obj instanceof Throwable) {
+      if (
+        this.obj != null && this.cause == null && this.obj instanceof Throwable
+      ) {
         this.cause = (Throwable) this.obj;
       } else if (this.obj == null && this.cause != null) {
         this.obj = this.cause;

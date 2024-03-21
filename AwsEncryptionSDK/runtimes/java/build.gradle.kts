@@ -6,10 +6,19 @@
  * User Manual available at https://docs.gradle.org/8.1.1/userguide/building_java_projects.html
  */
 
+import java.io.File
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     // Apply the java-library plugin for API and implementation separation.
     `java-library`
 }
+
+var props = Properties().apply {
+    load(FileInputStream(File(rootProject.rootDir, "../../project.properties")))
+}
+var dafnyVersion = props.getProperty("dafnyVersion")
 
 repositories {
     // Use Maven Central for resolving dependencies.
@@ -17,7 +26,7 @@ repositories {
 }
 
 dependencies {
-    implementation("org.dafny:DafnyRuntime:4.2.0")
+    implementation("org.dafny:DafnyRuntime:${dafnyVersion}")
     implementation("software.amazon.smithy.dafny:conversion:0.1")
     implementation("software.amazon.cryptography:aws-cryptographic-material-providers:1.0.1")
 
