@@ -925,7 +925,7 @@ module MessageBody {
       + UInt64ToSeq(length)
   }
 
-  function method WriteFramedMessageBody(
+  opaque function method WriteFramedMessageBody(
     body: FramedMessage
   )
     :(ret: seq<uint8>)
@@ -933,26 +933,36 @@ module MessageBody {
     //= type=implication
     //# The final frame
     //# MUST be the last frame.
-    ensures ret == WriteMessageRegularFrames(body.regularFrames)
-      + Frames.WriteFinalFrame(body.finalFrame)
+    //ensures ret == WriteMessageRegularFrames(body.regularFrames)
+    //  + Frames.WriteFinalFrame(body.finalFrame)
   {
     WriteMessageRegularFrames(body.regularFrames) + Frames.WriteFinalFrame(body.finalFrame)
   }
+  lemma AboutWriteFramedMessageBody(body: FramedMessage)
+    ensures WriteFramedMessageBody(body) == WriteMessageRegularFrames(body.regularFrames) + Frames.WriteFinalFrame(body.finalFrame)
+  {
+    reveal WriteFramedMessageBody();
+  }
 
-  function method WriteMessageRegularFrames(
+  opaque function method WriteMessageRegularFrames(
     frames: MessageRegularFrames
   )
     :(ret: seq<uint8>)
-    ensures if |frames| == 0 then
-      ret == []
-    else
-      ret == WriteMessageRegularFrames(Seq.DropLast(frames))
-      + Frames.WriteRegularFrame(Seq.Last(frames))
   {
     if |frames| == 0 then []
     else
       WriteMessageRegularFrames(Seq.DropLast(frames))
       + Frames.WriteRegularFrame(Seq.Last(frames))
+  }
+  // Unroll the function at most once
+  lemma AboutWriteMessageRegularFrames(frames: MessageRegularFrames)
+    ensures WriteMessageRegularFrames(frames) ==
+      if |frames| == 0 then []
+    else
+      WriteMessageRegularFrames(Seq.DropLast(frames))
+      + Frames.WriteRegularFrame(Seq.Last(frames))
+  {
+    reveal WriteMessageRegularFrames();
   }
 
   function method {:recursive} {:vcs_split_on_every_assert} ReadFramedMessageBody(
@@ -1033,14 +1043,29 @@ module MessageBody {
       //# following inputs:
       assert CorrectlyRead(buffer, Success(SuccessfulRead(nextRegularFrames, regularFrame.tail)), WriteMessageRegularFrames) by {
         reveal CorrectlyReadRange();
+        var tail := regularFrame.tail;
+        var f := WriteMessageRegularFrames;
+        var readRange := WriteMessageRegularFrames(nextRegularFrames);
+        assert readRange == f(nextRegularFrames);
+        AboutWriteMessageRegularFrames(nextRegularFrames);
+        assert && buffer.bytes == tail.bytes
+              && buffer.start <= tail.start <= |buffer.bytes|
+              && buffer.bytes[buffer.start..] == tail.bytes[buffer.start..]
+              && readRange <= buffer.bytes[buffer.start..]
+              && tail.start == buffer.start + |readRange|;
+        // Trivial evidence above but helps reduce brittleness by reducing the assertion below from 1.65MRU
+        // down to 550kRU
+        assert CorrectlyReadRange(buffer, regularFrame.tail, WriteMessageRegularFrames(nextRegularFrames));
       }
-
-      ReadFramedMessageBody(
+      assert CorrectlyReadRange(buffer, regularFrame.tail, buffer.bytes[buffer.start..regularFrame.tail.start]);
+      var res := ReadFramedMessageBody(
         buffer,
         header,
         nextRegularFrames,
         regularFrame.tail
-      )
+      );
+      assert CorrectlyRead(buffer, res, WriteFramedMessageBody);
+      res
     else
       //= compliance/client-apis/decrypt.txt#2.7.4
       //# If the first 4 bytes
@@ -1069,7 +1094,14 @@ module MessageBody {
       assert {:split_here} true;
       assert CorrectlyRead(continuation, Success(finalFrame), Frames.WriteFinalFrame);
       assert {:split_here} true;
-      Success(SuccessfulRead(body, finalFrame.tail))
+      var res := Success(SuccessfulRead(body, finalFrame.tail));
+      assert CorrectlyRead(buffer, res, WriteFramedMessageBody) by {
+        reveal CorrectlyReadRange();
+        AboutWriteFramedMessageBody(body);
+        assert CorrectlyReadRange(buffer, res.value.tail, WriteFramedMessageBody(res.value.data));
+        assert CorrectlyReadRange(buffer, finalFrame.tail, WriteFramedMessageBody(body));
+      }
+      res
   }
 
   function WriteNonFramedMessageBody(

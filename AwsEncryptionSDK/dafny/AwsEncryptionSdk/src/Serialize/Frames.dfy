@@ -137,7 +137,7 @@ module Frames {
 
   const SAFE_MAX_ENCRYPT := 0xFFFFFFFE0 // 2^36 - 32
 
-  function method WriteRegularFrame(
+  opaque function method WriteRegularFrame(
     regularFrame: RegularFrame
   )
     :(ret: seq<uint8>)
@@ -191,6 +191,7 @@ module Frames {
 
     assert CorrectlyReadRange(buffer, authTag.tail, WriteRegularFrame(regularFrame)) by {
       CorrectlyReadByteRange(buffer, sequenceNumber.tail, WriteUint32(sequenceNumber.data));
+      reveal WriteRegularFrame();
       AppendToCorrectlyReadByteRange(buffer, sequenceNumber.tail, iv.tail, Write(iv.data));
       AppendToCorrectlyReadByteRange(buffer, iv.tail, encContent.tail, Write(encContent.data));
       AppendToCorrectlyReadByteRange(buffer, encContent.tail, authTag.tail, Write(authTag.data));
@@ -198,7 +199,7 @@ module Frames {
     Success(SuccessfulRead(regularFrame, authTag.tail))
   }
 
-  function method WriteFinalFrame(
+  opaque function method WriteFinalFrame(
     finalFrame: FinalFrame
   )
     :(ret: seq<uint8>)
@@ -276,6 +277,7 @@ module Frames {
 
     assert CorrectlyReadRange(buffer, authTag.tail, WriteFinalFrame(finalFrame)) by {
       reveal CorrectlyReadRange();
+      reveal WriteFinalFrame();
       // It seems that Dafny can find a solution pretty fast.
       // But I leave this here in case there is some problem later.
       // CorrectlyReadByteRange(buffer, finalFrameSignal.tail, WriteUint32(finalFrameSignal.data));
