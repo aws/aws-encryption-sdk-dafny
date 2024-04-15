@@ -70,7 +70,19 @@ namespace AWS.Cryptography.EncryptionSDK
         public void Validate()
         {
             if (!IsSetPlaintext()) throw new System.ArgumentException("Missing value for required property 'Plaintext'");
-
+            if (IsSetFrameLength())
+            {
+                if (FrameLength < 1)
+                {
+                    throw new System.ArgumentException(
+                        String.Format("Member FrameLength of structure EncryptInput has type FrameLength which has a minimum of 1 but was given the value {0}.", FrameLength));
+                }
+                if (FrameLength > 4294967296)
+                {
+                    throw new System.ArgumentException(
+                        String.Format("Member FrameLength of structure EncryptInput has type FrameLength which has a maximum of 4294967296 but was given the value {0}.", FrameLength));
+                }
+            }
         }
     }
 }

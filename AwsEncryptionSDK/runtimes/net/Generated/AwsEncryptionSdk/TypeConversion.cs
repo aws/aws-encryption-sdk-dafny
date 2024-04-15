@@ -17,6 +17,7 @@ namespace AWS.Cryptography.EncryptionSDK
         }
         public static software.amazon.cryptography.encryptionsdk.internaldafny.types._IAwsEncryptionSdkConfig ToDafny_N3_aws__N12_cryptography__N13_encryptionSdk__S22_AwsEncryptionSdkConfig(AWS.Cryptography.EncryptionSDK.AwsEncryptionSdkConfig value)
         {
+            value.Validate();
             AWS.Cryptography.MaterialProviders.ESDKCommitmentPolicy var_commitmentPolicy = value.IsSetCommitmentPolicy() ? value.CommitmentPolicy : (AWS.Cryptography.MaterialProviders.ESDKCommitmentPolicy)null;
             long? var_maxEncryptedDataKeys = value.IsSetMaxEncryptedDataKeys() ? value.MaxEncryptedDataKeys : (long?)null;
             // BEGIN MANUAL EDIT
@@ -46,6 +47,7 @@ namespace AWS.Cryptography.EncryptionSDK
         }
         public static software.amazon.cryptography.encryptionsdk.internaldafny.types._IDecryptInput ToDafny_N3_aws__N12_cryptography__N13_encryptionSdk__S12_DecryptInput(AWS.Cryptography.EncryptionSDK.DecryptInput value)
         {
+            value.Validate();
             AWS.Cryptography.MaterialProviders.ICryptographicMaterialsManager var_materialsManager = value.IsSetMaterialsManager() ? value.MaterialsManager : (AWS.Cryptography.MaterialProviders.ICryptographicMaterialsManager)null;
             AWS.Cryptography.MaterialProviders.IKeyring var_keyring = value.IsSetKeyring() ? value.Keyring : (AWS.Cryptography.MaterialProviders.IKeyring)null;
             System.Collections.Generic.Dictionary<string, string> var_encryptionContext = value.IsSetEncryptionContext() ? value.EncryptionContext : (System.Collections.Generic.Dictionary<string, string>)null;
@@ -59,6 +61,7 @@ namespace AWS.Cryptography.EncryptionSDK
         }
         public static software.amazon.cryptography.encryptionsdk.internaldafny.types._IDecryptOutput ToDafny_N3_aws__N12_cryptography__N13_encryptionSdk__S13_DecryptOutput(AWS.Cryptography.EncryptionSDK.DecryptOutput value)
         {
+            value.Validate();
 
             return new software.amazon.cryptography.encryptionsdk.internaldafny.types.DecryptOutput(ToDafny_N3_aws__N12_cryptography__N13_encryptionSdk__S13_DecryptOutput__M9_plaintext(value.Plaintext), ToDafny_N3_aws__N12_cryptography__N13_encryptionSdk__S13_DecryptOutput__M17_encryptionContext(value.EncryptionContext), ToDafny_N3_aws__N12_cryptography__N13_encryptionSdk__S13_DecryptOutput__M16_algorithmSuiteId(value.AlgorithmSuiteId));
         }
@@ -73,6 +76,7 @@ namespace AWS.Cryptography.EncryptionSDK
         }
         public static software.amazon.cryptography.encryptionsdk.internaldafny.types._IEncryptInput ToDafny_N3_aws__N12_cryptography__N13_encryptionSdk__S12_EncryptInput(AWS.Cryptography.EncryptionSDK.EncryptInput value)
         {
+            value.Validate();
             System.Collections.Generic.Dictionary<string, string> var_encryptionContext = value.IsSetEncryptionContext() ? value.EncryptionContext : (System.Collections.Generic.Dictionary<string, string>)null;
             AWS.Cryptography.MaterialProviders.ICryptographicMaterialsManager var_materialsManager = value.IsSetMaterialsManager() ? value.MaterialsManager : (AWS.Cryptography.MaterialProviders.ICryptographicMaterialsManager)null;
             AWS.Cryptography.MaterialProviders.IKeyring var_keyring = value.IsSetKeyring() ? value.Keyring : (AWS.Cryptography.MaterialProviders.IKeyring)null;
@@ -88,6 +92,7 @@ namespace AWS.Cryptography.EncryptionSDK
         }
         public static software.amazon.cryptography.encryptionsdk.internaldafny.types._IEncryptOutput ToDafny_N3_aws__N12_cryptography__N13_encryptionSdk__S13_EncryptOutput(AWS.Cryptography.EncryptionSDK.EncryptOutput value)
         {
+            value.Validate();
 
             return new software.amazon.cryptography.encryptionsdk.internaldafny.types.EncryptOutput(ToDafny_N3_aws__N12_cryptography__N13_encryptionSdk__S13_EncryptOutput__M10_ciphertext(value.Ciphertext), ToDafny_N3_aws__N12_cryptography__N13_encryptionSdk__S13_EncryptOutput__M17_encryptionContext(value.EncryptionContext), ToDafny_N3_aws__N12_cryptography__N13_encryptionSdk__S13_EncryptOutput__M16_algorithmSuiteId(value.AlgorithmSuiteId));
         }
@@ -129,7 +134,6 @@ namespace AWS.Cryptography.EncryptionSDK
         public static AWS.Cryptography.EncryptionSDK.NetV4_0_0_RetryPolicy FromDafny_N3_aws__N12_cryptography__N13_encryptionSdk__S22_AwsEncryptionSdkConfig__M21_netV4_0_0_RetryPolicy(Wrappers_Compile._IOption<software.amazon.cryptography.encryptionsdk.internaldafny.types._INetV4__0__0__RetryPolicy> value)
         // END MANUAL EDIT
         {
-            
             return value.is_None ? (AWS.Cryptography.EncryptionSDK.NetV4_0_0_RetryPolicy)null : FromDafny_N3_aws__N12_cryptography__N13_encryptionSdk__S21_NetV4_0_0_RetryPolicy(value.Extract());
         }
         // BEGIN MANUAL EDIT
