@@ -187,17 +187,17 @@ abstract module AbstractAwsCryptographyEncryptionSdkService
   import Operations : AbstractAwsCryptographyEncryptionSdkOperations
   function method DefaultAwsEncryptionSdkConfig(): AwsEncryptionSdkConfig
   method ESDK(config: AwsEncryptionSdkConfig := DefaultAwsEncryptionSdkConfig())
-    returns (res: Result<IAwsEncryptionSdkClient, Error>)
+    returns (res: Result<ESDKClient, Error>)
     ensures res.Success? ==>
               && fresh(res.value)
               && fresh(res.value.Modifies)
               && fresh(res.value.History)
               && res.value.ValidState()
 
-  // Helper function for the benefit of native code to create a Success(client) without referring to Dafny internals
+  // Helper functions for the benefit of native code to create a Success(client) without referring to Dafny internals
   function method CreateSuccessOfClient(client: IAwsEncryptionSdkClient): Result<IAwsEncryptionSdkClient, Error> {
     Success(client)
-  } // Helper function for the benefit of native code to create a Failure(error) without referring to Dafny internals
+  }
   function method CreateFailureOfError(error: Error): Result<IAwsEncryptionSdkClient, Error> {
     Failure(error)
   }
