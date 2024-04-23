@@ -14,10 +14,10 @@ jobs:
       - name: Support longpaths on Git checkout
         run: |
           git config --global core.longpaths true
+      
       - uses: actions/checkout@v3
-      # We only pull in the submodules we need to build the library
-      - run: git submodule update --init libraries
-
+        with:
+          submodules: recursive
       # We need access to the role that is able to get CI Bot Creds
       - name: Configure AWS Credentials for Release
         uses: aws-actions/configure-aws-credentials@v2
