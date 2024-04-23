@@ -1,0 +1,55 @@
+# This workflow tests the installation of semantic release
+name: Semantic Release Test Installation
+
+on:
+  pull_request:
+
+jobs:
+  semantic-release:
+    runs-on: macos-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Support longpaths on Git checkout
+        run: |
+          git config --global core.longpaths true
+      - uses: actions/checkout@v3
+      # We only pull in the submodules we need to build the library
+      - run: git submodule update --init libraries
+
+      # We need access to the role that is able to get CI Bot Creds
+      - name: Configure AWS Credentials for Release
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-region: us-west-2
+          role-to-assume: arn:aws:iam::587316601012:role/GitHub-CI-CI-Bot-Credential-Access-Role-us-west-2
+          role-session-name: CI_Bot_Release
+
+      - name: Upgrade Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      # Use AWS Secrets Manger GHA to retrieve CI Bot Creds
+      - name: Get CI Bot Creds Secret
+        uses: aws-actions/aws-secretsmanager-get-secrets@v2
+        with:
+          secret-ids: Github/aws-crypto-tools-ci-bot
+          parse-json-secrets: true
+
+      # Log in as the CI Bot
+      - name: Log in as CI Bot
+        run: |
+          echo ${{env.GITHUB_AWS_CRYPTO_TOOLS_CI_BOT_ESDK_RELEASE_TOKEN}} > token.txt
+          gh auth login --with-token < token.txt
+          rm token.txt
+          gh auth status
+
+      # Test to see if we can setup semantic release
+      - name: Test Semantic Release Installation
+        uses: actions/checkout@v4
+        with:
+          ref: main
+      - run: |
+          make setup_semantic_release
