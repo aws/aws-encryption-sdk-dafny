@@ -50,6 +50,6 @@ jobs:
       - name: Test Semantic Release Installation
         uses: actions/checkout@v4
         with:
-          ref: main
+          ref: mainline
       - run: |
           make setup_semantic_release
