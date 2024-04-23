@@ -64,7 +64,7 @@ jobs:
       - name: Run Semantic Release in dry run mode
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-        if: ${{inputs.dry-run == 'n'}}
+        if: ${{inputs.dry-run == 'y'}}
         run: |
           make dry_run_semantic_release
 
@@ -72,6 +72,6 @@ jobs:
       - name: Run Semantic Release
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-        if: ${{inputs.dry-run == 'y'}}
+        if: ${{inputs.dry-run == 'n'}}
         run: |
           make run_semantic_release
