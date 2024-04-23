@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
     inputs:
       dry-run:
-        description: "Are you releasing a new version? (y/n)"
+        description: "Is this a dry run to validate semantic-release behaves as expected? (y/n)"
         required: true
         type: string
 
@@ -14,7 +14,7 @@ jobs:
     # there is no easy way in gha to check if the actor is part of the team, running semantic release is a more
     # privileged operation, so we must make sure this list of users is a subset of the users labeled as maintainers of
     # https://github.com/orgs/aws/teams/aws-crypto-tools
-    if: contains('["seebees","texastony","ShubhamChaturvedi7","lucasmcdonald3","josecorella","imabhichow","rishav-karanjit","antonf-amzn","justplaz","ajewellamz"]', github.actor)
+    if: contains('["seebees","texastony","ShubhamChaturvedi7","lucasmcdonald3","josecorella","imabhichow","rishav-karanjit","antonf-amzn","justplaz","ajewellamz","RitvikKapila"]', github.actor)
     runs-on: macos-latest
     permissions:
       id-token: write
