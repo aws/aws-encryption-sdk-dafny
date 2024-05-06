@@ -2,9 +2,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 using System.Diagnostics;
+using Newtonsoft.Json;
 using Amazon;
+using Amazon.DynamoDBv2;
 using Amazon.KeyManagementService;
+using AWS.Cryptography.KeyStore;
 using AWS.Cryptography.MaterialProviders;
+using AWS.Cryptography.MaterialProvidersTestVectorKeys;
 
 using RSAEncryption;
 
@@ -18,6 +22,8 @@ namespace TestVectors
     public static class MaterialProviderFactory
     {
         private static readonly MaterialProviders materialProviders = new(new MaterialProvidersConfig());
+        private static KeyVectorsConfig keyVectorsConfig = new KeyVectorsConfig();
+        private static KeyVectors keyVectors;
 
         public static ICryptographicMaterialsManager CreateDecryptCmm(
             DecryptVector vector,
@@ -103,6 +109,7 @@ namespace TestVectors
             Debug.Assert(masterKeys.Count >= 1);
 
             Key generatorKey = keys[masterKeys[0].Key];
+            Console.WriteLine(generatorKey.BranchKey);
             IKeyring generatorKeyring = CreateKeyring(masterKeys[0], generatorKey, CryptoOperation.ENCRYPT);
 
             List<IKeyring> children = masterKeys
@@ -160,6 +167,71 @@ namespace TestVectors
                 return materialProviders.CreateAwsKmsMrkDiscoveryKeyring(createKeyringInput);
             }
 
+            if (keyInfo.Type == "aws-kms-hierarchy") {
+                // keyInfo.Type = "static-branch-key-1";
+                if (keyVectors == null) {
+                    keyVectorsConfig.KeyManifestPath = "/Users/lucmcdon/Desktop/workplace/aws-encryption-sdk-python/net_vectors_test/312_hkeyring_manifest/keys.json";
+                    keyVectors = new KeyVectors(keyVectorsConfig);
+                }
+
+                string jsonString = JsonConvert.SerializeObject(keyInfo);
+
+                var stream = new MemoryStream();
+                var writer = new StreamWriter(stream);
+                writer.Write(jsonString);
+                writer.Flush();
+                stream.Position = 0;
+
+                var getKeyDescriptionInput = new GetKeyDescriptionInput();
+                getKeyDescriptionInput.Json = stream;
+
+                var desc = keyVectors.GetKeyDescription(getKeyDescriptionInput);
+
+                var testVectorKeyringInput = new TestVectorKeyringInput();
+                testVectorKeyringInput.KeyDescription = desc.KeyDescription;
+                
+                var keyring = keyVectors.CreateTestVectorKeyring(
+                    testVectorKeyringInput
+                );
+
+                Console.WriteLine(keyring);
+
+                return keyring;
+
+                // // TODO: When we have different keys, include the keystore KMS key ARN in the manifest.
+                // var kmsConfig = new KMSConfiguration { KmsKeyArn = "arn:aws:kms:us-west-2:370957321024:key/9d989aa2-2f9c-438c-a745-cc57d3ad0126" };
+                // // Create an AWS KMS Configuration to use with your KeyStore.
+                // // The KMS Configuration MUST have the right access to the resources in the KeyStore.
+                // var keystoreConfig = new KeyStoreConfig
+                // {
+                //     // Client MUST have permissions to decrypt kmsConfig.KmsKeyArn
+                //     KmsClient = new AmazonKeyManagementServiceClient(GetRegionForArn("arn:aws:kms:us-west-2:370957321024:key/9d989aa2-2f9c-438c-a745-cc57d3ad0126")),
+                //     KmsConfiguration = kmsConfig,
+                //     // TODO: Don't hardcode
+                //     DdbTableName = "KeyStoreDdbTable",
+                //     DdbClient = new AmazonDynamoDBClient(GetRegionForArn("arn:aws:kms:us-west-2:370957321024:key/9d989aa2-2f9c-438c-a745-cc57d3ad0126")),
+                //     // TODO: Don't hardcode
+                //     LogicalKeyStoreName = "KeyStoreDdbTable"
+                // };
+                // var keystore = new KeyStore(keystoreConfig);
+
+                
+
+                // Console.WriteLine(key.Id);
+                // Console.WriteLine(key.BranchKeyVersion);
+
+                // // Create an AWS Hierarchical Keyring with the branch key id supplier
+                // var createKeyringInput = new CreateAwsKmsHierarchicalKeyringInput
+                // {
+                //     KeyStore = keystore,
+                //     BranchKeyId = key.Id,
+                //     Cache = new CacheType { Default = new DefaultCache{EntryCapacity = 100} },
+                //     TtlSeconds = 0
+                // };
+                // return materialProviders.CreateAwsKmsHierarchicalKeyring(createKeyringInput);
+                
+            }
+
             if (keyInfo.Type == "raw" && keyInfo.EncryptionAlgorithm == "aes") {
                 CreateRawAesKeyringInput createKeyringInput = new CreateRawAesKeyringInput
                 {
@@ -209,7 +281,7 @@ namespace TestVectors
             // string operationStr = operation == CryptoOperation.ENCRYPT
             //     ? "encryption"
             //     : "decryption";
-            throw new Exception($"Unsupported keyring type for {operation}");
+            throw new Exception($"Unsupported keyring {keyInfo.Type} type for {operation}");
         }
 
         private static AesWrappingAlg AesAlgorithmFromBits(ushort bits) {
