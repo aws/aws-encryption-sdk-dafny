@@ -22,6 +22,7 @@ namespace TestVectors
     public static class MaterialProviderFactory
     {
         private static readonly MaterialProviders materialProviders = new(new MaterialProvidersConfig());
+        // TODO: Get this from CLI or something?
         private static readonly KeyVectorsConfig keyVectorsConfig = new KeyVectorsConfig
         {
             KeyManifestPath = "/Users/lucmcdon/Desktop/workplace/aws-encryption-sdk-python/net_vectors_test/312_hkeyring_manifest/keys.json"

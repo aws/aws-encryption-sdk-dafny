@@ -185,7 +185,6 @@ namespace TestVectors.Runner {
                 }
 
                 byte[] result = decryptOutput.Plaintext.ToArray();
-
                 Assert.Equal(expectedPlaintext, result);
             }
             // Ensure Test Failure is not caught
