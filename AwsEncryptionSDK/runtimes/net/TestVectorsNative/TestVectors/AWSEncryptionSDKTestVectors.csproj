@@ -13,17 +13,20 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- <PackageReference Include="AWS.Cryptography.EncryptionSDK" Version="4.0.1" /> -->
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
     <PackageReference Include="xunit" Version="2.4.0" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.0" />
     <PackageReference Include="Xunit.SkippableFact" Version="1.3.12" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <ProjectReference Include="../TestVectorLib/AWSEncryptionSDKTestVectorLib.csproj" />
-    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.0" Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    <PackageReference
+            Include="Microsoft.NETFramework.ReferenceAssemblies"
+            Version="1.0.0"
+            Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.TestPlatform.ObjectModel" Version="17.1.0" Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' " />
-  </ItemGroup>
+    <PackageReference
+            Include="Microsoft.TestPlatform.ObjectModel"
+            Version="17.1.0"
+            Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' " />  </ItemGroup>
 </Project>

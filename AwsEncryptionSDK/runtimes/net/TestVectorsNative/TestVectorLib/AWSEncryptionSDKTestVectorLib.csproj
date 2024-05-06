@@ -9,10 +9,9 @@
 
     <ItemGroup>
         <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-        <PackageReference Include="AWS.Cryptography.EncryptionSDK" Version="4.0.1" />
-        <!-- <PackageReference Include="AWS.Cryptography.MaterialProviders" Version="1.2.0" /> -->
-        <!-- <ProjectReference Include="../../" /> -->
-        <!-- <ProjectReference Include="../../ESDK.csproj" /> -->
+        <ProjectReference Include="../../ESDK.csproj" />
+        
+        <!-- TODO: Reference published MPL TestVectors project -->
         <ProjectReference Include="../../../../../../../../aws-database-encryption-sdk-dynamodb-java/submodules/MaterialProviders/TestVectorsAwsCryptographicMaterialProviders/runtimes/net/TestVectors.csproj" />
     </ItemGroup>
 

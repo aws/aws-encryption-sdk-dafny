@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections;
-using System.Text;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -178,7 +177,6 @@ namespace TestVectors.Runner {
                     };
                 }
                 AWS.Cryptography.EncryptionSDK.DecryptOutput decryptOutput = encryptionSdk.Decrypt(decryptInput);
-                
                 if (expectedError != null)
                 {
                     throw new TestVectorShouldHaveFailedException(
@@ -187,9 +185,6 @@ namespace TestVectors.Runner {
                 }
 
                 byte[] result = decryptOutput.Plaintext.ToArray();
-
-                Console.WriteLine(Encoding.Default.GetString(result));
-                Console.WriteLine(Encoding.Default.GetString(expectedPlaintext));
 
                 Assert.Equal(expectedPlaintext, result);
             }

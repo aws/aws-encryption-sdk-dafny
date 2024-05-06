@@ -22,8 +22,11 @@ namespace TestVectors
     public static class MaterialProviderFactory
     {
         private static readonly MaterialProviders materialProviders = new(new MaterialProvidersConfig());
-        private static KeyVectorsConfig keyVectorsConfig = new KeyVectorsConfig();
-        private static KeyVectors keyVectors;
+        private static readonly KeyVectorsConfig keyVectorsConfig = new KeyVectorsConfig
+        {
+            KeyManifestPath = "/Users/lucmcdon/Desktop/workplace/aws-encryption-sdk-python/net_vectors_test/312_hkeyring_manifest/keys.json"
+        };
+        private static KeyVectors keyVectors = new(keyVectorsConfig);
 
         public static ICryptographicMaterialsManager CreateDecryptCmm(
             DecryptVector vector,
@@ -109,7 +112,6 @@ namespace TestVectors
             Debug.Assert(masterKeys.Count >= 1);
 
             Key generatorKey = keys[masterKeys[0].Key];
-            Console.WriteLine(generatorKey.BranchKey);
             IKeyring generatorKeyring = CreateKeyring(masterKeys[0], generatorKey, CryptoOperation.ENCRYPT);
 
             List<IKeyring> children = masterKeys
@@ -168,12 +170,7 @@ namespace TestVectors
             }
 
             if (keyInfo.Type == "aws-kms-hierarchy") {
-                // keyInfo.Type = "static-branch-key-1";
-                if (keyVectors == null) {
-                    keyVectorsConfig.KeyManifestPath = "/Users/lucmcdon/Desktop/workplace/aws-encryption-sdk-python/net_vectors_test/312_hkeyring_manifest/keys.json";
-                    keyVectors = new KeyVectors(keyVectorsConfig);
-                }
-
+                // Convert JSON to bytes for KeyVectors input
                 string jsonString = JsonConvert.SerializeObject(keyInfo);
 
                 var stream = new MemoryStream();
@@ -182,54 +179,24 @@ namespace TestVectors
                 writer.Flush();
                 stream.Position = 0;
 
-                var getKeyDescriptionInput = new GetKeyDescriptionInput();
-                getKeyDescriptionInput.Json = stream;
+                // Create KeyVectors keyring
+                var getKeyDescriptionInput = new GetKeyDescriptionInput
+                {
+                    Json = stream
+                };
 
                 var desc = keyVectors.GetKeyDescription(getKeyDescriptionInput);
 
-                var testVectorKeyringInput = new TestVectorKeyringInput();
-                testVectorKeyringInput.KeyDescription = desc.KeyDescription;
-                
+                var testVectorKeyringInput = new TestVectorKeyringInput
+                {
+                    KeyDescription = desc.KeyDescription
+                };
+
                 var keyring = keyVectors.CreateTestVectorKeyring(
                     testVectorKeyringInput
                 );
 
-                Console.WriteLine(keyring);
-
-                return keyring;
-
-                // // TODO: When we have different keys, include the keystore KMS key ARN in the manifest.
-                // var kmsConfig = new KMSConfiguration { KmsKeyArn = "arn:aws:kms:us-west-2:370957321024:key/9d989aa2-2f9c-438c-a745-cc57d3ad0126" };
-                // // Create an AWS KMS Configuration to use with your KeyStore.
-                // // The KMS Configuration MUST have the right access to the resources in the KeyStore.
-                // var keystoreConfig = new KeyStoreConfig
-                // {
-                //     // Client MUST have permissions to decrypt kmsConfig.KmsKeyArn
-                //     KmsClient = new AmazonKeyManagementServiceClient(GetRegionForArn("arn:aws:kms:us-west-2:370957321024:key/9d989aa2-2f9c-438c-a745-cc57d3ad0126")),
-                //     KmsConfiguration = kmsConfig,
-                //     // TODO: Don't hardcode
-                //     DdbTableName = "KeyStoreDdbTable",
-                //     DdbClient = new AmazonDynamoDBClient(GetRegionForArn("arn:aws:kms:us-west-2:370957321024:key/9d989aa2-2f9c-438c-a745-cc57d3ad0126")),
-                //     // TODO: Don't hardcode
-                //     LogicalKeyStoreName = "KeyStoreDdbTable"
-                // };
-                // var keystore = new KeyStore(keystoreConfig);
-
-                
-
-                // Console.WriteLine(key.Id);
-                // Console.WriteLine(key.BranchKeyVersion);
-
-                // // Create an AWS Hierarchical Keyring with the branch key id supplier
-                // var createKeyringInput = new CreateAwsKmsHierarchicalKeyringInput
-                // {
-                //     KeyStore = keystore,
-                //     BranchKeyId = key.Id,
-                //     Cache = new CacheType { Default = new DefaultCache{EntryCapacity = 100} },
-                //     TtlSeconds = 0
-                // };
-                // return materialProviders.CreateAwsKmsHierarchicalKeyring(createKeyringInput);
-                
+                return keyring!;
             }
 
             if (keyInfo.Type == "raw" && keyInfo.EncryptionAlgorithm == "aes") {
