@@ -1,5 +1,31 @@
 # Changelog
 
+## 4.1.0
+
+### Fixes
+
+* fix(CI): Daily CI uses correct workflow [(#641)](https://github.com/aws/aws-encryption-sdk-dafny/commit/771835e22f6ef3c3b34d0891fb61cb1a49bcf855)
+* fix: throw an exception when MemoryStream instance has an empty backing array [(#633)](https://github.com/aws/aws-encryption-sdk-dafny/commit/550c714743e84f93d09900b3338f59d0a54bb3ce)
+* chore(ci): fix role to assume [(#622)](https://github.com/aws/aws-encryption-sdk-dafny/commit/c1f04fc41093593748f16da80d893c2ec5325545)
+
+### Features
+
+* feat: enforce input constraints [(#646)](https://github.com/aws/aws-encryption-sdk-dafny/commit/10daadfa19db0e43fc0cc6d7b989f1fb477a22b0)
+
+### Maintenance
+
+* chore(CI/CD): add semantic release automation [(#647)](https://github.com/aws/aws-encryption-sdk-dafny/commit/e7b5392ccc18f502a5517580a27bce5980e1913d)
+* chore: Adopt SmithyDafnyMakefile.mk, fix nightly build [(#638)](https://github.com/aws/aws-encryption-sdk-dafny/commit/cd199795003d91984e24f1c04d9a84ae9c445372)
+* chore(CI): add interop tests to daily ci [(#640)](https://github.com/aws/aws-encryption-sdk-dafny/commit/c9ad0181b544b258d66bf7b7e8d0b2be4cec7af9)
+* chore: only run net48 on windows and use node 17 to run integration-node [(#639)](https://github.com/aws/aws-encryption-sdk-dafny/commit/d6c62fb68d974b47eb9d6cf9d8fbf249d6889b54)
+* chore(.NET): Add ESDK-Net v4.0.1 generated vectors[(#636)](https://github.com/aws/aws-encryption-sdk-dafny/commit/efef49720c55a28cb422133385f8ece5ebc1da9c)
+* chore(NET-SupportPolicy): Mark 3.x as Support [(#631)](https://github.com/aws/aws-encryption-sdk-dafny/commit/3c36f7a4a19646a8dfa6073be04676394502ef23)
+* chore: Add manual trigger for nightly_dafny.yml [(#629)](https://github.com/aws/aws-encryption-sdk-dafny/commit/419b1cbfb4a5d85c03d0ad8c555a89108f199b98)
+* chore: split vc gen on some methods to migrate to Dafny 4.4 [(#627)](https://github.com/aws/aws-encryption-sdk-dafny/commit/fdc65ca7495402b5b51017655015413eba846e7f)
+* test: restore CODEOWNERS and daily CI [(#624)](https://github.com/aws/aws-encryption-sdk-dafny/commit/ff823ac918b822db548e703307d2ce462e79eef7)
+* chore: update template to point to public repo [(#626)](https://github.com/aws/aws-encryption-sdk-dafny/commit/2b07a391208cb2a0508d1d915ae800e5de212d0e)
+* chore: remove unused release step in test-prod [(#623)](https://github.com/aws/aws-encryption-sdk-dafny/commit/98839331a2e1154913d6ba4c88b0f4cba7322233)
+
 ## 4.0.1
 
 ### Fixes
