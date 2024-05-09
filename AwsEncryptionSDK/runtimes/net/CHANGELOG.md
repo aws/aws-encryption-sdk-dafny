@@ -2,11 +2,17 @@
 
 ## 4.1.0
 
+### Notes
+#### .NET
+- [(#646)](https://github.com/aws/aws-encryption-sdk-dafny/commit/10daadfa19db0e43fc0cc6d7b989f1fb477a22b0) Enforces input constraints.
+
+Prior to this fix, the AWS Encryption SDK in .NET (ESDK-NET) failed to enforce user input constraints. Input shapes without required members set would always result in a `NullReferenceException`.
+Now, the ESDK-NET will throw it's own Exceptions when illegal user input
+is submitted.
+
 ### Fixes
 
-* fix(CI): Daily CI uses correct workflow [(#641)](https://github.com/aws/aws-encryption-sdk-dafny/commit/771835e22f6ef3c3b34d0891fb61cb1a49bcf855)
 * fix: throw an exception when MemoryStream instance has an empty backing array [(#633)](https://github.com/aws/aws-encryption-sdk-dafny/commit/550c714743e84f93d09900b3338f59d0a54bb3ce)
-* chore(ci): fix role to assume [(#622)](https://github.com/aws/aws-encryption-sdk-dafny/commit/c1f04fc41093593748f16da80d893c2ec5325545)
 
 ### Features
 
@@ -14,6 +20,8 @@
 
 ### Maintenance
 
+* fix(CI): Daily CI uses correct workflow [(#641)](https://github.com/aws/aws-encryption-sdk-dafny/commit/771835e22f6ef3c3b34d0891fb61cb1a49bcf855)
+* chore(ci): fix role to assume [(#622)](https://github.com/aws/aws-encryption-sdk-dafny/commit/c1f04fc41093593748f16da80d893c2ec5325545)
 * chore(CI/CD): add semantic release automation [(#647)](https://github.com/aws/aws-encryption-sdk-dafny/commit/e7b5392ccc18f502a5517580a27bce5980e1913d)
 * chore: Adopt SmithyDafnyMakefile.mk, fix nightly build [(#638)](https://github.com/aws/aws-encryption-sdk-dafny/commit/cd199795003d91984e24f1c04d9a84ae9c445372)
 * chore(CI): add interop tests to daily ci [(#640)](https://github.com/aws/aws-encryption-sdk-dafny/commit/c9ad0181b544b258d66bf7b7e8d0b2be4cec7af9)
