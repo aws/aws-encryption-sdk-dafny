@@ -27,7 +27,7 @@ jobs:
         os: [
           windows-latest,
           ubuntu-latest,
-          macos-latest,
+          macos-12,
         ]
     runs-on: ${{ matrix.os }}
     permissions:
@@ -117,7 +117,7 @@ jobs:
       matrix:
         os: [
           ubuntu-latest,
-          macos-latest,
+          macos-12,
         ]
     runs-on: ${{ matrix.os }}
     permissions:
@@ -213,7 +213,7 @@ jobs:
       matrix:
         os: [
           ubuntu-latest,
-          macos-latest,
+          macos-12,
         ]
     runs-on: ${{ matrix.os }}
     permissions:
