@@ -3,7 +3,6 @@
 ## 4.1.0
 
 ### Notes
-#### .NET
 - [(#646)](https://github.com/aws/aws-encryption-sdk-dafny/commit/10daadfa19db0e43fc0cc6d7b989f1fb477a22b0) Enforces input constraints.
 
 Prior to this fix, the AWS Encryption SDK in .NET (ESDK-NET) failed to enforce user input constraints. Input shapes without required members set would always result in a `NullReferenceException`.
