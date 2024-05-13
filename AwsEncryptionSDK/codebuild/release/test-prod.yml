@@ -24,7 +24,7 @@ phases:
       - sudo apt update
       - sudo apt-get install mono-devel -y
       # Switch back to the main directory
-      - cd private-aws-encryption-sdk-dafny-staging/AwsEncryptionSDK
+      - cd aws-encryption-sdk-dafny/AwsEncryptionSDK
   pre_build:
     commands:
       - make transpile_net
