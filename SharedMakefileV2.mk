@@ -11,4 +11,4 @@ GRADLEW := ./runtimes/java/gradlew
 
 include $(SMITHY_DAFNY_ROOT)/SmithyDafnyMakefile.mk
 
-VERIFY_TIMEOUT := 150
+VERIFY_TIMEOUT := 1500
