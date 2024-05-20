@@ -35,7 +35,6 @@
       <PackageReference Include="BouncyCastle.Cryptography" Version="2.2.1" />
       <!-- <ProjectReference Include="../../../mpl/AwsCryptographicMaterialProviders/runtimes/net/MPL.cspro" /> -->
       <PackageReference Include="AWS.Cryptography.MaterialProviders" Version="1.4.0" />
-      <PackageReference Include="BouncyCastle.Cryptography" Version="2.2.1" />
       <!--
         System.Collections.Immutable can be removed once dafny.msbuild is updated with
         https://github.com/dafny-lang/dafny.msbuild/pull/10 and versioned
