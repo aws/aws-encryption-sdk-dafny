@@ -64,6 +64,7 @@ jobs:
           GH_TOKEN: ${{ env.GITHUB_AWS_CRYPTO_TOOLS_CI_BOT_ESDK_RELEASE_TOKEN }}
         run: |
           id=$(gh search issues -R dafny-lang/dafny --match title "[PRERELEASE REGRESSION] Dafny prerelease regression from ${{ github.repository }}" --json number,state -q '[.[] | select( .state=="open" )][0].number')
+          echo "$id"
           if [ "$id" -ne "" ]
           then
             gh issue comment -R dafny-lang/dafny $id \
