@@ -63,9 +63,14 @@ jobs:
         env:
           GH_TOKEN: ${{ env.GITHUB_AWS_CRYPTO_TOOLS_CI_BOT_ESDK_RELEASE_TOKEN }}
         run: |
-          gh issue create \
-            --repo "dafny-lang/dafny" \
-            --title "[PRERELEASE REGRESSION] Dafny prerelease regression from ${{ github.repository }}" \
-            --body "Failure in ${{ github.workflow_ref }}. \
-            See ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-
+          id=$(gh search issues -R dafny-lang/dafny --match title "[PRERELEASE REGRESSION] Dafny prerelease regression from ${{ github.repository }}" --json number,state -q '[.[] | select( .state=="open" )][0].number')
+          if [ -n "$id" ]; then
+            gh issue comment -R dafny-lang/dafny $id \
+              -b "Another failure in ${{ github.workflow_ref }}. \
+                See ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          else
+            gh issue create -R dafny-lang/dafny \
+              -t "[PRERELEASE REGRESSION] Dafny prerelease regression from ${{ github.repository }}" \
+              -b "Failure in ${{ github.workflow_ref }}. \
+                See ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          fi
