@@ -39,7 +39,14 @@ namespace AWS.Cryptography.EncryptionSDK
         }
         public void Validate()
         {
-
+            if (IsSetMaxEncryptedDataKeys())
+            {
+                if (MaxEncryptedDataKeys < 1)
+                {
+                    throw new System.ArgumentException(
+                        String.Format("Member MaxEncryptedDataKeys of structure AwsEncryptionSdkConfig has type CountingNumbers which has a minimum of 1 but was given the value {0}.", MaxEncryptedDataKeys));
+                }
+            }
         }
     }
 }

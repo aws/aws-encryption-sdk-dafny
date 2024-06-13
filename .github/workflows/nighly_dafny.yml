@@ -31,3 +31,46 @@ jobs:
     with:
       dafny: 'nightly-latest'
       regenerate-code: true
+  
+  cut-issue-on-failure:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    needs:
+      [
+        dafny-nightly-verification,
+        dafny-nightly-net,
+      ]
+    if: ${{ always() && contains(needs.*.result, 'failure') }}
+    steps:
+      # We need access to the role that is able to get CI Bot Creds
+      - name: Configure AWS Credentials for Release
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-region: us-west-2
+          role-to-assume: arn:aws:iam::587316601012:role/GitHub-CI-CI-Bot-Credential-Access-Role-us-west-2
+          role-session-name: Dafny_Issue_Blocker
+
+      # Use AWS Secrets Manger GHA to retrieve CI Bot Creds
+      - name: Get CI Bot Creds Secret
+        uses: aws-actions/aws-secretsmanager-get-secrets@v2
+        with:
+          secret-ids: Github/aws-crypto-tools-ci-bot
+          parse-json-secrets: true
+
+      - name: Create release blocker on dafny-lang/dafny
+        env:
+          GH_TOKEN: ${{ env.GITHUB_AWS_CRYPTO_TOOLS_CI_BOT_ESDK_RELEASE_TOKEN }}
+        run: |
+          id=$(gh search issues -R dafny-lang/dafny --match title "[PRERELEASE REGRESSION] Dafny prerelease regression from ${{ github.repository }}" --json number,state -q '[.[] | select( .state=="open" )][0].number')
+          if [ -n "$id" ]; then
+            gh issue comment -R dafny-lang/dafny $id \
+              -b "Another failure in ${{ github.workflow_ref }}. \
+                See ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          else
+            gh issue create -R dafny-lang/dafny \
+              -t "[PRERELEASE REGRESSION] Dafny prerelease regression from ${{ github.repository }}" \
+              -b "Failure in ${{ github.workflow_ref }}. \
+                See ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          fi

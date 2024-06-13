@@ -1041,7 +1041,8 @@ module MessageBody {
       //# (../framework/algorithm-suites.md#encryption-algorithm) specified by
       //# the algorithm suite (../framework/algorithm-suites.md), with the
       //# following inputs:
-      assert CorrectlyRead(buffer, Success(SuccessfulRead(nextRegularFrames, regularFrame.tail)), WriteMessageRegularFrames) by {
+      var res := Success(SuccessfulRead(nextRegularFrames, regularFrame.tail));
+      assert CorrectlyRead(buffer, res, WriteMessageRegularFrames) by {
         reveal CorrectlyReadRange();
         var tail := regularFrame.tail;
         var f := WriteMessageRegularFrames;

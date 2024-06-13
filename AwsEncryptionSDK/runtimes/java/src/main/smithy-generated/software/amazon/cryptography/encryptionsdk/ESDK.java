@@ -6,6 +6,7 @@ package software.amazon.cryptography.encryptionsdk;
 import Wrappers_Compile.Result;
 import java.lang.IllegalArgumentException;
 import java.util.Objects;
+import software.amazon.cryptography.encryptionsdk.internaldafny.ESDKClient;
 import software.amazon.cryptography.encryptionsdk.internaldafny.__default;
 import software.amazon.cryptography.encryptionsdk.internaldafny.types.Error;
 import software.amazon.cryptography.encryptionsdk.internaldafny.types.IAwsEncryptionSdkClient;
@@ -23,7 +24,7 @@ public class ESDK {
     AwsEncryptionSdkConfig input = builder.AwsEncryptionSdkConfig();
     software.amazon.cryptography.encryptionsdk.internaldafny.types.AwsEncryptionSdkConfig dafnyValue =
       ToDafny.AwsEncryptionSdkConfig(input);
-    Result<IAwsEncryptionSdkClient, Error> result = __default.ESDK(dafnyValue);
+    Result<ESDKClient, Error> result = __default.ESDK(dafnyValue);
     if (result.is_Failure()) {
       throw ToNative.Error(result.dtor_error());
     }
