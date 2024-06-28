@@ -25,7 +25,7 @@ namespace TestVectors
         // TODO: Get this from CLI or something?
         private static readonly KeyVectorsConfig keyVectorsConfig = new KeyVectorsConfig
         {
-            KeyManifestPath = "resources/keys.json" 
+            KeyManifestPath = "../TestVectors/resources/keys.json"
         };
         private static KeyVectors keyVectors = new(keyVectorsConfig);
 
