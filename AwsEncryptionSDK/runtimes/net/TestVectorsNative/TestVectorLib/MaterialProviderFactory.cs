@@ -25,7 +25,7 @@ namespace TestVectors
         // TODO: Get this from CLI or something?
         private static readonly KeyVectorsConfig keyVectorsConfig = new KeyVectorsConfig
         {
-            KeyManifestPath = "/Users/lucmcdon/Desktop/workplace/aws-encryption-sdk-python/net_vectors_test/312_hkeyring_manifest/keys.json"
+            KeyManifestPath = "resources/keys.json"
         };
         private static KeyVectors keyVectors = new(keyVectorsConfig);
 
