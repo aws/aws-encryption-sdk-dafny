@@ -28,7 +28,7 @@ repositories {
 dependencies {
     implementation("org.dafny:DafnyRuntime:${dafnyVersion}")
     implementation("software.amazon.smithy.dafny:conversion:0.1")
-    implementation("software.amazon.cryptography:aws-cryptographic-material-providers:1.0.1")
+    implementation("software.amazon.cryptography:aws-cryptographic-material-providers:1.4.0")
 
     // Use JUnit test framework.
     testImplementation("junit:junit:4.13.2")
