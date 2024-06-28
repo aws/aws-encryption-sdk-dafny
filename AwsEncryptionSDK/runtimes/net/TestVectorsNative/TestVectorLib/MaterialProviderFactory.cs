@@ -25,7 +25,7 @@ namespace TestVectors
         // TODO: Get this from CLI or something?
         private static readonly KeyVectorsConfig keyVectorsConfig = new KeyVectorsConfig
         {
-            KeyManifestPath = Directory.GetCurrentDirectory() + "/../bin/Debug/TestVectors/resources/keys.json"
+            KeyManifestPath = Environment.GetEnvironmentVariable(PYTHON_23_VECTOR_PATH) + "keys.json"
         };
         private static KeyVectors keyVectors = new(keyVectorsConfig);
 

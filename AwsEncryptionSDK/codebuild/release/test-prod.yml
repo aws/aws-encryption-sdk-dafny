@@ -60,6 +60,7 @@ phases:
       # Run Decrypt Test Vectors on .NET Framework net48
       - cd ./AwsEncryptionSDK/runtimes/net/TestVectorsNative/TestVectors
       - export DAFNY_AWS_ESDK_TEST_VECTOR_MANIFEST_PATH="$PYTHON_23_VECTOR_PATH/manifest.json" \
+      - ls $PYTHON_23_VECTOR_PATH
       - dotnet test --framework net48
 
       # Run Decrypt Test Vectors on .NET net6.0
