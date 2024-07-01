@@ -201,11 +201,11 @@ jobs:
         working-directory: ./AwsEncryptionSDK
         shell: bash
         run: |
-          PYTHON_23_VECTOR_PATH=$GITHUB_WORKSPACE/python23/vectors
-          DAFNY_AWS_ESDK_TEST_VECTOR_MANIFEST_PATH="$PYTHON_23_VECTOR_PATH/manifest.json" \
           NET_41_VECTOR_PATH=net41/vectors
           mkdir -p $NET_41_VECTOR_PATH
           GEN_PATH=runtimes/net/TestVectorsNative/TestVectorGenerator
+          PYTHON_23_VECTOR_PATH=$GITHUB_WORKSPACE/python23/vectors
+          DAFNY_AWS_ESDK_TEST_VECTOR_MANIFEST_PATH="$PYTHON_23_VECTOR_PATH/manifest.json" \
           dotnet run --project $GEN_PATH --framework net6.0 -- \
             --encrypt-manifest $GEN_PATH/resources/0006-awses-message-decryption-generation.v2.json \
             --output-dir $NET_41_VECTOR_PATH
