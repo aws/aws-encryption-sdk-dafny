@@ -23,7 +23,7 @@ namespace TestVectors
     {
         private static readonly MaterialProviders materialProviders = new(new MaterialProvidersConfig());
         // TODO: Get this from CLI or something?
-        protected manifestPath = Utils.GetEnvironmentVariableOrError("DAFNY_AWS_ESDK_TEST_VECTOR_MANIFEST_PATH");
+        protected string manifestPath = Utils.GetEnvironmentVariableOrError("DAFNY_AWS_ESDK_TEST_VECTOR_MANIFEST_PATH");
         protected DecryptManifest manifest = Utils.LoadObjectFromPath<DecryptManifest>(manifestPath);
         private static readonly KeyVectorsConfig keyVectorsConfig = new KeyVectorsConfig
         {
