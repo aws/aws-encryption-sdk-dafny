@@ -25,7 +25,9 @@ namespace TestVectors
         // TODO: Get this from CLI or something?
         private static readonly KeyVectorsConfig keyVectorsConfig = new KeyVectorsConfig
         {
-            KeyManifestPath = Environment.GetEnvironmentVariable(PYTHON_23_VECTOR_PATH) + "keys.json"
+            manifestPath = Utils.GetEnvironmentVariableOrError("DAFNY_AWS_ESDK_TEST_VECTOR_MANIFEST_PATH");
+            DecryptManifest manifest = Utils.LoadObjectFromPath<DecryptManifest>(manifestPath);
+            KeyManifestPath = Utils.ManifestUriToPath(manifest.KeysUri, manifestPath);
         };
         private static KeyVectors keyVectors = new(keyVectorsConfig);
 
