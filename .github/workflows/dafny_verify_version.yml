@@ -11,10 +11,10 @@ on:
         value: ${{ jobs.getDafnyVersion.outputs.version }}
 
 jobs:
-  getDafnyVersion:
+  getDafnyVerifyVersion:
     runs-on: ubuntu-latest
     outputs:
-      version: ${{ steps.read_property.outputs.dafnyVersion }}
+      version: ${{ steps.read_property.outputs.dafnyVerifyVersion }}
 
     steps:
       - uses: actions/checkout@v4
