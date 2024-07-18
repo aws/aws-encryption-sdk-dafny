@@ -8,7 +8,7 @@ on:
     outputs:
       version:
         description: "The Dafny Verification version"
-        value: ${{ jobs.getDafnyVersion.outputs.version }}
+        value: ${{ jobs.getDafnyVerifyVersion.outputs.version }}
 
 jobs:
   getDafnyVerifyVersion:
