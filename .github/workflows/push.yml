@@ -7,23 +7,31 @@ on:
       - main    
 
 jobs:
+  getVersion:
+    uses: ./.github/workflows/dafny_version.yml
+  getVerifyVersion:
+    uses: ./.github/workflows/dafny_verify_version.yml
   pr-ci-codegen:
+    needs: getVersion
     uses: ./.github/workflows/library_codegen.yml
     with:
-      dafny: '4.2.0'
-  push-ci-verification:
+      dafny: ${{needs.getVersion.outputs.version}}
+  pr-ci-verification:
+    needs: getVerifyVersion
     uses: ./.github/workflows/library_dafny_verification.yml
     with:
-      dafny: '4.7.0'
-  # push-ci-java:
+      dafny: ${{needs.getVerifyVersion.outputs.version}}
+  # pr-ci-java:
   #   uses: ./.github/workflows/library_java_tests.yml
   #   with:
   #     dafny: '4.2.0'
-  push-ci-net:
+  pr-ci-net:
+    needs: getVersion
     uses: ./.github/workflows/library_net_tests.yml
     with:
-      dafny: '4.2.0'
+      dafny: ${{needs.getVersion.outputs.version}}
   pr-test-vectors:
+    needs: getVersion
     uses: ./.github/workflows/library_interop_tests.yml
     with:
-      dafny: '4.2.0'
+      dafny: ${{needs.getVersion.outputs.version}}
