@@ -22,5 +22,5 @@ jobs:
         id: read_property
         uses: christian-draeger/read-properties@1.1.1
         with:
-          path: "./AwsEncryptionSDK/project.properties"
+          path: "./project.properties"
           properties: "dafnyVerifyVersion"
