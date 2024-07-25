@@ -8,7 +8,7 @@ use aws.cryptography.materialProviders#AwsCryptographicMaterialProviders
 
 // TODO add a trait to indicate that 'Client' should not be appended to this name,
 // and that the code gen should expose operations under this service statically if
-// possible in the target languag
+// possible in the target language
 @aws.polymorph#localService(
   sdkId: "ESDK",
   config: AwsEncryptionSdkConfig,
