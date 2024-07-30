@@ -1,0 +1,38 @@
+# This workflow checks if specfic files were modified,
+# if they were they require more than one approval from CODEOWNERS
+name: Check Smithy Files
+
+on:
+  pull_request:
+
+jobs:
+  require-approvals:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Get Files changed
+        id: file-changes
+        shell: bash
+        run:
+          # Checks to see if any of the smithy Models are being updated.
+          # Doing this check allows us to catch things like, missing @javadoc trait documentation or bug in smithy dafny that has not be resolved.
+          echo "FILES=$(git diff --name-only origin/main origin/${GITHUB_HEAD_REF} | grep '\.smithy$' | tr '\n' ' ')" >> "$GITHUB_OUTPUT"
+
+      - name: Check if FILES is not empty
+        id: comment
+        env:
+          PR_NUMBER: ${{ github.event.number }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          FILES: ${{ steps.file-changes.outputs.FILES }}
+        if: ${{env.FILES != ''}}
+        run: |
+          # TODO: If https://github.com/smithy-lang/smithy-dafny/issues/491 is resolved, remove comment about this issue.
+          COMMENT="@${{github.actor}}, I noticed you are updating the smithy model files.\nDoes this update need new or updated javadoc trait documentation?\n Are you adding constraints inside list, map or union? Do you know about this issue: https://github.com/smithy-lang/smithy-dafny/issues/491?"
+          COMMENT_URL="https://api.github.com/repos/${{ github.repository }}/issues/${PR_NUMBER}/comments"
+          curl -s -H "Authorization: token ${GITHUB_TOKEN}" -X POST $COMMENT_URL -d "{\"body\":\"$COMMENT\"}"
