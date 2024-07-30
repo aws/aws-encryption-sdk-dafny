@@ -20,7 +20,7 @@ jobs:
         id: file-changes
         shell: bash
         run:
-          # Checks to see if any of the customer facing Models are being updated.
+          # Checks to see if any of the smithy Models are being updated.
           # Doing this check allows us to catch things like, missing @javadoc trait documentation or bug in smithy dafny that has not be resolved.
           echo "FILES=$(git diff --name-only origin/main origin/${GITHUB_HEAD_REF} | grep '\.smithy$' | tr '\n' ' ')" >> "$GITHUB_OUTPUT"
 
