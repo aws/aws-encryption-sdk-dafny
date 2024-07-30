@@ -21,8 +21,8 @@ jobs:
         shell: bash
         run:
           # Checks to see if any of the customer facing Models are being updated.
-          # Doing this check allows us to catch things like, missing @javadoc trait documentation.
-          echo "FILES=$(git diff --name-only origin/mainline origin/${GITHUB_HEAD_REF} AwsEncryptionSDK/dafny/**/Model/*.smithy  | tr '\n' ' ')" >> "$GITHUB_OUTPUT"
+          # Doing this check allows us to catch things like, missing @javadoc trait documentation or bug in smithy dafny that has not be resolved.
+          echo "FILES=$(git diff --name-only origin/main origin/${GITHUB_HEAD_REF} | grep '\.smithy$' | tr '\n' ' ')" >> "$GITHUB_OUTPUT"
 
       - name: Check if FILES is not empty
         id: comment
@@ -32,6 +32,7 @@ jobs:
           FILES: ${{ steps.file-changes.outputs.FILES }}
         if: ${{env.FILES != ''}}
         run: |
+          # TODO: If https://github.com/smithy-lang/smithy-dafny/issues/491 is resolved, remove comment about this issue.
           COMMENT="@${{github.actor}}, I noticed you are updating the smithy model files.\nDoes this update need new or updated javadoc trait documentation?\n Are you adding constraints inside list, map or union? Do you know about this issue: https://github.com/smithy-lang/smithy-dafny/issues/491?"
           COMMENT_URL="https://api.github.com/repos/${{ github.repository }}/issues/${PR_NUMBER}/comments"
           curl -s -H "Authorization: token ${GITHUB_TOKEN}" -X POST $COMMENT_URL -d "{\"body\":\"$COMMENT\"}"
