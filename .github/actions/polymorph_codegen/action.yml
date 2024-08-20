@@ -61,7 +61,7 @@ runs:
       if: inputs.update-and-regenerate-mpl == 'true'
       shell: bash
       run: |
-        git submodule update --init --recursive --remote --merge mpl
+        git submodule update --remote --merge mpl
 
     - name: Don't regenerate dependencies unless requested
       id: dependencies
