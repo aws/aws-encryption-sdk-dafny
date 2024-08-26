@@ -87,7 +87,7 @@ jobs:
 
       - name: Compile MPL with Dafny ${{inputs.mpl-dafny}}
         shell: bash
-        working-directory: mpl 
+        working-directory: mpl/TestVectorsAwsCryptographicMaterialProviders 
         run: |
           make setup_net
           # This works because `node` is installed by default on GHA runners
@@ -101,7 +101,7 @@ jobs:
 
       - name: Build ESDK implementation
         shell: bash
-        working-directory: AwsEncryptionSDK
+        working-directory: ./AwsEncryptionSDK
         run: |
           # This works because `node` is installed by default on GHA runners
           make transpile_implementation_net 
