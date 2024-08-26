@@ -18,6 +18,17 @@ on:
         required: true
         type: string
 
+env:
+  # Used in examples
+  AWS_ENCRYPTION_SDK_EXAMPLE_KMS_KEY_ID: arn:aws:kms:us-west-2:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f
+  AWS_ENCRYPTION_SDK_EXAMPLE_KMS_KEY_ID_2: arn:aws:kms:eu-central-1:658956600833:key/75414c93-5285-4b57-99c9-30c1cf0a22c2
+  AWS_ENCRYPTION_SDK_EXAMPLE_KMS_MRK_KEY_ID: arn:aws:kms:us-east-1:658956600833:key/mrk-80bd8ecdcd4342aebd84b7dc9da498a7
+  AWS_ENCRYPTION_SDK_EXAMPLE_KMS_MRK_KEY_ID_2: arn:aws:kms:eu-west-1:658956600833:key/mrk-80bd8ecdcd4342aebd84b7dc9da498a7
+  AWS_ENCRYPTION_SDK_EXAMPLE_LIMITED_ROLE_ARN_US_EAST_1: arn:aws:iam::370957321024:role/GitHub-CI-ESDK-Dafny-Role-us-west-2
+  AWS_ENCRYPTION_SDK_EXAMPLE_LIMITED_ROLE_ARN_EU_WEST_1: arn:aws:iam::370957321024:role/GitHub-CI-ESDK-Dafny-Role-us-west-2
+  # Used for Test Vectors
+  VECTORS_URL: https://github.com/awslabs/aws-encryption-sdk-test-vectors/raw/master/vectors/awses-decrypt/python-2.3.0.zip
+
 jobs:
   testDotNet:
     strategy:
@@ -71,8 +82,8 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: us-west-2
-          role-to-assume: arn:aws:iam::370957321024:role/GitHub-CI-DDBEC-Dafny-Role-us-west-2
-          role-session-name: DDBEC-Dafny-Net-Tests
+          role-to-assume: arn:aws:iam::370957321024:role/GitHub-CI-Public-ESDK-Dafny-Role-us-west-2 
+          role-session-name: NetTests
 
       - name: Compile MPL with Dafny ${{inputs.mpl-dafny}}
         shell: bash
