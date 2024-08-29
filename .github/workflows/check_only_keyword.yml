@@ -1,0 +1,40 @@
+# This workflow checks if you are checking in dafny code
+# with the keyword {:only}, it adds a message to the pull
+# request to remind you to remove it.
+name: Check {:only} decorator presence
+
+on:
+  pull_request:
+
+jobs:
+  grep-only-verification-keyword:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Check only keyword
+        id: only-keyword
+        shell: bash
+        run:
+          # checking in code with the dafny decorator {:only}
+          # will not verify the entire file or maybe the entire project depending on its configuration
+          # This action checks if you are either adding or removing the {:only} decorator and posting on the pr if you are.
+          echo "ONLY_KEYWORD=$(git diff origin/main origin/${GITHUB_HEAD_REF} **/*.dfy | grep -i {:only})" >> "$GITHUB_OUTPUT"
+
+      - name: Check if ONLY_KEYWORD is not empty
+        id: comment
+        env:
+          PR_NUMBER: ${{ github.event.number }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ONLY_KEYWORD: ${{ steps.only-keyword.outputs.ONLY_KEYWORD }}
+        if: ${{env.ONLY_KEYWORD != ''}}
+        run: |
+          COMMENT="It looks like you are adding or removing the dafny keyword {:only}.\nIs this intended?"
+          COMMENT_URL="https://api.github.com/repos/${{ github.repository }}/issues/${PR_NUMBER}/comments"
+          curl -s -H "Authorization: token ${GITHUB_TOKEN}" -X POST $COMMENT_URL -d "{\"body\":\"$COMMENT\"}"
+          exit 1
