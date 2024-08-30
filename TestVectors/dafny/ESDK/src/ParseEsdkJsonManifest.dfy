@@ -217,7 +217,7 @@ module {:options "-functionSyntax:4"} ParseEsdkJsonManifest {
     requires op.Encrypt?
   {
     var plaintextLoc :- GetString(plaintextJsonKey, obj);
-    var algorithmSuite :- ParseJsonManifests.GetAlgorithmSuiteInfo(algorithmJsonKey, obj);
+    var algorithmSuite :- ParseJsonManifests.GetAlgorithmSuiteInfo(obj);
     :- Need(algorithmSuite.id.ESDK?, "Unsupported algorithmSuite");
     var frameLength :- GetOptionalPositiveLong(frameSizeJsonKey, obj);
     var encryptionContext :- SmallObjectToStringStringMap(encryptionContextJsonKey, obj);
