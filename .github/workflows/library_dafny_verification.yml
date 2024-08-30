@@ -19,7 +19,8 @@ jobs:
     strategy:
       matrix:
         library: [
-          AwsEncryptionSDK
+          AwsEncryptionSDK,
+          TestVectors
         ]
         os: [ macos-12 ]
     runs-on: ${{ matrix.os }}
