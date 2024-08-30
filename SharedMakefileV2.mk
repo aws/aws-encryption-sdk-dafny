@@ -6,7 +6,7 @@
 # that are shared by all libraries in this repo.
 PROJECT_ROOT := $(abspath $(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
 
-SMITHY_DAFNY_ROOT := $(PROJECT_ROOT)/smithy-dafny
+SMITHY_DAFNY_ROOT := $(PROJECT_ROOT)/mpl/smithy-dafny
 GRADLEW := ./runtimes/java/gradlew
 
 VERIFY_TIMEOUT := 150
