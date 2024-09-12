@@ -67,9 +67,9 @@ public class SharedCacheAcrossHierarchicalKeyrings
     private static void Run(MemoryStream plaintext)
     {
         // Create the CryptographicMaterialsCache (CMC) to share across multiple Hierarchical Keyrings
-		// using the Material Providers Library
-		//    This CMC takes in:
-		//     - CacheType
+        // using the Material Providers Library
+        //    This CMC takes in:
+        //     - CacheType
         var materialProviders = new MaterialProviders(new MaterialProvidersConfig());
 
         var cache = new CacheType { Default = new DefaultCache{EntryCapacity = 100} };
@@ -79,24 +79,24 @@ public class SharedCacheAcrossHierarchicalKeyrings
         var sharedCryptographicMaterialsCache = materialProviders.CreateCryptographicMaterialsCache(cryptographicMaterialsCacheInput);
 
         // Create a CacheType object for the sharedCryptographicMaterialsCache
-		// Note that the `cache` parameter in the Hierarchical Keyring Input takes a `CacheType` as input
+        // Note that the `cache` parameter in the Hierarchical Keyring Input takes a `CacheType` as input
         var sharedCache = new CacheType { Shared = sharedCryptographicMaterialsCache };
 
         // Instantiate the SDK
-		// This builds the AwsCrypto client with the RequireEncryptRequireDecrypt commitment policy,
-		// which enforces that this client only encrypts using committing algorithm suites and enforces
-		// that this client will only decrypt encrypted messages that were created with a committing
-		// algorithm suite.
-		// This is the default commitment policy if you build the client with
-		// `AwsCrypto.builder().build()`
-		// or `AwsCrypto.standard()`.
+        // This builds the AwsCrypto client with the RequireEncryptRequireDecrypt commitment policy,
+        // which enforces that this client only encrypts using committing algorithm suites and enforces
+        // that this client will only decrypt encrypted messages that were created with a committing
+        // algorithm suite.
+        // This is the default commitment policy if you build the client with
+        // `AwsCrypto.builder().build()`
+        // or `AwsCrypto.standard()`.
         var encryptionSDK =  new ESDK(new AwsEncryptionSdkConfig());
 
         // Configure your KeyStore resource keystore1.
-		//    This SHOULD be the same configuration that you used
-		//    to initially create and populate your physical KeyStore.
-		// Note that ddbTableName keyStoreTableName is the physical Key Store,
-		// and keystore1 is instances of this physical Key Store.
+        //    This SHOULD be the same configuration that you used
+        //    to initially create and populate your physical KeyStore.
+        // Note that ddbTableName keyStoreTableName is the physical Key Store,
+        // and keystore1 is instances of this physical Key Store.
 
         // Create an AWS KMS Configuration to use with your KeyStore.
         // The KMS Configuration MUST have the right access to the resources in the KeyStore.
@@ -116,9 +116,9 @@ public class SharedCacheAcrossHierarchicalKeyrings
         var keystore1 = new KeyStore(keystoreConfig);
 
         // Create the Hierarchical Keyring HK1 with Key Store instance K1, partitionId,
-		// the shared Cache and the BranchKeyId.
-		// Note that we are now providing an already initialized shared cache instead of just mentioning
-		// the cache type and the Hierarchical Keyring initializing a cache at initialization.
+        // the shared Cache and the BranchKeyId.
+        // Note that we are now providing an already initialized shared cache instead of just mentioning
+        // the cache type and the Hierarchical Keyring initializing a cache at initialization.
         var partitionId = "partitionID";
 
         var createKeyringInput1 = new CreateAwsKmsHierarchicalKeyringInput
@@ -135,7 +135,7 @@ public class SharedCacheAcrossHierarchicalKeyrings
         };
         var keyring1 = materialProviders.CreateAwsKmsHierarchicalKeyring(createKeyringInput1);
         
-		// Create example encryption context
+        // Create example encryption context
         var encryptionContext = new Dictionary<string, string>()
         {
             {"encryption", "context"},
@@ -145,7 +145,7 @@ public class SharedCacheAcrossHierarchicalKeyrings
             {"the data you are handling", "is what you think it is"}
         };
         
-		// Encrypt the data for encryptionContext using keyring1
+        // Encrypt the data for encryptionContext using keyring1
         var encryptInput1 = new EncryptInput
         {
             Plaintext = plaintext,
@@ -156,7 +156,7 @@ public class SharedCacheAcrossHierarchicalKeyrings
         var encryptOutput1 = encryptionSDK.Encrypt(encryptInput1);
         
         
-		// Decrypt your encrypted data using the same keyring HK1 you used on encrypt.
+        // Decrypt your encrypted data using the same keyring HK1 you used on encrypt.
         var decryptOutput1 = encryptionSDK.Decrypt(new DecryptInput {
             Ciphertext = encryptOutput1.Ciphertext,
             Keyring = keyring1 }
@@ -167,33 +167,33 @@ public class SharedCacheAcrossHierarchicalKeyrings
         Assert.Equal(decrypted1.ToArray(), plaintext.ToArray());
 
         // Through the above encrypt and decrypt roundtrip, the cache will be populated and
-		// the cache entries can be used by another Hierarchical Keyring with the
-		// - Same Partition ID
-		// - Same Logical Key Store Name of the Key Store for the Hierarchical Keyring 
-		// - Same Branch Key ID
+        // the cache entries can be used by another Hierarchical Keyring with the
+        // - Same Partition ID
+        // - Same Logical Key Store Name of the Key Store for the Hierarchical Keyring 
+        // - Same Branch Key ID
 
-		// Configure your KeyStore resource keystore2.
-			//    This SHOULD be the same configuration that you used
-			//    to initially create and populate your physical KeyStore.
-			// Note that ddbTableName keyStoreTableName is the physical Key Store,
-			// and keystore2 is instances of this physical Key Store.
-		
-		// Note that for this example, keystore2 is identical to keystore1.
-		// You can optionally change configurations like KMS Client or KMS Key ID based
-		// on your use-case.
-		// Make sure you have the required permissions to use different configurations.
+        // Configure your KeyStore resource keystore2.
+        	//    This SHOULD be the same configuration that you used
+        	//    to initially create and populate your physical KeyStore.
+        	// Note that ddbTableName keyStoreTableName is the physical Key Store,
+        	// and keystore2 is instances of this physical Key Store.
+        
+        // Note that for this example, keystore2 is identical to keystore1.
+        // You can optionally change configurations like KMS Client or KMS Key ID based
+        // on your use-case.
+        // Make sure you have the required permissions to use different configurations.
 
-		// - If you want to share cache entries across two keyrings HK1 and HK2,
-		//   you should set the Logical Key Store Names for both
-		//   Key Store instances (K1 and K2) to be the same.
-		// - If you set the Logical Key Store Names for K1 and K2 to be different,
-		//   HK1 (which uses Key Store instance K1) and HK2 (which uses Key Store
-		//   instance K2) will NOT be able to share cache entries.
+        // - If you want to share cache entries across two keyrings HK1 and HK2,
+        //   you should set the Logical Key Store Names for both
+        //   Key Store instances (K1 and K2) to be the same.
+        // - If you set the Logical Key Store Names for K1 and K2 to be different,
+        //   HK1 (which uses Key Store instance K1) and HK2 (which uses Key Store
+        //   instance K2) will NOT be able to share cache entries.
         var keystore2 = new KeyStore(keystoreConfig);
 
         // Create the Hierarchical Keyring HK2 with Key Store instance K2, the shared Cache
-		// and the same partitionId and BranchKeyId used in HK1 because we want to share cache entries
-		// (and experience cache HITS).
+        // and the same partitionId and BranchKeyId used in HK1 because we want to share cache entries
+        // (and experience cache HITS).
         var createKeyringInput2 = new CreateAwsKmsHierarchicalKeyringInput
         {
             KeyStore = keystore2,
@@ -209,7 +209,7 @@ public class SharedCacheAcrossHierarchicalKeyrings
         var keyring2 = materialProviders.CreateAwsKmsHierarchicalKeyring(createKeyringInput2);
 
         // This encrypt-decrypt roundtrip with HK2 will experience Cache HITS from previous HK1 roundtrip
-		// Encrypt the data for encryptionContext using hierarchicalKeyring2
+        // Encrypt the data for encryptionContext using hierarchicalKeyring2
         var encryptInput2 = new EncryptInput
         {
             Plaintext = plaintext,
@@ -219,7 +219,7 @@ public class SharedCacheAcrossHierarchicalKeyrings
         
         var encryptOutput2 = encryptionSDK.Encrypt(encryptInput2);
 
-		// Decrypt your encrypted data using the same keyring HK2 you used on encrypt.
+        // Decrypt your encrypted data using the same keyring HK2 you used on encrypt.
         var decryptOutput2 = encryptionSDK.Decrypt(new DecryptInput {
             Ciphertext = encryptOutput2.Ciphertext,
             Keyring = keyring2 }
