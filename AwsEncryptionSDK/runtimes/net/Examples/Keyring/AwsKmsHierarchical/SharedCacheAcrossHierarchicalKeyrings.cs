@@ -173,11 +173,11 @@ public class SharedCacheAcrossHierarchicalKeyrings
         // - Same Branch Key ID
 
         // Configure your KeyStore resource keystore2.
-        	//    This SHOULD be the same configuration that you used
-        	//    to initially create and populate your physical KeyStore.
-        	// Note that ddbTableName keyStoreTableName is the physical Key Store,
-        	// and keystore2 is instances of this physical Key Store.
-        
+        //    This SHOULD be the same configuration that you used
+        //    to initially create and populate your physical KeyStore.
+        // Note that ddbTableName keyStoreTableName is the physical Key Store,
+        // and keystore2 is instances of this physical Key Store.
+
         // Note that for this example, keystore2 is identical to keystore1.
         // You can optionally change configurations like KMS Client or KMS Key ID based
         // on your use-case.
