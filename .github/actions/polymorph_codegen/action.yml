@@ -88,18 +88,20 @@ runs:
         make -C mpl/AwsCryptographicMaterialProviders setup_prettier
         make -C mpl/ComAmazonawsKms setup_prettier
         make -C mpl/ComAmazonawsDynamodb setup_prettier
-
-    - name: Regenerate Java code using smithy-dafny
-      # npx seems to be unavailable on Windows GHA runners,
-      # so we don't regenerate Java code on them either.
-      if: runner.os != 'Windows'
-      working-directory: ./${{ inputs.library }}
-      shell: bash
-      # smithy-dafny also formats generated code itself now,
-      # so prettier is a necessary dependency.
-      run: |
-        make setup_prettier
-        make polymorph_java ${{ steps.dependencies.outputs.PROJECT_DEPENDENCIES }}
+    
+    # In the ESDK Dafny it does not make sense to run smithy dafny for java code
+    # since the java esdk written natively and not through dafny
+    #- name: Regenerate Java code using smithy-dafny
+    #  # npx seems to be unavailable on Windows GHA runners,
+    #  # so we don't regenerate Java code on them either.
+    #  if: runner.os != 'Windows'
+    #  working-directory: ./${{ inputs.library }}
+    #  shell: bash
+    #  # smithy-dafny also formats generated code itself now,
+    #  # so prettier is a necessary dependency.
+    #  run: |
+    #    make setup_prettier
+    #    make polymorph_java ${{ steps.dependencies.outputs.PROJECT_DEPENDENCIES }}
 
     - name: Regenerate .NET code using smithy-dafny
       working-directory: ./${{ inputs.library }}
