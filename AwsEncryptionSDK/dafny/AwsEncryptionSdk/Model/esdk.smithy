@@ -3,7 +3,6 @@ namespace aws.cryptography.encryptionSdk
 use aws.cryptography.primitives#AwsCryptographicPrimitives
 use aws.cryptography.materialProviders#AwsCryptographicMaterialProviders
 
-/////////////
 // ESDK Client Creation
 
 // TODO add a trait to indicate that 'Client' should not be appended to this name,
@@ -56,7 +55,6 @@ structure AwsEncryptionSdkConfig {
 string NetV4_0_0_RetryPolicy
 
 
-/////////////
 // ESDK Operations
 
 operation Encrypt {
@@ -127,7 +125,6 @@ structure DecryptOutput {
   // the message format and message header in Smithy.
 }
 
-/////////////
 // Errors
 
 @error("client")
