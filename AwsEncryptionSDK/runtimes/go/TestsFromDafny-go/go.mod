@@ -46,6 +46,6 @@ replace (
 
 )
 
-replace github.com/dafny-lang/DafnyRuntimeGo => /Volumes/workplace/smithy-dafny/DafnyRuntimeGo
+replace github.com/dafny-lang/DafnyRuntimeGo => ../../../../../smithy-dafny/DafnyRuntimeGo
 
 replace github.com/dafny-lang/DafnyStandardLibGo => ../../../../../aws-cryptographic-material-providers-library/StandardLibrary/runtimes/go/ImplementationFromDafny-go/
