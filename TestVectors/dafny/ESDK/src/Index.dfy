@@ -17,7 +17,7 @@ module {:options "-functionSyntax:4"} WrappedESDKMain {
   import EsdkManifestOptions
   import Seq
 
-  method Main(args: seq<string>) {
+  method Main2(args: seq<string>) {
     // The expectation is that the first argument
     // is the filename or runtime
     expect 0 < |args|;

@@ -1,0 +1,15 @@
+diff --git b/TestVectors/runtimes/net/Generated/ESDK/TypeConversion.cs a/TestVectors/runtimes/net/Generated/ESDK/TypeConversion.cs
+index f7a902d6..e5036c48 100644
+--- b/TestVectors/runtimes/net/Generated/ESDK/TypeConversion.cs
++++ a/TestVectors/runtimes/net/Generated/ESDK/TypeConversion.cs
+@@ -7,10 +7,6 @@ namespace AWS.Cryptography.EncryptionSDK.Wrapped
+ {
+     public static class TypeConversion
+     {
+-        private const string ISO8601DateFormat = "yyyy-MM-dd\\THH:mm:ss.fff\\Z";
+-
+-        private const string ISO8601DateFormatNoMS = "yyyy-MM-dd\\THH:mm:ss\\Z";
+-
+         public static AWS.Cryptography.EncryptionSDK.AwsEncryptionSdkConfig FromDafny_N3_aws__N12_cryptography__N13_encryptionSdk__S22_AwsEncryptionSdkConfig(software.amazon.cryptography.encryptionsdk.internaldafny.types._IAwsEncryptionSdkConfig value)
+         {
+             software.amazon.cryptography.encryptionsdk.internaldafny.types.AwsEncryptionSdkConfig concrete = (software.amazon.cryptography.encryptionsdk.internaldafny.types.AwsEncryptionSdkConfig)value; AWS.Cryptography.EncryptionSDK.AwsEncryptionSdkConfig converted = new AWS.Cryptography.EncryptionSDK.AwsEncryptionSdkConfig(); if (concrete._commitmentPolicy.is_Some) converted.CommitmentPolicy = (AWS.Cryptography.MaterialProviders.ESDKCommitmentPolicy)FromDafny_N3_aws__N12_cryptography__N13_encryptionSdk__S22_AwsEncryptionSdkConfig__M16_commitmentPolicy(concrete._commitmentPolicy);

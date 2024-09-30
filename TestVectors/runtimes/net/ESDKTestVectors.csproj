@@ -11,7 +11,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="DafnyRuntime" Version="4.2.0" />
         <!--
           System.Collections.Immutable can be removed once dafny.msbuild is updated with
           https://github.com/dafny-lang/dafny.msbuild/pull/10 and versioned
