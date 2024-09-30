@@ -32,8 +32,8 @@ module TestWrappedMaterialProvidersMain {
   method {:test} TestEncryptVectors() {
     var result := EsdkTestManifests.StartEncryptVectors(
       EsdkManifestOptions.Encrypt(
-        manifestPath := "./",
-        manifest := "0003-awses-message-encryption.v1.json",
+        manifestPath := "./dafny/ESDK/test/",
+        manifest := "test.json",
         decryptManifestOutput := "decrypt-manifest/"
       )
     );
