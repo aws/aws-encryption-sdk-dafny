@@ -13,7 +13,8 @@ module
   {
     AwsEncryptionSdkConfig(
       commitmentPolicy := Some(AwsCryptographyMaterialProvidersTypes.ESDKCommitmentPolicy.REQUIRE_ENCRYPT_REQUIRE_DECRYPT),
-      maxEncryptedDataKeys := None
+      maxEncryptedDataKeys := None,
+      netV4_0_0_RetryPolicy := None
     )
   }
 
@@ -23,7 +24,8 @@ module
   {
     AwsEncryptionSdkConfig(
       commitmentPolicy := Some(commitmentPolicy),
-      maxEncryptedDataKeys := None
+      maxEncryptedDataKeys := None,
+      netV4_0_0_RetryPolicy := None
     )
   }
 }
