@@ -123,7 +123,7 @@ public class SharedCacheAcrossHierarchicalKeyrings
         // Note that we are now providing an already initialized shared cache instead of just mentioning
         // the cache type and the Hierarchical Keyring initializing a cache at initialization.
         
-        // partitionId here is a random UUID
+        // partitionId for this example is a random UUID
         var partitionId = "91c1b6a2-6fc3-4539-ad5e-938d597ed730";
 
         // Please make sure that you read the guidance on how to set Partition ID, Logical Key Store Name and
