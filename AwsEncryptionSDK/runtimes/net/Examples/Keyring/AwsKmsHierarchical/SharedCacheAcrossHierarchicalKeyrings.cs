@@ -41,7 +41,7 @@ using Xunit;
 /// - Same Branch Key ID
 /// then they WILL share the cache entries in the Shared Cache.
 /// Please make sure that you set all of Partition ID, Logical Key Store Name and Branch Key ID
-/// to be the same for two Hierarchical Keyrings only if you want them to share cache entries.
+/// to be the same for two Hierarchical Keyrings if and only if you want them to share cache entries.
 /// 
 /// This example first creates a shared cache that you can use across multiple Hierarchical Keyrings.
 /// The example then configures a Hierarchical Keyring (HK1 and HK2) with the shared cache,
