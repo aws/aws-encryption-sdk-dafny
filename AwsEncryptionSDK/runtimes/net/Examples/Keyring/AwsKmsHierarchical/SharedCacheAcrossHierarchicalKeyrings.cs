@@ -10,9 +10,9 @@ using Xunit;
 /// With this functionality, users only need to maintain one common shared cache across multiple
 /// Hierarchical Keyrings with different Key Stores instances/KMS Clients/KMS Keys.
 /// 
-/// There are two important parameters that users need to carefully set while providing the shared cache:
+/// There are three important parameters that users need to carefully set while providing the shared cache:
 /// 
-/// Partition ID - Partition ID is an optional parameter provided to the Hierarchical Keyring input,
+/// 1. Partition ID - Partition ID is an optional parameter provided to the Hierarchical Keyring input,
 /// which distinguishes Cryptographic Material Providers (i.e: Keyrings) writing to a cache.
 /// - If the Partition ID is set and is the same for two Hierarchical Keyrings (or another Material Provider),
 ///   they CAN share the same cache entries in the cache.
@@ -22,7 +22,7 @@ using Xunit;
 ///   it unique for every Hierarchical Keyring, and two Hierarchical Keyrings (or another Material Provider)
 ///   CANNOT share the same cache entries in the cache.
 /// 
-/// Logical Key Store Name - This parameter is set by the user when configuring the Key Store for
+/// 2. Logical Key Store Name - This parameter is set by the user when configuring the Key Store for
 /// the Hierarchical Keyring. This is a logical name for the branch key store.
 /// Suppose you have a physical Key Store (K). You create two instances of K (K1 and K2). Now, you create
 /// two Hierarchical Keyrings (HK1 and HK2) with these Key Store instances (K1 and K2 respectively).
@@ -30,6 +30,8 @@ using Xunit;
 ///   for both the Key Store instances (K1 and K2) to be the same.
 /// - If you set the Logical Key Store Names for K1 and K2 to be different, HK1 (which uses Key Store instance K1)
 ///   and HK2 (which uses Key Store instance K2) will NOT be able to share cache entries.
+/// 
+/// 3. Branch Key ID - Choose an effective Branch Key ID Schema
 /// 
 /// This is demonstrated in the example below.
 /// Notice that both K1 and K2 are instances of the same physical Key Store (K).
@@ -120,7 +122,12 @@ public class SharedCacheAcrossHierarchicalKeyrings
         // the shared Cache and the BranchKeyId.
         // Note that we are now providing an already initialized shared cache instead of just mentioning
         // the cache type and the Hierarchical Keyring initializing a cache at initialization.
-        var partitionId = "partitionID";
+        
+        // partitionId here is a random UUID
+        var partitionId = "91c1b6a2-6fc3-4539-ad5e-938d597ed730";
+
+        // Please make sure that you read the guidance on how to set Partition ID, Logical Key Store Name and
+        // Branch Key ID at the top of this example before creating Hierarchical Keyrings with a Shared Cache
 
         var createKeyringInput1 = new CreateAwsKmsHierarchicalKeyringInput
         {
@@ -195,6 +202,10 @@ public class SharedCacheAcrossHierarchicalKeyrings
         // Create the Hierarchical Keyring HK2 with Key Store instance K2, the shared Cache
         // and the same partitionId and BranchKeyId used in HK1 because we want to share cache entries
         // (and experience cache HITS).
+
+        // Please make sure that you read the guidance on how to set Partition ID, Logical Key Store Name and
+        // Branch Key ID at the top of this example before creating Hierarchical Keyrings with a Shared Cache
+
         var createKeyringInput2 = new CreateAwsKmsHierarchicalKeyringInput
         {
             KeyStore = keystore2,
