@@ -80,6 +80,7 @@ public class SharedCacheAcrossHierarchicalKeyrings
 
         // Create a CacheType object for the sharedCryptographicMaterialsCache
         // Note that the `cache` parameter in the Hierarchical Keyring Input takes a `CacheType` as input
+        // Here, we pass a `Shared` CacheType that passes an already initialized shared cache
         var sharedCache = new CacheType { Shared = sharedCryptographicMaterialsCache };
 
         // Instantiate the SDK
