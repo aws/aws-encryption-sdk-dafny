@@ -166,20 +166,6 @@ namespace TestVectors
             }
 
             if (keyInfo.Type == "aws-kms-hierarchy") {
-                // Convert JSON to bytes for KeyVectors input
-                string jsonString = JsonConvert.SerializeObject(keyInfo);
-
-                var stream = new MemoryStream();
-                var writer = new StreamWriter(stream);
-                writer.Write(jsonString);
-                writer.Flush();
-                stream.Position = 0;
-
-                // Create KeyVectors keyring
-                var getKeyDescriptionInput = new GetKeyDescriptionInput
-                {
-                    Json = stream
-                };
 
                 // Lazily create a singleton KeyVectors client.
                 // KeyVectors manifest is only required if a test vector specifies a hierarchy keyring.
@@ -201,6 +187,21 @@ namespace TestVectors
                     };
                     singletonKeyVectors = new(keyVectorsConfig);
                 }
+
+                // Convert JSON to bytes for KeyVectors input
+                string jsonString = JsonConvert.SerializeObject(keyInfo);
+
+                var stream = new MemoryStream();
+                var writer = new StreamWriter(stream);
+                writer.Write(jsonString);
+                writer.Flush();
+                stream.Position = 0;
+
+                // Create KeyVectors keyring
+                var getKeyDescriptionInput = new GetKeyDescriptionInput
+                {
+                    Json = stream
+                };
 
                 var desc = singletonKeyVectors.GetKeyDescription(getKeyDescriptionInput);
 
