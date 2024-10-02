@@ -193,7 +193,7 @@ jobs:
       # #     # NET_41_VECTOR_PATH=$GITHUB_WORKSPACE/net41/vectors
       # #     Set-Location -Path "$env:GITHUB_WORKSPACE\net41\vectors"
       # #     Compress-Archive -Path "$env:GITHUB_WORKSPACE\net41\vectors\*" -DestinationPath "$env:GITHUB_WORKSPACE\net41\vectors\net41.zip"        
-      
+
       
       - name: Generate Test Vectors with .NET Framework net6.0
         # TODO Post-#619: Fix Zip file creation on Windows
