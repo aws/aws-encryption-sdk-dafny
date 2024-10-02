@@ -166,9 +166,8 @@ namespace TestVectors
             }
 
             if (keyInfo.Type == "aws-kms-hierarchy") {
-
                 // Lazily create a singleton KeyVectors client.
-                // KeyVectors manifest is only required if a test vector specifies a hierarchy keyring.
+                // A KeyVectors manifest is only required if a test vector specifies a hierarchy keyring.
                 // This specification can only be determined at runtime while reading the test vector manifest.
                 if (singletonKeyVectors == null) {
                     string manifestPath;
