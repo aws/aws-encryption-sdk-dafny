@@ -1,0 +1,35 @@
+# This workflow is for testing backwards compatibility of a dafny version
+# and tests if a project that consumes the mpl will be backwards compatible with
+# a newer version of Dafny
+name: Dafny Interoperability Test
+
+on:
+  workflow_dispatch:
+    inputs:
+      mpl-dafny:
+        description: "The Dafny version to compile the MPL with (4.2.0, nightly-latest, etc..)"
+        required: true
+        type: string
+      mpl-commit:
+        description: "The MPL branch/commit to use"
+        required: false
+        default: "main"
+        type: string
+      esdk-dafny:
+        description: "The Dafny version to compile the DBESDK with (4.2.0, nightly-latest, etc..)"
+        required: true
+        type: string
+
+jobs:
+  dafny-interop-net:
+    uses: ./.github/workflows/dafny_interop_test_net.yml
+    with:
+      mpl-dafny: ${{inputs.mpl-dafny}}
+      mpl-commit: ${{inputs.mpl-commit}}
+      esdk-dafny: ${{inputs.esdk-dafny}}
+  dafny-interop-net-test-vectors:
+    uses: ./.github/workflows/dafny_interop_test_vector_net.yml
+    with:
+      mpl-dafny: ${{inputs.mpl-dafny}}
+      mpl-commit: ${{inputs.mpl-commit}}
+      esdk-dafny: ${{inputs.esdk-dafny}}
