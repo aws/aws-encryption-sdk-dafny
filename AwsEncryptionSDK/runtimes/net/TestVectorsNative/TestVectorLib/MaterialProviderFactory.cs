@@ -180,7 +180,7 @@ namespace TestVectors
                         throw new ArgumentException("Hierarchy keyring test vectors must supply a KeyVectors manifest", e);
                     }
                     DecryptManifest manifest = Utils.LoadObjectFromPath<DecryptManifest>(manifestPath);
-                    static readonly KeyVectorsConfig keyVectorsConfig = new KeyVectorsConfig
+                    KeyVectorsConfig keyVectorsConfig = new KeyVectorsConfig
                     {
                         KeyManifestPath = Utils.ManifestUriToPath(manifest.KeysUri, manifestPath)
                     };
