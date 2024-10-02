@@ -22,13 +22,7 @@ namespace TestVectors
     public static class MaterialProviderFactory
     {
         private static readonly MaterialProviders materialProviders = new(new MaterialProvidersConfig());
-        private static string manifestPath = Utils.GetEnvironmentVariableOrError("DAFNY_AWS_ESDK_TEST_VECTOR_MANIFEST_PATH");
-        private static DecryptManifest manifest = Utils.LoadObjectFromPath<DecryptManifest>(manifestPath);
-        private static readonly KeyVectorsConfig keyVectorsConfig = new KeyVectorsConfig
-        {
-            KeyManifestPath = Utils.ManifestUriToPath(manifest.KeysUri, manifestPath)
-        };
-        private static KeyVectors keyVectors = new(keyVectorsConfig);
+        private static KeyVectors singletonKeyVectors;
 
         public static ICryptographicMaterialsManager CreateDecryptCmm(
             DecryptVector vector,
@@ -187,14 +181,35 @@ namespace TestVectors
                     Json = stream
                 };
 
-                var desc = keyVectors.GetKeyDescription(getKeyDescriptionInput);
+                // Lazily create a singleton KeyVectors client.
+                // KeyVectors manifest is only required if a test vector specifies a hierarchy keyring.
+                // This specification can only be determined at runtime while reading the test vector manifest.
+                if (singletonKeyVectors == null) {
+                    string manifestPath;
+                    try
+                    {
+                        manifestPath = Utils.GetEnvironmentVariableOrError("DAFNY_AWS_ESDK_TEST_VECTOR_MANIFEST_PATH");
+                    }
+                    catch (ArgumentException e)
+                    {
+                        throw new ArgumentException("Hierarchy keyring test vectors must supply a KeyVectors manifest", e);
+                    }
+                    DecryptManifest manifest = Utils.LoadObjectFromPath<DecryptManifest>(manifestPath);
+                    static readonly KeyVectorsConfig keyVectorsConfig = new KeyVectorsConfig
+                    {
+                        KeyManifestPath = Utils.ManifestUriToPath(manifest.KeysUri, manifestPath)
+                    };
+                    singletonKeyVectors = new(keyVectorsConfig);
+                }
+
+                var desc = singletonKeyVectors.GetKeyDescription(getKeyDescriptionInput);
 
                 var testVectorKeyringInput = new TestVectorKeyringInput
                 {
                     KeyDescription = desc.KeyDescription
                 };
 
-                var keyring = keyVectors.CreateTestVectorKeyring(
+                var keyring = singletonKeyVectors.CreateTestVectorKeyring(
                     testVectorKeyringInput
                 );
 
