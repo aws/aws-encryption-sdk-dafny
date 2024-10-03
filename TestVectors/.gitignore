@@ -3,7 +3,6 @@ ImplementationFromDafny.cs
 TestsFromDafny.cs
 ImplementationFromDafny-cs.dtr
 TestsFromDafny-cs.dtr
-
-bin/
-obj/
-
+**/bin
+**/obj
+/runtimes/java/dafny
