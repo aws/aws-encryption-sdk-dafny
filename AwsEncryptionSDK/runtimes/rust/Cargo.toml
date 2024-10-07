@@ -10,6 +10,8 @@ homepage = "https://github.com/aws/aws-encryption-sdk-dafny"
 repository = "https://github.com/aws/aws-encryption-sdk-dafny"
 authors = ["AWS-CryptoTools"]
 documentation = "https://docs.rs/crate/aws-esdk"
+autoexamples = false
+readme = "README.md"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -30,3 +32,6 @@ uuid = { version = "1.10.0", features = ["v4"] }
 
 [lib]
 path = "src/implementation_from_dafny.rs"
+
+[[example]]
+name = "main"
