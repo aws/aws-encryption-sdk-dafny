@@ -111,6 +111,7 @@ pub async fn encrypt_and_decrypt_with_keyring(
 #[tokio::test(flavor = "multi_thread")]
 pub async fn test_encrypt_and_decrypt_with_keyring() -> Result<(), crate::BoxError2> {
     use crate::example_utils::utils;
+    
     encrypt_and_decrypt_with_keyring(
         utils::TEST_EXAMPLE_DATA,
         utils::TEST_KMS_RSA_KEY_ID,
