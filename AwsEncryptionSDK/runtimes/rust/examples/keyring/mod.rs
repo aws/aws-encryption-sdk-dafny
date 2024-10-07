@@ -1,6 +1,6 @@
-// pub mod aws_kms_discovery_keyring;
+pub mod aws_kms_discovery_keyring;
 // pub mod aws_kms_discovery_multi_keyring;
-// pub mod aws_kms_keyring;
+pub mod aws_kms_keyring;
 // pub mod aws_kms_mrk_discovery_keyring;
 // pub mod aws_kms_mrk_discovery_multi_keyring;
 // pub mod aws_kms_mrk_keyring;

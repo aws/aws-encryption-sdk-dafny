@@ -1,15 +1,14 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-// #![deny(warnings, unconditional_panic)]
-// #![deny(nonstandard_style)]
-// #![deny(clippy::all)]
+#![deny(warnings, unconditional_panic)]
+#![deny(nonstandard_style)]
+#![deny(clippy::all)]
 
 pub mod client_supplier;
 pub mod cryptographic_materials_manager;
 pub mod keyring;
 pub mod example_utils;
-use example_utils::utils;
 
 use std::convert::From;
 
@@ -43,6 +42,5 @@ impl<T: std::fmt::Debug> From<T> for BoxError {
 
 #[tokio::main]
 pub async fn main() -> Result<(), BoxError2> {
-    keyring::aws_kms_rsa_keyring::encrypt_and_decrypt_with_keyring(utils::TEST_EXAMPLE_DATA, utils::TEST_KMS_RSA_KEY_ID, utils::TEST_KMS_RSA_PUBLIC_KEY).await?;
     Ok(())
 }
