@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 include "LibraryIndex.dfy"
+include "VectorsComposition/AllEsdkV4NoReqEc.dfy"
 
 module {:options "-functionSyntax:4"} WriteVectors {
   import Types = AwsCryptographyEncryptionSdkTypes
@@ -14,6 +15,9 @@ module {:options "-functionSyntax:4"} WriteVectors {
   import HexStrings
   import opened JSON.Values
   import JSONHelpers
+  import EsdkManifestOptions
+  import EsdkTestVectors
+  import AllEsdkV4NoReqEc
 
   import UUID
   import UTF8
@@ -104,34 +108,6 @@ module {:options "-functionSyntax:4"} WriteVectors {
   //         Success(m.value)
   // }
 
-  // All these tests will use a defualt CMM
-  const AllPostiveKeyringTestsNoDBESuiteNoReqEC: set<JSON> := {}
-  // set
-  //   postiveKeyDescription <-
-  //     // AllKMSInfo +
-  //     // AllKmsMrkAware +
-  //     // AllKmsMrkAwareDiscovery +
-  //     // AllRawAES +
-  //     // AllRawRSA +
-  //     // AllHierarchy +
-  //     AllKmsRsa.Tests,
-  //   algorithmSuite <-
-  //     AllAlgorithmSuites.ESDKAlgorithmSuites
-  //   ::
-  //     var id := HexStrings.ToHexString(algorithmSuite.binaryId);
-  //     var commitmentPolicy := GetCommitmentPolicyString(algorithmSuite);
-  //     Object([
-  //              ("type", String("positive-esdk")),
-  //              ("message", String("asdf")),
-  //              ("keyring description", String(postiveKeyDescription.description + " " + id)),
-  //              ("clientCommitmentPolicy", String(commitmentPolicy)),
-  //              ("algorithmSuiteId", String(id)),
-  //              ("encryptionContext", Object([])),
-  //              ("requiredEncryptionContextKeys", Array([])),
-  //              ("encryptKeyDescription", postiveKeyDescription.encrypt),
-  //              ("decryptKeyDescription", postiveKeyDescription.decrypt)
-  //            ])
-
   const AllPositiveKeyringTestsNoDBESuiteWithReqEC: set<JSON> := {}
   // set
   //   positiveCMMDescription <-
@@ -166,19 +142,32 @@ module {:options "-functionSyntax:4"} WriteVectors {
 
 
 
-  method WritetestVectors()
+  method WritetestVectors(op: EsdkManifestOptions.ManifestOptions)
+    returns (output: Result<(), string>)
+    requires op.EncryptManifest?
   {
-    // writeTests with no required encryption context
-    var testsNoReqEC := SortedSets.ComputeSetToSequence(AllPostiveKeyringTestsNoDBESuiteNoReqEC);
-    var testsWithReqEC := SortedSets.ComputeSetToSequence(AllPositiveKeyringTestsNoDBESuiteWithReqEC);
+    var version := op.version;
+    var allTests :- getVersionTests(version);
 
-    var tests := testsNoReqEC + testsWithReqEC;
+    var tests := SortedSets.ComputeSetToSequence(allTests);
+
+    // var tests := testsNoReqEC;
     var testsJSON: seq<(string, JSON)> := [];
 
     for i := 0 to |tests|
     {
-      var name :- expect UUID.GenerateUUID();
-      testsJSON := testsJSON + [(name, tests[i])];
+      // var name :- expect UUID.GenerateUUID();
+      // var testVector := EsdkTestVectors.PositiveEncryptTestVector(
+      //   name := "Positive Encrypt Test Vector-" + name,
+      //   version := tests[i].version,
+      //   manifestPath := op.manifestPath,
+      //   decryptManifestPath := op.decryptManifestOutput,
+      //   plaintextPath := string,
+
+      // );
+      // tests[i].name := tests[i].name + name;
+
+      // testsJSON := testsJSON + [(name, tests[i])];
     }
 
     var esdkEncryptManifests := Object(
@@ -191,9 +180,17 @@ module {:options "-functionSyntax:4"} WriteVectors {
     var esdkEncryptManifestBv := JSONHelpers.BytesBv(esdkEncryptManifestBytes);
 
     var _ :- expect FileIO.WriteBytesToFile(
-      "dafny/ESDK/test/test.json",
+      op.encryptManifestOutput + "manifest.json",
       esdkEncryptManifestBv
     );
+    
+    output := Success(());
+  }
 
+  function getVersionTests(version: nat): (ret: Result<set<EsdkTestVectors.EsdkEncryptTestVector>, string>)
+  {
+    match version
+      case 4 => Success(AllEsdkV4NoReqEc.Tests)
+      case _ => Failure("Only version 4 of generate manifest is supported\n")
   }
 }

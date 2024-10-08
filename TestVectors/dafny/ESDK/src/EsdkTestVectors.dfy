@@ -47,12 +47,19 @@ module {:options "-functionSyntax:4"} EsdkTestVectors {
       && cmm.Modifies !! {client.History}
     }
   }
+  
+  type SupportedGenerateManifestVersion = v: nat | SupportedGenerateManifestVersion?(v) witness 4
+  predicate SupportedGenerateManifestVersion?(v: nat)
+  {
+    || v == 4
+  } 
 
   type SupportedEncryptVersion = v: nat | SupportedEncryptVersion?(v)  witness 1
   predicate SupportedEncryptVersion?(v: nat)
   {
     || v == 1
   }
+
 
   datatype EsdkEncryptTestVector =
     | PositiveEncryptTestVector(
@@ -61,6 +68,15 @@ module {:options "-functionSyntax:4"} EsdkTestVectors {
         manifestPath: string,
         decryptManifestPath: string,
         plaintextPath: string,
+        encryptDescriptions: seq<KeyVectorsTypes.KeyDescription>,
+        decryptDescriptions: seq<KeyVectorsTypes.KeyDescription>,
+        encryptionContext: Option<mplTypes.EncryptionContext> := None,
+        decryptEncryptionContext: Option<mplTypes.EncryptionContext> := None,
+        commitmentPolicy: mplTypes.ESDKCommitmentPolicy := mplTypes.FORBID_ENCRYPT_ALLOW_DECRYPT,
+        frameLength: Option<int64>,
+        algorithmSuiteId: Option<mplTypes.ESDKAlgorithmSuiteId>
+      )
+    | PositiveEncryptTestVectorV4(
         encryptDescriptions: seq<KeyVectorsTypes.KeyDescription>,
         decryptDescriptions: seq<KeyVectorsTypes.KeyDescription>,
         encryptionContext: Option<mplTypes.EncryptionContext> := None,

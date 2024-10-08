@@ -255,6 +255,7 @@ module {:options "-functionSyntax:4"} EsdkTestManifests {
 
     match typ
     case "awses-decrypt" =>
+      print version;
       :- Need(SupportedDecryptVersion?(version), "Unsupported manifest version");
       var client :- Get("client", manifestJson.obj);
       manifestData := Success(DecryptManifest(
