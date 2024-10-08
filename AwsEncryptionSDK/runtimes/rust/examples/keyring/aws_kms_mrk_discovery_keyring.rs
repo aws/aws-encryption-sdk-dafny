@@ -46,7 +46,6 @@ use aws_esdk::aws_cryptography_materialProviders::types::DiscoveryFilter;
 use std::collections::HashMap;
 use aws_config::Region;
 
-
 pub async fn encrypt_and_decrypt_with_keyring(
     example_data: &str,
     mrk_key_id_encrypt: &str,
@@ -107,7 +106,7 @@ pub async fn encrypt_and_decrypt_with_keyring(
 
     let ciphertext = encryption_response
                         .ciphertext
-                        .expect("Unable to unwrap ciphertext from encryption_response");
+                        .expect("Unable to unwrap ciphertext from encryption response");
 
     // 5. Demonstrate that the ciphertext and plaintext are different.
     // (This is an example for demonstration; you do not need to do this in your own code.)
@@ -150,7 +149,7 @@ pub async fn encrypt_and_decrypt_with_keyring(
 
     let decrypted_plaintext = decryption_response
                                 .plaintext
-                                .expect("Unable to unwrap plaintext from decryption_response");
+                                .expect("Unable to unwrap plaintext from decryption response");
 
     // 8. Demonstrate that the decrypted plaintext is identical to the original plaintext.
     // (This is an example for demonstration; you do not need to do this in your own code.)
