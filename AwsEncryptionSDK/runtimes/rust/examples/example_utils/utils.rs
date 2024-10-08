@@ -20,3 +20,9 @@ pub const TEST_KMS_RSA_PUBLIC_KEY: &str = "-----BEGIN PUBLIC KEY-----\n\
                         yy4kfOL0Z/nhxRKe4jRZ/5v508qIzgzCksYy7Y3QbMejAtiYnr7s5/d5KWw0swou\
                         twIDAQAB\n\
                         -----END PUBLIC KEY-----";
+
+pub const TEST_MRK_KEY_ID_US_EAST_1: &str =
+    "arn:aws:kms:us-east-1:658956600833:key/mrk-80bd8ecdcd4342aebd84b7dc9da498a7";
+
+pub const TEST_MRK_KEY_ID_EU_WEST_1: &str =
+    "arn:aws:kms:eu-west-1:658956600833:key/mrk-80bd8ecdcd4342aebd84b7dc9da498a7";
