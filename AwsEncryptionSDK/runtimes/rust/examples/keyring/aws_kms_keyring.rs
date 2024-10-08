@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 /*
-This example sets up the KMS Keyring
+This example sets up the AWS KMS Keyring
 
 The AWS KMS keyring uses symmetric encryption KMS keys to generate, encrypt and
 decrypt data keys. This example creates a KMS Keyring and then encrypts a custom input EXAMPLE_DATA
@@ -84,7 +84,7 @@ pub async fn encrypt_and_decrypt_with_keyring(
     // (This is an example for demonstration; you do not need to do this in your own code.)
     assert_ne!(ciphertext, plaintext,
         "Ciphertext and plaintext data are the same. Invalid encryption");
-    
+
     // 7. Decrypt your encrypted data using the same keyring you used on encrypt.
     let decryption_response = esdk_client.decrypt()
         .ciphertext(ciphertext)
@@ -102,9 +102,9 @@ pub async fn encrypt_and_decrypt_with_keyring(
     // (This is an example for demonstration; you do not need to do this in your own code.)
     assert_eq!(decrypted_plaintext, plaintext,
         "Decrypted plaintext should be identical to the original plaintext. Invalid decryption");
-    
+
     println!("KMS Keyring Example Completed Successfully");
-    
+
     Ok(())
 }
 
@@ -112,7 +112,7 @@ pub async fn encrypt_and_decrypt_with_keyring(
 pub async fn test_encrypt_and_decrypt_with_keyring() -> Result<(), crate::BoxError2> {
     // Test function for encrypt and decrypt using the AWS KMS Keyring example
     use crate::example_utils::utils;
-    
+
     encrypt_and_decrypt_with_keyring(
         utils::TEST_EXAMPLE_DATA,
         utils::TEST_DEFAULT_KMS_KEY_ID

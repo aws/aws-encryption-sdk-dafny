@@ -182,12 +182,14 @@ pub async fn encrypt_and_decrypt_with_keyring(
                     raise AWSEncryptionSDKClientError");
         }
         Err(e) => {
-            assert_eq!(e.to_string()[.."AwsCryptographicMaterialProvidersError".to_string().chars().count()], "AwsCryptographicMaterialProvidersError".to_string());
+            assert_eq!(
+                e.to_string()[.."AwsCryptographicMaterialProvidersError".to_string().chars().count()],
+                "AwsCryptographicMaterialProvidersError".to_string());
         }
     }
-    
+
     println!("KMS Discovery Keyring Example Completed Successfully");
-    
+
     Ok(())
 }
 
@@ -195,7 +197,7 @@ pub async fn encrypt_and_decrypt_with_keyring(
 pub async fn test_encrypt_and_decrypt_with_keyring() -> Result<(), crate::BoxError2> {
     // Test function for encrypt and decrypt using the AWS KMS Discovery Keyring example
     use crate::example_utils::utils;
-    
+
     encrypt_and_decrypt_with_keyring(
         utils::TEST_EXAMPLE_DATA,
         utils::TEST_DEFAULT_KMS_KEY_ID,
