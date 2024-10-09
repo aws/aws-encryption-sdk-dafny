@@ -160,11 +160,11 @@ pub async fn encrypt_and_decrypt_with_keyring(
 
     // Because you used a multi_keyring on Encrypt, you can use either the
     // `kms_keyring` or `raw_aes_keyring` individually to decrypt the data.
-    
+
     // 10. Demonstrate that you can successfully decrypt data using just the `kms_keyring`
     // directly.
     // (This is an example for demonstration; you do not need to do this in your own code.)
-    
+
     // 10a. Decrypt your encrypted data using the kms_keyring.
     let decryption_response_kms_keyring = esdk_client.decrypt()
         .ciphertext(ciphertext.clone())
@@ -187,7 +187,7 @@ pub async fn encrypt_and_decrypt_with_keyring(
     // 11. Demonstrate that you can also successfully decrypt data using the `raw_aes_keyring`
     // directly.
     // (This is an example for demonstration; you do not need to do this in your own code.)
-    
+
     // 11a. Decrypt your encrypted data using the raw_aes_keyring.
     let decryption_response_raw_aes_keyring = esdk_client.decrypt()
         .ciphertext(ciphertext)

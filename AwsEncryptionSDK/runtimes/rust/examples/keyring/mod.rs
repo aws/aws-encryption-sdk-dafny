@@ -9,4 +9,4 @@ pub mod aws_kms_multi_keyring;
 pub mod aws_kms_rsa_keyring;
 pub mod multi_keyring;
 pub mod raw_aes_keyring;
-// pub mod raw_rsa_keyring;
+pub mod raw_rsa_keyring;
