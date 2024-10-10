@@ -29,3 +29,10 @@ pub const TEST_MRK_KEY_ID_US_EAST_1: &str =
 
 pub const TEST_MRK_KEY_ID_EU_WEST_1: &str =
     "arn:aws:kms:eu-west-1:658956600833:key/mrk-80bd8ecdcd4342aebd84b7dc9da498a7";
+
+pub const TEST_KEY_STORE_NAME: &str = "KeyStoreDdbTable";
+
+pub const TEST_LOGICAL_KEY_STORE_NAME: &str = "KeyStoreDdbTable";
+
+pub const TEST_KEY_STORE_KMS_KEY_ID: &str =
+    "arn:aws:kms:us-west-2:370957321024:key/9d989aa2-2f9c-438c-a745-cc57d3ad0126";

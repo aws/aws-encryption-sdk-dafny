@@ -178,7 +178,7 @@ pub async fn encrypt_and_decrypt_with_keyring(
         .await;
 
     match decryption_response_bob {
-        Ok(_) => panic!("Decrypt using discovery keyring with wrong AWS Account ID should \
+        Ok(_) => panic!("Decrypt using discovery keyring with wrong AWS Account ID MUST \
                             raise AwsCryptographicMaterialProvidersError"),
         Err(AwsCryptographicMaterialProvidersError { error: _e }) => (),
         _ => panic!("Unexpected error type"),
