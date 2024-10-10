@@ -34,7 +34,7 @@
  - Decrypt
 
  For more information on how to use Hierarchical Keyrings, see
- https://docs.aws.amazon.com/database-encryption-sdk/latest/devguide/use-hierarchical-keyring.html
+ https://docs.aws.amazon.com/encryption-sdk/latest/developer-guide/use-hierarchical-keyring.html
 */
 
 use super::create_branch_key_id::create_branch_key_id;
