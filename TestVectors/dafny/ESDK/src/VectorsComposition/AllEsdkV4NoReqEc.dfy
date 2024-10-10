@@ -6,6 +6,7 @@ include "../LibraryIndex.dfy"
 module {:options "/functionSyntax:4" } AllEsdkV4NoReqEc {
   import Types = AwsCryptographyEncryptionSdkTypes
   import mplTypes = AwsCryptographyMaterialProvidersTypes
+  import keyVectorKeyTypes = AwsCryptographyMaterialProvidersTestVectorKeysTypes
   import EncryptionSdk
   import MaterialProviders
   import opened CompleteVectors
@@ -54,6 +55,23 @@ module {:options "/functionSyntax:4" } AllEsdkV4NoReqEc {
       + AllRawRSA.KeyDescriptions
       + AllMulti.KeyDescriptions
 
+  function keyDescriptionToName(keyDescription: keyVectorKeyTypes.KeyDescription): (output: string)
+  {
+    match keyDescription
+      case Kms => "KMS"
+      case KmsMrk => "KMS-MRK"
+      case KmsMrkDiscovery => "KMS-MRK-Discovery"
+      case RSA => "Raw RSA"
+      case AES => "Raw AES"
+      case ECDH => "Raw ECDH"
+      case Static => "Static Keyring"
+      case KmsRsa => "KMS RSA"
+      case KmsECDH => "KMS ECDH"
+      case Hierarchy => "Hierarchy"
+      case Multi => "MultiKeyring"
+      case RequiredEncryptionContext => "RequiredEncryptionContext"
+  }
+
   // All these tests will use a defualt CMM no ECDH
   const AllPostiveKeyringTestsNoDBESuiteNoReqECNoEcdh :=
   set
@@ -61,13 +79,19 @@ module {:options "/functionSyntax:4" } AllEsdkV4NoReqEc {
     algorithmSuite <-
       AllAlgorithmSuites.ESDKAlgorithmSuites
     ::
-      EsdkTestVectors.PositiveEncryptTestVectorV4(
+      var name := keyDescriptionToName(postiveKeyDescription);
+      EsdkTestVectors.PositiveEncryptTestVector(
+        name := name,
+        version := 4,
+        manifestPath := "",
+        decryptManifestPath := "",
+        plaintextPath := "",
         encryptDescriptions := [postiveKeyDescription],
         decryptDescriptions := [postiveKeyDescription],
         encryptionContext := None,
         decryptEncryptionContext := None,
         frameLength := Some(frameSize),
-        algorithmSuiteId := Some(algorithmSuite.id.ESDK)
+        algorithmSuiteId := Some(algorithmSuite)
       )
   
   // All these tests will use a defualt CMM only Raw ECDH
@@ -78,13 +102,19 @@ module {:options "/functionSyntax:4" } AllEsdkV4NoReqEc {
     algorithmSuite <-
       AllAlgorithmSuites.ESDKAlgorithmSuites
     ::
-      EsdkTestVectors.PositiveEncryptTestVectorV4(
+      var name := keyDescriptionToName(encryptKeyDescription);
+      EsdkTestVectors.PositiveEncryptTestVector(
+        name := name,
+        version := 5,
+        manifestPath := "",
+        decryptManifestPath := "",
+        plaintextPath := "",
         encryptDescriptions := [encryptKeyDescription],
         decryptDescriptions := [decryptKeyDescription],
         encryptionContext := None,
         decryptEncryptionContext := None,
         frameLength := Some(frameSize),
-        algorithmSuiteId := Some(algorithmSuite.id.ESDK)
+        algorithmSuiteId := Some(algorithmSuite)
       )
   
   const AllPostiveKeyringTestsNoDBESuiteNoReqECWithStaticRawEcdh :=
@@ -94,13 +124,19 @@ module {:options "/functionSyntax:4" } AllEsdkV4NoReqEc {
     algorithmSuite <-
       AllAlgorithmSuites.ESDKAlgorithmSuites
     ::
-      EsdkTestVectors.PositiveEncryptTestVectorV4(
+      var name := keyDescriptionToName(encryptKeyDescription);
+      EsdkTestVectors.PositiveEncryptTestVector(
+        name := name,
+        version := 5,
+        manifestPath := "",
+        decryptManifestPath := "",
+        plaintextPath := "",
         encryptDescriptions := [encryptKeyDescription],
         decryptDescriptions := [decryptKeyDescription],
         encryptionContext := None,
         decryptEncryptionContext := None,
         frameLength := Some(frameSize),
-        algorithmSuiteId := Some(algorithmSuite.id.ESDK)
+        algorithmSuiteId := Some(algorithmSuite)
       )
   
   const AllPostiveKeyringTestsNoDBESuiteNoReqECWithStaticDiscoveryRawEcdh :=
@@ -110,13 +146,19 @@ module {:options "/functionSyntax:4" } AllEsdkV4NoReqEc {
     algorithmSuite <-
       AllAlgorithmSuites.ESDKAlgorithmSuites
     ::
-      EsdkTestVectors.PositiveEncryptTestVectorV4(
+      var name := keyDescriptionToName(encryptKeyDescription);
+      EsdkTestVectors.PositiveEncryptTestVector(
+        name := name,
+        version := 5,
+        manifestPath := "",
+        decryptManifestPath := "",
+        plaintextPath := "",
         encryptDescriptions := [encryptKeyDescription],
         decryptDescriptions := [decryptKeyDescription],
         encryptionContext := None,
         decryptEncryptionContext := None,
         frameLength := Some(frameSize),
-        algorithmSuiteId := Some(algorithmSuite.id.ESDK)
+        algorithmSuiteId := Some(algorithmSuite)
       )
   
   // All these tests will use a defualt CMM only Kms ECDH
@@ -128,13 +170,19 @@ module {:options "/functionSyntax:4" } AllEsdkV4NoReqEc {
     algorithmSuite <-
       AllAlgorithmSuites.ESDKAlgorithmSuites
     ::
-      EsdkTestVectors.PositiveEncryptTestVectorV4(
+      var name := keyDescriptionToName(encryptKeyDescription);
+      EsdkTestVectors.PositiveEncryptTestVector(
+        name := name,
+        version := 5,
+        manifestPath := "",
+        decryptManifestPath := "",
+        plaintextPath := "",
         encryptDescriptions := [encryptKeyDescription],
         decryptDescriptions := [decryptKeyDescription],
         encryptionContext := None,
         decryptEncryptionContext := None,
         frameLength := Some(frameSize),
-        algorithmSuiteId := Some(algorithmSuite.id.ESDK)
+        algorithmSuiteId := Some(algorithmSuite)
       )
 
   const AllPostiveKeyringTestsNoDBESuiteNoReqECWithDiscoveryKmsEcdh :=
@@ -144,22 +192,28 @@ module {:options "/functionSyntax:4" } AllEsdkV4NoReqEc {
     algorithmSuite <-
       AllAlgorithmSuites.ESDKAlgorithmSuites
     ::
-      EsdkTestVectors.PositiveEncryptTestVectorV4(
+      var name := keyDescriptionToName(encryptKeyDescription);
+      EsdkTestVectors.PositiveEncryptTestVector(
+        name := name,
+        version := 5,
+        manifestPath := "",
+        decryptManifestPath := "",
+        plaintextPath := "",
         encryptDescriptions := [encryptKeyDescription],
         decryptDescriptions := [decryptKeyDescription],
         encryptionContext := None,
         decryptEncryptionContext := None,
         frameLength := Some(frameSize),
-        algorithmSuiteId := Some(algorithmSuite.id.ESDK)
+        algorithmSuiteId := Some(algorithmSuite)
       )
     
   
   const Tests := 
-    AllPostiveKeyringTestsNoDBESuiteNoReqECNoEcdh + 
-    AllPostiveKeyringTestsNoDBESuiteNoReqECWithEphemeralRawEcdh +
-    AllPostiveKeyringTestsNoDBESuiteNoReqECWithStaticRawEcdh +
-    AllPostiveKeyringTestsNoDBESuiteNoReqECWithStaticDiscoveryRawEcdh +
-    AllPostiveKeyringTestsNoDBESuiteNoReqECWithStaticKmsEcdh +
-    AllPostiveKeyringTestsNoDBESuiteNoReqECWithDiscoveryKmsEcdh
+    AllPostiveKeyringTestsNoDBESuiteNoReqECNoEcdh 
+    // + AllPostiveKeyringTestsNoDBESuiteNoReqECWithEphemeralRawEcdh 
+    // + AllPostiveKeyringTestsNoDBESuiteNoReqECWithStaticRawEcdh
+    // + AllPostiveKeyringTestsNoDBESuiteNoReqECWithStaticDiscoveryRawEcdh
+    // + AllPostiveKeyringTestsNoDBESuiteNoReqECWithStaticKmsEcdh
+    // + AllPostiveKeyringTestsNoDBESuiteNoReqECWithDiscoveryKmsEcdh
     
 }

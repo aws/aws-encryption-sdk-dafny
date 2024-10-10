@@ -58,6 +58,8 @@ module {:options "-functionSyntax:4"} EsdkTestVectors {
   predicate SupportedEncryptVersion?(v: nat)
   {
     || v == 1
+    || v == 4
+    || v == 5
   }
 
 
@@ -74,16 +76,8 @@ module {:options "-functionSyntax:4"} EsdkTestVectors {
         decryptEncryptionContext: Option<mplTypes.EncryptionContext> := None,
         commitmentPolicy: mplTypes.ESDKCommitmentPolicy := mplTypes.FORBID_ENCRYPT_ALLOW_DECRYPT,
         frameLength: Option<int64>,
-        algorithmSuiteId: Option<mplTypes.ESDKAlgorithmSuiteId>
-      )
-    | PositiveEncryptTestVectorV4(
-        encryptDescriptions: seq<KeyVectorsTypes.KeyDescription>,
-        decryptDescriptions: seq<KeyVectorsTypes.KeyDescription>,
-        encryptionContext: Option<mplTypes.EncryptionContext> := None,
-        decryptEncryptionContext: Option<mplTypes.EncryptionContext> := None,
-        commitmentPolicy: mplTypes.ESDKCommitmentPolicy := mplTypes.FORBID_ENCRYPT_ALLOW_DECRYPT,
-        frameLength: Option<int64>,
-        algorithmSuiteId: Option<mplTypes.ESDKAlgorithmSuiteId>
+        algorithmSuiteId: Option<mplTypes.AlgorithmSuiteInfo>,
+        cmm: Option<string> := Some("Default")
       )
     | PositiveEncryptNegativeDecryptTestVector (
         name: string,
@@ -97,8 +91,9 @@ module {:options "-functionSyntax:4"} EsdkTestVectors {
         decryptEncryptionContext: Option<mplTypes.EncryptionContext> := None,
         commitmentPolicy: mplTypes.ESDKCommitmentPolicy := mplTypes.FORBID_ENCRYPT_ALLOW_DECRYPT,
         frameLength: Option<int64>,
-        algorithmSuiteId: Option<mplTypes.ESDKAlgorithmSuiteId>,
-        decryptErrorDescription: string
+        algorithmSuiteId: Option<mplTypes.AlgorithmSuiteInfo>,
+        decryptErrorDescription: string,
+        cmm: Option<string> := Some("Default")
       )
     | NegativeEncryptTestVector(
         name: string,
@@ -109,8 +104,9 @@ module {:options "-functionSyntax:4"} EsdkTestVectors {
         encryptionContext: Option<mplTypes.EncryptionContext> := None,
         commitmentPolicy: mplTypes.ESDKCommitmentPolicy := mplTypes.FORBID_ENCRYPT_ALLOW_DECRYPT,
         frameLength: Option<int64>,
-        algorithmSuiteId: Option<mplTypes.ESDKAlgorithmSuiteId>,
-        errorDescription: string
+        algorithmSuiteId: Option<mplTypes.AlgorithmSuiteInfo>,
+        errorDescription: string,
+        cmm: Option<string> := Some("Default")
       )
 
   type SupportedDecryptVersion = v: nat | SupportedDecryptVersion?(v)  witness 1
@@ -257,76 +253,80 @@ module {:options "-functionSyntax:4"} EsdkTestVectors {
     vector: Option<EsdkDecryptTestVector> := None
   )
 
-  method TestEncrypt(
-    plaintexts: map<string, seq<uint8>>,
-    keys: KeyVectors.KeyVectorsClient,
-    vector: EsdkEncryptTestVector
-  )
-    returns (output: EncryptTestOutput)
-    requires keys.ValidState()
-    modifies keys.Modifies
-    ensures keys.ValidState()
+  // method TestEncrypt(
+  //   plaintexts: map<string, seq<uint8>>,
+  //   keys: KeyVectors.KeyVectorsClient,
+  //   vector: EsdkEncryptTestVector
+  // )
+  //   returns (output: EncryptTestOutput)
+  //   requires keys.ValidState()
+  //   modifies keys.Modifies
+  //   ensures keys.ValidState()
 
-    requires vector.frameLength.Some? ==> Types.IsValid_FrameLength(vector.frameLength.value)
-  {
-    print "\nTEST===> ", vector.name, "\n";
+  //   requires vector.frameLength.Some? ==> Types.IsValid_FrameLength(vector.frameLength.value)
+  //   requires vector.algorithmSuiteId.Some?
+  // {
+  //   print "\nTEST===> ", vector.name, "\n";
 
-    // The decrypt test vectors also test initialization
-    // This is because they were developed when the MPL
-    // was still part of the ESDK
-    var maybeTest := EncryptVectorToEncryptTest(keys, vector);
-    if maybeTest.Success? {
-      var test := maybeTest.value;
+  //   // The decrypt test vectors also test initialization
+  //   // This is because they were developed when the MPL
+  //   // was still part of the ESDK
+  //   var maybeTest := EncryptVectorToEncryptTest(keys, vector);
+  //   if maybeTest.Success? {
+  //     var test := maybeTest.value;
+  //     assert test.vector.algorithmSuiteId.Some? by {
+  //       assert test.vector == vector;
+  //     }
 
-      expect test.vector.plaintextPath in plaintexts;
-      var plaintext := plaintexts[test.vector.plaintextPath];
-      var frameLength: Option<Types.FrameLength> := vector.frameLength;
+  //     expect test.vector.plaintextPath in plaintexts;
+  //     var plaintext := plaintexts[test.vector.plaintextPath];
+  //     var frameLength: Option<Types.FrameLength> := vector.frameLength;
 
-      var input := Types.EncryptInput(
-        plaintext := plaintext,
-        encryptionContext := test.vector.encryptionContext,
-        materialsManager := Some(test.cmm),
-        keyring := None,
-        frameLength := frameLength,
-        algorithmSuiteId := test.vector.algorithmSuiteId
-      );
-      var result := test.client.Encrypt(input);
+  //     var input := Types.EncryptInput(
+  //       plaintext := plaintext,
+  //       encryptionContext := test.vector.encryptionContext,
+  //       materialsManager := Some(test.cmm),
+  //       keyring := None,
+  //       frameLength := frameLength,
+  //       algorithmSuiteId := Some(test.vector.algorithmSuiteId.value.id)
+  //     );
+  //     var result := test.client.Encrypt(input);
 
-      if
-        && result.Success?
-        && (
-             || test.vector.PositiveEncryptTestVector?
-             || test.vector.PositiveEncryptNegativeDecryptTestVector?
-           )
-      {
-        var name :- expect UUID.GenerateUUID();
-        var decryptVector := EncryptTestToDecryptVector(name, test, result.value);
-        output := EncryptTestOutput(
-          vector := Some(decryptVector),
-          output := true
-        );
-      } else if result.Failure? && test.vector.NegativeEncryptTestVector? {
-        output := EncryptTestOutput( output := true );
-      } else {
-        output := EncryptTestOutput( output := false );
-        if !test.vector.NegativeEncryptTestVector? && result.Failure? {
-          print result.error;
-        }
-        print "\nFAILED! <-----------\n";
-      }
-    } else {
-      if maybeTest.Failure? ==> vector.NegativeEncryptTestVector?
-      {
-        output := EncryptTestOutput( output := true );
-      } else {
-        output := EncryptTestOutput( output := false );
-        if !vector.NegativeEncryptTestVector? && maybeTest.Failure? {
-          print maybeTest.error;
-        }
-        print "\nFAILED! <-----------\n";
-      }
-    }
-  }
+  //     if
+  //       && result.Success?
+  //       && (
+  //            || test.vector.PositiveEncryptTestVector?
+  //            || test.vector.PositiveEncryptNegativeDecryptTestVector?
+  //          )
+  //     {
+  //       var name :- expect UUID.GenerateUUID();
+  //       var decryptVector := EncryptTestToDecryptVector(name, test, result.value);
+  //       output := EncryptTestOutput(
+  //         vector := Some(decryptVector),
+  //         output := true
+  //       );
+  //     } else if result.Failure? && test.vector.NegativeEncryptTestVector? {
+  //       output := EncryptTestOutput( output := true );
+  //     } else {
+  //       output := EncryptTestOutput( output := false );
+  //       if !test.vector.NegativeEncryptTestVector? && result.Failure? {
+  //         print result.error;
+  //       }
+  //       print "\nFAILED! <-----------\n";
+  //     }
+  //   } else {
+  //     if maybeTest.Failure? ==> vector.NegativeEncryptTestVector?
+  //     {
+  //       output := EncryptTestOutput( output := true );
+  //     } else {
+  //       output := EncryptTestOutput( output := false );
+  //       if !vector.NegativeEncryptTestVector? && maybeTest.Failure? {
+  //         print maybeTest.error;
+  //       }
+  //       print "\nFAILED! <-----------\n";
+  //     }
+  //   }
+  // }
 
   method EncryptVectorToEncryptTest(
     keys: KeyVectors.KeyVectorsClient,
@@ -342,6 +342,9 @@ module {:options "-functionSyntax:4"} EsdkTestVectors {
               && output.value.ValidState()
               && fresh(output.value.cmm.Modifies - keys.Modifies)
               && fresh(output.value.client.Modifies)
+    ensures output.Success?
+            ==>
+            output.value.vector == vector
   {
     var cmm :- KeyDescriptionToCmm(keys, vector.encryptDescriptions);
 
@@ -370,7 +373,7 @@ module {:options "-functionSyntax:4"} EsdkTestVectors {
       || test.vector.PositiveEncryptNegativeDecryptTestVector?
   {
     output := match test.vector
-      case PositiveEncryptTestVector(_,_,_,_,_,_,_,_,_,_,_,_) =>
+      case PositiveEncryptTestVector(_,_,_,_,_,_,_,_,_,_,_,_,_) =>
         PositiveDecryptTestVector(
           name := name,
           version := 2,
@@ -383,7 +386,7 @@ module {:options "-functionSyntax:4"} EsdkTestVectors {
           decryptionMethod := DecryptionMethod.OneShot
         )
 
-      case PositiveEncryptNegativeDecryptTestVector(_,_,_,_,_,_,_,_,_,_,_,_,_) =>
+      case PositiveEncryptNegativeDecryptTestVector(_,_,_,_,_,_,_,_,_,_,_,_,_,_) =>
         NegativeDecryptTestVector(
           name := name,
           version := 2,

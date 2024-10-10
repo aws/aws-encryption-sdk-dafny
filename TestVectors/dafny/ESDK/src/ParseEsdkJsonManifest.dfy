@@ -233,7 +233,7 @@ module {:options "-functionSyntax:4"} ParseEsdkJsonManifest {
               encryptDescriptions := keyDescriptions,
               decryptDescriptions := keyDescriptions,
               frameLength := frameLength,
-              algorithmSuiteId := Some(algorithmSuite.id.ESDK)
+              algorithmSuiteId := Some(algorithmSuite)
             ))
   }
 
