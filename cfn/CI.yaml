@@ -129,7 +129,7 @@ Resources:
           ]
         }
 
-    KMSUsageOnlyUsEast1Keys:
+  KMSUsageOnlyUsEast1Keys:
     Type: "AWS::IAM::ManagedPolicy"
     Properties:
       ManagedPolicyName: !Sub "${ProjectName}-KMS-only-us-east-1"
