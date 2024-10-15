@@ -11,7 +11,7 @@ pub const TEST_DEFAULT_KMS_KEY_ACCOUNT_ID: &str = "658956600833";
 pub const TEST_SECOND_REGION_KMS_KEY_ID: &str =
     "arn:aws:kms:eu-central-1:658956600833:key/75414c93-5285-4b57-99c9-30c1cf0a22c2";
 
-pub const TEST_KMS_RSA_KEY_ID: &str = 
+pub const TEST_KMS_RSA_KEY_ID: &str =
     "arn:aws:kms:us-west-2:370957321024:key/mrk-63d386cb70614ea59b32ad65c9315297";
 
 pub const TEST_KMS_RSA_PUBLIC_KEY: &str = "-----BEGIN PUBLIC KEY-----\n\

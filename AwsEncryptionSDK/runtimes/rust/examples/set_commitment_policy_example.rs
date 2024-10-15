@@ -2,17 +2,23 @@
 // SPDX-License-Identifier: Apache-2.0
 
 /*
-This example sets up the AWS KMS RSA Keyring
+This example configures a client with a specific commitment policy for the
+AWS Encryption SDK client, then encrypts and decrypts data using an AWS KMS Keyring.
 
-This example creates a KMS RSA Keyring and then encrypts a custom input
-example_data with an encryption context. This example also includes some sanity checks for
-demonstration:
+The commitment policy in this example (ForbidEncryptAllowDecrypt) should only be
+used as part of a migration from version 1.x to 2.x, or for advanced users with
+specialized requirements. Most AWS Encryption SDK users should use the default
+commitment policy (RequireEncryptRequireDecrypt).
+
+This example creates a KMS Keyring and then encrypts a custom input EXAMPLE_DATA
+with an encryption context for the commitment policy ForbidEncryptAllowDecrypt.
+This example also includes some sanity checks for demonstration:
 1. Ciphertext and plaintext data are not the same
 2. Decrypted plaintext value matches EXAMPLE_DATA
 These sanity checks are for demonstration in the example only. You do not need these in your code.
 
-# For more information on how to use KMS keyrings, see
-# https://docs.aws.amazon.com/encryption-sdk/latest/developer-guide/use-kms-keyring.html
+For more information on setting your commitment policy, see
+https://docs.aws.amazon.com/encryption-sdk/latest/developer-guide/concepts.html#commitment-policy
 
 For more information on KMS Key identifiers, see
 https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#key-id
@@ -21,21 +27,25 @@ https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#key-id
 use aws_esdk::client as esdk_client;
 use aws_esdk::types::aws_encryption_sdk_config::AwsEncryptionSdkConfig;
 use aws_esdk::aws_cryptography_materialProviders::client as mpl_client;
-use aws_esdk::aws_cryptography_materialProviders::types::EsdkAlgorithmSuiteId;
+use aws_esdk::aws_cryptography_materialProviders::types::EsdkCommitmentPolicy::ForbidEncryptAllowDecrypt;
 use aws_esdk::aws_cryptography_materialProviders::types::material_providers_config::MaterialProvidersConfig;
 use std::collections::HashMap;
 
 pub async fn encrypt_and_decrypt_with_keyring(
     example_data: &str,
-    kms_rsa_key_id: &str,
-    kms_rsa_public_key: &str,
+    kms_key_id: &str,
 ) -> Result<(), crate::BoxError> {
     // 1. Instantiate the encryption SDK client.
-    // This builds the default client with the RequireEncryptRequireDecrypt commitment policy,
-    // which enforces that this client only encrypts using committing algorithm suites and enforces
-    // that this client will only decrypt encrypted messages that were created with a committing
-    // algorithm suite.
-    let esdk_config = AwsEncryptionSdkConfig::builder().build()?;
+    // This example builds the client with the ForbidEncryptAllowDecrypt commitment policy,
+    // which enforces that this client cannot encrypt with key commitment
+    // and it can decrypt ciphertexts encrypted with or without key commitment.
+    // The default commitment policy if you were to build the client like in
+    // the `keyring/aws_kms_keyring_example.rs` is RequireEncryptRequireDecrypt.
+    // We recommend that AWS Encryption SDK users use the default commitment policy
+    // (RequireEncryptRequireDecrypt) whenever possible.
+    let esdk_config = AwsEncryptionSdkConfig::builder()
+                        .commitment_policy(ForbidEncryptAllowDecrypt)
+                        .build()?;
     let esdk_client = esdk_client::Client::from_conf(esdk_config)?;
 
     // 2. Create a KMS client.
@@ -54,29 +64,34 @@ pub async fn encrypt_and_decrypt_with_keyring(
         ("the data you are handling".to_string(), "is what you think it is".to_string()),
     ]);
 
-    // 4. Create a KMS RSA keyring
+    // 4. Create a KMS keyring
     let mpl_config = MaterialProvidersConfig::builder().build()?;
     let mpl = mpl_client::Client::from_conf(mpl_config)?;
 
-    // For more information on the allowed encryption algorithms, please see
-    // https://docs.aws.amazon.com/kms/latest/developerguide/asymmetric-key-specs.html#key-spec-rsa
-    let kms_rsa_keyring = mpl
-        .create_aws_kms_rsa_keyring()
-        .kms_key_id(kms_rsa_key_id)
-        .public_key(aws_smithy_types::Blob::new(kms_rsa_public_key))
-        .encryption_algorithm(aws_sdk_kms::types::EncryptionAlgorithmSpec::RsaesOaepSha256)
+    let kms_keyring = mpl
+        .create_aws_kms_keyring()
+        .kms_key_id(kms_key_id)
         .kms_client(kms_client)
         .send()
         .await?;
 
-    // 5. Encrypt the data with the encryption_context
+    // 5. Encrypt the data with the encryptionContext. Make sure you use a non-committing algorithm
+    // with the commitment policy ForbidEncryptAllowDecrypt. Otherwise esdk_client.encrypt() will throw
+    // Error: AwsCryptographicMaterialProvidersError
+    //   {
+    //     error: InvalidAlgorithmSuiteInfoOnEncrypt
+    //     {
+    //       message: "Configuration conflict. Commitment policy requires only non-committing algorithm suites"
+    //     }
+    //   }
+    // By default for ForbidEncryptAllowDecrypt, the algorithm used is
+    // AlgAes256GcmIv12Tag16HkdfSha384EcdsaP384 which is a non-committing algorithm.
     let plaintext = aws_smithy_types::Blob::new(example_data);
 
     let encryption_response = esdk_client.encrypt()
         .plaintext(plaintext.clone())
-        .keyring(kms_rsa_keyring.clone())
+        .keyring(kms_keyring.clone())
         .encryption_context(encryption_context.clone())
-        .algorithm_suite_id(EsdkAlgorithmSuiteId::AlgAes256GcmHkdfSha512CommitKey)
         .send()
         .await?;
 
@@ -92,7 +107,7 @@ pub async fn encrypt_and_decrypt_with_keyring(
     // 7. Decrypt your encrypted data using the same keyring you used on encrypt.
     let decryption_response = esdk_client.decrypt()
         .ciphertext(ciphertext)
-        .keyring(kms_rsa_keyring)
+        .keyring(kms_keyring)
         // Provide the encryption context that was supplied to the encrypt method
         .encryption_context(encryption_context)
         .send()
@@ -107,20 +122,19 @@ pub async fn encrypt_and_decrypt_with_keyring(
     assert_eq!(decrypted_plaintext, plaintext,
         "Decrypted plaintext should be identical to the original plaintext. Invalid decryption");
 
-    println!("KMS RSA Keyring Example Completed Successfully");
+    println!("Set Commitment Policy Example Completed Successfully");
 
     Ok(())
 }
 
 #[tokio::test(flavor = "multi_thread")]
 pub async fn test_encrypt_and_decrypt_with_keyring() -> Result<(), crate::BoxError2> {
-    // Test function for encrypt and decrypt using the AWS KMS RSA Keyring example
+    // Test function for encrypt and decrypt using the Set Commitment Policy example
     use crate::example_utils::utils;
 
     encrypt_and_decrypt_with_keyring(
         utils::TEST_EXAMPLE_DATA,
-        utils::TEST_KMS_RSA_KEY_ID,
-        utils::TEST_KMS_RSA_PUBLIC_KEY
+        utils::TEST_DEFAULT_KMS_KEY_ID
     ).await?;
 
     Ok(())

@@ -2,22 +2,38 @@
 // SPDX-License-Identifier: Apache-2.0
 
 /*
-This example sets up the Raw AES Keyring
+This example demonstrates how to set an algorithm suite while using the Raw AES Keyring
+in the AWS Encryption SDK.
 
-The Raw AES keyring lets you use an AES symmetric key that you provide as a wrapping key that
-protects your data key. You need to generate, store, and protect the key material,
-preferably in a hardware security module (HSM) or key management system. Use a Raw AES keyring
-when you need to provide the wrapping key and encrypt the data keys locally or offline.
+The algorithm suite used in the encrypt() method is the algorithm used to protect your
+data using the data key. By setting this algorithm, you can configure the algorithm used
+to encrypt and decrypt your data.
+
+Algorithm suites can be set in a similar manner in other keyrings as well. However,
+please make sure that you're using a logical algorithm suite that is compatible with your
+keyring. For more information on algorithm suites supported by the AWS Encryption SDK, see
+https://docs.aws.amazon.com/encryption-sdk/latest/developer-guide/supported-algorithms.html
+
+The AES wrapping algorithm (AesWrappingAlg::AlgAes256GcmIv12Tag16) protects your data key using
+the user-provided wrapping key. In contrast, the algorithm suite used in the encrypt() method
+is the algorithm used to protect your data using the data key. This example demonstrates setting the
+latter, which is the algorithm suite for protecting your data. When the commitment policy is
+RequireEncryptRequireDecrypt, the default algorithm used in the encrypt method is
+AlgAes256GcmHkdfSha512CommitKeyEcdsaP384, which is a committing and signing algorithm.
+Signature verification ensures the integrity of a digital message as it goes across trust
+boundaries. However, signature verification adds a significant performance cost to encryption
+and decryption. If encryptors and decryptors are equally trusted, we can consider using an algorithm
+suite that does not include signing. This example sets the algorithm suite as
+AlgAes256GcmHkdfSha512CommitKey, which is a committing but non-signing algorithm.
+For more information on digital signatures, see
+https://docs.aws.amazon.com/encryption-sdk/latest/developer-guide/concepts.html#digital-sigs
 
 This example creates a Raw AES Keyring and then encrypts a custom input EXAMPLE_DATA
-with an encryption context. This example also includes some sanity checks for demonstration:
+with an encryption context and the algorithm suite AlgAes256GcmHkdfSha512CommitKey.
+This example also includes some sanity checks for demonstration:
 1. Ciphertext and plaintext data are not the same
 2. Decrypted plaintext value matches EXAMPLE_DATA
 These sanity checks are for demonstration in the example only. You do not need these in your code.
-
-The Raw AES keyring encrypts data by using the AES-GCM algorithm and a wrapping key that
-you specify as a byte array. You can specify only one wrapping key in each Raw AES keyring,
-but you can include multiple Raw AES keyrings, alone or with other keyrings, in a multi-keyring.
 
 For more information on how to use Raw AES keyrings, see
 https://docs.aws.amazon.com/encryption-sdk/latest/developer-guide/use-raw-aes-keyring.html
@@ -25,6 +41,7 @@ https://docs.aws.amazon.com/encryption-sdk/latest/developer-guide/use-raw-aes-ke
 
 use aws_esdk::client as esdk_client;
 use aws_esdk::types::aws_encryption_sdk_config::AwsEncryptionSdkConfig;
+use aws_esdk::aws_cryptography_materialProviders::types::EsdkAlgorithmSuiteId::AlgAes256GcmHkdfSha512CommitKey;
 use aws_esdk::aws_cryptography_materialProviders::client as mpl_client;
 use aws_esdk::aws_cryptography_materialProviders::types::material_providers_config::MaterialProvidersConfig;
 use aws_esdk::aws_cryptography_materialProviders::types::AesWrappingAlg;
@@ -70,6 +87,7 @@ pub async fn encrypt_and_decrypt_with_keyring(
     let mpl_config = MaterialProvidersConfig::builder().build()?;
     let mpl = mpl_client::Client::from_conf(mpl_config)?;
 
+    // The wrapping algorithm here is NOT the algorithm suite we set in this example.
     let raw_aes_keyring = mpl
         .create_raw_aes_keyring()
         .key_name(key_name)
@@ -82,10 +100,13 @@ pub async fn encrypt_and_decrypt_with_keyring(
     // 6. Encrypt the data with the encryptionContext
     let plaintext = aws_smithy_types::Blob::new(example_data);
 
+    // This is the important step in this example where we specify the algorithm suite
+    // you want to use for encrypting your data
     let encryption_response = esdk_client.encrypt()
         .plaintext(plaintext.clone())
         .keyring(raw_aes_keyring.clone())
         .encryption_context(encryption_context.clone())
+        .algorithm_suite_id(AlgAes256GcmHkdfSha512CommitKey)
         .send()
         .await?;
 
@@ -116,7 +137,7 @@ pub async fn encrypt_and_decrypt_with_keyring(
     assert_eq!(decrypted_plaintext, plaintext,
         "Decrypted plaintext should be identical to the original plaintext. Invalid decryption");
 
-    println!("Raw AES Keyring Example Completed Successfully");
+    println!("Set Encryption Algorithm Suite Example Completed Successfully");
 
     Ok(())
 }
@@ -134,7 +155,7 @@ fn generate_aes_key_bytes() -> Vec<u8> {
 
 #[tokio::test(flavor = "multi_thread")]
 pub async fn test_encrypt_and_decrypt_with_keyring() -> Result<(), crate::BoxError2> {
-    // Test function for encrypt and decrypt using the Raw AES Keyring example
+    // Test function for encrypt and decrypt using the Set Encryption Algorithm Suite example
     use crate::example_utils::utils;
 
     encrypt_and_decrypt_with_keyring(

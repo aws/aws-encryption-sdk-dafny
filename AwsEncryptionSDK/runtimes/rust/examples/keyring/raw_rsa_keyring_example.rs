@@ -65,7 +65,7 @@ pub async fn encrypt_and_decrypt_with_keyring(
     example_data: &str,
 ) -> Result<(), crate::BoxError> {
     // 1. Instantiate the encryption SDK client.
-    // This builds the default client with the REQUIRE_ENCRYPT_REQUIRE_DECRYPT commitment policy,
+    // This builds the default client with the RequireEncryptRequireDecrypt commitment policy,
     // which enforces that this client only encrypts using committing algorithm suites and enforces
     // that this client will only decrypt encrypted messages that were created with a committing
     // algorithm suite.

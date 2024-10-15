@@ -47,13 +47,14 @@ use aws_esdk::aws_cryptography_materialProviders::client as mpl_client;
 use aws_esdk::aws_cryptography_materialProviders::types::material_providers_config::MaterialProvidersConfig;
 use aws_esdk::aws_cryptography_materialProviders::types::AesWrappingAlg;
 use std::collections::HashMap;
+use rand::RngCore;
 
 pub async fn encrypt_and_decrypt_with_keyring(
     example_data: &str,
     kms_key_id: &str,
 ) -> Result<(), crate::BoxError> {
     // 1. Instantiate the encryption SDK client.
-    // This builds the default client with the REQUIRE_ENCRYPT_REQUIRE_DECRYPT commitment policy,
+    // This builds the default client with the RequireEncryptRequireDecrypt commitment policy,
     // which enforces that this client only encrypts using committing algorithm suites and enforces
     // that this client will only decrypt encrypted messages that were created with a committing
     // algorithm suite.
@@ -213,14 +214,14 @@ pub async fn encrypt_and_decrypt_with_keyring(
 }
 
 fn generate_aes_key_bytes() -> Vec<u8> {
-    // This example returns a static key.
+    // This example returns a random AES key.
     // In practice, you should not generate this key in your code, and should instead
     //     retrieve this key from a secure key management system (e.g. HSM).
     // This key is created here for example purposes only and should not be used for any other purpose.
-    vec![
-        1u8, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24,
-        25, 26, 27, 28, 29, 30, 31, 32,
-    ]
+    let mut random_bytes = [0u8; 32];
+    rand::rngs::OsRng.fill_bytes(&mut random_bytes);
+
+    random_bytes.to_vec()
 }
 
 #[tokio::test(flavor = "multi_thread")]

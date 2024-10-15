@@ -33,7 +33,7 @@ impl SigningSuiteOnlyCMM {
     pub fn new(keyring: KeyringRef) -> Self {
         let mpl_config = MaterialProvidersConfig::builder().build().unwrap();
         let mpl = mpl_client::Client::from_conf(mpl_config).unwrap();
-    
+
         Self {
             approved_algos: vec![
                 EsdkAlgorithmSuiteId::AlgAes128GcmIv12Tag16HkdfSha256EcdsaP256,
@@ -74,7 +74,7 @@ impl CryptographicMaterialsManager for SigningSuiteOnlyCMM {
                 message: "Algorithm Suite must use Signing".to_string(),
             });
         }
-        
+
         tokio::task::block_in_place(|| {
             tokio::runtime::Handle::current().block_on(async {
                 self.cmm.get_encryption_materials()
@@ -106,7 +106,7 @@ impl CryptographicMaterialsManager for SigningSuiteOnlyCMM {
                 message: "Algorithm Suite must use Signing".to_string(),
             });
         }
-        
+
         tokio::task::block_in_place(|| {
             tokio::runtime::Handle::current().block_on(async {
                 self.cmm.decrypt_materials()
