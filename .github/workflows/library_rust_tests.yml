@@ -74,10 +74,12 @@ jobs:
           cd dafny/
           git checkout rust-unsound
           make exe
+          echo $RUNNER_OS
           if [ "$RUNNER_OS" == "Windows" ]; then
             echo "${{ github.workspace }}/dafny/Scripts" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
           else
             echo ${{ github.workspace }}/dafny/Scripts >> $GITHUB_PATH
+          fi
       
       # TODO: Remove this after the formatting in Rust starts working
       - name: smithy-dafny Rust hacks
@@ -87,6 +89,7 @@ jobs:
             sed -i '' 's|rustfmt --edition 2021 runtimes/rust/src/implementation_from_dafny.rs|#&|' smithy-dafny/SmithyDafnyMakefile.mk
           else
             sed -i 's|rustfmt --edition 2021 runtimes/rust/src/implementation_from_dafny.rs|#&|' smithy-dafny/SmithyDafnyMakefile.mk
+          fi
 
       - name: Regenerate code using smithy-dafny if necessary
         if: ${{ inputs.regenerate-code }}
