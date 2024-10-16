@@ -47,8 +47,6 @@ jobs:
           git submodule update --init libraries
           git submodule update --init --recursive mpl
           git submodule update --init smithy-dafny
-          cd smithy-dafny/
-          git branch
           
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
@@ -66,9 +64,18 @@ jobs:
       #   uses: actions-rust-lang/rustfmt@v1
 
       - name: Setup Dafny
-        uses: dafny-lang/setup-dafny-action@v1.7.0
-        with:
-          dafny-version: ${{ inputs.dafny }}
+        # TODO: Use setup-dafny-actions@v1.7.0 for Rust instead of rust-unsound branch
+        # uses: dafny-lang/setup-dafny-action@v1.7.0
+        # with:
+        #   dafny-version: ${{ inputs.dafny }}
+        shell: bash
+        run: |
+          git clone https://github.com/dafny-lang/dafny.git
+          cd dafny/
+          git checkout rust-unsound
+          make exe
+          export DAFNY_HOME="${PWD}/Scripts"
+          export PATH=$PATH:$DAFNY_HOME
 
       - name: Regenerate code using smithy-dafny if necessary
         if: ${{ inputs.regenerate-code }}
