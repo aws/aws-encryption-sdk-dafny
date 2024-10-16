@@ -70,7 +70,7 @@ jobs:
         #   dafny-version: ${{ inputs.dafny }}
         shell: bash
         run: |
-          git clone https://github.com/dafny-lang/dafny.git --recurse-submodules:q:
+          git clone https://github.com/dafny-lang/dafny.git --recurse-submodules
           cd dafny/
           git checkout rust-unsound
           make exe
