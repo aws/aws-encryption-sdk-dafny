@@ -126,7 +126,6 @@ jobs:
           CORES=$(node -e 'console.log(os.cpus().length)')
           make transpile_rust CORES=$CORES
 
-    
       # - name: Compile MPL TestVectors implementation
       #   shell: bash
       #   working-directory: ./mpl/TestVectorsAwsCryptographicMaterialProviders
@@ -137,14 +136,12 @@ jobs:
 
       - name: Test Rust
         working-directory: ./AwsEncryptionSDK
-        if: matrix.os == 'windows-latest' 
         shell: bash
         run: |
           make test_rust
 
       - name: Test Examples for Rust
         working-directory: ./AwsEncryptionSDK
-        if: matrix.os == 'windows-latest' 
         shell: bash
         run: |
           cargo test --examples
