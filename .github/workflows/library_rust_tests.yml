@@ -59,9 +59,9 @@ jobs:
         uses: actions-rust-lang/setup-rust-toolchain@v1.10.1
         with:
           components: rustfmt
-
-      - name: Rustfmt Check
-        uses: actions-rust-lang/rustfmt@v1
+      # TODO - uncomment this after Rust formatter works
+      # - name: Rustfmt Check
+      #   uses: actions-rust-lang/rustfmt@v1
 
       - name: Setup Dafny
         uses: dafny-lang/setup-dafny-action@v1.7.0
