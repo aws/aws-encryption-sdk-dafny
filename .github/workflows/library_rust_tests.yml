@@ -71,11 +71,11 @@ jobs:
         shell: bash
         run: |
           git clone https://github.com/dafny-lang/dafny.git
-          cd dafny/
           git checkout rust-unsound
-          make exe
+          cd dafny/
           export DAFNY_HOME="${PWD}/Scripts"
           export PATH=$PATH:$DAFNY_HOME
+          make exe
 
       - name: Regenerate code using smithy-dafny if necessary
         if: ${{ inputs.regenerate-code }}
