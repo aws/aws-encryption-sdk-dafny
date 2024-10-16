@@ -73,9 +73,7 @@ jobs:
           git clone https://github.com/dafny-lang/dafny.git
           cd dafny/
           git checkout rust-unsound
-          export DAFNY_HOME="$PWD/Scripts"
-          echo $DAFNY_HOME
-          export PATH=$PATH:$DAFNY_HOME
+          echo $PWD/Scripts >> $GITHUB_PATH
           make exe
           dafny --version
           Dafny --version
