@@ -75,7 +75,7 @@ jobs:
           git checkout rust-unsound
           make exe
           echo ${{ github.workspace }}/dafny/Scripts >> $GITHUB_PATH
-          echo $GITHUB_PATH
+          echo "github path print: $GITHUB_PATH"
           dafny --version
           Dafny --version
 
