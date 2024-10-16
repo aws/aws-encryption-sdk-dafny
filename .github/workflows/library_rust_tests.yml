@@ -70,11 +70,12 @@ jobs:
         #   dafny-version: ${{ inputs.dafny }}
         shell: bash
         run: |
-          git clone https://github.com/dafny-lang/dafny.git
+          git clone https://github.com/dafny-lang/dafny.git --recurse-submodules:q:
           cd dafny/
           git checkout rust-unsound
-          echo ${{ github.workspace }}/dafny/Scripts >> $GITHUB_PATH
           make exe
+          echo ${{ github.workspace }}/dafny/Scripts >> $GITHUB_PATH
+          echo $GITHUB_PATH
           dafny --version
           Dafny --version
 
