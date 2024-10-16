@@ -74,12 +74,13 @@ jobs:
           cd dafny/
           git checkout rust-unsound
           make exe
-          echo $RUNNER_OS
-          if [ "$RUNNER_OS" == "Windows" ]; then
-            echo "${{ github.workspace }}/dafny/Scripts" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-          else
-            echo ${{ github.workspace }}/dafny/Scripts >> $GITHUB_PATH
-          fi
+          echo ${{ github.workspace }}/dafny/Scripts >> $GITHUB_PATH
+      
+      # TODO: Remove the hacks
+      - name: Add Dafny to Windows PATH
+        shell: pwsh
+        run: |
+          echo "${{ github.workspace }}/dafny/Scripts" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
       
       # TODO: Remove this after the formatting in Rust starts working
       - name: smithy-dafny Rust hacks
@@ -90,6 +91,9 @@ jobs:
           else
             sed -i 's|rustfmt --edition 2021 runtimes/rust/src/implementation_from_dafny.rs|#&|' smithy-dafny/SmithyDafnyMakefile.mk
           fi
+      
+      - name: Install Smithy-Dafny codegen dependencies
+        uses: ./.github/actions/install_smithy_dafny_codegen_dependencies
 
       - name: Regenerate code using smithy-dafny if necessary
         if: ${{ inputs.regenerate-code }}
@@ -99,8 +103,16 @@ jobs:
           library: AwsEncryptionSDK
           diff-generated-code: false
           update-and-regenerate-mpl: true
-
+      
       - name: Compile AwsEncryptionSDK implementation
+        shell: bash
+        working-directory: ./AwsEncryptionSDK
+        run: |
+          # This works because `node` is installed by default on GHA runners
+          CORES=$(node -e 'console.log(os.cpus().length)')
+          make transpile_rust CORES=$CORES
+
+      - name: Update implementation_from_dafny.rs to add deps
         shell: bash
         working-directory: ./AwsEncryptionSDK
         run: |
