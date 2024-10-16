@@ -74,10 +74,10 @@ jobs:
           cd dafny/
           git checkout rust-unsound
           make exe
+          echo ${{ github.workspace }}/dafny/Scripts
           echo ${{ github.workspace }}/dafny/Scripts >> $GITHUB_PATH
-          echo "github path print: $GITHUB_PATH"
+          echo ${{ github.workspace }}/dafny/Scripts
           dafny --version
-          Dafny --version
 
       - name: Regenerate code using smithy-dafny if necessary
         if: ${{ inputs.regenerate-code }}
