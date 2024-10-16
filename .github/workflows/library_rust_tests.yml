@@ -73,9 +73,12 @@ jobs:
           git clone https://github.com/dafny-lang/dafny.git
           cd dafny/
           git checkout rust-unsound
-          export DAFNY_HOME="${PWD}/Scripts"
+          export DAFNY_HOME="$PWD/Scripts"
+          echo $DAFNY_HOME
           export PATH=$PATH:$DAFNY_HOME
           make exe
+          dafny --version
+          Dafny --version
 
       - name: Regenerate code using smithy-dafny if necessary
         if: ${{ inputs.regenerate-code }}
