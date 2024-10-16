@@ -91,6 +91,12 @@ jobs:
           else
             sed -i 's|rustfmt --edition 2021 runtimes/rust/src/implementation_from_dafny.rs|#&|' smithy-dafny/SmithyDafnyMakefile.mk
           fi
+
+      - name: Setup Java 17 for codegen
+        uses: actions/setup-java@v3
+        with:
+          distribution: "corretto"
+          java-version: "17"
       
       - name: Install Smithy-Dafny codegen dependencies
         uses: ./.github/actions/install_smithy_dafny_codegen_dependencies
