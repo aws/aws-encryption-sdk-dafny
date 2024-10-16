@@ -74,15 +74,7 @@ jobs:
           cd dafny/
           git checkout rust-unsound
           make exe
-          echo ${{ github.workspace }}/dafny/Scripts
-          echo $GITHUB_PATH
-          echo $GITHUB_ENV
           echo ${{ github.workspace }}/dafny/Scripts >> $GITHUB_PATH
-          echo ${{ github.workspace }}/dafny/Scripts >> $GITHUB_ENV
-          echo ${{ github.workspace }}/dafny/Scripts
-          echo $GITHUB_PATH
-          echo $GITHUB_ENV
-          dafny --version
 
       - name: Regenerate code using smithy-dafny if necessary
         if: ${{ inputs.regenerate-code }}
