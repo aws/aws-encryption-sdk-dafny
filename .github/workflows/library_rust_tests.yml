@@ -75,7 +75,6 @@ jobs:
           git checkout rust-unsound
           make exe
           
-          echo "DAFNY_VERSION=4.8.0" >> $GITHUB_ENV
           echo $PWD/Scripts >> $GITHUB_PATH
       
       # TODO: Remove this after the formatting in Rust starts working
@@ -107,13 +106,18 @@ jobs:
           update-and-regenerate-mpl: true
 
       # TODO: Possibly remove this if not needed?
-      - name: Run make polymorph_rust
+      - name: Run make polymorph_rust for ubuntu and macos
         shell: bash
         working-directory: ./AwsEncryptionSDK
-        env:
-          DAFNY_VERSION: ${{ env.DAFNY_VERSION }}
+        if: matrix.os == 'ubuntu-latest' || matrix.os == 'macos-12'
         run: |
-          echo "DAFNY_VERSION is: ${DAFNY_VERSION}"
+          make polymorph_rust
+      
+      - name: Run make polymorph_rust (Windows)
+        shell: pwsh
+        working-directory: ./AwsEncryptionSDK
+        if: matrix.os == 'windows-latest'
+        run: |
           make polymorph_rust
 
       - name: Compile AwsEncryptionSDK implementation
