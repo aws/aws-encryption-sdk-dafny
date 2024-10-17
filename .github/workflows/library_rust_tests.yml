@@ -75,7 +75,7 @@ jobs:
           git checkout rust-unsound
           make exe
           
-          echo "DAFNY_VERSION=4.7.0" >> $GITHUB_ENV
+          echo "DAFNY_VERSION=4.8.0" >> $GITHUB_ENV
           echo $PWD/Scripts >> $GITHUB_PATH
       
       # TODO: Remove this after the formatting in Rust starts working
