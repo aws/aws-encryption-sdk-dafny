@@ -74,13 +74,21 @@ jobs:
           cd dafny/
           git checkout rust-unsound
           make exe
-          echo ${{ github.workspace }}/dafny/Scripts >> $GITHUB_PATH
+          echo ${{ github.workspace }}/dafny/Scripts
+
+          if [ "$RUNNER_OS" == "Windows" ]; then
+            echo "${{ github.workspace }}\your\path"
+            echo ${{ github.workspace }}/dafny/Scripts | sed 's/\\/\//g' >> $GITHUB_PATH
+          else
+            echo ${{ github.workspace }}/dafny/Scripts >> $GITHUB_PATH
+          fi
+          cat $GITHUB_PATH
       
-      # TODO: Remove the hacks
-      - name: Add Dafny to Windows PATH
-        shell: pwsh
-        run: |
-          echo "${{ github.workspace }}/dafny/Scripts" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+      # # TODO: Remove the hacks
+      # - name: Add Dafny to Windows PATH
+      #   shell: pwsh
+      #   run: |
+      #     echo "${{ github.workspace }}/dafny/Scripts" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
       
       # TODO: Remove this after the formatting in Rust starts working
       - name: smithy-dafny Rust hacks
@@ -109,7 +117,15 @@ jobs:
           library: AwsEncryptionSDK
           diff-generated-code: false
           update-and-regenerate-mpl: true
-      
+
+      # TODO: Possibly remove this if not needed?
+      - name: Run make polymorph_dafny and make_polymorph_rust
+        shell: bash
+        working-directory: ./AwsEncryptionSDK
+        run: |
+          make polymorph_dafny
+          make polymorph_rust
+
       - name: Compile AwsEncryptionSDK implementation
         shell: bash
         working-directory: ./AwsEncryptionSDK
@@ -118,13 +134,24 @@ jobs:
           CORES=$(node -e 'console.log(os.cpus().length)')
           make transpile_rust CORES=$CORES
 
+      # Remove Rust hacks
       - name: Update implementation_from_dafny.rs to add deps
         shell: bash
-        working-directory: ./AwsEncryptionSDK
+        working-directory: ./AwsEncryptionSDK/runtimes/rust/src
         run: |
-          # This works because `node` is installed by default on GHA runners
-          CORES=$(node -e 'console.log(os.cpus().length)')
-          make transpile_rust CORES=$CORES
+          if [ "$RUNNER_OS" == "macOS" ]; then
+            sed -i '' '/pub use types::aws_encryption_sdk_config::AwsEncryptionSdkConfig;/a\
+            pub use crate::deps::aws_cryptography_materialProviders;\
+            pub use crate::deps::aws_cryptography_keyStore;\
+            pub use crate::deps::com_amazonaws_kms;
+            ' implementation_from_dafny.rs
+          else
+            sed -i '/pub use types::aws_encryption_sdk_config::AwsEncryptionSdkConfig;/a\
+            pub use crate::deps::aws_cryptography_materialProviders;\
+            pub use crate::deps::aws_cryptography_keyStore;\
+            pub use crate::deps::com_amazonaws_kms;
+            ' implementation_from_dafny.rs
+          fi
 
       # - name: Compile MPL TestVectors implementation
       #   shell: bash
@@ -141,7 +168,7 @@ jobs:
           make test_rust
 
       - name: Test Examples for Rust
-        working-directory: ./AwsEncryptionSDK
+        working-directory: ./AwsEncryptionSDK/runtimes/rust
         shell: bash
         run: |
           cargo test --examples
