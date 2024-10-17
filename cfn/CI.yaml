@@ -72,7 +72,7 @@ Resources:
               "Action": "sts:AssumeRole"
             },
             {
-              ""Effect": "Allow",
+              "Effect": "Allow",
               "Principal": { "AWS": "arn:aws:iam::370957321024:role/GitHub-CI-Public-ESDK-Dafny-Role-us-west-2" },
               "Action": "sts:AssumeRole"
             },
@@ -114,7 +114,7 @@ Resources:
               "Action": "sts:AssumeRole"
             },
             {
-              ""Effect": "Allow",
+              "Effect": "Allow",
               "Principal": { "AWS": "arn:aws:iam::370957321024:role/GitHub-CI-Public-ESDK-Dafny-Role-us-west-2" },
               "Action": "sts:AssumeRole"
             },
