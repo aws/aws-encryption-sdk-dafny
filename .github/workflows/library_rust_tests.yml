@@ -87,6 +87,8 @@ jobs:
       - name: smithy-dafny Rust hacks
         shell: bash
         run: |
+          echo "dafny version"
+          dafny --version
           if [ "$RUNNER_OS" == "macOS" ]; then
             sed -i '' 's|rustfmt --edition 2021 runtimes/rust/src/implementation_from_dafny.rs|#&|' smithy-dafny/SmithyDafnyMakefile.mk
           else
