@@ -112,7 +112,8 @@ jobs:
         env:
           DAFNY_VERSION: ${{ env.DAFNY_VERSION }}
         run: |
-          make polymorph_rust
+          echo "DAFNY_VERSION is: ${DAFNY_VERSION}"
+          make polymorph_rust DAFNY_VERSION="${DAFNY_VERSION}"
 
       - name: Compile AwsEncryptionSDK implementation
         shell: bash
