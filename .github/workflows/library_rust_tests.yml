@@ -76,7 +76,7 @@ jobs:
           make exe
 
           if [ "$RUNNER_OS" == "Windows" ]; then
-            echo $PWD/dafny/Scripts | sed 's/\\/\//g' >> $GITHUB_PATH
+            echo $PWD/Scripts | sed 's/\\/\//g' >> $GITHUB_PATH
           else
             echo ${{ github.workspace }}/dafny/Scripts >> $GITHUB_PATH
           fi
