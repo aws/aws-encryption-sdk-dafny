@@ -74,21 +74,14 @@ jobs:
           cd dafny/
           git checkout rust-unsound
           make exe
-          echo ${{ github.workspace }}/dafny/Scripts
 
           if [ "$RUNNER_OS" == "Windows" ]; then
-            echo "${{ github.workspace }}\your\path"
             echo ${{ github.workspace }}/dafny/Scripts | sed 's/\\/\//g' >> $GITHUB_PATH
           else
             echo ${{ github.workspace }}/dafny/Scripts >> $GITHUB_PATH
           fi
+          echo "print for GITHUB_PATH"
           cat $GITHUB_PATH
-      
-      # # TODO: Remove the hacks
-      # - name: Add Dafny to Windows PATH
-      #   shell: pwsh
-      #   run: |
-      #     echo "${{ github.workspace }}/dafny/Scripts" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
       
       # TODO: Remove this after the formatting in Rust starts working
       - name: smithy-dafny Rust hacks
@@ -123,6 +116,8 @@ jobs:
         shell: bash
         working-directory: ./AwsEncryptionSDK
         run: |
+          echo "dafny version: $env.DAFNY_VERSION"
+          echo "inputs.dafny $inputs.dafny"
           make polymorph_dafny
           make polymorph_rust
 
@@ -132,7 +127,7 @@ jobs:
         run: |
           # This works because `node` is installed by default on GHA runners
           CORES=$(node -e 'console.log(os.cpus().length)')
-          make transpile_rust CORES=$CORES
+          make transpile_rust TRANSPILE_TESTS_IN_RUST=1 CORES=$CORES
 
       # Remove Rust hacks
       - name: Update implementation_from_dafny.rs to add deps
