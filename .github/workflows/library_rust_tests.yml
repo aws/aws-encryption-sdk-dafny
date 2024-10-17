@@ -76,15 +76,11 @@ jobs:
           make exe
 
           echo $PWD/Scripts >> $GITHUB_PATH
-          echo "print for GITHUB_PATH"
-          cat $GITHUB_PATH
       
       # TODO: Remove this after the formatting in Rust starts working
       - name: smithy-dafny Rust hacks
         shell: bash
         run: |
-          echo "dafny version"
-          dafny --version
           if [ "$RUNNER_OS" == "macOS" ]; then
             sed -i '' 's|rustfmt --edition 2021 runtimes/rust/src/implementation_from_dafny.rs|#&|' smithy-dafny/SmithyDafnyMakefile.mk
           else
@@ -100,23 +96,20 @@ jobs:
       - name: Install Smithy-Dafny codegen dependencies
         uses: ./.github/actions/install_smithy_dafny_codegen_dependencies
 
-      - name: Regenerate code using smithy-dafny if necessary
-        if: ${{ inputs.regenerate-code }}
-        uses: ./.github/actions/polymorph_codegen
-        with:
-          dafny: ${{ env.DAFNY_VERSION }}
-          library: AwsEncryptionSDK
-          diff-generated-code: false
-          update-and-regenerate-mpl: true
+      # - name: Regenerate code using smithy-dafny if necessary
+      #   if: ${{ inputs.regenerate-code }}
+      #   uses: ./.github/actions/polymorph_codegen
+      #   with:
+      #     dafny: ${{ env.DAFNY_VERSION }}
+      #     library: AwsEncryptionSDK
+      #     diff-generated-code: false
+      #     update-and-regenerate-mpl: true
 
       # TODO: Possibly remove this if not needed?
-      - name: Run make polymorph_dafny and make_polymorph_rust
+      - name: Run make polymorph_rust
         shell: bash
         working-directory: ./AwsEncryptionSDK
         run: |
-          echo "dafny version: $env.DAFNY_VERSION"
-          echo "inputs.dafny $inputs.dafny"
-          make polymorph_dafny
           make polymorph_rust
 
       - name: Compile AwsEncryptionSDK implementation
