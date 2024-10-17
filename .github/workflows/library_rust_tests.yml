@@ -106,17 +106,9 @@ jobs:
           update-and-regenerate-mpl: true
 
       # TODO: Possibly remove this if not needed?
-      - name: Run make polymorph_rust for ubuntu and macos
+      - name: Run make polymorph_rust
         shell: bash
         working-directory: ./AwsEncryptionSDK
-        if: matrix.os == 'ubuntu-latest' || matrix.os == 'macos-12'
-        run: |
-          make polymorph_rust
-      
-      - name: Run make polymorph_rust (Windows)
-        shell: pwsh
-        working-directory: ./AwsEncryptionSDK
-        if: matrix.os == 'windows-latest'
         run: |
           make polymorph_rust
 
