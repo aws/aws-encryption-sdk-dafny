@@ -36,7 +36,7 @@ jobs:
         run: |
             git submodule update --init libraries
             git submodule update --init --recursive mpl
-            git submodule update --init smithy-dafny
+            git submodule update --init --recursive smithy-dafny
 
       - name: Setup Dafny
         uses: dafny-lang/setup-dafny-action@v1.7.0
