@@ -8,9 +8,9 @@
 
  If you want to use a Shared Cache, you need to initialize it only once, and
  pass the same cache `shared_cache` to different hierarchical keyrings.
- 
+
  There are three important parameters that users need to carefully set while providing the shared cache:
- 
+
  1. Partition ID - Partition ID is an optional parameter provided to the Hierarchical Keyring input,
  which distinguishes Cryptographic Material Providers (i.e: Keyrings) writing to a cache.
  - If the Partition ID is set and is the same for two Hierarchical Keyrings (or another Material Provider),
@@ -20,7 +20,7 @@
  - If the Partition ID is not set by the user, it is initialized as a random 16-byte UUID which makes
    it unique for every Hierarchical Keyring, and two Hierarchical Keyrings (or another Material Provider)
    CANNOT share the same cache entries in the cache.
- 
+
  2. Logical Key Store Name - This parameter is set by the user when configuring the Key Store for
  the Hierarchical Keyring. This is a logical name for the branch key store.
  Suppose you have a physical Key Store (K). You create two instances of K (K1 and K2). Now, you create
@@ -29,21 +29,21 @@
    for both the Key Store instances (K1 and K2) to be the same.
  - If you set the Logical Key Store Names for K1 and K2 to be different, HK1 (which uses Key Store instance K1)
    and HK2 (which uses Key Store instance K2) will NOT be able to share cache entries.
- 
+
  3. Branch Key ID - Choose an effective Branch Key ID Schema
- 
+
  This is demonstrated in the example below.
  Notice that both K1 and K2 are instances of the same physical Key Store (K).
  You MUST NEVER have two different physical Key Stores with the same Logical Key Store Name.
- 
+
  Important Note: If you have two or more Hierarchy Keyrings with:
  - Same Partition ID
- - Same Logical Key Store Name of the Key Store for the Hierarchical Keyring 
+ - Same Logical Key Store Name of the Key Store for the Hierarchical Keyring
  - Same Branch Key ID
  then they WILL share the cache entries in the Shared Cache.
  Please make sure that you set all of Partition ID, Logical Key Store Name and Branch Key ID
  to be the same for two Hierarchical Keyrings if and only if you want them to share cache entries.
- 
+
  This example first creates a shared cache that you can use across multiple Hierarchical Keyrings.
  The example then configures a Hierarchical Keyring (HK1 and HK2) with the shared cache,
  a Branch Key ID and two instances (K1 and K2) of the same physical Key Store (K) respectively,
@@ -147,7 +147,7 @@ pub async fn encrypt_and_decrypt_with_keyring(
     // the shared_cache and the branch_key_id.
     // Note that we are now providing an already initialized shared cache instead of just mentioning
     // the cache type and the Hierarchical Keyring initializing a cache at initialization.
-    
+
     // partition_id for this example is a random UUID
     let partition_id = "91c1b6a2-6fc3-4539-ad5e-938d597ed730".to_string();
 
@@ -196,7 +196,7 @@ pub async fn encrypt_and_decrypt_with_keyring(
     // (This is an example for demonstration; you do not need to do this in your own code.)
     assert_ne!(ciphertext1, plaintext,
         "Ciphertext and plaintext data are the same. Invalid encryption");
-        
+
     // 9. Decrypt your encrypted data using the same keyring HK1 you used on encrypt.
     let decryption_response1 = esdk_client.decrypt()
         .ciphertext(ciphertext1)
@@ -218,7 +218,7 @@ pub async fn encrypt_and_decrypt_with_keyring(
     // 11. Through the above encrypt and decrypt roundtrip, the cache will be populated and
     // the cache entries can be used by another Hierarchical Keyring with the
     // - Same Partition ID
-    // - Same Logical Key Store Name of the Key Store for the Hierarchical Keyring 
+    // - Same Logical Key Store Name of the Key Store for the Hierarchical Keyring
     // - Same Branch Key ID
 
     // Configure your Key Store resource key_store2.
@@ -273,7 +273,7 @@ pub async fn encrypt_and_decrypt_with_keyring(
     // (This is an example for demonstration; you do not need to do this in your own code.)
     assert_ne!(ciphertext2, plaintext,
         "Ciphertext and plaintext data are the same. Invalid encryption");
-        
+
     // 15. Decrypt your encrypted data using the same keyring HK2 you used on encrypt.
     let decryption_response2 = esdk_client.decrypt()
         .ciphertext(ciphertext2)

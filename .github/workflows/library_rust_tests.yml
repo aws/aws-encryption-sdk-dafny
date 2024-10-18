@@ -1,13 +1,13 @@
 # This workflow performs tests in Rust.
 name: Library Rust tests
 
-on: 
+on:
   workflow_call:
     inputs:
       dafny:
         description: 'The Dafny version to run'
         required: true
-        type: string  
+        type: string
       regenerate-code:
         description: "Regenerate code using smithy-dafny"
         required: false
@@ -47,14 +47,14 @@ jobs:
           git submodule update --init libraries
           git submodule update --init --recursive mpl
           git submodule update --init --recursive smithy-dafny
-          
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-region: us-west-2
-          role-to-assume: arn:aws:iam::370957321024:role/GitHub-CI-Public-ESDK-Dafny-Role-us-west-2 
+          role-to-assume: arn:aws:iam::370957321024:role/GitHub-CI-Public-ESDK-Dafny-Role-us-west-2
           role-session-name: RustTests
-          
+
       - name: Setup Rust Toolchain for GitHub CI
         uses: actions-rust-lang/setup-rust-toolchain@v1.10.1
         with:
@@ -74,9 +74,9 @@ jobs:
           cd dafny/
           git checkout rust-unsound
           make exe
-          
+
           echo $PWD/Scripts >> $GITHUB_PATH
-      
+
       # TODO: Remove this after the formatting in Rust starts working
       - name: smithy-dafny Rust hacks
         shell: bash
@@ -92,7 +92,7 @@ jobs:
         with:
           distribution: "corretto"
           java-version: "17"
-      
+
       - name: Install Smithy-Dafny codegen dependencies
         uses: ./.github/actions/install_smithy_dafny_codegen_dependencies
 

@@ -149,7 +149,7 @@ pub async fn encrypt_and_decrypt_with_keyring(
             .encryption_context(encryption_context)
             .send()
             .await;
-    
+
     match decryption_response_incorrect_max_encrypted_keys {
         Ok(_) => panic!("Decrypt using discovery keyring with wrong AWS Account ID MUST \
                             raise AwsCryptographicMaterialProvidersError"),
