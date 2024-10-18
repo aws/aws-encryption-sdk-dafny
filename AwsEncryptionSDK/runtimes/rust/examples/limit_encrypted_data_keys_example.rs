@@ -84,7 +84,7 @@ pub async fn encrypt_and_decrypt_with_keyring(
             .await?;
 
         raw_aes_keyrings.push(raw_aes_keyring);
-        i = i + 1;
+        i += 1;
     }
 
     // 5. Create a Multi Keyring with `max_encrypted_data_keys` AES Keyrings

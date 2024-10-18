@@ -146,6 +146,13 @@ pub async fn main() -> Result<(), BoxError2> {
         utils::TEST_KEY_STORE_KMS_KEY_ID
     ).await?;
 
+    keyring::aws_kms_hierarchical::shared_cache_across_hierarchical_keyrings_example::encrypt_and_decrypt_with_keyring(
+        utils::TEST_EXAMPLE_DATA,
+        utils::TEST_KEY_STORE_NAME,
+        utils::TEST_LOGICAL_KEY_STORE_NAME,
+        utils::TEST_KEY_STORE_KMS_KEY_ID
+    ).await?;
+
     cryptographic_materials_manager::required_encryption_context::required_encryption_context_example::encrypt_and_decrypt_with_cmm(
         utils::TEST_EXAMPLE_DATA,
         utils::TEST_DEFAULT_KMS_KEY_ID
