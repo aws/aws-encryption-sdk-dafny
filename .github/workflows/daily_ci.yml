@@ -28,6 +28,11 @@ jobs:
     uses: ./.github/workflows/library_net_tests.yml
     with:
       dafny: '4.8.0'
+  daily-ci-rust:
+    if: github.event_name != 'schedule' || github.repository_owner == 'aws'
+    uses: ./.github/workflows/library_rust_tests.yml
+    with:
+      dafny: '4.8.0'
 
   daily-ci-interop-tests:
     if: github.event_name != 'schedule' || github.repository_owner == 'aws'
