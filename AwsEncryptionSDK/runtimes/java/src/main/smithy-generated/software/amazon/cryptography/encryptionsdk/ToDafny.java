@@ -42,25 +42,11 @@ public class ToDafny {
     if (nativeValue instanceof CollectionOfErrors) {
       return ToDafny.Error((CollectionOfErrors) nativeValue);
     }
-    return Error.create_Opaque(
-      nativeValue,
-      dafny.DafnySequence.asString(
-        java.util.Objects.nonNull(nativeValue.getMessage())
-          ? nativeValue.getMessage()
-          : ""
-      )
-    );
+    return Error.create_Opaque(nativeValue);
   }
 
   public static Error Error(OpaqueError nativeValue) {
-    return Error.create_Opaque(
-      nativeValue.obj(),
-      dafny.DafnySequence.asString(
-        java.util.Objects.nonNull(nativeValue.altText())
-          ? nativeValue.altText()
-          : ""
-      )
-    );
+    return Error.create_Opaque(nativeValue.obj());
   }
 
   public static Error Error(CollectionOfErrors nativeValue) {
