@@ -22,7 +22,7 @@ module {:options "-functionSyntax:4"} EsdkTestManifests {
   import ParseEsdkJsonManifest
   import KeyVectors
   import KeyVectorsTypes = AwsCryptographyMaterialProvidersTestVectorKeysTypes
-  import Aws.Cryptography.Primitives
+  import AtomicPrimitives
   import UTF8
 
   import EsdkManifestOptions

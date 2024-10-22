@@ -12,7 +12,7 @@ module KeyDerivation {
   import Types = AwsCryptographyEncryptionSdkTypes
   import MPL = AwsCryptographyMaterialProvidersTypes
   import AwsCryptographyPrimitivesTypes
-  import Primitives = Aws.Cryptography.Primitives
+  import Primitives = AtomicPrimitives
   import HeaderTypes
   import SerializableTypes
 
