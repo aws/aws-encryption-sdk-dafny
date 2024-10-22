@@ -214,7 +214,7 @@ module {:options "-functionSyntax:4"} EsdkTestManifests {
     | EncryptManifest(
         version: nat,
         keys: KeyVectors.KeyVectorsClient,
-        plaintext: seq<(string, Primitives.Types.PositiveInteger)>,
+        plaintext: seq<(string, AtomicPrimitives.Types.PositiveInteger)>,
         jsonTests: seq<(string, Values.JSON)>
       )
 
