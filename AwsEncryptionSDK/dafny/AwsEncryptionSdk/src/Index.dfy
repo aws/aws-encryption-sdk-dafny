@@ -7,7 +7,7 @@ module
   {:extern "software.amazon.cryptography.encryptionsdk.internaldafny" }
   EncryptionSdk refines AbstractAwsCryptographyEncryptionSdkService {
   import Operations = AwsEncryptionSdkOperations
-  import Primitives = AtomicPrimitives
+  import Primitives = Aws.Cryptography.Primitives
   import MaterialProviders
   import AwsCryptographyMaterialProvidersTypes
 

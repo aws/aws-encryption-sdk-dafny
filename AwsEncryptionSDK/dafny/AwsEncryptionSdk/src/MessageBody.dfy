@@ -22,7 +22,7 @@ module MessageBody {
   import opened UInt = StandardLibrary.UInt
   import Types = AwsCryptographyEncryptionSdkTypes
   import MPL = AwsCryptographyMaterialProvidersTypes
-  import Primitives = AtomicPrimitives
+  import Primitives = Aws.Cryptography.Primitives
   import Streams
   import UTF8
   import SerializableTypes
