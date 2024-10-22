@@ -64,19 +64,9 @@ pub async fn encrypt_and_decrypt_with_keyring(
     // defined in the RegionalRoleClientSupplier class in this directory.
     // Note: RegionalRoleClientSupplier will internally use the key_arn's region
     // to retrieve the correct IAM role.
-<<<<<<< HEAD
-    let supplier_ref = ClientSupplierRef {
-        inner: std::rc::Rc::new(std::cell::RefCell::new(RegionalRoleClientSupplier {})),
-    };
-
-    let mrk_keyring_with_client_supplier = mpl
-        .create_aws_kms_mrk_multi_keyring()
-        .client_supplier(supplier_ref.clone())
-=======
     let mrk_keyring_with_client_supplier = mpl
         .create_aws_kms_mrk_multi_keyring()
         .client_supplier(RegionalRoleClientSupplier {})
->>>>>>> rkapila/rust-reviewed
         .generator(mrk_key_id_encrypt)
         .send()
         .await?;
@@ -115,11 +105,7 @@ pub async fn encrypt_and_decrypt_with_keyring(
 
     let mrk_discovery_client_supplier_keyring = mpl
         .create_aws_kms_mrk_discovery_multi_keyring()
-<<<<<<< HEAD
-        .client_supplier(supplier_ref.clone())
-=======
         .client_supplier(RegionalRoleClientSupplier {})
->>>>>>> rkapila/rust-reviewed
         .discovery_filter(discovery_filter.clone())
         .regions(aws_regions)
         .send()
@@ -158,11 +144,7 @@ pub async fn encrypt_and_decrypt_with_keyring(
     // (This is an example for demonstration; you do not need to do this in your own code.)
     let mrk_discovery_client_supplier_keyring_missing_region = mpl
         .create_aws_kms_mrk_discovery_multi_keyring()
-<<<<<<< HEAD
-        .client_supplier(supplier_ref)
-=======
         .client_supplier(RegionalRoleClientSupplier {})
->>>>>>> rkapila/rust-reviewed
         .discovery_filter(discovery_filter)
         .regions(vec!["fake-region".to_string()])
         .send()

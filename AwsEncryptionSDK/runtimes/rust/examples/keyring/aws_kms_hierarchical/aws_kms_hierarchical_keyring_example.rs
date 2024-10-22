@@ -98,12 +98,6 @@ pub async fn encrypt_and_decrypt_with_keyring(
         &branch_key_id_a,
         &branch_key_id_b
     );
-<<<<<<< HEAD
-    let branch_key_id_supplier_ref: BranchKeyIdSupplierRef = BranchKeyIdSupplierRef {
-        inner: ::std::rc::Rc::new(std::cell::RefCell::new(branch_key_id_supplier)),
-    };
-=======
->>>>>>> rkapila/rust-reviewed
 
     // 6. Create the Hierarchical Keyring.
     let mpl_config = MaterialProvidersConfig::builder().build()?;
@@ -112,11 +106,7 @@ pub async fn encrypt_and_decrypt_with_keyring(
     let hierarchical_keyring = mpl
         .create_aws_kms_hierarchical_keyring()
         .key_store(key_store.clone())
-<<<<<<< HEAD
-        .branch_key_id_supplier(branch_key_id_supplier_ref)
-=======
         .branch_key_id_supplier(branch_key_id_supplier)
->>>>>>> rkapila/rust-reviewed
         .ttl_seconds(600)
         .send()
         .await?;
