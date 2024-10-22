@@ -157,10 +157,10 @@ module {:options "-functionSyntax:4"} EsdkTestManifests {
 
   // }
 
-  predicate TestEncryptVector?(vector: EsdkEncryptTestVector)
-  {
-    && (vector.frameLength.Some? ==> Types.IsValid_FrameLength(vector.frameLength.value))
-  }
+  // predicate TestEncryptVector?(vector: EsdkEncryptTestVector)
+  // {
+  //   && (vector.frameLength.Some? ==> Types.IsValid_FrameLength(vector.frameLength.value))
+  // }
 
   // method TestEncrypts(
   //   plaintexts: map<string, seq<uint8>>,

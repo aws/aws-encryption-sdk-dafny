@@ -60,14 +60,23 @@ module {:options "-functionSyntax:4"} WriteEsdkJsonManifests {
     :- Need(
       && test.algorithmSuiteId.Some?
       && test.cmm.Some?
-      && test.encryptionContext.Some?
       && test.frameLength.Some?
       && |test.encryptDescriptions| >= 1,
-      "test is missing algorithmSuite ID, cmm, ec, or frameLength"
+      "test is missing algorithmSuite ID, cmm, or frameLength"
     );
     var id := AllAlgorithmSuites.ToHex(test.algorithmSuiteId.value);
 
-    var encryptionContext :- EncryptionContextToJson("encryption-context", test.encryptionContext.value);
+    // var encryptionContext :- EncryptionContextToJson("encryption-context", test.encryptionContext.value);
+    var encryptionContext 
+      :- if test.encryptionContext.Some? then
+          EncryptionContextToJson("encryption-context", test.encryptionContext.value)
+        else
+          EncryptionContextToJson("encryption-context", map[]);
+    
+    :- Need(
+      |encryptionContext| == 1,
+      "Error parsing encryption context"
+    );
 
     match test
     case PositiveEncryptTestVector(_,_,_,_,_,_,_,_,_,_,_,_,_) =>
