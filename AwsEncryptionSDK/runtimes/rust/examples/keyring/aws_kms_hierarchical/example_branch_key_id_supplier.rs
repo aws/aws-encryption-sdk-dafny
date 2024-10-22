@@ -38,7 +38,7 @@ impl ExampleBranchKeyIdSupplier {
 // the Branch Key ID.
 impl BranchKeyIdSupplier for ExampleBranchKeyIdSupplier {
     fn get_branch_key_id(
-        &mut self,
+        &self,
         input: GetBranchKeyIdInput,
     ) -> Result<GetBranchKeyIdOutput, Error> {
         let encryption_context: HashMap<String, String> = input.encryption_context.unwrap();

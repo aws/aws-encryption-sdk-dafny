@@ -58,7 +58,7 @@ impl SigningSuiteOnlyCMM {
 
 impl CryptographicMaterialsManager for SigningSuiteOnlyCMM {
     fn get_encryption_materials(
-        &mut self,
+        &self,
         input: GetEncryptionMaterialsInput,
     ) -> Result<GetEncryptionMaterialsOutput, Error> {
         let algorithm_suite_id: AlgorithmSuiteId = input.algorithm_suite_id.clone().unwrap();
@@ -90,7 +90,7 @@ impl CryptographicMaterialsManager for SigningSuiteOnlyCMM {
     }
 
     fn decrypt_materials(
-        &mut self,
+        &self,
         input: DecryptMaterialsInput,
     ) -> Result<DecryptMaterialsOutput, Error> {
         let algorithm_suite_id: AlgorithmSuiteId = input.algorithm_suite_id.clone().unwrap();

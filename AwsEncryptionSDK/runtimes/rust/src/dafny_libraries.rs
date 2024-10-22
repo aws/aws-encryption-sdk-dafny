@@ -33,7 +33,7 @@ pub mod DafnyLibraries {
             }
             dafny_runtime::Map::from_hashmap_owned(new_map)
         }
-        fn Put(&mut self, k: &K, v: &V) {
+        fn Put(&self, k: &K, v: &V) {
             self.map.insert(k.clone(), v.clone());
         }
         fn Keys(&self) -> ::dafny_runtime::Set<K> {
@@ -63,7 +63,7 @@ pub mod DafnyLibraries {
         fn Select(&self, k: &K) -> V {
             self.map.get(k).unwrap().clone()
         }
-        fn Remove(&mut self, k: &K) {
+        fn Remove(&self, k: &K) {
             self.map.remove(k);
         }
         fn Size(&self) -> ::dafny_runtime::DafnyInt {

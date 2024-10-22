@@ -44,23 +44,36 @@ impl crate::HMAC::_default {
 pub mod HMAC {
     use crate::*;
     use aws_lc_rs::hmac;
+    use std::cell::RefCell;
     #[allow(non_camel_case_types)]
     pub struct _default {}
 
     #[derive(Debug)]
-    pub struct HMac {
-        algorithm: hmac::Algorithm,
+    pub struct HMacInner {
         context: Option<hmac::Context>,
         key: Option<hmac::Key>,
     }
+    pub struct HMac {
+        algorithm: hmac::Algorithm,
+        inner: RefCell<HMacInner>,
+    }
+
+    impl dafny_runtime::UpcastObject<dyn std::any::Any> for HMac {
+        dafny_runtime::UpcastObjectFn!(dyn std::any::Any);
+    }
+
     impl HMac {
-        pub fn Init(&mut self, salt: &::dafny_runtime::Sequence<u8>) {
+        pub fn Init(&self, salt: &::dafny_runtime::Sequence<u8>) {
             let salt: Vec<u8> = salt.iter().collect();
-            self.key = Some(hmac::Key::new(self.algorithm, &salt));
-            self.context = Some(hmac::Context::with_key(self.key.as_ref().unwrap()));
+            self.inner.borrow_mut().key = Some(hmac::Key::new(self.algorithm, &salt));
+            let context = Some(hmac::Context::with_key(self.inner.borrow().key.as_ref().unwrap()));
+            self.inner.borrow_mut().context = context;
         }
-        pub fn re_init(&mut self) {
-            self.context = Some(hmac::Context::with_key(self.key.as_ref().unwrap()));
+        pub fn re_init(&self) {
+            let context = Some(hmac::Context::with_key(
+                self.inner.borrow().key.as_ref().unwrap(),
+            ));
+            self.inner.borrow_mut().context = context;
         }
         pub fn Build(
             input: &::std::rc::Rc<
@@ -76,28 +89,33 @@ pub mod HMAC {
         > {
             let inner = dafny_runtime::Object::new(Self {
                 algorithm: super::convert_algorithm(input),
-                context: None,
-                key: None,
+                inner: RefCell::new(HMacInner {
+                    context: None,
+                    key: None,
+                }),
             });
 
             ::std::rc::Rc::new(_Wrappers_Compile::Result::Success { value: inner })
         }
-        pub fn BlockUpdate(&mut self, block: &::dafny_runtime::Sequence<u8>) {
+        pub fn BlockUpdate(&self, block: &::dafny_runtime::Sequence<u8>) {
             let part: Vec<u8> = block.iter().collect();
-            self.context.as_mut().unwrap().update(&part);
+            self.inner
+                .borrow_mut()
+                .context
+                .as_mut()
+                .unwrap()
+                .update(&part);
         }
-        pub fn GetResult(&mut self) -> ::dafny_runtime::Sequence<u8> {
-            let inner = self.context.take();
-            match inner {
-                Some(x) => {
-                    let tag = x.sign();
-                    // other languages allow you to call BlockUpdate after GetResult
-                    // so we re-initialize to mimic that behavior
-                    self.re_init();
-                    tag.as_ref().iter().cloned().collect()
-                }
-                None => [].iter().cloned().collect(),
+        pub fn GetResult(&self) -> ::dafny_runtime::Sequence<u8> {
+            let is_empty = self.inner.borrow().context.is_none();
+            if is_empty {
+                return [].iter().cloned().collect();
             }
+            let tag = self.inner.borrow_mut().context.take().unwrap().sign();
+            // other languages allow you to call BlockUpdate after GetResult
+            // so we re-initialize to mimic that behavior
+            self.re_init();
+            tag.as_ref().iter().cloned().collect()
         }
     }
 }

@@ -14,9 +14,9 @@ on:
         default: false
         type: boolean
 
-env:
+# env:
   # Used for Test Vectors
-  VECTORS_URL: https://github.com/awslabs/aws-encryption-sdk-test-vectors/raw/master/vectors/awses-decrypt/python-2.3.0.zip
+  # VECTORS_URL: https://github.com/awslabs/aws-encryption-sdk-test-vectors/raw/master/vectors/awses-decrypt/python-2.3.0.zip
 
 jobs:
   testRust:
@@ -72,7 +72,6 @@ jobs:
         run: |
           git clone https://github.com/dafny-lang/dafny.git --recurse-submodules
           cd dafny/
-          git checkout rust-unsound
           make exe
 
           echo $PWD/Scripts >> $GITHUB_PATH
@@ -105,7 +104,7 @@ jobs:
           diff-generated-code: false
           update-and-regenerate-mpl: true
 
-      # TODO: Possibly remove this if not needed?
+      # TODO: Remove this after checking in Rust polymorph code
       - name: Run make polymorph_rust
         shell: bash
         working-directory: ./AwsEncryptionSDK

@@ -14,7 +14,7 @@ use super::regional_role_client_supplier_config;
 pub struct RegionalRoleClientSupplier {}
 
 impl ClientSupplier for RegionalRoleClientSupplier {
-    fn get_client(&mut self, input: GetClientInput) -> Result<kms_client, Error> {
+    fn get_client(&self, input: GetClientInput) -> Result<kms_client, Error> {
         let region = input.region.unwrap();
 
         let region_iam_role_map = regional_role_client_supplier_config::region_iam_role_map();

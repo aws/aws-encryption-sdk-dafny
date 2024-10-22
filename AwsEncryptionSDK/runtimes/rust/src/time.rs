@@ -18,6 +18,14 @@ impl crate::Time::_default {
     }
 
     #[allow(non_snake_case)]
+    pub fn CurrentRelativeTimeMilli() -> i64 {
+        match SystemTime::now().duration_since(SystemTime::UNIX_EPOCH) {
+            Ok(n) => n.as_millis() as i64,
+            Err(_) => 0,
+        }
+    }
+
+    #[allow(non_snake_case)]
     pub fn GetCurrentTimeStamp() -> ::std::rc::Rc<
         _Wrappers_Compile::Result<
             ::dafny_runtime::Sequence<::dafny_runtime::DafnyCharUTF16>,

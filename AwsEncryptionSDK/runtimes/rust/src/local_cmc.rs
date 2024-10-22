@@ -34,19 +34,19 @@ pub mod internal_SynchronizedLocalCMC {
   }
 
     impl software::amazon::cryptography::materialproviders::internaldafny::types::ICryptographicMaterialsCache for SynchronizedLocalCMC {
-    fn r#_PutCacheEntry_k(&mut self, input: &std::rc::Rc<crate::software::amazon::cryptography::materialproviders::internaldafny::types::PutCacheEntryInput>) -> std::rc::Rc<crate::_Wrappers_Compile::Result<(), std::rc::Rc<crate::software::amazon::cryptography::materialproviders::internaldafny::types::Error>>> {
+    fn r#_PutCacheEntry_k(&self, input: &std::rc::Rc<crate::software::amazon::cryptography::materialproviders::internaldafny::types::PutCacheEntryInput>) -> std::rc::Rc<crate::_Wrappers_Compile::Result<(), std::rc::Rc<crate::software::amazon::cryptography::materialproviders::internaldafny::types::Error>>> {
       self.wrapped.lock().unwrap().as_mut()._PutCacheEntry_k(input)
     }
 
-    fn r#_UpdateUsageMetadata_k(&mut self, input: &std::rc::Rc<crate::software::amazon::cryptography::materialproviders::internaldafny::types::UpdateUsageMetadataInput>) -> std::rc::Rc<crate::_Wrappers_Compile::Result<(), std::rc::Rc<crate::software::amazon::cryptography::materialproviders::internaldafny::types::Error>>> {
+    fn r#_UpdateUsageMetadata_k(&self, input: &std::rc::Rc<crate::software::amazon::cryptography::materialproviders::internaldafny::types::UpdateUsageMetadataInput>) -> std::rc::Rc<crate::_Wrappers_Compile::Result<(), std::rc::Rc<crate::software::amazon::cryptography::materialproviders::internaldafny::types::Error>>> {
       self.wrapped.lock().unwrap().as_mut()._UpdateUsageMetadata_k(input)
     }
 
-    fn r#_GetCacheEntry_k(&mut self, input: &std::rc::Rc<crate::software::amazon::cryptography::materialproviders::internaldafny::types::GetCacheEntryInput>) -> std::rc::Rc<crate::_Wrappers_Compile::Result<std::rc::Rc<crate::software::amazon::cryptography::materialproviders::internaldafny::types::GetCacheEntryOutput>, std::rc::Rc<crate::software::amazon::cryptography::materialproviders::internaldafny::types::Error>>> {
+    fn r#_GetCacheEntry_k(&self, input: &std::rc::Rc<crate::software::amazon::cryptography::materialproviders::internaldafny::types::GetCacheEntryInput>) -> std::rc::Rc<crate::_Wrappers_Compile::Result<std::rc::Rc<crate::software::amazon::cryptography::materialproviders::internaldafny::types::GetCacheEntryOutput>, std::rc::Rc<crate::software::amazon::cryptography::materialproviders::internaldafny::types::Error>>> {
       self.wrapped.lock().unwrap().as_mut()._GetCacheEntry_k(input)
     }
 
-    fn r#_DeleteCacheEntry_k(&mut self, input: &std::rc::Rc<crate::software::amazon::cryptography::materialproviders::internaldafny::types::DeleteCacheEntryInput>) -> std::rc::Rc<crate::_Wrappers_Compile::Result<(), std::rc::Rc<crate::software::amazon::cryptography::materialproviders::internaldafny::types::Error>>> {
+    fn r#_DeleteCacheEntry_k(&self, input: &std::rc::Rc<crate::software::amazon::cryptography::materialproviders::internaldafny::types::DeleteCacheEntryInput>) -> std::rc::Rc<crate::_Wrappers_Compile::Result<(), std::rc::Rc<crate::software::amazon::cryptography::materialproviders::internaldafny::types::Error>>> {
       self.wrapped.lock().unwrap().as_mut()._DeleteCacheEntry_k(input)
     }
   }
