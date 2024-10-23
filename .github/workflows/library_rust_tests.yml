@@ -62,7 +62,8 @@ jobs:
       # TODO - uncomment this after Rust formatter works
       # - name: Rustfmt Check
       #   uses: actions-rust-lang/rustfmt@v1
-
+      
+      # Use setup-dafny-actions when Dafny releases 4.8.2
       - name: Setup Dafny
         # TODO: Use setup-dafny-actions@v1.7.0 for Rust instead of rust-unsound branch
         # uses: dafny-lang/setup-dafny-action@v1.7.0
@@ -104,13 +105,6 @@ jobs:
           diff-generated-code: false
           update-and-regenerate-mpl: true
 
-      # TODO: Remove this after checking in Rust polymorph code
-      - name: Run make polymorph_rust
-        shell: bash
-        working-directory: ./AwsEncryptionSDK
-        run: |
-          make polymorph_rust
-
       - name: Compile AwsEncryptionSDK implementation
         shell: bash
         working-directory: ./AwsEncryptionSDK
@@ -119,7 +113,7 @@ jobs:
           CORES=$(node -e 'console.log(os.cpus().length)')
           make transpile_rust TRANSPILE_TESTS_IN_RUST=1 CORES=$CORES
 
-      # Remove Rust hacks
+      # Remove Rust hacks once Dafny fixes this
       - name: Update implementation_from_dafny.rs to add deps
         shell: bash
         working-directory: ./AwsEncryptionSDK/runtimes/rust/src
