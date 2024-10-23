@@ -1033,15 +1033,11 @@ module MessageBody {
       //# following inputs:
       var res := Success(SuccessfulRead(nextRegularFrames, regularFrame.tail));
       assert CorrectlyRead(buffer, res, WriteMessageRegularFrames) by {
-        reveal CorrectlyReadRange();
 
-        var tail := res.value.tail;
-        var readRange := WriteMessageRegularFrames(res.value.data);
-        assert buffer.bytes == tail.bytes;
-        assert buffer.start <= tail.start <= |buffer.bytes|;
-        assert buffer.bytes[buffer.start..] == tail.bytes[buffer.start..];
-        assert readRange <= buffer.bytes[buffer.start..];
-        assert tail.start == buffer.start + |readRange|;
+        AppendToCorrectlyReadByteRange(buffer, continuation, regularFrame.tail, Frames.WriteRegularFrame(regularFrame.data));
+
+        assert buffer.bytes[buffer.start..continuation.start] == WriteMessageRegularFrames(regularFrames);
+        assert buffer.bytes[buffer.start..regularFrame.tail.start] == WriteMessageRegularFrames(nextRegularFrames);
       }
 
       ReadFramedMessageBody(
