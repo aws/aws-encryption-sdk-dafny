@@ -43,18 +43,10 @@ jobs:
       # Only used to format generated code
       # and to translate version strings such as "nightly-latest"
       # to an actual DAFNY_VERSION.
-      #TODO: Setup Dafny from actions instead of source
       - name: Setup Dafny
-        shell: bash
-        run: |
-          git clone https://github.com/dafny-lang/dafny.git --recurse-submodules
-          cd dafny/
-          make exe
-
-          echo $PWD/Scripts >> $GITHUB_PATH
-        # uses: dafny-lang/setup-dafny-action@v1.7.0
-        # with:
-        #   dafny-version: ${{ inputs.dafny }}
+        uses: dafny-lang/setup-dafny-action@v1.7.0
+        with:
+          dafny-version: ${{ inputs.dafny }}
 
       - name: Setup .NET Core SDK ${{ matrix.dotnet-version }}
         uses: actions/setup-dotnet@v3
