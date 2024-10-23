@@ -45,9 +45,8 @@ jobs:
       # to an actual DAFNY_VERSION.
       - name: Setup Dafny
         uses: dafny-lang/setup-dafny-action@v1.7.0
-        # TODO: Update this once Dafny releases 4.8.2
         with:
-          dafny-version: nightly-latest
+          dafny-version: ${{ inputs.dafny }}
 
       - name: Setup .NET Core SDK ${{ matrix.dotnet-version }}
         uses: actions/setup-dotnet@v3
