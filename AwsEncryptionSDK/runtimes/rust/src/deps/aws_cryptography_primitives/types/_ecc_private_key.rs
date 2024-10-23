@@ -1,15 +1,15 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
-#[allow(missing_docs)] // documentation missing in model
 #[non_exhaustive]
 #[derive(::std::clone::Clone, ::std::cmp::PartialEq, ::std::fmt::Debug)]
+#[allow(missing_docs)]
 pub struct EccPrivateKey {
-    #[allow(missing_docs)] // documentation missing in model
+    #[allow(missing_docs)]
 pub pem: ::std::option::Option<::aws_smithy_types::Blob>,
 }
 impl EccPrivateKey {
-    #[allow(missing_docs)] // documentation missing in model
+    #[allow(missing_docs)]
 pub fn pem(&self) -> &::std::option::Option<::aws_smithy_types::Blob> {
     &self.pem
 }
@@ -30,17 +30,17 @@ pub struct EccPrivateKeyBuilder {
     pub(crate) pem: ::std::option::Option<::aws_smithy_types::Blob>,
 }
 impl EccPrivateKeyBuilder {
-    #[allow(missing_docs)] // documentation missing in model
+    #[allow(missing_docs)]
 pub fn pem(mut self, input: impl ::std::convert::Into<::aws_smithy_types::Blob>) -> Self {
     self.pem = ::std::option::Option::Some(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn set_pem(mut self, input: ::std::option::Option<::aws_smithy_types::Blob>) -> Self {
     self.pem = input;
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn get_pem(&self) -> &::std::option::Option<::aws_smithy_types::Blob> {
     &self.pem
 }

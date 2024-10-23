@@ -59,17 +59,17 @@ impl GetAlgorithmSuiteInfoFluentBuilder {
         crate::deps::aws_cryptography_materialProviders::operation::get_algorithm_suite_info::GetAlgorithmSuiteInfo::send(&self.client, input).await
     }
 
-    #[allow(missing_docs)] // documentation missing in model
+    #[allow(missing_docs)]
 pub fn binary_id(mut self, input: impl ::std::convert::Into<::aws_smithy_types::Blob>) -> Self {
     self.inner = self.inner.binary_id(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn set_binary_id(mut self, input: ::std::option::Option<::aws_smithy_types::Blob>) -> Self {
     self.inner = self.inner.set_binary_id(input);
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn get_binary_id(&self) -> &::std::option::Option<::aws_smithy_types::Blob> {
     self.inner.get_binary_id()
 }

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 
+#[allow(missing_docs)]
 pub trait ClientSupplier {
     fn get_client(
     &self,
@@ -13,6 +14,7 @@ pub trait ClientSupplier {
 }
 
 #[derive(::std::clone::Clone)]
+/// A reference to a ClientSupplier
 pub struct ClientSupplierRef {
   pub inner: ::std::rc::Rc<std::cell::RefCell<dyn ClientSupplier>>
 }

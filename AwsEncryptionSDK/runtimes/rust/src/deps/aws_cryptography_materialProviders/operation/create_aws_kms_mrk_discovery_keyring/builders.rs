@@ -21,6 +21,7 @@ impl CreateAwsKmsMrkDiscoveryKeyringInputBuilder {
 }
 /// Fluent builder constructing a request to `CreateAwsKmsMrkDiscoveryKeyring`.
 ///
+/// Creates an AWS KMS MRK Discovery Keyring, which supports unwrapping data keys wrapped by a symmetric AWS KMS Key or AWS KMS Multi-Region Key in a particular region.
 #[derive(::std::clone::Clone, ::std::fmt::Debug)]
 pub struct CreateAwsKmsMrkDiscoveryKeyringFluentBuilder {
     client: crate::deps::aws_cryptography_materialProviders::client::Client,
@@ -59,59 +60,59 @@ impl CreateAwsKmsMrkDiscoveryKeyringFluentBuilder {
         crate::deps::aws_cryptography_materialProviders::operation::create_aws_kms_mrk_discovery_keyring::CreateAwsKmsMrkDiscoveryKeyring::send(&self.client, input).await
     }
 
-    #[allow(missing_docs)] // documentation missing in model
+    /// A filter which restricts which KMS Keys this Keyring may attempt to decrypt with by AWS partition and account.
 pub fn discovery_filter(mut self, input: impl ::std::convert::Into<crate::deps::aws_cryptography_materialProviders::types::DiscoveryFilter>) -> Self {
     self.inner = self.inner.discovery_filter(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// A filter which restricts which KMS Keys this Keyring may attempt to decrypt with by AWS partition and account.
 pub fn set_discovery_filter(mut self, input: ::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::DiscoveryFilter>) -> Self {
     self.inner = self.inner.set_discovery_filter(input);
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// A filter which restricts which KMS Keys this Keyring may attempt to decrypt with by AWS partition and account.
 pub fn get_discovery_filter(&self) -> &::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::DiscoveryFilter> {
     self.inner.get_discovery_filter()
 }
-#[allow(missing_docs)] // documentation missing in model
+/// A list of grant tokens to be used when calling KMS.
 pub fn grant_tokens(mut self, input: impl ::std::convert::Into<::std::vec::Vec<::std::string::String>>) -> Self {
     self.inner = self.inner.grant_tokens(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// A list of grant tokens to be used when calling KMS.
 pub fn set_grant_tokens(mut self, input: ::std::option::Option<::std::vec::Vec<::std::string::String>>) -> Self {
     self.inner = self.inner.set_grant_tokens(input);
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// A list of grant tokens to be used when calling KMS.
 pub fn get_grant_tokens(&self) -> &::std::option::Option<::std::vec::Vec<::std::string::String>> {
     self.inner.get_grant_tokens()
 }
-#[allow(missing_docs)] // documentation missing in model
+/// The KMS Client this Keyring will use to call KMS.
 pub fn kms_client(mut self, input: impl ::std::convert::Into<crate::deps::com_amazonaws_kms::client::Client>) -> Self {
     self.inner = self.inner.kms_client(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// The KMS Client this Keyring will use to call KMS.
 pub fn set_kms_client(mut self, input: ::std::option::Option<crate::deps::com_amazonaws_kms::client::Client>) -> Self {
     self.inner = self.inner.set_kms_client(input);
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// The KMS Client this Keyring will use to call KMS.
 pub fn get_kms_client(&self) -> &::std::option::Option<crate::deps::com_amazonaws_kms::client::Client> {
     self.inner.get_kms_client()
 }
-#[allow(missing_docs)] // documentation missing in model
+/// The region the input 'kmsClient' is in.
 pub fn region(mut self, input: impl ::std::convert::Into<::std::string::String>) -> Self {
     self.inner = self.inner.region(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// The region the input 'kmsClient' is in.
 pub fn set_region(mut self, input: ::std::option::Option<::std::string::String>) -> Self {
     self.inner = self.inner.set_region(input);
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// The region the input 'kmsClient' is in.
 pub fn get_region(&self) -> &::std::option::Option<::std::string::String> {
     self.inner.get_region()
 }

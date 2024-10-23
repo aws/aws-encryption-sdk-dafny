@@ -1,15 +1,15 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
-#[allow(missing_docs)] // documentation missing in model
 #[non_exhaustive]
 #[derive(::std::clone::Clone, ::std::cmp::PartialEq, ::std::fmt::Debug)]
+/// Outputs for Branch Key creation.
 pub struct CreateKeyOutput {
-    #[allow(missing_docs)] // documentation missing in model
+    /// A identifier for the created Branch Key.
 pub branch_key_identifier: ::std::option::Option<::std::string::String>,
 }
 impl CreateKeyOutput {
-    #[allow(missing_docs)] // documentation missing in model
+    /// A identifier for the created Branch Key.
 pub fn branch_key_identifier(&self) -> &::std::option::Option<::std::string::String> {
     &self.branch_key_identifier
 }
@@ -30,17 +30,17 @@ pub struct CreateKeyOutputBuilder {
     pub(crate) branch_key_identifier: ::std::option::Option<::std::string::String>,
 }
 impl CreateKeyOutputBuilder {
-    #[allow(missing_docs)] // documentation missing in model
+    /// A identifier for the created Branch Key.
 pub fn branch_key_identifier(mut self, input: impl ::std::convert::Into<::std::string::String>) -> Self {
     self.branch_key_identifier = ::std::option::Option::Some(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// A identifier for the created Branch Key.
 pub fn set_branch_key_identifier(mut self, input: ::std::option::Option<::std::string::String>) -> Self {
     self.branch_key_identifier = input;
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// A identifier for the created Branch Key.
 pub fn get_branch_key_identifier(&self) -> &::std::option::Option<::std::string::String> {
     &self.branch_key_identifier
 }

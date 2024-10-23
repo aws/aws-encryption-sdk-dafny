@@ -1,11 +1,11 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
-#[allow(missing_docs)] // documentation missing in model
 #[non_exhaustive]
 #[derive(::std::clone::Clone, ::std::cmp::PartialEq, ::std::fmt::Debug)]
+#[allow(missing_docs)]
 pub enum Encrypt {
-    #[allow(missing_docs)] // documentation missing in model
+    #[allow(missing_docs)]
 AesGcm(crate::deps::aws_cryptography_primitives::types::AesGcm),
     /// The `Unknown` variant represents cases where new union variant was received. Consider upgrading the SDK to the latest available version.
     /// An unknown enum variant

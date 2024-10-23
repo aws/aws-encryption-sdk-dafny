@@ -1,21 +1,21 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
-#[allow(missing_docs)] // documentation missing in model
 #[non_exhaustive]
 #[derive(::std::clone::Clone, ::std::cmp::PartialEq, ::std::fmt::Debug)]
+#[allow(missing_docs)]
 pub enum CacheType {
-    #[allow(missing_docs)] // documentation missing in model
+    #[allow(missing_docs)]
 Default(crate::deps::aws_cryptography_materialProviders::types::DefaultCache),
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 No(crate::deps::aws_cryptography_materialProviders::types::NoCache),
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 SingleThreaded(crate::deps::aws_cryptography_materialProviders::types::SingleThreadedCache),
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 MultiThreaded(crate::deps::aws_cryptography_materialProviders::types::MultiThreadedCache),
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 StormTracking(crate::deps::aws_cryptography_materialProviders::types::StormTrackingCache),
-#[allow(missing_docs)] // documentation missing in model
+/// Shared cache across multiple Hierarchical Keyrings. For this cache type, the user should provide an already constructed CryptographicMaterialsCache to the Hierarchical Keyring at initialization.
 Shared(crate::deps::aws_cryptography_materialProviders::types::cryptographic_materials_cache::CryptographicMaterialsCacheRef),
     /// The `Unknown` variant represents cases where new union variant was received. Consider upgrading the SDK to the latest available version.
     /// An unknown enum variant

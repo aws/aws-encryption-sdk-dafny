@@ -21,6 +21,7 @@ impl GetBranchKeyIdInputBuilder {
 }
 /// Fluent builder constructing a request to `GetBranchKeyId`.
 ///
+/// Given the Encryption Context associated with this encryption or decryption, returns the branch key that should be responsible for unwrapping or wrapping the data key.
 #[derive(::std::clone::Clone, ::std::fmt::Debug)]
 pub struct GetBranchKeyIdFluentBuilder {
     branch_key_id_supplier: crate::deps::aws_cryptography_materialProviders::types::branch_key_id_supplier::BranchKeyIdSupplierRef,
@@ -59,17 +60,17 @@ impl GetBranchKeyIdFluentBuilder {
         crate::deps::aws_cryptography_materialProviders::operation::get_branch_key_id::GetBranchKeyId::send(&self.branch_key_id_supplier, input).await
     }
 
-    #[allow(missing_docs)] // documentation missing in model
+    /// The Encryption Context used with this encryption or decryption.
 pub fn encryption_context(mut self, input: impl ::std::convert::Into<::std::collections::HashMap<::std::string::String, ::std::string::String>>) -> Self {
     self.inner = self.inner.encryption_context(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// The Encryption Context used with this encryption or decryption.
 pub fn set_encryption_context(mut self, input: ::std::option::Option<::std::collections::HashMap<::std::string::String, ::std::string::String>>) -> Self {
     self.inner = self.inner.set_encryption_context(input);
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// The Encryption Context used with this encryption or decryption.
 pub fn get_encryption_context(&self) -> &::std::option::Option<::std::collections::HashMap<::std::string::String, ::std::string::String>> {
     self.inner.get_encryption_context()
 }

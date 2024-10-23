@@ -21,6 +21,7 @@ impl CreateAwsKmsMrkKeyringInputBuilder {
 }
 /// Fluent builder constructing a request to `CreateAwsKmsMrkKeyring`.
 ///
+/// Creates an AWS KMS MRK Keyring, which wraps and unwraps data keys using single symmetric AWS KMS Key or AWS KMS Multi-Region Key.
 #[derive(::std::clone::Clone, ::std::fmt::Debug)]
 pub struct CreateAwsKmsMrkKeyringFluentBuilder {
     client: crate::deps::aws_cryptography_materialProviders::client::Client,
@@ -59,45 +60,45 @@ impl CreateAwsKmsMrkKeyringFluentBuilder {
         crate::deps::aws_cryptography_materialProviders::operation::create_aws_kms_mrk_keyring::CreateAwsKmsMrkKeyring::send(&self.client, input).await
     }
 
-    #[allow(missing_docs)] // documentation missing in model
+    /// A list of grant tokens to be used when calling KMS.
 pub fn grant_tokens(mut self, input: impl ::std::convert::Into<::std::vec::Vec<::std::string::String>>) -> Self {
     self.inner = self.inner.grant_tokens(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// A list of grant tokens to be used when calling KMS.
 pub fn set_grant_tokens(mut self, input: ::std::option::Option<::std::vec::Vec<::std::string::String>>) -> Self {
     self.inner = self.inner.set_grant_tokens(input);
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// A list of grant tokens to be used when calling KMS.
 pub fn get_grant_tokens(&self) -> &::std::option::Option<::std::vec::Vec<::std::string::String>> {
     self.inner.get_grant_tokens()
 }
-#[allow(missing_docs)] // documentation missing in model
+/// The KMS Client this Keyring will use to call KMS.
 pub fn kms_client(mut self, input: impl ::std::convert::Into<crate::deps::com_amazonaws_kms::client::Client>) -> Self {
     self.inner = self.inner.kms_client(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// The KMS Client this Keyring will use to call KMS.
 pub fn set_kms_client(mut self, input: ::std::option::Option<crate::deps::com_amazonaws_kms::client::Client>) -> Self {
     self.inner = self.inner.set_kms_client(input);
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// The KMS Client this Keyring will use to call KMS.
 pub fn get_kms_client(&self) -> &::std::option::Option<crate::deps::com_amazonaws_kms::client::Client> {
     self.inner.get_kms_client()
 }
-#[allow(missing_docs)] // documentation missing in model
+/// The identifier for the symmetric AWS KMS Key or AWS KMS Multi-Region Key responsible for wrapping and unwrapping data keys.
 pub fn kms_key_id(mut self, input: impl ::std::convert::Into<::std::string::String>) -> Self {
     self.inner = self.inner.kms_key_id(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// The identifier for the symmetric AWS KMS Key or AWS KMS Multi-Region Key responsible for wrapping and unwrapping data keys.
 pub fn set_kms_key_id(mut self, input: ::std::option::Option<::std::string::String>) -> Self {
     self.inner = self.inner.set_kms_key_id(input);
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// The identifier for the symmetric AWS KMS Key or AWS KMS Multi-Region Key responsible for wrapping and unwrapping data keys.
 pub fn get_kms_key_id(&self) -> &::std::option::Option<::std::string::String> {
     self.inner.get_kms_key_id()
 }

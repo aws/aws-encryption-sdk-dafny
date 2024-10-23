@@ -3,7 +3,8 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 #[derive(::std::clone::Clone, ::std::fmt::Debug, ::std::cmp::PartialEq)]
 pub enum Error {
-    KeyStoreException {
+    #[allow(missing_docs)]
+KeyStoreException {
     message: ::std::string::String,
 },
 

@@ -1,21 +1,21 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
-#[allow(missing_docs)] // documentation missing in model
 #[non_exhaustive]
 #[derive(::std::clone::Clone, ::std::cmp::PartialEq, ::std::fmt::Debug)]
+/// Inputs for creating a Multi-Keyring.
 pub struct CreateMultiKeyringInput {
-    #[allow(missing_docs)] // documentation missing in model
+    /// A list of keyrings (other than the generator) responsible for wrapping and unwrapping the data key.
 pub child_keyrings: ::std::option::Option<::std::vec::Vec<crate::deps::aws_cryptography_materialProviders::types::keyring::KeyringRef>>,
-#[allow(missing_docs)] // documentation missing in model
+/// A keyring responsible for wrapping and unwrapping the data key. This is the first keyring that will be used to wrap the data key, and may be responsible for additionally generating the data key.
 pub generator: ::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::keyring::KeyringRef>,
 }
 impl CreateMultiKeyringInput {
-    #[allow(missing_docs)] // documentation missing in model
+    /// A list of keyrings (other than the generator) responsible for wrapping and unwrapping the data key.
 pub fn child_keyrings(&self) -> &::std::option::Option<::std::vec::Vec<crate::deps::aws_cryptography_materialProviders::types::keyring::KeyringRef>> {
     &self.child_keyrings
 }
-#[allow(missing_docs)] // documentation missing in model
+/// A keyring responsible for wrapping and unwrapping the data key. This is the first keyring that will be used to wrap the data key, and may be responsible for additionally generating the data key.
 pub fn generator(&self) -> &::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::keyring::KeyringRef> {
     &self.generator
 }
@@ -37,31 +37,31 @@ pub struct CreateMultiKeyringInputBuilder {
 pub(crate) generator: ::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::keyring::KeyringRef>,
 }
 impl CreateMultiKeyringInputBuilder {
-    #[allow(missing_docs)] // documentation missing in model
+    /// A list of keyrings (other than the generator) responsible for wrapping and unwrapping the data key.
 pub fn child_keyrings(mut self, input: impl ::std::convert::Into<::std::vec::Vec<crate::deps::aws_cryptography_materialProviders::types::keyring::KeyringRef>>) -> Self {
     self.child_keyrings = ::std::option::Option::Some(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// A list of keyrings (other than the generator) responsible for wrapping and unwrapping the data key.
 pub fn set_child_keyrings(mut self, input: ::std::option::Option<::std::vec::Vec<crate::deps::aws_cryptography_materialProviders::types::keyring::KeyringRef>>) -> Self {
     self.child_keyrings = input;
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// A list of keyrings (other than the generator) responsible for wrapping and unwrapping the data key.
 pub fn get_child_keyrings(&self) -> &::std::option::Option<::std::vec::Vec<crate::deps::aws_cryptography_materialProviders::types::keyring::KeyringRef>> {
     &self.child_keyrings
 }
-#[allow(missing_docs)] // documentation missing in model
+/// A keyring responsible for wrapping and unwrapping the data key. This is the first keyring that will be used to wrap the data key, and may be responsible for additionally generating the data key.
 pub fn generator(mut self, input: impl ::std::convert::Into<crate::deps::aws_cryptography_materialProviders::types::keyring::KeyringRef>) -> Self {
     self.generator = ::std::option::Option::Some(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// A keyring responsible for wrapping and unwrapping the data key. This is the first keyring that will be used to wrap the data key, and may be responsible for additionally generating the data key.
 pub fn set_generator(mut self, input: ::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::keyring::KeyringRef>) -> Self {
     self.generator = input;
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// A keyring responsible for wrapping and unwrapping the data key. This is the first keyring that will be used to wrap the data key, and may be responsible for additionally generating the data key.
 pub fn get_generator(&self) -> &::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::keyring::KeyringRef> {
     &self.generator
 }

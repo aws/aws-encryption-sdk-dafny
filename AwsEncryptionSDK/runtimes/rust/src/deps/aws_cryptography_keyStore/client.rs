@@ -4,6 +4,7 @@
 use aws_smithy_types::error::operation::BuildError;
 
 #[derive(::std::clone::Clone, ::std::fmt::Debug, ::std::cmp::PartialEq)]
+#[allow(missing_docs)]
 pub struct Client {
     pub(crate) dafny_client: ::dafny_runtime::Object<dyn crate::r#software::amazon::cryptography::keystore::internaldafny::types::IKeyStoreClient>
 }

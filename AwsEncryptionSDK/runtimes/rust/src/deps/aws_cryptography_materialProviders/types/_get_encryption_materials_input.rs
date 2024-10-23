@@ -1,39 +1,39 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
-#[allow(missing_docs)] // documentation missing in model
 #[non_exhaustive]
 #[derive(::std::clone::Clone, ::std::cmp::PartialEq, ::std::fmt::Debug)]
+#[allow(missing_docs)]
 pub struct GetEncryptionMaterialsInput {
-    #[allow(missing_docs)] // documentation missing in model
+    #[allow(missing_docs)]
 pub algorithm_suite_id: ::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::AlgorithmSuiteId>,
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub commitment_policy: ::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::CommitmentPolicy>,
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub encryption_context: ::std::option::Option<::std::collections::HashMap<::std::string::String, ::std::string::String>>,
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub max_plaintext_length: ::std::option::Option<::std::primitive::i64>,
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub required_encryption_context_keys: ::std::option::Option<::std::vec::Vec<::std::string::String>>,
 }
 impl GetEncryptionMaterialsInput {
-    #[allow(missing_docs)] // documentation missing in model
+    #[allow(missing_docs)]
 pub fn algorithm_suite_id(&self) -> &::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::AlgorithmSuiteId> {
     &self.algorithm_suite_id
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn commitment_policy(&self) -> &::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::CommitmentPolicy> {
     &self.commitment_policy
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn encryption_context(&self) -> &::std::option::Option<::std::collections::HashMap<::std::string::String, ::std::string::String>> {
     &self.encryption_context
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn max_plaintext_length(&self) -> &::std::option::Option<::std::primitive::i64> {
     &self.max_plaintext_length
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn required_encryption_context_keys(&self) -> &::std::option::Option<::std::vec::Vec<::std::string::String>> {
     &self.required_encryption_context_keys
 }
@@ -58,73 +58,73 @@ pub(crate) max_plaintext_length: ::std::option::Option<::std::primitive::i64>,
 pub(crate) required_encryption_context_keys: ::std::option::Option<::std::vec::Vec<::std::string::String>>,
 }
 impl GetEncryptionMaterialsInputBuilder {
-    #[allow(missing_docs)] // documentation missing in model
+    #[allow(missing_docs)]
 pub fn algorithm_suite_id(mut self, input: impl ::std::convert::Into<crate::deps::aws_cryptography_materialProviders::types::AlgorithmSuiteId>) -> Self {
     self.algorithm_suite_id = ::std::option::Option::Some(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn set_algorithm_suite_id(mut self, input: ::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::AlgorithmSuiteId>) -> Self {
     self.algorithm_suite_id = input;
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn get_algorithm_suite_id(&self) -> &::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::AlgorithmSuiteId> {
     &self.algorithm_suite_id
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn commitment_policy(mut self, input: impl ::std::convert::Into<crate::deps::aws_cryptography_materialProviders::types::CommitmentPolicy>) -> Self {
     self.commitment_policy = ::std::option::Option::Some(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn set_commitment_policy(mut self, input: ::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::CommitmentPolicy>) -> Self {
     self.commitment_policy = input;
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn get_commitment_policy(&self) -> &::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::CommitmentPolicy> {
     &self.commitment_policy
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn encryption_context(mut self, input: impl ::std::convert::Into<::std::collections::HashMap<::std::string::String, ::std::string::String>>) -> Self {
     self.encryption_context = ::std::option::Option::Some(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn set_encryption_context(mut self, input: ::std::option::Option<::std::collections::HashMap<::std::string::String, ::std::string::String>>) -> Self {
     self.encryption_context = input;
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn get_encryption_context(&self) -> &::std::option::Option<::std::collections::HashMap<::std::string::String, ::std::string::String>> {
     &self.encryption_context
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn max_plaintext_length(mut self, input: impl ::std::convert::Into<::std::primitive::i64>) -> Self {
     self.max_plaintext_length = ::std::option::Option::Some(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn set_max_plaintext_length(mut self, input: ::std::option::Option<::std::primitive::i64>) -> Self {
     self.max_plaintext_length = input;
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn get_max_plaintext_length(&self) -> &::std::option::Option<::std::primitive::i64> {
     &self.max_plaintext_length
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn required_encryption_context_keys(mut self, input: impl ::std::convert::Into<::std::vec::Vec<::std::string::String>>) -> Self {
     self.required_encryption_context_keys = ::std::option::Option::Some(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn set_required_encryption_context_keys(mut self, input: ::std::option::Option<::std::vec::Vec<::std::string::String>>) -> Self {
     self.required_encryption_context_keys = input;
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn get_required_encryption_context_keys(&self) -> &::std::option::Option<::std::vec::Vec<::std::string::String>> {
     &self.required_encryption_context_keys
 }

@@ -59,73 +59,73 @@ impl AesEncryptFluentBuilder {
         crate::deps::aws_cryptography_primitives::operation::aes_encrypt::AesEncrypt::send(&self.client, input).await
     }
 
-    #[allow(missing_docs)] // documentation missing in model
+    #[allow(missing_docs)]
 pub fn aad(mut self, input: impl ::std::convert::Into<::aws_smithy_types::Blob>) -> Self {
     self.inner = self.inner.aad(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn set_aad(mut self, input: ::std::option::Option<::aws_smithy_types::Blob>) -> Self {
     self.inner = self.inner.set_aad(input);
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn get_aad(&self) -> &::std::option::Option<::aws_smithy_types::Blob> {
     self.inner.get_aad()
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn enc_alg(mut self, input: impl ::std::convert::Into<crate::deps::aws_cryptography_primitives::types::AesGcm>) -> Self {
     self.inner = self.inner.enc_alg(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn set_enc_alg(mut self, input: ::std::option::Option<crate::deps::aws_cryptography_primitives::types::AesGcm>) -> Self {
     self.inner = self.inner.set_enc_alg(input);
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn get_enc_alg(&self) -> &::std::option::Option<crate::deps::aws_cryptography_primitives::types::AesGcm> {
     self.inner.get_enc_alg()
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn iv(mut self, input: impl ::std::convert::Into<::aws_smithy_types::Blob>) -> Self {
     self.inner = self.inner.iv(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn set_iv(mut self, input: ::std::option::Option<::aws_smithy_types::Blob>) -> Self {
     self.inner = self.inner.set_iv(input);
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn get_iv(&self) -> &::std::option::Option<::aws_smithy_types::Blob> {
     self.inner.get_iv()
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn key(mut self, input: impl ::std::convert::Into<::aws_smithy_types::Blob>) -> Self {
     self.inner = self.inner.key(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn set_key(mut self, input: ::std::option::Option<::aws_smithy_types::Blob>) -> Self {
     self.inner = self.inner.set_key(input);
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn get_key(&self) -> &::std::option::Option<::aws_smithy_types::Blob> {
     self.inner.get_key()
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn msg(mut self, input: impl ::std::convert::Into<::aws_smithy_types::Blob>) -> Self {
     self.inner = self.inner.msg(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn set_msg(mut self, input: ::std::option::Option<::aws_smithy_types::Blob>) -> Self {
     self.inner = self.inner.set_msg(input);
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn get_msg(&self) -> &::std::option::Option<::aws_smithy_types::Blob> {
     self.inner.get_msg()
 }

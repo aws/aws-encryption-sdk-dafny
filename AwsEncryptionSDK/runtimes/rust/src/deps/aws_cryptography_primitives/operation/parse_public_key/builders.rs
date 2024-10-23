@@ -59,17 +59,17 @@ impl ParsePublicKeyFluentBuilder {
         crate::deps::aws_cryptography_primitives::operation::parse_public_key::ParsePublicKey::send(&self.client, input).await
     }
 
-    #[allow(missing_docs)] // documentation missing in model
+    #[allow(missing_docs)]
 pub fn public_key(mut self, input: impl ::std::convert::Into<::aws_smithy_types::Blob>) -> Self {
     self.inner = self.inner.public_key(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn set_public_key(mut self, input: ::std::option::Option<::aws_smithy_types::Blob>) -> Self {
     self.inner = self.inner.set_public_key(input);
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn get_public_key(&self) -> &::std::option::Option<::aws_smithy_types::Blob> {
     self.inner.get_public_key()
 }

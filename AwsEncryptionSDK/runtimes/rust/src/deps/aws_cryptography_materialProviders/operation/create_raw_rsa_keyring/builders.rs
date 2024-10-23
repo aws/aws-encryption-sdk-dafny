@@ -21,6 +21,7 @@ impl CreateRawRsaKeyringInputBuilder {
 }
 /// Fluent builder constructing a request to `CreateRawRsaKeyring`.
 ///
+/// Creates a Raw RSA Keyring, which wraps and unwraps data keys locally using RSA.
 #[derive(::std::clone::Clone, ::std::fmt::Debug)]
 pub struct CreateRawRsaKeyringFluentBuilder {
     client: crate::deps::aws_cryptography_materialProviders::client::Client,
@@ -59,73 +60,73 @@ impl CreateRawRsaKeyringFluentBuilder {
         crate::deps::aws_cryptography_materialProviders::operation::create_raw_rsa_keyring::CreateRawRsaKeyring::send(&self.client, input).await
     }
 
-    #[allow(missing_docs)] // documentation missing in model
+    /// A name associated with this wrapping key.
 pub fn key_name(mut self, input: impl ::std::convert::Into<::std::string::String>) -> Self {
     self.inner = self.inner.key_name(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// A name associated with this wrapping key.
 pub fn set_key_name(mut self, input: ::std::option::Option<::std::string::String>) -> Self {
     self.inner = self.inner.set_key_name(input);
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// A name associated with this wrapping key.
 pub fn get_key_name(&self) -> &::std::option::Option<::std::string::String> {
     self.inner.get_key_name()
 }
-#[allow(missing_docs)] // documentation missing in model
+/// A namespace associated with this wrapping key.
 pub fn key_namespace(mut self, input: impl ::std::convert::Into<::std::string::String>) -> Self {
     self.inner = self.inner.key_namespace(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// A namespace associated with this wrapping key.
 pub fn set_key_namespace(mut self, input: ::std::option::Option<::std::string::String>) -> Self {
     self.inner = self.inner.set_key_namespace(input);
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// A namespace associated with this wrapping key.
 pub fn get_key_namespace(&self) -> &::std::option::Option<::std::string::String> {
     self.inner.get_key_namespace()
 }
-#[allow(missing_docs)] // documentation missing in model
+/// The RSA padding scheme to use with this keyring.
 pub fn padding_scheme(mut self, input: impl ::std::convert::Into<crate::deps::aws_cryptography_materialProviders::types::PaddingScheme>) -> Self {
     self.inner = self.inner.padding_scheme(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// The RSA padding scheme to use with this keyring.
 pub fn set_padding_scheme(mut self, input: ::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::PaddingScheme>) -> Self {
     self.inner = self.inner.set_padding_scheme(input);
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// The RSA padding scheme to use with this keyring.
 pub fn get_padding_scheme(&self) -> &::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::PaddingScheme> {
     self.inner.get_padding_scheme()
 }
-#[allow(missing_docs)] // documentation missing in model
+/// The private RSA Key responsible for wrapping data keys, as a UTF8 encoded, PEM encoded PKCS #8 PrivateKeyInfo structure. If not specified, this Keyring cannot be used on decrypt. A public key and/or a private key must be specified.
 pub fn private_key(mut self, input: impl ::std::convert::Into<::aws_smithy_types::Blob>) -> Self {
     self.inner = self.inner.private_key(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// The private RSA Key responsible for wrapping data keys, as a UTF8 encoded, PEM encoded PKCS #8 PrivateKeyInfo structure. If not specified, this Keyring cannot be used on decrypt. A public key and/or a private key must be specified.
 pub fn set_private_key(mut self, input: ::std::option::Option<::aws_smithy_types::Blob>) -> Self {
     self.inner = self.inner.set_private_key(input);
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// The private RSA Key responsible for wrapping data keys, as a UTF8 encoded, PEM encoded PKCS #8 PrivateKeyInfo structure. If not specified, this Keyring cannot be used on decrypt. A public key and/or a private key must be specified.
 pub fn get_private_key(&self) -> &::std::option::Option<::aws_smithy_types::Blob> {
     self.inner.get_private_key()
 }
-#[allow(missing_docs)] // documentation missing in model
+/// The public RSA Key responsible for wrapping data keys, as a UTF8 encoded, PEM encoded X.509 SubjectPublicKeyInfo structure. If not specified, this Keyring cannot be used on encrypt. A public key and/or a private key must be specified.
 pub fn public_key(mut self, input: impl ::std::convert::Into<::aws_smithy_types::Blob>) -> Self {
     self.inner = self.inner.public_key(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// The public RSA Key responsible for wrapping data keys, as a UTF8 encoded, PEM encoded X.509 SubjectPublicKeyInfo structure. If not specified, this Keyring cannot be used on encrypt. A public key and/or a private key must be specified.
 pub fn set_public_key(mut self, input: ::std::option::Option<::aws_smithy_types::Blob>) -> Self {
     self.inner = self.inner.set_public_key(input);
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// The public RSA Key responsible for wrapping data keys, as a UTF8 encoded, PEM encoded X.509 SubjectPublicKeyInfo structure. If not specified, this Keyring cannot be used on encrypt. A public key and/or a private key must be specified.
 pub fn get_public_key(&self) -> &::std::option::Option<::aws_smithy_types::Blob> {
     self.inner.get_public_key()
 }

@@ -1,21 +1,21 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
-#[allow(missing_docs)] // documentation missing in model
 #[non_exhaustive]
 #[derive(::std::clone::Clone, ::std::cmp::PartialEq, ::std::fmt::Debug)]
+#[allow(missing_docs)]
 pub struct OnDecryptInput {
-    #[allow(missing_docs)] // documentation missing in model
+    #[allow(missing_docs)]
 pub encrypted_data_keys: ::std::option::Option<::std::vec::Vec<crate::deps::aws_cryptography_materialProviders::types::EncryptedDataKey>>,
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub materials: ::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::DecryptionMaterials>,
 }
 impl OnDecryptInput {
-    #[allow(missing_docs)] // documentation missing in model
+    #[allow(missing_docs)]
 pub fn encrypted_data_keys(&self) -> &::std::option::Option<::std::vec::Vec<crate::deps::aws_cryptography_materialProviders::types::EncryptedDataKey>> {
     &self.encrypted_data_keys
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn materials(&self) -> &::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::DecryptionMaterials> {
     &self.materials
 }
@@ -37,31 +37,31 @@ pub struct OnDecryptInputBuilder {
 pub(crate) materials: ::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::DecryptionMaterials>,
 }
 impl OnDecryptInputBuilder {
-    #[allow(missing_docs)] // documentation missing in model
+    #[allow(missing_docs)]
 pub fn encrypted_data_keys(mut self, input: impl ::std::convert::Into<::std::vec::Vec<crate::deps::aws_cryptography_materialProviders::types::EncryptedDataKey>>) -> Self {
     self.encrypted_data_keys = ::std::option::Option::Some(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn set_encrypted_data_keys(mut self, input: ::std::option::Option<::std::vec::Vec<crate::deps::aws_cryptography_materialProviders::types::EncryptedDataKey>>) -> Self {
     self.encrypted_data_keys = input;
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn get_encrypted_data_keys(&self) -> &::std::option::Option<::std::vec::Vec<crate::deps::aws_cryptography_materialProviders::types::EncryptedDataKey>> {
     &self.encrypted_data_keys
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn materials(mut self, input: impl ::std::convert::Into<crate::deps::aws_cryptography_materialProviders::types::DecryptionMaterials>) -> Self {
     self.materials = ::std::option::Option::Some(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn set_materials(mut self, input: ::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::DecryptionMaterials>) -> Self {
     self.materials = input;
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn get_materials(&self) -> &::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::DecryptionMaterials> {
     &self.materials
 }

@@ -1,13 +1,13 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
-#[allow(missing_docs)] // documentation missing in model
 #[non_exhaustive]
 #[derive(::std::clone::Clone, ::std::cmp::PartialEq, ::std::fmt::Debug)]
+#[allow(missing_docs)]
 pub enum CommitmentPolicy {
-    #[allow(missing_docs)] // documentation missing in model
+    #[allow(missing_docs)]
 Esdk(crate::deps::aws_cryptography_materialProviders::types::EsdkCommitmentPolicy),
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 Dbe(crate::deps::aws_cryptography_materialProviders::types::DbeCommitmentPolicy),
     /// The `Unknown` variant represents cases where new union variant was received. Consider upgrading the SDK to the latest available version.
     /// An unknown enum variant

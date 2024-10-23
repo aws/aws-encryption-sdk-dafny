@@ -59,17 +59,17 @@ impl GenerateRsaKeyPairFluentBuilder {
         crate::deps::aws_cryptography_primitives::operation::generate_rsa_key_pair::GenerateRsaKeyPair::send(&self.client, input).await
     }
 
-    #[allow(missing_docs)] // documentation missing in model
+    #[allow(missing_docs)]
 pub fn length_bits(mut self, input: impl ::std::convert::Into<::std::primitive::i32>) -> Self {
     self.inner = self.inner.length_bits(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn set_length_bits(mut self, input: ::std::option::Option<::std::primitive::i32>) -> Self {
     self.inner = self.inner.set_length_bits(input);
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn get_length_bits(&self) -> &::std::option::Option<::std::primitive::i32> {
     self.inner.get_length_bits()
 }

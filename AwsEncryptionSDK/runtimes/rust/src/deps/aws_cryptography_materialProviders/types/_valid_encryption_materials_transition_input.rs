@@ -1,21 +1,21 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
-#[allow(missing_docs)] // documentation missing in model
 #[non_exhaustive]
 #[derive(::std::clone::Clone, ::std::cmp::PartialEq, ::std::fmt::Debug)]
+#[allow(missing_docs)]
 pub struct ValidEncryptionMaterialsTransitionInput {
-    #[allow(missing_docs)] // documentation missing in model
+    #[allow(missing_docs)]
 pub start: ::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::EncryptionMaterials>,
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub stop: ::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::EncryptionMaterials>,
 }
 impl ValidEncryptionMaterialsTransitionInput {
-    #[allow(missing_docs)] // documentation missing in model
+    #[allow(missing_docs)]
 pub fn start(&self) -> &::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::EncryptionMaterials> {
     &self.start
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn stop(&self) -> &::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::EncryptionMaterials> {
     &self.stop
 }
@@ -37,31 +37,31 @@ pub struct ValidEncryptionMaterialsTransitionInputBuilder {
 pub(crate) stop: ::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::EncryptionMaterials>,
 }
 impl ValidEncryptionMaterialsTransitionInputBuilder {
-    #[allow(missing_docs)] // documentation missing in model
+    #[allow(missing_docs)]
 pub fn start(mut self, input: impl ::std::convert::Into<crate::deps::aws_cryptography_materialProviders::types::EncryptionMaterials>) -> Self {
     self.start = ::std::option::Option::Some(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn set_start(mut self, input: ::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::EncryptionMaterials>) -> Self {
     self.start = input;
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn get_start(&self) -> &::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::EncryptionMaterials> {
     &self.start
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn stop(mut self, input: impl ::std::convert::Into<crate::deps::aws_cryptography_materialProviders::types::EncryptionMaterials>) -> Self {
     self.stop = ::std::option::Option::Some(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn set_stop(mut self, input: ::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::EncryptionMaterials>) -> Self {
     self.stop = input;
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn get_stop(&self) -> &::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::EncryptionMaterials> {
     &self.stop
 }

@@ -1,33 +1,33 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
-#[allow(missing_docs)] // documentation missing in model
 #[non_exhaustive]
 #[derive(::std::clone::Clone, ::std::cmp::PartialEq, ::std::fmt::Debug)]
+/// Inputs for creating a Raw AES Keyring.
 pub struct CreateRawAesKeyringInput {
-    #[allow(missing_docs)] // documentation missing in model
+    /// A name associated with this wrapping key.
 pub key_name: ::std::option::Option<::std::string::String>,
-#[allow(missing_docs)] // documentation missing in model
+/// A namespace associated with this wrapping key.
 pub key_namespace: ::std::option::Option<::std::string::String>,
-#[allow(missing_docs)] // documentation missing in model
+/// The AES_GCM algorithm this Keyring uses to wrap and unwrap data keys.
 pub wrapping_alg: ::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::AesWrappingAlg>,
-#[allow(missing_docs)] // documentation missing in model
+/// The AES key used with AES_GCM encryption and decryption.
 pub wrapping_key: ::std::option::Option<::aws_smithy_types::Blob>,
 }
 impl CreateRawAesKeyringInput {
-    #[allow(missing_docs)] // documentation missing in model
+    /// A name associated with this wrapping key.
 pub fn key_name(&self) -> &::std::option::Option<::std::string::String> {
     &self.key_name
 }
-#[allow(missing_docs)] // documentation missing in model
+/// A namespace associated with this wrapping key.
 pub fn key_namespace(&self) -> &::std::option::Option<::std::string::String> {
     &self.key_namespace
 }
-#[allow(missing_docs)] // documentation missing in model
+/// The AES_GCM algorithm this Keyring uses to wrap and unwrap data keys.
 pub fn wrapping_alg(&self) -> &::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::AesWrappingAlg> {
     &self.wrapping_alg
 }
-#[allow(missing_docs)] // documentation missing in model
+/// The AES key used with AES_GCM encryption and decryption.
 pub fn wrapping_key(&self) -> &::std::option::Option<::aws_smithy_types::Blob> {
     &self.wrapping_key
 }
@@ -51,59 +51,59 @@ pub(crate) wrapping_alg: ::std::option::Option<crate::deps::aws_cryptography_mat
 pub(crate) wrapping_key: ::std::option::Option<::aws_smithy_types::Blob>,
 }
 impl CreateRawAesKeyringInputBuilder {
-    #[allow(missing_docs)] // documentation missing in model
+    /// A name associated with this wrapping key.
 pub fn key_name(mut self, input: impl ::std::convert::Into<::std::string::String>) -> Self {
     self.key_name = ::std::option::Option::Some(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// A name associated with this wrapping key.
 pub fn set_key_name(mut self, input: ::std::option::Option<::std::string::String>) -> Self {
     self.key_name = input;
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// A name associated with this wrapping key.
 pub fn get_key_name(&self) -> &::std::option::Option<::std::string::String> {
     &self.key_name
 }
-#[allow(missing_docs)] // documentation missing in model
+/// A namespace associated with this wrapping key.
 pub fn key_namespace(mut self, input: impl ::std::convert::Into<::std::string::String>) -> Self {
     self.key_namespace = ::std::option::Option::Some(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// A namespace associated with this wrapping key.
 pub fn set_key_namespace(mut self, input: ::std::option::Option<::std::string::String>) -> Self {
     self.key_namespace = input;
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// A namespace associated with this wrapping key.
 pub fn get_key_namespace(&self) -> &::std::option::Option<::std::string::String> {
     &self.key_namespace
 }
-#[allow(missing_docs)] // documentation missing in model
+/// The AES_GCM algorithm this Keyring uses to wrap and unwrap data keys.
 pub fn wrapping_alg(mut self, input: impl ::std::convert::Into<crate::deps::aws_cryptography_materialProviders::types::AesWrappingAlg>) -> Self {
     self.wrapping_alg = ::std::option::Option::Some(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// The AES_GCM algorithm this Keyring uses to wrap and unwrap data keys.
 pub fn set_wrapping_alg(mut self, input: ::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::AesWrappingAlg>) -> Self {
     self.wrapping_alg = input;
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// The AES_GCM algorithm this Keyring uses to wrap and unwrap data keys.
 pub fn get_wrapping_alg(&self) -> &::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::AesWrappingAlg> {
     &self.wrapping_alg
 }
-#[allow(missing_docs)] // documentation missing in model
+/// The AES key used with AES_GCM encryption and decryption.
 pub fn wrapping_key(mut self, input: impl ::std::convert::Into<::aws_smithy_types::Blob>) -> Self {
     self.wrapping_key = ::std::option::Option::Some(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// The AES key used with AES_GCM encryption and decryption.
 pub fn set_wrapping_key(mut self, input: ::std::option::Option<::aws_smithy_types::Blob>) -> Self {
     self.wrapping_key = input;
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// The AES key used with AES_GCM encryption and decryption.
 pub fn get_wrapping_key(&self) -> &::std::option::Option<::aws_smithy_types::Blob> {
     &self.wrapping_key
 }

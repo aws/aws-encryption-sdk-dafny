@@ -59,17 +59,17 @@ impl GenerateEccKeyPairFluentBuilder {
         crate::deps::aws_cryptography_primitives::operation::generate_ecc_key_pair::GenerateEccKeyPair::send(&self.client, input).await
     }
 
-    #[allow(missing_docs)] // documentation missing in model
+    #[allow(missing_docs)]
 pub fn ecc_curve(mut self, input: impl ::std::convert::Into<crate::deps::aws_cryptography_primitives::types::EcdhCurveSpec>) -> Self {
     self.inner = self.inner.ecc_curve(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn set_ecc_curve(mut self, input: ::std::option::Option<crate::deps::aws_cryptography_primitives::types::EcdhCurveSpec>) -> Self {
     self.inner = self.inner.set_ecc_curve(input);
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn get_ecc_curve(&self) -> &::std::option::Option<crate::deps::aws_cryptography_primitives::types::EcdhCurveSpec> {
     self.inner.get_ecc_curve()
 }

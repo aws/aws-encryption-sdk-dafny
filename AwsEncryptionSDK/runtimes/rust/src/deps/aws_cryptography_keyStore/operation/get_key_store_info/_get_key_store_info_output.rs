@@ -1,39 +1,39 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
-#[allow(missing_docs)] // documentation missing in model
 #[non_exhaustive]
 #[derive(::std::clone::Clone, ::std::cmp::PartialEq, ::std::fmt::Debug)]
+/// The configuration information for a Key Store.
 pub struct GetKeyStoreInfoOutput {
-    #[allow(missing_docs)] // documentation missing in model
+    /// The AWS KMS grant tokens that are used when this Key Store calls to AWS KMS.
 pub grant_tokens: ::std::option::Option<::std::vec::Vec<::std::string::String>>,
-#[allow(missing_docs)] // documentation missing in model
+/// An identifier for this Key Store.
 pub key_store_id: ::std::option::Option<::std::string::String>,
-#[allow(missing_docs)] // documentation missing in model
+/// The DynamoDB table name that backs this Key Store.
 pub key_store_name: ::std::option::Option<::std::string::String>,
-#[allow(missing_docs)] // documentation missing in model
+/// Configures Key Store's KMS Key ARN restrictions.
 pub kms_configuration: ::std::option::Option<crate::deps::aws_cryptography_keyStore::types::KmsConfiguration>,
-#[allow(missing_docs)] // documentation missing in model
+/// The logical name for this Key Store, which is cryptographically bound to the keys it holds.
 pub logical_key_store_name: ::std::option::Option<::std::string::String>,
 }
 impl GetKeyStoreInfoOutput {
-    #[allow(missing_docs)] // documentation missing in model
+    /// The AWS KMS grant tokens that are used when this Key Store calls to AWS KMS.
 pub fn grant_tokens(&self) -> &::std::option::Option<::std::vec::Vec<::std::string::String>> {
     &self.grant_tokens
 }
-#[allow(missing_docs)] // documentation missing in model
+/// An identifier for this Key Store.
 pub fn key_store_id(&self) -> &::std::option::Option<::std::string::String> {
     &self.key_store_id
 }
-#[allow(missing_docs)] // documentation missing in model
+/// The DynamoDB table name that backs this Key Store.
 pub fn key_store_name(&self) -> &::std::option::Option<::std::string::String> {
     &self.key_store_name
 }
-#[allow(missing_docs)] // documentation missing in model
+/// Configures Key Store's KMS Key ARN restrictions.
 pub fn kms_configuration(&self) -> &::std::option::Option<crate::deps::aws_cryptography_keyStore::types::KmsConfiguration> {
     &self.kms_configuration
 }
-#[allow(missing_docs)] // documentation missing in model
+/// The logical name for this Key Store, which is cryptographically bound to the keys it holds.
 pub fn logical_key_store_name(&self) -> &::std::option::Option<::std::string::String> {
     &self.logical_key_store_name
 }
@@ -58,73 +58,73 @@ pub(crate) kms_configuration: ::std::option::Option<crate::deps::aws_cryptograph
 pub(crate) logical_key_store_name: ::std::option::Option<::std::string::String>,
 }
 impl GetKeyStoreInfoOutputBuilder {
-    #[allow(missing_docs)] // documentation missing in model
+    /// The AWS KMS grant tokens that are used when this Key Store calls to AWS KMS.
 pub fn grant_tokens(mut self, input: impl ::std::convert::Into<::std::vec::Vec<::std::string::String>>) -> Self {
     self.grant_tokens = ::std::option::Option::Some(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// The AWS KMS grant tokens that are used when this Key Store calls to AWS KMS.
 pub fn set_grant_tokens(mut self, input: ::std::option::Option<::std::vec::Vec<::std::string::String>>) -> Self {
     self.grant_tokens = input;
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// The AWS KMS grant tokens that are used when this Key Store calls to AWS KMS.
 pub fn get_grant_tokens(&self) -> &::std::option::Option<::std::vec::Vec<::std::string::String>> {
     &self.grant_tokens
 }
-#[allow(missing_docs)] // documentation missing in model
+/// An identifier for this Key Store.
 pub fn key_store_id(mut self, input: impl ::std::convert::Into<::std::string::String>) -> Self {
     self.key_store_id = ::std::option::Option::Some(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// An identifier for this Key Store.
 pub fn set_key_store_id(mut self, input: ::std::option::Option<::std::string::String>) -> Self {
     self.key_store_id = input;
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// An identifier for this Key Store.
 pub fn get_key_store_id(&self) -> &::std::option::Option<::std::string::String> {
     &self.key_store_id
 }
-#[allow(missing_docs)] // documentation missing in model
+/// The DynamoDB table name that backs this Key Store.
 pub fn key_store_name(mut self, input: impl ::std::convert::Into<::std::string::String>) -> Self {
     self.key_store_name = ::std::option::Option::Some(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// The DynamoDB table name that backs this Key Store.
 pub fn set_key_store_name(mut self, input: ::std::option::Option<::std::string::String>) -> Self {
     self.key_store_name = input;
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// The DynamoDB table name that backs this Key Store.
 pub fn get_key_store_name(&self) -> &::std::option::Option<::std::string::String> {
     &self.key_store_name
 }
-#[allow(missing_docs)] // documentation missing in model
+/// Configures Key Store's KMS Key ARN restrictions.
 pub fn kms_configuration(mut self, input: impl ::std::convert::Into<crate::deps::aws_cryptography_keyStore::types::KmsConfiguration>) -> Self {
     self.kms_configuration = ::std::option::Option::Some(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// Configures Key Store's KMS Key ARN restrictions.
 pub fn set_kms_configuration(mut self, input: ::std::option::Option<crate::deps::aws_cryptography_keyStore::types::KmsConfiguration>) -> Self {
     self.kms_configuration = input;
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// Configures Key Store's KMS Key ARN restrictions.
 pub fn get_kms_configuration(&self) -> &::std::option::Option<crate::deps::aws_cryptography_keyStore::types::KmsConfiguration> {
     &self.kms_configuration
 }
-#[allow(missing_docs)] // documentation missing in model
+/// The logical name for this Key Store, which is cryptographically bound to the keys it holds.
 pub fn logical_key_store_name(mut self, input: impl ::std::convert::Into<::std::string::String>) -> Self {
     self.logical_key_store_name = ::std::option::Option::Some(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// The logical name for this Key Store, which is cryptographically bound to the keys it holds.
 pub fn set_logical_key_store_name(mut self, input: ::std::option::Option<::std::string::String>) -> Self {
     self.logical_key_store_name = input;
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// The logical name for this Key Store, which is cryptographically bound to the keys it holds.
 pub fn get_logical_key_store_name(&self) -> &::std::option::Option<::std::string::String> {
     &self.logical_key_store_name
 }

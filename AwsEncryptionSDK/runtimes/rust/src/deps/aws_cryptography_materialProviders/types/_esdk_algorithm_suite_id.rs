@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 #[derive(Debug, PartialEq, Copy, Clone)]
+#[allow(missing_docs)]
 pub enum EsdkAlgorithmSuiteId {
     AlgAes128GcmIv12Tag16NoKdf,
 AlgAes192GcmIv12Tag16NoKdf,

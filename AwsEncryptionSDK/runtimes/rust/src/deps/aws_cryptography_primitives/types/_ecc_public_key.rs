@@ -1,15 +1,15 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
-#[allow(missing_docs)] // documentation missing in model
 #[non_exhaustive]
 #[derive(::std::clone::Clone, ::std::cmp::PartialEq, ::std::fmt::Debug)]
+#[allow(missing_docs)]
 pub struct EccPublicKey {
-    #[allow(missing_docs)] // documentation missing in model
+    #[allow(missing_docs)]
 pub der: ::std::option::Option<::aws_smithy_types::Blob>,
 }
 impl EccPublicKey {
-    #[allow(missing_docs)] // documentation missing in model
+    #[allow(missing_docs)]
 pub fn der(&self) -> &::std::option::Option<::aws_smithy_types::Blob> {
     &self.der
 }
@@ -30,17 +30,17 @@ pub struct EccPublicKeyBuilder {
     pub(crate) der: ::std::option::Option<::aws_smithy_types::Blob>,
 }
 impl EccPublicKeyBuilder {
-    #[allow(missing_docs)] // documentation missing in model
+    #[allow(missing_docs)]
 pub fn der(mut self, input: impl ::std::convert::Into<::aws_smithy_types::Blob>) -> Self {
     self.der = ::std::option::Option::Some(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn set_der(mut self, input: ::std::option::Option<::aws_smithy_types::Blob>) -> Self {
     self.der = input;
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn get_der(&self) -> &::std::option::Option<::aws_smithy_types::Blob> {
     &self.der
 }

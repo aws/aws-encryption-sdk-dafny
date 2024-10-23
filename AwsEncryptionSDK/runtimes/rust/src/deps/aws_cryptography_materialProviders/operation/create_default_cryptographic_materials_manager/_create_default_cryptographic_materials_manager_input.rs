@@ -1,15 +1,15 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
-#[allow(missing_docs)] // documentation missing in model
 #[non_exhaustive]
 #[derive(::std::clone::Clone, ::std::cmp::PartialEq, ::std::fmt::Debug)]
+/// Inputs for creating a Default Cryptographic Materials Manager.
 pub struct CreateDefaultCryptographicMaterialsManagerInput {
-    #[allow(missing_docs)] // documentation missing in model
+    /// The Keyring that the created Default Cryprographic Materials Manager will use to wrap data keys.
 pub keyring: ::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::keyring::KeyringRef>,
 }
 impl CreateDefaultCryptographicMaterialsManagerInput {
-    #[allow(missing_docs)] // documentation missing in model
+    /// The Keyring that the created Default Cryprographic Materials Manager will use to wrap data keys.
 pub fn keyring(&self) -> &::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::keyring::KeyringRef> {
     &self.keyring
 }
@@ -30,17 +30,17 @@ pub struct CreateDefaultCryptographicMaterialsManagerInputBuilder {
     pub(crate) keyring: ::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::keyring::KeyringRef>,
 }
 impl CreateDefaultCryptographicMaterialsManagerInputBuilder {
-    #[allow(missing_docs)] // documentation missing in model
+    /// The Keyring that the created Default Cryprographic Materials Manager will use to wrap data keys.
 pub fn keyring(mut self, input: impl ::std::convert::Into<crate::deps::aws_cryptography_materialProviders::types::keyring::KeyringRef>) -> Self {
     self.keyring = ::std::option::Option::Some(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// The Keyring that the created Default Cryprographic Materials Manager will use to wrap data keys.
 pub fn set_keyring(mut self, input: ::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::keyring::KeyringRef>) -> Self {
     self.keyring = input;
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// The Keyring that the created Default Cryprographic Materials Manager will use to wrap data keys.
 pub fn get_keyring(&self) -> &::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::keyring::KeyringRef> {
     &self.keyring
 }

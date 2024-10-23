@@ -59,17 +59,17 @@ impl CreateCryptographicMaterialsCacheFluentBuilder {
         crate::deps::aws_cryptography_materialProviders::operation::create_cryptographic_materials_cache::CreateCryptographicMaterialsCache::send(&self.client, input).await
     }
 
-    #[allow(missing_docs)] // documentation missing in model
+    /// Which type of local cache to use.
 pub fn cache(mut self, input: impl ::std::convert::Into<crate::deps::aws_cryptography_materialProviders::types::CacheType>) -> Self {
     self.inner = self.inner.cache(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// Which type of local cache to use.
 pub fn set_cache(mut self, input: ::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::CacheType>) -> Self {
     self.inner = self.inner.set_cache(input);
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// Which type of local cache to use.
 pub fn get_cache(&self) -> &::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::CacheType> {
     self.inner.get_cache()
 }

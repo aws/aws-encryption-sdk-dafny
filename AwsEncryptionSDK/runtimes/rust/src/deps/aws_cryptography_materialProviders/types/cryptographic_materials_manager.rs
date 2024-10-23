@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 
+#[allow(missing_docs)]
 pub trait CryptographicMaterialsManager {
     fn get_encryption_materials(
     &self,
@@ -21,6 +22,7 @@ pub trait CryptographicMaterialsManager {
 }
 
 #[derive(::std::clone::Clone)]
+/// A reference to a CryptographicMaterialsManager
 pub struct CryptographicMaterialsManagerRef {
   pub inner: ::std::rc::Rc<std::cell::RefCell<dyn CryptographicMaterialsManager>>
 }

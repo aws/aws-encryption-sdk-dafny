@@ -1,21 +1,21 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
-#[allow(missing_docs)] // documentation missing in model
 #[non_exhaustive]
 #[derive(::std::clone::Clone, ::std::cmp::PartialEq, ::std::fmt::Debug)]
+#[allow(missing_docs)]
 pub struct AesCtr {
-    #[allow(missing_docs)] // documentation missing in model
+    #[allow(missing_docs)]
 pub key_length: ::std::option::Option<::std::primitive::i32>,
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub nonce_length: ::std::option::Option<::std::primitive::i32>,
 }
 impl AesCtr {
-    #[allow(missing_docs)] // documentation missing in model
+    #[allow(missing_docs)]
 pub fn key_length(&self) -> &::std::option::Option<::std::primitive::i32> {
     &self.key_length
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn nonce_length(&self) -> &::std::option::Option<::std::primitive::i32> {
     &self.nonce_length
 }
@@ -37,31 +37,31 @@ pub struct AesCtrBuilder {
 pub(crate) nonce_length: ::std::option::Option<::std::primitive::i32>,
 }
 impl AesCtrBuilder {
-    #[allow(missing_docs)] // documentation missing in model
+    #[allow(missing_docs)]
 pub fn key_length(mut self, input: impl ::std::convert::Into<::std::primitive::i32>) -> Self {
     self.key_length = ::std::option::Option::Some(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn set_key_length(mut self, input: ::std::option::Option<::std::primitive::i32>) -> Self {
     self.key_length = input;
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn get_key_length(&self) -> &::std::option::Option<::std::primitive::i32> {
     &self.key_length
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn nonce_length(mut self, input: impl ::std::convert::Into<::std::primitive::i32>) -> Self {
     self.nonce_length = ::std::option::Option::Some(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn set_nonce_length(mut self, input: ::std::option::Option<::std::primitive::i32>) -> Self {
     self.nonce_length = input;
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn get_nonce_length(&self) -> &::std::option::Option<::std::primitive::i32> {
     &self.nonce_length
 }

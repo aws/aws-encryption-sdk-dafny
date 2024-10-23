@@ -1,27 +1,27 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
-#[allow(missing_docs)] // documentation missing in model
 #[non_exhaustive]
 #[derive(::std::clone::Clone, ::std::cmp::PartialEq, ::std::fmt::Debug)]
+#[allow(missing_docs)]
 pub struct IntermediateKeyWrapping {
-    #[allow(missing_docs)] // documentation missing in model
+    #[allow(missing_docs)]
 pub key_encryption_key_kdf: ::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::DerivationAlgorithm>,
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub mac_key_kdf: ::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::DerivationAlgorithm>,
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub pdk_encrypt_algorithm: ::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::Encrypt>,
 }
 impl IntermediateKeyWrapping {
-    #[allow(missing_docs)] // documentation missing in model
+    #[allow(missing_docs)]
 pub fn key_encryption_key_kdf(&self) -> &::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::DerivationAlgorithm> {
     &self.key_encryption_key_kdf
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn mac_key_kdf(&self) -> &::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::DerivationAlgorithm> {
     &self.mac_key_kdf
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn pdk_encrypt_algorithm(&self) -> &::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::Encrypt> {
     &self.pdk_encrypt_algorithm
 }
@@ -44,45 +44,45 @@ pub(crate) mac_key_kdf: ::std::option::Option<crate::deps::aws_cryptography_mate
 pub(crate) pdk_encrypt_algorithm: ::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::Encrypt>,
 }
 impl IntermediateKeyWrappingBuilder {
-    #[allow(missing_docs)] // documentation missing in model
+    #[allow(missing_docs)]
 pub fn key_encryption_key_kdf(mut self, input: impl ::std::convert::Into<crate::deps::aws_cryptography_materialProviders::types::DerivationAlgorithm>) -> Self {
     self.key_encryption_key_kdf = ::std::option::Option::Some(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn set_key_encryption_key_kdf(mut self, input: ::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::DerivationAlgorithm>) -> Self {
     self.key_encryption_key_kdf = input;
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn get_key_encryption_key_kdf(&self) -> &::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::DerivationAlgorithm> {
     &self.key_encryption_key_kdf
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn mac_key_kdf(mut self, input: impl ::std::convert::Into<crate::deps::aws_cryptography_materialProviders::types::DerivationAlgorithm>) -> Self {
     self.mac_key_kdf = ::std::option::Option::Some(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn set_mac_key_kdf(mut self, input: ::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::DerivationAlgorithm>) -> Self {
     self.mac_key_kdf = input;
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn get_mac_key_kdf(&self) -> &::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::DerivationAlgorithm> {
     &self.mac_key_kdf
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn pdk_encrypt_algorithm(mut self, input: impl ::std::convert::Into<crate::deps::aws_cryptography_materialProviders::types::Encrypt>) -> Self {
     self.pdk_encrypt_algorithm = ::std::option::Option::Some(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn set_pdk_encrypt_algorithm(mut self, input: ::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::Encrypt>) -> Self {
     self.pdk_encrypt_algorithm = input;
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn get_pdk_encrypt_algorithm(&self) -> &::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::Encrypt> {
     &self.pdk_encrypt_algorithm
 }

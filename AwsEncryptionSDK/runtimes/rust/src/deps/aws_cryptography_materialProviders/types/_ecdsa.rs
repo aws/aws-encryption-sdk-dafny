@@ -1,15 +1,15 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
-#[allow(missing_docs)] // documentation missing in model
 #[non_exhaustive]
 #[derive(::std::clone::Clone, ::std::cmp::PartialEq, ::std::fmt::Debug)]
+#[allow(missing_docs)]
 pub struct Ecdsa {
-    #[allow(missing_docs)] // documentation missing in model
+    #[allow(missing_docs)]
 pub curve: ::std::option::Option<crate::deps::aws_cryptography_primitives::types::EcdsaSignatureAlgorithm>,
 }
 impl Ecdsa {
-    #[allow(missing_docs)] // documentation missing in model
+    #[allow(missing_docs)]
 pub fn curve(&self) -> &::std::option::Option<crate::deps::aws_cryptography_primitives::types::EcdsaSignatureAlgorithm> {
     &self.curve
 }
@@ -30,17 +30,17 @@ pub struct EcdsaBuilder {
     pub(crate) curve: ::std::option::Option<crate::deps::aws_cryptography_primitives::types::EcdsaSignatureAlgorithm>,
 }
 impl EcdsaBuilder {
-    #[allow(missing_docs)] // documentation missing in model
+    #[allow(missing_docs)]
 pub fn curve(mut self, input: impl ::std::convert::Into<crate::deps::aws_cryptography_primitives::types::EcdsaSignatureAlgorithm>) -> Self {
     self.curve = ::std::option::Option::Some(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn set_curve(mut self, input: ::std::option::Option<crate::deps::aws_cryptography_primitives::types::EcdsaSignatureAlgorithm>) -> Self {
     self.curve = input;
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn get_curve(&self) -> &::std::option::Option<crate::deps::aws_cryptography_primitives::types::EcdsaSignatureAlgorithm> {
     &self.curve
 }

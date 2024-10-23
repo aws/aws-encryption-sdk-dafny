@@ -1,33 +1,33 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
-#[allow(missing_docs)] // documentation missing in model
 #[non_exhaustive]
 #[derive(::std::clone::Clone, ::std::cmp::PartialEq, ::std::fmt::Debug)]
+#[allow(missing_docs)]
 pub struct Hkdf {
-    #[allow(missing_docs)] // documentation missing in model
+    #[allow(missing_docs)]
 pub hmac: ::std::option::Option<crate::deps::aws_cryptography_primitives::types::DigestAlgorithm>,
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub input_key_length: ::std::option::Option<::std::primitive::i32>,
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub output_key_length: ::std::option::Option<::std::primitive::i32>,
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub salt_length: ::std::option::Option<::std::primitive::i32>,
 }
 impl Hkdf {
-    #[allow(missing_docs)] // documentation missing in model
+    #[allow(missing_docs)]
 pub fn hmac(&self) -> &::std::option::Option<crate::deps::aws_cryptography_primitives::types::DigestAlgorithm> {
     &self.hmac
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn input_key_length(&self) -> &::std::option::Option<::std::primitive::i32> {
     &self.input_key_length
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn output_key_length(&self) -> &::std::option::Option<::std::primitive::i32> {
     &self.output_key_length
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn salt_length(&self) -> &::std::option::Option<::std::primitive::i32> {
     &self.salt_length
 }
@@ -51,59 +51,59 @@ pub(crate) output_key_length: ::std::option::Option<::std::primitive::i32>,
 pub(crate) salt_length: ::std::option::Option<::std::primitive::i32>,
 }
 impl HkdfBuilder {
-    #[allow(missing_docs)] // documentation missing in model
+    #[allow(missing_docs)]
 pub fn hmac(mut self, input: impl ::std::convert::Into<crate::deps::aws_cryptography_primitives::types::DigestAlgorithm>) -> Self {
     self.hmac = ::std::option::Option::Some(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn set_hmac(mut self, input: ::std::option::Option<crate::deps::aws_cryptography_primitives::types::DigestAlgorithm>) -> Self {
     self.hmac = input;
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn get_hmac(&self) -> &::std::option::Option<crate::deps::aws_cryptography_primitives::types::DigestAlgorithm> {
     &self.hmac
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn input_key_length(mut self, input: impl ::std::convert::Into<::std::primitive::i32>) -> Self {
     self.input_key_length = ::std::option::Option::Some(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn set_input_key_length(mut self, input: ::std::option::Option<::std::primitive::i32>) -> Self {
     self.input_key_length = input;
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn get_input_key_length(&self) -> &::std::option::Option<::std::primitive::i32> {
     &self.input_key_length
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn output_key_length(mut self, input: impl ::std::convert::Into<::std::primitive::i32>) -> Self {
     self.output_key_length = ::std::option::Option::Some(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn set_output_key_length(mut self, input: ::std::option::Option<::std::primitive::i32>) -> Self {
     self.output_key_length = input;
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn get_output_key_length(&self) -> &::std::option::Option<::std::primitive::i32> {
     &self.output_key_length
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn salt_length(mut self, input: impl ::std::convert::Into<::std::primitive::i32>) -> Self {
     self.salt_length = ::std::option::Option::Some(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn set_salt_length(mut self, input: ::std::option::Option<::std::primitive::i32>) -> Self {
     self.salt_length = input;
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn get_salt_length(&self) -> &::std::option::Option<::std::primitive::i32> {
     &self.salt_length
 }

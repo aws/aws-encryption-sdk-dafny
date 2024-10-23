@@ -21,6 +21,7 @@ impl VersionKeyInputBuilder {
 }
 /// Fluent builder constructing a request to `VersionKey`.
 ///
+/// Create a new ACTIVE version of an existing Branch Key in the Key Store, and set the previously ACTIVE version to DECRYPT_ONLY.
 #[derive(::std::clone::Clone, ::std::fmt::Debug)]
 pub struct VersionKeyFluentBuilder {
     client: crate::deps::aws_cryptography_keyStore::client::Client,
@@ -59,17 +60,17 @@ impl VersionKeyFluentBuilder {
         crate::deps::aws_cryptography_keyStore::operation::version_key::VersionKey::send(&self.client, input).await
     }
 
-    #[allow(missing_docs)] // documentation missing in model
+    /// The identifier for the Branch Key to be versioned.
 pub fn branch_key_identifier(mut self, input: impl ::std::convert::Into<::std::string::String>) -> Self {
     self.inner = self.inner.branch_key_identifier(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// The identifier for the Branch Key to be versioned.
 pub fn set_branch_key_identifier(mut self, input: ::std::option::Option<::std::string::String>) -> Self {
     self.inner = self.inner.set_branch_key_identifier(input);
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// The identifier for the Branch Key to be versioned.
 pub fn get_branch_key_identifier(&self) -> &::std::option::Option<::std::string::String> {
     self.inner.get_branch_key_identifier()
 }

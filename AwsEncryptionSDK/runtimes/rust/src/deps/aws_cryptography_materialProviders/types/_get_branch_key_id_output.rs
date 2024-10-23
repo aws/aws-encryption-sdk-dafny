@@ -1,15 +1,15 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
-#[allow(missing_docs)] // documentation missing in model
 #[non_exhaustive]
 #[derive(::std::clone::Clone, ::std::cmp::PartialEq, ::std::fmt::Debug)]
+/// Outputs for the Branch Key responsible for wrapping or unwrapping the data key in this encryption or decryption.
 pub struct GetBranchKeyIdOutput {
-    #[allow(missing_docs)] // documentation missing in model
+    /// The identifier of the Branch Key that should be responsible for wrapping or unwrapping the data key in this encryption or decryption.
 pub branch_key_id: ::std::option::Option<::std::string::String>,
 }
 impl GetBranchKeyIdOutput {
-    #[allow(missing_docs)] // documentation missing in model
+    /// The identifier of the Branch Key that should be responsible for wrapping or unwrapping the data key in this encryption or decryption.
 pub fn branch_key_id(&self) -> &::std::option::Option<::std::string::String> {
     &self.branch_key_id
 }
@@ -30,17 +30,17 @@ pub struct GetBranchKeyIdOutputBuilder {
     pub(crate) branch_key_id: ::std::option::Option<::std::string::String>,
 }
 impl GetBranchKeyIdOutputBuilder {
-    #[allow(missing_docs)] // documentation missing in model
+    /// The identifier of the Branch Key that should be responsible for wrapping or unwrapping the data key in this encryption or decryption.
 pub fn branch_key_id(mut self, input: impl ::std::convert::Into<::std::string::String>) -> Self {
     self.branch_key_id = ::std::option::Option::Some(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// The identifier of the Branch Key that should be responsible for wrapping or unwrapping the data key in this encryption or decryption.
 pub fn set_branch_key_id(mut self, input: ::std::option::Option<::std::string::String>) -> Self {
     self.branch_key_id = input;
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// The identifier of the Branch Key that should be responsible for wrapping or unwrapping the data key in this encryption or decryption.
 pub fn get_branch_key_id(&self) -> &::std::option::Option<::std::string::String> {
     &self.branch_key_id
 }

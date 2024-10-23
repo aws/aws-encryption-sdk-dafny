@@ -1,15 +1,15 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
-#[allow(missing_docs)] // documentation missing in model
 #[non_exhaustive]
 #[derive(::std::clone::Clone, ::std::cmp::PartialEq, ::std::fmt::Debug)]
+#[allow(missing_docs)]
 pub struct OnEncryptOutput {
-    #[allow(missing_docs)] // documentation missing in model
+    #[allow(missing_docs)]
 pub materials: ::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::EncryptionMaterials>,
 }
 impl OnEncryptOutput {
-    #[allow(missing_docs)] // documentation missing in model
+    #[allow(missing_docs)]
 pub fn materials(&self) -> &::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::EncryptionMaterials> {
     &self.materials
 }
@@ -30,17 +30,17 @@ pub struct OnEncryptOutputBuilder {
     pub(crate) materials: ::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::EncryptionMaterials>,
 }
 impl OnEncryptOutputBuilder {
-    #[allow(missing_docs)] // documentation missing in model
+    #[allow(missing_docs)]
 pub fn materials(mut self, input: impl ::std::convert::Into<crate::deps::aws_cryptography_materialProviders::types::EncryptionMaterials>) -> Self {
     self.materials = ::std::option::Option::Some(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn set_materials(mut self, input: ::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::EncryptionMaterials>) -> Self {
     self.materials = input;
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn get_materials(&self) -> &::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::EncryptionMaterials> {
     &self.materials
 }

@@ -59,45 +59,45 @@ impl HkdfExtractFluentBuilder {
         crate::deps::aws_cryptography_primitives::operation::hkdf_extract::HkdfExtract::send(&self.client, input).await
     }
 
-    #[allow(missing_docs)] // documentation missing in model
+    #[allow(missing_docs)]
 pub fn digest_algorithm(mut self, input: impl ::std::convert::Into<crate::deps::aws_cryptography_primitives::types::DigestAlgorithm>) -> Self {
     self.inner = self.inner.digest_algorithm(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn set_digest_algorithm(mut self, input: ::std::option::Option<crate::deps::aws_cryptography_primitives::types::DigestAlgorithm>) -> Self {
     self.inner = self.inner.set_digest_algorithm(input);
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn get_digest_algorithm(&self) -> &::std::option::Option<crate::deps::aws_cryptography_primitives::types::DigestAlgorithm> {
     self.inner.get_digest_algorithm()
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn ikm(mut self, input: impl ::std::convert::Into<::aws_smithy_types::Blob>) -> Self {
     self.inner = self.inner.ikm(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn set_ikm(mut self, input: ::std::option::Option<::aws_smithy_types::Blob>) -> Self {
     self.inner = self.inner.set_ikm(input);
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn get_ikm(&self) -> &::std::option::Option<::aws_smithy_types::Blob> {
     self.inner.get_ikm()
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn salt(mut self, input: impl ::std::convert::Into<::aws_smithy_types::Blob>) -> Self {
     self.inner = self.inner.salt(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn set_salt(mut self, input: ::std::option::Option<::aws_smithy_types::Blob>) -> Self {
     self.inner = self.inner.set_salt(input);
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn get_salt(&self) -> &::std::option::Option<::aws_smithy_types::Blob> {
     self.inner.get_salt()
 }

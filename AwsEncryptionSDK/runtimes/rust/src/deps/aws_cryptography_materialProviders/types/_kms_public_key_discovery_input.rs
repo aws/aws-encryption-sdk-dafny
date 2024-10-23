@@ -1,15 +1,15 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
-#[allow(missing_docs)] // documentation missing in model
 #[non_exhaustive]
 #[derive(::std::clone::Clone, ::std::cmp::PartialEq, ::std::fmt::Debug)]
+/// Inputs for creating a KmsPublicKeyDiscovery Configuration. This is a DECRYPT ONLY configuration.
 pub struct KmsPublicKeyDiscoveryInput {
-    #[allow(missing_docs)] // documentation missing in model
+    /// AWS KMS key identifier belonging to the recipient.
 pub recipient_kms_identifier: ::std::option::Option<::std::string::String>,
 }
 impl KmsPublicKeyDiscoveryInput {
-    #[allow(missing_docs)] // documentation missing in model
+    /// AWS KMS key identifier belonging to the recipient.
 pub fn recipient_kms_identifier(&self) -> &::std::option::Option<::std::string::String> {
     &self.recipient_kms_identifier
 }
@@ -30,17 +30,17 @@ pub struct KmsPublicKeyDiscoveryInputBuilder {
     pub(crate) recipient_kms_identifier: ::std::option::Option<::std::string::String>,
 }
 impl KmsPublicKeyDiscoveryInputBuilder {
-    #[allow(missing_docs)] // documentation missing in model
+    /// AWS KMS key identifier belonging to the recipient.
 pub fn recipient_kms_identifier(mut self, input: impl ::std::convert::Into<::std::string::String>) -> Self {
     self.recipient_kms_identifier = ::std::option::Option::Some(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// AWS KMS key identifier belonging to the recipient.
 pub fn set_recipient_kms_identifier(mut self, input: ::std::option::Option<::std::string::String>) -> Self {
     self.recipient_kms_identifier = input;
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// AWS KMS key identifier belonging to the recipient.
 pub fn get_recipient_kms_identifier(&self) -> &::std::option::Option<::std::string::String> {
     &self.recipient_kms_identifier
 }

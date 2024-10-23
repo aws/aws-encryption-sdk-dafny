@@ -1,15 +1,15 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
-#[allow(missing_docs)] // documentation missing in model
 #[non_exhaustive]
 #[derive(::std::clone::Clone, ::std::cmp::PartialEq, ::std::fmt::Debug)]
+#[allow(missing_docs)]
 pub struct GenerateRandomBytesOutput {
-    #[allow(missing_docs)] // documentation missing in model
+    #[allow(missing_docs)]
 pub data: ::std::option::Option<::aws_smithy_types::Blob>,
 }
 impl GenerateRandomBytesOutput {
-    #[allow(missing_docs)] // documentation missing in model
+    #[allow(missing_docs)]
 pub fn data(&self) -> &::std::option::Option<::aws_smithy_types::Blob> {
     &self.data
 }
@@ -30,17 +30,17 @@ pub struct GenerateRandomBytesOutputBuilder {
     pub(crate) data: ::std::option::Option<::aws_smithy_types::Blob>,
 }
 impl GenerateRandomBytesOutputBuilder {
-    #[allow(missing_docs)] // documentation missing in model
+    #[allow(missing_docs)]
 pub fn data(mut self, input: impl ::std::convert::Into<::aws_smithy_types::Blob>) -> Self {
     self.data = ::std::option::Option::Some(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn set_data(mut self, input: ::std::option::Option<::aws_smithy_types::Blob>) -> Self {
     self.data = input;
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn get_data(&self) -> &::std::option::Option<::aws_smithy_types::Blob> {
     &self.data
 }

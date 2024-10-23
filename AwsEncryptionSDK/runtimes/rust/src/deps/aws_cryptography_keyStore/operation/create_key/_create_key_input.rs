@@ -1,21 +1,21 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
-#[allow(missing_docs)] // documentation missing in model
 #[non_exhaustive]
 #[derive(::std::clone::Clone, ::std::cmp::PartialEq, ::std::fmt::Debug)]
+#[allow(missing_docs)]
 pub struct CreateKeyInput {
-    #[allow(missing_docs)] // documentation missing in model
+    /// The identifier for the created Branch Key.
 pub branch_key_identifier: ::std::option::Option<::std::string::String>,
-#[allow(missing_docs)] // documentation missing in model
+/// Custom encryption context for the Branch Key. Required if branchKeyIdentifier is set.
 pub encryption_context: ::std::option::Option<::std::collections::HashMap<::std::string::String, ::std::string::String>>,
 }
 impl CreateKeyInput {
-    #[allow(missing_docs)] // documentation missing in model
+    /// The identifier for the created Branch Key.
 pub fn branch_key_identifier(&self) -> &::std::option::Option<::std::string::String> {
     &self.branch_key_identifier
 }
-#[allow(missing_docs)] // documentation missing in model
+/// Custom encryption context for the Branch Key. Required if branchKeyIdentifier is set.
 pub fn encryption_context(&self) -> &::std::option::Option<::std::collections::HashMap<::std::string::String, ::std::string::String>> {
     &self.encryption_context
 }
@@ -37,31 +37,31 @@ pub struct CreateKeyInputBuilder {
 pub(crate) encryption_context: ::std::option::Option<::std::collections::HashMap<::std::string::String, ::std::string::String>>,
 }
 impl CreateKeyInputBuilder {
-    #[allow(missing_docs)] // documentation missing in model
+    /// The identifier for the created Branch Key.
 pub fn branch_key_identifier(mut self, input: impl ::std::convert::Into<::std::string::String>) -> Self {
     self.branch_key_identifier = ::std::option::Option::Some(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// The identifier for the created Branch Key.
 pub fn set_branch_key_identifier(mut self, input: ::std::option::Option<::std::string::String>) -> Self {
     self.branch_key_identifier = input;
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// The identifier for the created Branch Key.
 pub fn get_branch_key_identifier(&self) -> &::std::option::Option<::std::string::String> {
     &self.branch_key_identifier
 }
-#[allow(missing_docs)] // documentation missing in model
+/// Custom encryption context for the Branch Key. Required if branchKeyIdentifier is set.
 pub fn encryption_context(mut self, input: impl ::std::convert::Into<::std::collections::HashMap<::std::string::String, ::std::string::String>>) -> Self {
     self.encryption_context = ::std::option::Option::Some(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// Custom encryption context for the Branch Key. Required if branchKeyIdentifier is set.
 pub fn set_encryption_context(mut self, input: ::std::option::Option<::std::collections::HashMap<::std::string::String, ::std::string::String>>) -> Self {
     self.encryption_context = input;
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// Custom encryption context for the Branch Key. Required if branchKeyIdentifier is set.
 pub fn get_encryption_context(&self) -> &::std::option::Option<::std::collections::HashMap<::std::string::String, ::std::string::String>> {
     &self.encryption_context
 }

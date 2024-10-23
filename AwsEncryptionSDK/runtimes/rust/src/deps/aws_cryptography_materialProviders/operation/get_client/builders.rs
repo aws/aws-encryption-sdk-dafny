@@ -21,6 +21,7 @@ impl GetClientInputBuilder {
 }
 /// Fluent builder constructing a request to `GetClient`.
 ///
+/// Returns an AWS KMS Client.
 #[derive(::std::clone::Clone, ::std::fmt::Debug)]
 pub struct GetClientFluentBuilder {
     client_supplier: crate::deps::aws_cryptography_materialProviders::types::client_supplier::ClientSupplierRef,
@@ -59,17 +60,17 @@ impl GetClientFluentBuilder {
         crate::deps::aws_cryptography_materialProviders::operation::get_client::GetClient::send(&self.client_supplier, input).await
     }
 
-    #[allow(missing_docs)] // documentation missing in model
+    /// The region the client should be created in.
 pub fn region(mut self, input: impl ::std::convert::Into<::std::string::String>) -> Self {
     self.inner = self.inner.region(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// The region the client should be created in.
 pub fn set_region(mut self, input: ::std::option::Option<::std::string::String>) -> Self {
     self.inner = self.inner.set_region(input);
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// The region the client should be created in.
 pub fn get_region(&self) -> &::std::option::Option<::std::string::String> {
     self.inner.get_region()
 }

@@ -1,51 +1,54 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
-#[allow(missing_docs)] // documentation missing in model
 #[non_exhaustive]
 #[derive(::std::clone::Clone, ::std::cmp::PartialEq, ::std::fmt::Debug)]
+/// A cache that is safe for use in a multi threaded environment,
+/// and tries to prevent redundant or overly parallel backend calls.
 pub struct StormTrackingCache {
-    #[allow(missing_docs)] // documentation missing in model
+    /// Maximum number of entries cached.
 pub entry_capacity: ::std::option::Option<::std::primitive::i32>,
-#[allow(missing_docs)] // documentation missing in model
+/// Number of entries to prune at a time.
 pub entry_pruning_tail_size: ::std::option::Option<::std::primitive::i32>,
-#[allow(missing_docs)] // documentation missing in model
+/// How many simultaneous attempts to refresh the materials.
 pub fan_out: ::std::option::Option<::std::primitive::i32>,
-#[allow(missing_docs)] // documentation missing in model
+/// How many seconds between attempts to refresh the materials.
 pub grace_interval: ::std::option::Option<::std::primitive::i32>,
-#[allow(missing_docs)] // documentation missing in model
+/// How many seconds before expiration should an attempt be made to refresh the materials.
+///   If zero, use a simple cache with no storm tracking.
 pub grace_period: ::std::option::Option<::std::primitive::i32>,
-#[allow(missing_docs)] // documentation missing in model
+/// How many seconds until an attempt to refresh the materials should be forgotten.
 pub in_flight_ttl: ::std::option::Option<::std::primitive::i32>,
-#[allow(missing_docs)] // documentation missing in model
+/// How many milliseconds should a thread sleep if fanOut is exceeded.
 pub sleep_milli: ::std::option::Option<::std::primitive::i32>,
 }
 impl StormTrackingCache {
-    #[allow(missing_docs)] // documentation missing in model
+    /// Maximum number of entries cached.
 pub fn entry_capacity(&self) -> &::std::option::Option<::std::primitive::i32> {
     &self.entry_capacity
 }
-#[allow(missing_docs)] // documentation missing in model
+/// Number of entries to prune at a time.
 pub fn entry_pruning_tail_size(&self) -> &::std::option::Option<::std::primitive::i32> {
     &self.entry_pruning_tail_size
 }
-#[allow(missing_docs)] // documentation missing in model
+/// How many simultaneous attempts to refresh the materials.
 pub fn fan_out(&self) -> &::std::option::Option<::std::primitive::i32> {
     &self.fan_out
 }
-#[allow(missing_docs)] // documentation missing in model
+/// How many seconds between attempts to refresh the materials.
 pub fn grace_interval(&self) -> &::std::option::Option<::std::primitive::i32> {
     &self.grace_interval
 }
-#[allow(missing_docs)] // documentation missing in model
+/// How many seconds before expiration should an attempt be made to refresh the materials.
+///   If zero, use a simple cache with no storm tracking.
 pub fn grace_period(&self) -> &::std::option::Option<::std::primitive::i32> {
     &self.grace_period
 }
-#[allow(missing_docs)] // documentation missing in model
+/// How many seconds until an attempt to refresh the materials should be forgotten.
 pub fn in_flight_ttl(&self) -> &::std::option::Option<::std::primitive::i32> {
     &self.in_flight_ttl
 }
-#[allow(missing_docs)] // documentation missing in model
+/// How many milliseconds should a thread sleep if fanOut is exceeded.
 pub fn sleep_milli(&self) -> &::std::option::Option<::std::primitive::i32> {
     &self.sleep_milli
 }
@@ -72,101 +75,104 @@ pub(crate) in_flight_ttl: ::std::option::Option<::std::primitive::i32>,
 pub(crate) sleep_milli: ::std::option::Option<::std::primitive::i32>,
 }
 impl StormTrackingCacheBuilder {
-    #[allow(missing_docs)] // documentation missing in model
+    /// Maximum number of entries cached.
 pub fn entry_capacity(mut self, input: impl ::std::convert::Into<::std::primitive::i32>) -> Self {
     self.entry_capacity = ::std::option::Option::Some(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// Maximum number of entries cached.
 pub fn set_entry_capacity(mut self, input: ::std::option::Option<::std::primitive::i32>) -> Self {
     self.entry_capacity = input;
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// Maximum number of entries cached.
 pub fn get_entry_capacity(&self) -> &::std::option::Option<::std::primitive::i32> {
     &self.entry_capacity
 }
-#[allow(missing_docs)] // documentation missing in model
+/// Number of entries to prune at a time.
 pub fn entry_pruning_tail_size(mut self, input: impl ::std::convert::Into<::std::primitive::i32>) -> Self {
     self.entry_pruning_tail_size = ::std::option::Option::Some(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// Number of entries to prune at a time.
 pub fn set_entry_pruning_tail_size(mut self, input: ::std::option::Option<::std::primitive::i32>) -> Self {
     self.entry_pruning_tail_size = input;
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// Number of entries to prune at a time.
 pub fn get_entry_pruning_tail_size(&self) -> &::std::option::Option<::std::primitive::i32> {
     &self.entry_pruning_tail_size
 }
-#[allow(missing_docs)] // documentation missing in model
+/// How many simultaneous attempts to refresh the materials.
 pub fn fan_out(mut self, input: impl ::std::convert::Into<::std::primitive::i32>) -> Self {
     self.fan_out = ::std::option::Option::Some(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// How many simultaneous attempts to refresh the materials.
 pub fn set_fan_out(mut self, input: ::std::option::Option<::std::primitive::i32>) -> Self {
     self.fan_out = input;
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// How many simultaneous attempts to refresh the materials.
 pub fn get_fan_out(&self) -> &::std::option::Option<::std::primitive::i32> {
     &self.fan_out
 }
-#[allow(missing_docs)] // documentation missing in model
+/// How many seconds between attempts to refresh the materials.
 pub fn grace_interval(mut self, input: impl ::std::convert::Into<::std::primitive::i32>) -> Self {
     self.grace_interval = ::std::option::Option::Some(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// How many seconds between attempts to refresh the materials.
 pub fn set_grace_interval(mut self, input: ::std::option::Option<::std::primitive::i32>) -> Self {
     self.grace_interval = input;
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// How many seconds between attempts to refresh the materials.
 pub fn get_grace_interval(&self) -> &::std::option::Option<::std::primitive::i32> {
     &self.grace_interval
 }
-#[allow(missing_docs)] // documentation missing in model
+/// How many seconds before expiration should an attempt be made to refresh the materials.
+///   If zero, use a simple cache with no storm tracking.
 pub fn grace_period(mut self, input: impl ::std::convert::Into<::std::primitive::i32>) -> Self {
     self.grace_period = ::std::option::Option::Some(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// How many seconds before expiration should an attempt be made to refresh the materials.
+///   If zero, use a simple cache with no storm tracking.
 pub fn set_grace_period(mut self, input: ::std::option::Option<::std::primitive::i32>) -> Self {
     self.grace_period = input;
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// How many seconds before expiration should an attempt be made to refresh the materials.
+///   If zero, use a simple cache with no storm tracking.
 pub fn get_grace_period(&self) -> &::std::option::Option<::std::primitive::i32> {
     &self.grace_period
 }
-#[allow(missing_docs)] // documentation missing in model
+/// How many seconds until an attempt to refresh the materials should be forgotten.
 pub fn in_flight_ttl(mut self, input: impl ::std::convert::Into<::std::primitive::i32>) -> Self {
     self.in_flight_ttl = ::std::option::Option::Some(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// How many seconds until an attempt to refresh the materials should be forgotten.
 pub fn set_in_flight_ttl(mut self, input: ::std::option::Option<::std::primitive::i32>) -> Self {
     self.in_flight_ttl = input;
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// How many seconds until an attempt to refresh the materials should be forgotten.
 pub fn get_in_flight_ttl(&self) -> &::std::option::Option<::std::primitive::i32> {
     &self.in_flight_ttl
 }
-#[allow(missing_docs)] // documentation missing in model
+/// How many milliseconds should a thread sleep if fanOut is exceeded.
 pub fn sleep_milli(mut self, input: impl ::std::convert::Into<::std::primitive::i32>) -> Self {
     self.sleep_milli = ::std::option::Option::Some(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// How many milliseconds should a thread sleep if fanOut is exceeded.
 pub fn set_sleep_milli(mut self, input: ::std::option::Option<::std::primitive::i32>) -> Self {
     self.sleep_milli = input;
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// How many milliseconds should a thread sleep if fanOut is exceeded.
 pub fn get_sleep_milli(&self) -> &::std::option::Option<::std::primitive::i32> {
     &self.sleep_milli
 }

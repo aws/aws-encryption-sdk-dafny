@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 #[derive(Debug, PartialEq, Copy, Clone)]
+/// During Decryption, Allow or Forbid ESDK-NET v4.0.0 Behavior if the ESDK Message Header fails the Header Authentication check.
 pub enum NetV400RetryPolicy {
     ForbidRetry,
 AllowRetry,

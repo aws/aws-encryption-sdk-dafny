@@ -21,6 +21,7 @@ impl CreateAwsKmsDiscoveryMultiKeyringInputBuilder {
 }
 /// Fluent builder constructing a request to `CreateAwsKmsDiscoveryMultiKeyring`.
 ///
+/// Creates an AWS KMS Discovery Multi-Keyring, which supports unwrapping data keys wrapped by a symmetric AWS KMS Key, for multiple regions.
 #[derive(::std::clone::Clone, ::std::fmt::Debug)]
 pub struct CreateAwsKmsDiscoveryMultiKeyringFluentBuilder {
     client: crate::deps::aws_cryptography_materialProviders::client::Client,
@@ -59,59 +60,59 @@ impl CreateAwsKmsDiscoveryMultiKeyringFluentBuilder {
         crate::deps::aws_cryptography_materialProviders::operation::create_aws_kms_discovery_multi_keyring::CreateAwsKmsDiscoveryMultiKeyring::send(&self.client, input).await
     }
 
-    #[allow(missing_docs)] // documentation missing in model
+    /// The Client Supplier which will be used to get KMS Clients for use with this Keyring. If not specified on input, a Default Client Supplier is created which creates a KMS Client for each region in the 'regions' input.
 pub fn client_supplier(mut self, input: impl ::std::convert::Into<crate::deps::aws_cryptography_materialProviders::types::client_supplier::ClientSupplierRef>) -> Self {
     self.inner = self.inner.client_supplier(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// The Client Supplier which will be used to get KMS Clients for use with this Keyring. If not specified on input, a Default Client Supplier is created which creates a KMS Client for each region in the 'regions' input.
 pub fn set_client_supplier(mut self, input: ::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::client_supplier::ClientSupplierRef>) -> Self {
     self.inner = self.inner.set_client_supplier(input);
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// The Client Supplier which will be used to get KMS Clients for use with this Keyring. If not specified on input, a Default Client Supplier is created which creates a KMS Client for each region in the 'regions' input.
 pub fn get_client_supplier(&self) -> &::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::client_supplier::ClientSupplierRef> {
     self.inner.get_client_supplier()
 }
-#[allow(missing_docs)] // documentation missing in model
+/// A filter which restricts which KMS Keys this Keyring may attempt to decrypt with by AWS partition and account.
 pub fn discovery_filter(mut self, input: impl ::std::convert::Into<crate::deps::aws_cryptography_materialProviders::types::DiscoveryFilter>) -> Self {
     self.inner = self.inner.discovery_filter(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// A filter which restricts which KMS Keys this Keyring may attempt to decrypt with by AWS partition and account.
 pub fn set_discovery_filter(mut self, input: ::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::DiscoveryFilter>) -> Self {
     self.inner = self.inner.set_discovery_filter(input);
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// A filter which restricts which KMS Keys this Keyring may attempt to decrypt with by AWS partition and account.
 pub fn get_discovery_filter(&self) -> &::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::DiscoveryFilter> {
     self.inner.get_discovery_filter()
 }
-#[allow(missing_docs)] // documentation missing in model
+/// A list of grant tokens to be used when calling KMS.
 pub fn grant_tokens(mut self, input: impl ::std::convert::Into<::std::vec::Vec<::std::string::String>>) -> Self {
     self.inner = self.inner.grant_tokens(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// A list of grant tokens to be used when calling KMS.
 pub fn set_grant_tokens(mut self, input: ::std::option::Option<::std::vec::Vec<::std::string::String>>) -> Self {
     self.inner = self.inner.set_grant_tokens(input);
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// A list of grant tokens to be used when calling KMS.
 pub fn get_grant_tokens(&self) -> &::std::option::Option<::std::vec::Vec<::std::string::String>> {
     self.inner.get_grant_tokens()
 }
-#[allow(missing_docs)] // documentation missing in model
+/// The list of regions this Keyring will creates KMS clients for.
 pub fn regions(mut self, input: impl ::std::convert::Into<::std::vec::Vec<::std::string::String>>) -> Self {
     self.inner = self.inner.regions(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// The list of regions this Keyring will creates KMS clients for.
 pub fn set_regions(mut self, input: ::std::option::Option<::std::vec::Vec<::std::string::String>>) -> Self {
     self.inner = self.inner.set_regions(input);
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// The list of regions this Keyring will creates KMS clients for.
 pub fn get_regions(&self) -> &::std::option::Option<::std::vec::Vec<::std::string::String>> {
     self.inner.get_regions()
 }

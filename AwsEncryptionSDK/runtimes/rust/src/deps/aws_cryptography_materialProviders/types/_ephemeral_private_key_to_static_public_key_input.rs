@@ -1,15 +1,15 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
-#[allow(missing_docs)] // documentation missing in model
 #[non_exhaustive]
 #[derive(::std::clone::Clone, ::std::cmp::PartialEq, ::std::fmt::Debug)]
+/// Inputs for creating a EphemeralPrivateKeyToStaticPublicKey Configuration.
 pub struct EphemeralPrivateKeyToStaticPublicKeyInput {
-    #[allow(missing_docs)] // documentation missing in model
+    /// The recipient's public key. MUST be DER encoded.
 pub recipient_public_key: ::std::option::Option<::aws_smithy_types::Blob>,
 }
 impl EphemeralPrivateKeyToStaticPublicKeyInput {
-    #[allow(missing_docs)] // documentation missing in model
+    /// The recipient's public key. MUST be DER encoded.
 pub fn recipient_public_key(&self) -> &::std::option::Option<::aws_smithy_types::Blob> {
     &self.recipient_public_key
 }
@@ -30,17 +30,17 @@ pub struct EphemeralPrivateKeyToStaticPublicKeyInputBuilder {
     pub(crate) recipient_public_key: ::std::option::Option<::aws_smithy_types::Blob>,
 }
 impl EphemeralPrivateKeyToStaticPublicKeyInputBuilder {
-    #[allow(missing_docs)] // documentation missing in model
+    /// The recipient's public key. MUST be DER encoded.
 pub fn recipient_public_key(mut self, input: impl ::std::convert::Into<::aws_smithy_types::Blob>) -> Self {
     self.recipient_public_key = ::std::option::Option::Some(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// The recipient's public key. MUST be DER encoded.
 pub fn set_recipient_public_key(mut self, input: ::std::option::Option<::aws_smithy_types::Blob>) -> Self {
     self.recipient_public_key = input;
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// The recipient's public key. MUST be DER encoded.
 pub fn get_recipient_public_key(&self) -> &::std::option::Option<::aws_smithy_types::Blob> {
     &self.recipient_public_key
 }

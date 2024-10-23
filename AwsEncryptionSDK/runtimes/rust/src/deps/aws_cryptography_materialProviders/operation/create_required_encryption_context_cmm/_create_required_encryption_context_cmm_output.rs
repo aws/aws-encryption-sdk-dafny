@@ -1,15 +1,15 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
-#[allow(missing_docs)] // documentation missing in model
 #[non_exhaustive]
 #[derive(::std::clone::Clone, ::std::cmp::PartialEq, ::std::fmt::Debug)]
+/// Outputs for creating an Required Encryption Context Cryptographic Materials Manager.
 pub struct CreateRequiredEncryptionContextCmmOutput {
-    #[allow(missing_docs)] // documentation missing in model
+    /// The created Required Encryption Context Cryptographic Materials Manager.
 pub materials_manager: ::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::cryptographic_materials_manager::CryptographicMaterialsManagerRef>,
 }
 impl CreateRequiredEncryptionContextCmmOutput {
-    #[allow(missing_docs)] // documentation missing in model
+    /// The created Required Encryption Context Cryptographic Materials Manager.
 pub fn materials_manager(&self) -> &::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::cryptographic_materials_manager::CryptographicMaterialsManagerRef> {
     &self.materials_manager
 }
@@ -30,17 +30,17 @@ pub struct CreateRequiredEncryptionContextCmmOutputBuilder {
     pub(crate) materials_manager: ::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::cryptographic_materials_manager::CryptographicMaterialsManagerRef>,
 }
 impl CreateRequiredEncryptionContextCmmOutputBuilder {
-    #[allow(missing_docs)] // documentation missing in model
+    /// The created Required Encryption Context Cryptographic Materials Manager.
 pub fn materials_manager(mut self, input: impl ::std::convert::Into<crate::deps::aws_cryptography_materialProviders::types::cryptographic_materials_manager::CryptographicMaterialsManagerRef>) -> Self {
     self.materials_manager = ::std::option::Option::Some(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// The created Required Encryption Context Cryptographic Materials Manager.
 pub fn set_materials_manager(mut self, input: ::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::cryptographic_materials_manager::CryptographicMaterialsManagerRef>) -> Self {
     self.materials_manager = input;
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// The created Required Encryption Context Cryptographic Materials Manager.
 pub fn get_materials_manager(&self) -> &::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::cryptographic_materials_manager::CryptographicMaterialsManagerRef> {
     &self.materials_manager
 }

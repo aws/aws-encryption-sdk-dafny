@@ -3,7 +3,8 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 #[derive(::std::clone::Clone, ::std::fmt::Debug, ::std::cmp::PartialEq)]
 pub enum Error {
-    AwsEncryptionSdkException {
+    #[allow(missing_docs)]
+AwsEncryptionSdkException {
     message: ::std::string::String,
 },
 

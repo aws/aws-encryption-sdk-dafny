@@ -21,6 +21,7 @@ impl CreateKeyStoreInputBuilder {
 }
 /// Fluent builder constructing a request to `CreateKeyStore`.
 ///
+/// Create the DynamoDB table that backs this Key Store based on the Key Store configuration. If a table already exists, validate it is configured as expected.
 #[derive(::std::clone::Clone, ::std::fmt::Debug)]
 pub struct CreateKeyStoreFluentBuilder {
     client: crate::deps::aws_cryptography_keyStore::client::Client,

@@ -1,15 +1,15 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
-#[allow(missing_docs)] // documentation missing in model
 #[non_exhaustive]
 #[derive(::std::clone::Clone, ::std::cmp::PartialEq, ::std::fmt::Debug)]
+/// Outputs for Key Store DynamoDB table creation.
 pub struct CreateKeyStoreOutput {
-    #[allow(missing_docs)] // documentation missing in model
+    /// The ARN of the DynamoDB table that backs this Key Store.
 pub table_arn: ::std::option::Option<::std::string::String>,
 }
 impl CreateKeyStoreOutput {
-    #[allow(missing_docs)] // documentation missing in model
+    /// The ARN of the DynamoDB table that backs this Key Store.
 pub fn table_arn(&self) -> &::std::option::Option<::std::string::String> {
     &self.table_arn
 }
@@ -30,17 +30,17 @@ pub struct CreateKeyStoreOutputBuilder {
     pub(crate) table_arn: ::std::option::Option<::std::string::String>,
 }
 impl CreateKeyStoreOutputBuilder {
-    #[allow(missing_docs)] // documentation missing in model
+    /// The ARN of the DynamoDB table that backs this Key Store.
 pub fn table_arn(mut self, input: impl ::std::convert::Into<::std::string::String>) -> Self {
     self.table_arn = ::std::option::Option::Some(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// The ARN of the DynamoDB table that backs this Key Store.
 pub fn set_table_arn(mut self, input: ::std::option::Option<::std::string::String>) -> Self {
     self.table_arn = input;
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// The ARN of the DynamoDB table that backs this Key Store.
 pub fn get_table_arn(&self) -> &::std::option::Option<::std::string::String> {
     &self.table_arn
 }

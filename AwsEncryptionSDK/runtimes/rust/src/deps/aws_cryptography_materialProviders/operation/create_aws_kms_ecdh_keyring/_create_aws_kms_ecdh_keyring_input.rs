@@ -1,33 +1,33 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
-#[allow(missing_docs)] // documentation missing in model
 #[non_exhaustive]
 #[derive(::std::clone::Clone, ::std::cmp::PartialEq, ::std::fmt::Debug)]
+/// Inputs for creating an AWS KMS ECDH Keyring.
 pub struct CreateAwsKmsEcdhKeyringInput {
-    #[allow(missing_docs)] // documentation missing in model
+    /// The Key Agreement Scheme configuration that is responsible for how the shared secret is calculated.
 pub key_agreement_scheme: ::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::KmsEcdhStaticConfigurations>,
-#[allow(missing_docs)] // documentation missing in model
+/// The named curve that corresponds to the curve on which the sender's private and recipient's public key lie.
 pub curve_spec: ::std::option::Option<crate::deps::aws_cryptography_primitives::types::EcdhCurveSpec>,
-#[allow(missing_docs)] // documentation missing in model
+/// A list of grant tokens to be used when calling KMS.
 pub grant_tokens: ::std::option::Option<::std::vec::Vec<::std::string::String>>,
-#[allow(missing_docs)] // documentation missing in model
+/// The KMS Client this Keyring will use to call KMS.
 pub kms_client: ::std::option::Option<crate::deps::com_amazonaws_kms::client::Client>,
 }
 impl CreateAwsKmsEcdhKeyringInput {
-    #[allow(missing_docs)] // documentation missing in model
+    /// The Key Agreement Scheme configuration that is responsible for how the shared secret is calculated.
 pub fn key_agreement_scheme(&self) -> &::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::KmsEcdhStaticConfigurations> {
     &self.key_agreement_scheme
 }
-#[allow(missing_docs)] // documentation missing in model
+/// The named curve that corresponds to the curve on which the sender's private and recipient's public key lie.
 pub fn curve_spec(&self) -> &::std::option::Option<crate::deps::aws_cryptography_primitives::types::EcdhCurveSpec> {
     &self.curve_spec
 }
-#[allow(missing_docs)] // documentation missing in model
+/// A list of grant tokens to be used when calling KMS.
 pub fn grant_tokens(&self) -> &::std::option::Option<::std::vec::Vec<::std::string::String>> {
     &self.grant_tokens
 }
-#[allow(missing_docs)] // documentation missing in model
+/// The KMS Client this Keyring will use to call KMS.
 pub fn kms_client(&self) -> &::std::option::Option<crate::deps::com_amazonaws_kms::client::Client> {
     &self.kms_client
 }
@@ -51,59 +51,59 @@ pub(crate) grant_tokens: ::std::option::Option<::std::vec::Vec<::std::string::St
 pub(crate) kms_client: ::std::option::Option<crate::deps::com_amazonaws_kms::client::Client>,
 }
 impl CreateAwsKmsEcdhKeyringInputBuilder {
-    #[allow(missing_docs)] // documentation missing in model
+    /// The Key Agreement Scheme configuration that is responsible for how the shared secret is calculated.
 pub fn key_agreement_scheme(mut self, input: impl ::std::convert::Into<crate::deps::aws_cryptography_materialProviders::types::KmsEcdhStaticConfigurations>) -> Self {
     self.key_agreement_scheme = ::std::option::Option::Some(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// The Key Agreement Scheme configuration that is responsible for how the shared secret is calculated.
 pub fn set_key_agreement_scheme(mut self, input: ::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::KmsEcdhStaticConfigurations>) -> Self {
     self.key_agreement_scheme = input;
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// The Key Agreement Scheme configuration that is responsible for how the shared secret is calculated.
 pub fn get_key_agreement_scheme(&self) -> &::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::KmsEcdhStaticConfigurations> {
     &self.key_agreement_scheme
 }
-#[allow(missing_docs)] // documentation missing in model
+/// The named curve that corresponds to the curve on which the sender's private and recipient's public key lie.
 pub fn curve_spec(mut self, input: impl ::std::convert::Into<crate::deps::aws_cryptography_primitives::types::EcdhCurveSpec>) -> Self {
     self.curve_spec = ::std::option::Option::Some(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// The named curve that corresponds to the curve on which the sender's private and recipient's public key lie.
 pub fn set_curve_spec(mut self, input: ::std::option::Option<crate::deps::aws_cryptography_primitives::types::EcdhCurveSpec>) -> Self {
     self.curve_spec = input;
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// The named curve that corresponds to the curve on which the sender's private and recipient's public key lie.
 pub fn get_curve_spec(&self) -> &::std::option::Option<crate::deps::aws_cryptography_primitives::types::EcdhCurveSpec> {
     &self.curve_spec
 }
-#[allow(missing_docs)] // documentation missing in model
+/// A list of grant tokens to be used when calling KMS.
 pub fn grant_tokens(mut self, input: impl ::std::convert::Into<::std::vec::Vec<::std::string::String>>) -> Self {
     self.grant_tokens = ::std::option::Option::Some(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// A list of grant tokens to be used when calling KMS.
 pub fn set_grant_tokens(mut self, input: ::std::option::Option<::std::vec::Vec<::std::string::String>>) -> Self {
     self.grant_tokens = input;
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// A list of grant tokens to be used when calling KMS.
 pub fn get_grant_tokens(&self) -> &::std::option::Option<::std::vec::Vec<::std::string::String>> {
     &self.grant_tokens
 }
-#[allow(missing_docs)] // documentation missing in model
+/// The KMS Client this Keyring will use to call KMS.
 pub fn kms_client(mut self, input: impl ::std::convert::Into<crate::deps::com_amazonaws_kms::client::Client>) -> Self {
     self.kms_client = ::std::option::Option::Some(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// The KMS Client this Keyring will use to call KMS.
 pub fn set_kms_client(mut self, input: ::std::option::Option<crate::deps::com_amazonaws_kms::client::Client>) -> Self {
     self.kms_client = input;
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// The KMS Client this Keyring will use to call KMS.
 pub fn get_kms_client(&self) -> &::std::option::Option<crate::deps::com_amazonaws_kms::client::Client> {
     &self.kms_client
 }

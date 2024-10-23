@@ -1,27 +1,27 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
-#[allow(missing_docs)] // documentation missing in model
 #[non_exhaustive]
 #[derive(::std::clone::Clone, ::std::cmp::PartialEq, ::std::fmt::Debug)]
+/// Inputs for creating a KmsPrivateKeyToStaticPublicKey Configuration.
 pub struct KmsPrivateKeyToStaticPublicKeyInput {
-    #[allow(missing_docs)] // documentation missing in model
+    /// Recipient Public Key. This MUST be a raw public ECC key in DER format.
 pub recipient_public_key: ::std::option::Option<::aws_smithy_types::Blob>,
-#[allow(missing_docs)] // documentation missing in model
+/// AWS KMS Key Identifier belonging to the sender.
 pub sender_kms_identifier: ::std::option::Option<::std::string::String>,
-#[allow(missing_docs)] // documentation missing in model
+/// Sender Public Key. This is the raw public ECC key in DER format that belongs to the senderKmsIdentifier.
 pub sender_public_key: ::std::option::Option<::aws_smithy_types::Blob>,
 }
 impl KmsPrivateKeyToStaticPublicKeyInput {
-    #[allow(missing_docs)] // documentation missing in model
+    /// Recipient Public Key. This MUST be a raw public ECC key in DER format.
 pub fn recipient_public_key(&self) -> &::std::option::Option<::aws_smithy_types::Blob> {
     &self.recipient_public_key
 }
-#[allow(missing_docs)] // documentation missing in model
+/// AWS KMS Key Identifier belonging to the sender.
 pub fn sender_kms_identifier(&self) -> &::std::option::Option<::std::string::String> {
     &self.sender_kms_identifier
 }
-#[allow(missing_docs)] // documentation missing in model
+/// Sender Public Key. This is the raw public ECC key in DER format that belongs to the senderKmsIdentifier.
 pub fn sender_public_key(&self) -> &::std::option::Option<::aws_smithy_types::Blob> {
     &self.sender_public_key
 }
@@ -44,45 +44,45 @@ pub(crate) sender_kms_identifier: ::std::option::Option<::std::string::String>,
 pub(crate) sender_public_key: ::std::option::Option<::aws_smithy_types::Blob>,
 }
 impl KmsPrivateKeyToStaticPublicKeyInputBuilder {
-    #[allow(missing_docs)] // documentation missing in model
+    /// Recipient Public Key. This MUST be a raw public ECC key in DER format.
 pub fn recipient_public_key(mut self, input: impl ::std::convert::Into<::aws_smithy_types::Blob>) -> Self {
     self.recipient_public_key = ::std::option::Option::Some(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// Recipient Public Key. This MUST be a raw public ECC key in DER format.
 pub fn set_recipient_public_key(mut self, input: ::std::option::Option<::aws_smithy_types::Blob>) -> Self {
     self.recipient_public_key = input;
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// Recipient Public Key. This MUST be a raw public ECC key in DER format.
 pub fn get_recipient_public_key(&self) -> &::std::option::Option<::aws_smithy_types::Blob> {
     &self.recipient_public_key
 }
-#[allow(missing_docs)] // documentation missing in model
+/// AWS KMS Key Identifier belonging to the sender.
 pub fn sender_kms_identifier(mut self, input: impl ::std::convert::Into<::std::string::String>) -> Self {
     self.sender_kms_identifier = ::std::option::Option::Some(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// AWS KMS Key Identifier belonging to the sender.
 pub fn set_sender_kms_identifier(mut self, input: ::std::option::Option<::std::string::String>) -> Self {
     self.sender_kms_identifier = input;
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// AWS KMS Key Identifier belonging to the sender.
 pub fn get_sender_kms_identifier(&self) -> &::std::option::Option<::std::string::String> {
     &self.sender_kms_identifier
 }
-#[allow(missing_docs)] // documentation missing in model
+/// Sender Public Key. This is the raw public ECC key in DER format that belongs to the senderKmsIdentifier.
 pub fn sender_public_key(mut self, input: impl ::std::convert::Into<::aws_smithy_types::Blob>) -> Self {
     self.sender_public_key = ::std::option::Option::Some(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// Sender Public Key. This is the raw public ECC key in DER format that belongs to the senderKmsIdentifier.
 pub fn set_sender_public_key(mut self, input: ::std::option::Option<::aws_smithy_types::Blob>) -> Self {
     self.sender_public_key = input;
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// Sender Public Key. This is the raw public ECC key in DER format that belongs to the senderKmsIdentifier.
 pub fn get_sender_public_key(&self) -> &::std::option::Option<::aws_smithy_types::Blob> {
     &self.sender_public_key
 }

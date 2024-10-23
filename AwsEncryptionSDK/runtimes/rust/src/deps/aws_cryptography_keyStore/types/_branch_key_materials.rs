@@ -1,33 +1,33 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
-#[allow(missing_docs)] // documentation missing in model
 #[non_exhaustive]
 #[derive(::std::clone::Clone, ::std::cmp::PartialEq, ::std::fmt::Debug)]
+#[allow(missing_docs)]
 pub struct BranchKeyMaterials {
-    #[allow(missing_docs)] // documentation missing in model
+    #[allow(missing_docs)]
 pub branch_key: ::std::option::Option<::aws_smithy_types::Blob>,
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub branch_key_identifier: ::std::option::Option<::std::string::String>,
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub branch_key_version: ::std::option::Option<::std::string::String>,
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub encryption_context: ::std::option::Option<::std::collections::HashMap<::std::string::String, ::std::string::String>>,
 }
 impl BranchKeyMaterials {
-    #[allow(missing_docs)] // documentation missing in model
+    #[allow(missing_docs)]
 pub fn branch_key(&self) -> &::std::option::Option<::aws_smithy_types::Blob> {
     &self.branch_key
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn branch_key_identifier(&self) -> &::std::option::Option<::std::string::String> {
     &self.branch_key_identifier
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn branch_key_version(&self) -> &::std::option::Option<::std::string::String> {
     &self.branch_key_version
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn encryption_context(&self) -> &::std::option::Option<::std::collections::HashMap<::std::string::String, ::std::string::String>> {
     &self.encryption_context
 }
@@ -51,59 +51,59 @@ pub(crate) branch_key_version: ::std::option::Option<::std::string::String>,
 pub(crate) encryption_context: ::std::option::Option<::std::collections::HashMap<::std::string::String, ::std::string::String>>,
 }
 impl BranchKeyMaterialsBuilder {
-    #[allow(missing_docs)] // documentation missing in model
+    #[allow(missing_docs)]
 pub fn branch_key(mut self, input: impl ::std::convert::Into<::aws_smithy_types::Blob>) -> Self {
     self.branch_key = ::std::option::Option::Some(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn set_branch_key(mut self, input: ::std::option::Option<::aws_smithy_types::Blob>) -> Self {
     self.branch_key = input;
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn get_branch_key(&self) -> &::std::option::Option<::aws_smithy_types::Blob> {
     &self.branch_key
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn branch_key_identifier(mut self, input: impl ::std::convert::Into<::std::string::String>) -> Self {
     self.branch_key_identifier = ::std::option::Option::Some(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn set_branch_key_identifier(mut self, input: ::std::option::Option<::std::string::String>) -> Self {
     self.branch_key_identifier = input;
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn get_branch_key_identifier(&self) -> &::std::option::Option<::std::string::String> {
     &self.branch_key_identifier
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn branch_key_version(mut self, input: impl ::std::convert::Into<::std::string::String>) -> Self {
     self.branch_key_version = ::std::option::Option::Some(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn set_branch_key_version(mut self, input: ::std::option::Option<::std::string::String>) -> Self {
     self.branch_key_version = input;
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn get_branch_key_version(&self) -> &::std::option::Option<::std::string::String> {
     &self.branch_key_version
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn encryption_context(mut self, input: impl ::std::convert::Into<::std::collections::HashMap<::std::string::String, ::std::string::String>>) -> Self {
     self.encryption_context = ::std::option::Option::Some(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn set_encryption_context(mut self, input: ::std::option::Option<::std::collections::HashMap<::std::string::String, ::std::string::String>>) -> Self {
     self.encryption_context = input;
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn get_encryption_context(&self) -> &::std::option::Option<::std::collections::HashMap<::std::string::String, ::std::string::String>> {
     &self.encryption_context
 }

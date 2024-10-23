@@ -1,15 +1,15 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
-#[allow(missing_docs)] // documentation missing in model
 #[non_exhaustive]
 #[derive(::std::clone::Clone, ::std::cmp::PartialEq, ::std::fmt::Debug)]
+#[allow(missing_docs)]
 pub struct GetAlgorithmSuiteInfoInput {
-    #[allow(missing_docs)] // documentation missing in model
+    #[allow(missing_docs)]
 pub binary_id: ::std::option::Option<::aws_smithy_types::Blob>,
 }
 impl GetAlgorithmSuiteInfoInput {
-    #[allow(missing_docs)] // documentation missing in model
+    #[allow(missing_docs)]
 pub fn binary_id(&self) -> &::std::option::Option<::aws_smithy_types::Blob> {
     &self.binary_id
 }
@@ -30,17 +30,17 @@ pub struct GetAlgorithmSuiteInfoInputBuilder {
     pub(crate) binary_id: ::std::option::Option<::aws_smithy_types::Blob>,
 }
 impl GetAlgorithmSuiteInfoInputBuilder {
-    #[allow(missing_docs)] // documentation missing in model
+    #[allow(missing_docs)]
 pub fn binary_id(mut self, input: impl ::std::convert::Into<::aws_smithy_types::Blob>) -> Self {
     self.binary_id = ::std::option::Option::Some(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn set_binary_id(mut self, input: ::std::option::Option<::aws_smithy_types::Blob>) -> Self {
     self.binary_id = input;
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn get_binary_id(&self) -> &::std::option::Option<::aws_smithy_types::Blob> {
     &self.binary_id
 }

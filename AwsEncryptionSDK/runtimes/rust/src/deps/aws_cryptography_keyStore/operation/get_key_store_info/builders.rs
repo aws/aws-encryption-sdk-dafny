@@ -21,6 +21,7 @@ impl UnitBuilder {
 }
 /// Fluent builder constructing a request to `GetKeyStoreInfo`.
 ///
+/// Returns the configuration information for a Key Store.
 #[derive(::std::clone::Clone, ::std::fmt::Debug)]
 pub struct GetKeyStoreInfoFluentBuilder {
     client: crate::deps::aws_cryptography_keyStore::client::Client,

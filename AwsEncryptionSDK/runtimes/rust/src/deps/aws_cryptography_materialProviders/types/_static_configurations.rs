@@ -1,13 +1,13 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
-#[allow(missing_docs)] // documentation missing in model
 #[non_exhaustive]
 #[derive(::std::clone::Clone, ::std::cmp::PartialEq, ::std::fmt::Debug)]
+/// Supported configurations for the StaticConfiguration Key Agreement Scheme.
 pub enum StaticConfigurations {
-    #[allow(missing_docs)] // documentation missing in model
+    #[allow(missing_docs)]
 AwsKmsEcdh(crate::deps::aws_cryptography_materialProviders::types::KmsEcdhStaticConfigurations),
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 RawEcdh(crate::deps::aws_cryptography_materialProviders::types::RawEcdhStaticConfigurations),
     /// The `Unknown` variant represents cases where new union variant was received. Consider upgrading the SDK to the latest available version.
     /// An unknown enum variant

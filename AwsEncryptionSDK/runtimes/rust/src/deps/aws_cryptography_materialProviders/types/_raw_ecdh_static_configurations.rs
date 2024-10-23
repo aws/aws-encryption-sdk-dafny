@@ -1,15 +1,15 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
-#[allow(missing_docs)] // documentation missing in model
 #[non_exhaustive]
 #[derive(::std::clone::Clone, ::std::cmp::PartialEq, ::std::fmt::Debug)]
+/// List of configurations when using RawEcdhStaticConfigurations.
 pub enum RawEcdhStaticConfigurations {
-    #[allow(missing_docs)] // documentation missing in model
+    #[allow(missing_docs)]
 PublicKeyDiscovery(crate::deps::aws_cryptography_materialProviders::types::PublicKeyDiscoveryInput),
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 RawPrivateKeyToStaticPublicKey(crate::deps::aws_cryptography_materialProviders::types::RawPrivateKeyToStaticPublicKeyInput),
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 EphemeralPrivateKeyToStaticPublicKey(crate::deps::aws_cryptography_materialProviders::types::EphemeralPrivateKeyToStaticPublicKeyInput),
     /// The `Unknown` variant represents cases where new union variant was received. Consider upgrading the SDK to the latest available version.
     /// An unknown enum variant

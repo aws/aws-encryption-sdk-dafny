@@ -59,31 +59,31 @@ impl OnDecryptFluentBuilder {
         crate::deps::aws_cryptography_materialProviders::operation::on_decrypt::OnDecrypt::send(&self.keyring, input).await
     }
 
-    #[allow(missing_docs)] // documentation missing in model
+    #[allow(missing_docs)]
 pub fn encrypted_data_keys(mut self, input: impl ::std::convert::Into<::std::vec::Vec<crate::deps::aws_cryptography_materialProviders::types::EncryptedDataKey>>) -> Self {
     self.inner = self.inner.encrypted_data_keys(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn set_encrypted_data_keys(mut self, input: ::std::option::Option<::std::vec::Vec<crate::deps::aws_cryptography_materialProviders::types::EncryptedDataKey>>) -> Self {
     self.inner = self.inner.set_encrypted_data_keys(input);
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn get_encrypted_data_keys(&self) -> &::std::option::Option<::std::vec::Vec<crate::deps::aws_cryptography_materialProviders::types::EncryptedDataKey>> {
     self.inner.get_encrypted_data_keys()
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn materials(mut self, input: impl ::std::convert::Into<crate::deps::aws_cryptography_materialProviders::types::DecryptionMaterials>) -> Self {
     self.inner = self.inner.materials(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn set_materials(mut self, input: ::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::DecryptionMaterials>) -> Self {
     self.inner = self.inner.set_materials(input);
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn get_materials(&self) -> &::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::DecryptionMaterials> {
     self.inner.get_materials()
 }

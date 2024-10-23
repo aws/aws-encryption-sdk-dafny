@@ -59,17 +59,17 @@ impl GenerateEcdsaSignatureKeyFluentBuilder {
         crate::deps::aws_cryptography_primitives::operation::generate_ecdsa_signature_key::GenerateEcdsaSignatureKey::send(&self.client, input).await
     }
 
-    #[allow(missing_docs)] // documentation missing in model
+    #[allow(missing_docs)]
 pub fn signature_algorithm(mut self, input: impl ::std::convert::Into<crate::deps::aws_cryptography_primitives::types::EcdsaSignatureAlgorithm>) -> Self {
     self.inner = self.inner.signature_algorithm(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn set_signature_algorithm(mut self, input: ::std::option::Option<crate::deps::aws_cryptography_primitives::types::EcdsaSignatureAlgorithm>) -> Self {
     self.inner = self.inner.set_signature_algorithm(input);
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn get_signature_algorithm(&self) -> &::std::option::Option<crate::deps::aws_cryptography_primitives::types::EcdsaSignatureAlgorithm> {
     self.inner.get_signature_algorithm()
 }

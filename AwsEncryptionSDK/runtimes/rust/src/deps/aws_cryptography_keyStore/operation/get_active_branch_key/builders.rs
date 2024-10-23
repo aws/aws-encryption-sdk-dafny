@@ -21,6 +21,7 @@ impl GetActiveBranchKeyInputBuilder {
 }
 /// Fluent builder constructing a request to `GetActiveBranchKey`.
 ///
+/// Get the ACTIVE version for a particular Branch Key from the Key Store.
 #[derive(::std::clone::Clone, ::std::fmt::Debug)]
 pub struct GetActiveBranchKeyFluentBuilder {
     client: crate::deps::aws_cryptography_keyStore::client::Client,
@@ -59,17 +60,17 @@ impl GetActiveBranchKeyFluentBuilder {
         crate::deps::aws_cryptography_keyStore::operation::get_active_branch_key::GetActiveBranchKey::send(&self.client, input).await
     }
 
-    #[allow(missing_docs)] // documentation missing in model
+    /// The identifier for the Branch Key to get the ACTIVE version for.
 pub fn branch_key_identifier(mut self, input: impl ::std::convert::Into<::std::string::String>) -> Self {
     self.inner = self.inner.branch_key_identifier(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// The identifier for the Branch Key to get the ACTIVE version for.
 pub fn set_branch_key_identifier(mut self, input: ::std::option::Option<::std::string::String>) -> Self {
     self.inner = self.inner.set_branch_key_identifier(input);
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// The identifier for the Branch Key to get the ACTIVE version for.
 pub fn get_branch_key_identifier(&self) -> &::std::option::Option<::std::string::String> {
     self.inner.get_branch_key_identifier()
 }

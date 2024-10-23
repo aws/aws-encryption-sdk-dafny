@@ -59,31 +59,31 @@ impl ValidEncryptionMaterialsTransitionFluentBuilder {
         crate::deps::aws_cryptography_materialProviders::operation::valid_encryption_materials_transition::ValidEncryptionMaterialsTransition::send(&self.client, input).await
     }
 
-    #[allow(missing_docs)] // documentation missing in model
+    #[allow(missing_docs)]
 pub fn start(mut self, input: impl ::std::convert::Into<crate::deps::aws_cryptography_materialProviders::types::EncryptionMaterials>) -> Self {
     self.inner = self.inner.start(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn set_start(mut self, input: ::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::EncryptionMaterials>) -> Self {
     self.inner = self.inner.set_start(input);
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn get_start(&self) -> &::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::EncryptionMaterials> {
     self.inner.get_start()
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn stop(mut self, input: impl ::std::convert::Into<crate::deps::aws_cryptography_materialProviders::types::EncryptionMaterials>) -> Self {
     self.inner = self.inner.stop(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn set_stop(mut self, input: ::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::EncryptionMaterials>) -> Self {
     self.inner = self.inner.set_stop(input);
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn get_stop(&self) -> &::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::EncryptionMaterials> {
     self.inner.get_stop()
 }

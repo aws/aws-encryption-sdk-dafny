@@ -59,31 +59,31 @@ impl ValidateCommitmentPolicyOnEncryptFluentBuilder {
         crate::deps::aws_cryptography_materialProviders::operation::validate_commitment_policy_on_encrypt::ValidateCommitmentPolicyOnEncrypt::send(&self.client, input).await
     }
 
-    #[allow(missing_docs)] // documentation missing in model
+    #[allow(missing_docs)]
 pub fn algorithm(mut self, input: impl ::std::convert::Into<crate::deps::aws_cryptography_materialProviders::types::AlgorithmSuiteId>) -> Self {
     self.inner = self.inner.algorithm(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn set_algorithm(mut self, input: ::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::AlgorithmSuiteId>) -> Self {
     self.inner = self.inner.set_algorithm(input);
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn get_algorithm(&self) -> &::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::AlgorithmSuiteId> {
     self.inner.get_algorithm()
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn commitment_policy(mut self, input: impl ::std::convert::Into<crate::deps::aws_cryptography_materialProviders::types::CommitmentPolicy>) -> Self {
     self.inner = self.inner.commitment_policy(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn set_commitment_policy(mut self, input: ::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::CommitmentPolicy>) -> Self {
     self.inner = self.inner.set_commitment_policy(input);
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn get_commitment_policy(&self) -> &::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::CommitmentPolicy> {
     self.inner.get_commitment_policy()
 }

@@ -21,6 +21,7 @@ impl CreateDefaultCryptographicMaterialsManagerInputBuilder {
 }
 /// Fluent builder constructing a request to `CreateDefaultCryptographicMaterialsManager`.
 ///
+/// Creates a Default Cryptographic Materials Manager.
 #[derive(::std::clone::Clone, ::std::fmt::Debug)]
 pub struct CreateDefaultCryptographicMaterialsManagerFluentBuilder {
     client: crate::deps::aws_cryptography_materialProviders::client::Client,
@@ -59,17 +60,17 @@ impl CreateDefaultCryptographicMaterialsManagerFluentBuilder {
         crate::deps::aws_cryptography_materialProviders::operation::create_default_cryptographic_materials_manager::CreateDefaultCryptographicMaterialsManager::send(&self.client, input).await
     }
 
-    #[allow(missing_docs)] // documentation missing in model
+    /// The Keyring that the created Default Cryprographic Materials Manager will use to wrap data keys.
 pub fn keyring(mut self, input: impl ::std::convert::Into<crate::deps::aws_cryptography_materialProviders::types::keyring::KeyringRef>) -> Self {
     self.inner = self.inner.keyring(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// The Keyring that the created Default Cryprographic Materials Manager will use to wrap data keys.
 pub fn set_keyring(mut self, input: ::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::keyring::KeyringRef>) -> Self {
     self.inner = self.inner.set_keyring(input);
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+/// The Keyring that the created Default Cryprographic Materials Manager will use to wrap data keys.
 pub fn get_keyring(&self) -> &::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::keyring::KeyringRef> {
     self.inner.get_keyring()
 }

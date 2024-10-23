@@ -1,15 +1,15 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
-#[allow(missing_docs)] // documentation missing in model
 #[non_exhaustive]
 #[derive(::std::clone::Clone, ::std::cmp::PartialEq, ::std::fmt::Debug)]
+#[allow(missing_docs)]
 pub struct GenerateRandomBytesInput {
-    #[allow(missing_docs)] // documentation missing in model
+    #[allow(missing_docs)]
 pub length: ::std::option::Option<::std::primitive::i32>,
 }
 impl GenerateRandomBytesInput {
-    #[allow(missing_docs)] // documentation missing in model
+    #[allow(missing_docs)]
 pub fn length(&self) -> &::std::option::Option<::std::primitive::i32> {
     &self.length
 }
@@ -30,17 +30,17 @@ pub struct GenerateRandomBytesInputBuilder {
     pub(crate) length: ::std::option::Option<::std::primitive::i32>,
 }
 impl GenerateRandomBytesInputBuilder {
-    #[allow(missing_docs)] // documentation missing in model
+    #[allow(missing_docs)]
 pub fn length(mut self, input: impl ::std::convert::Into<::std::primitive::i32>) -> Self {
     self.length = ::std::option::Option::Some(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn set_length(mut self, input: ::std::option::Option<::std::primitive::i32>) -> Self {
     self.length = input;
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn get_length(&self) -> &::std::option::Option<::std::primitive::i32> {
     &self.length
 }

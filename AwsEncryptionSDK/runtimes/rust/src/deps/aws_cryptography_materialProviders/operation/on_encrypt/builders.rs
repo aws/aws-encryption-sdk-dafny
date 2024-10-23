@@ -59,17 +59,17 @@ impl OnEncryptFluentBuilder {
         crate::deps::aws_cryptography_materialProviders::operation::on_encrypt::OnEncrypt::send(&self.keyring, input).await
     }
 
-    #[allow(missing_docs)] // documentation missing in model
+    #[allow(missing_docs)]
 pub fn materials(mut self, input: impl ::std::convert::Into<crate::deps::aws_cryptography_materialProviders::types::EncryptionMaterials>) -> Self {
     self.inner = self.inner.materials(input.into());
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn set_materials(mut self, input: ::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::EncryptionMaterials>) -> Self {
     self.inner = self.inner.set_materials(input);
     self
 }
-#[allow(missing_docs)] // documentation missing in model
+#[allow(missing_docs)]
 pub fn get_materials(&self) -> &::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::EncryptionMaterials> {
     self.inner.get_materials()
 }
