@@ -113,7 +113,7 @@ runs:
       working-directory: ./${{ inputs.library }}
       shell: bash
       run: |
-        make polymorph_rust
+        make polymorph_rust ${{ steps.dependencies.outputs.PROJECT_DEPENDENCIES }}
 
     - name: Check regenerated code against commited code
       # Composite action inputs seem to not actually support booleans properly for some reason
