@@ -78,3 +78,30 @@ jobs:
             --log-group-name "$LOG_GROUP" \
             --log-stream-name "$LOG_STREAM" \
             --log-events file://$LOG_FILE
+
+      # Dimensioned metrics (namespace EsdkPerformanceBenchmarks) for the
+      # faceted dashboard. Additive to the log upload above.
+      - name: Publish CloudWatch metrics
+        working-directory: ./${{matrix.benchmark-dir}}/results/raw-data/
+        run: |
+          NAMESPACE="EsdkPerformanceBenchmarks"
+          jq -c --arg keyring "raw-aes" --arg os "${{ matrix.os }}" '
+            [ .results[] as $r
+              | [ {n: "P50Latency",      v: ($r.p50_latency // $r.p50_latency_ms),           u: "Milliseconds"},
+                  {n: "P95Latency",      v: ($r.p95_latency // $r.p95_latency_ms),           u: "Milliseconds"},
+                  {n: "P99Latency",      v: ($r.p99_latency // $r.p99_latency_ms),           u: "Milliseconds"},
+                  {n: "OpsPerSecond",    v: ($r.ops_per_second // $r.operations_per_second), u: "Count/Second"},
+                  {n: "PeakMemoryRssMb", v: $r.peak_memory_mb,                               u: "Megabytes"} ][]
+              | select(.v > 0)
+              | {MetricName: .n, Value: .v, Unit: .u,
+                 Dimensions: [ {Name: "Language",    Value: $r.language},
+                               {Name: "Keyring",     Value: $keyring},
+                               {Name: "TestType",    Value: $r.test_name},
+                               {Name: "DataSize",    Value: ($r.data_size | tostring)},
+                               {Name: "OS",          Value: $os},
+                               {Name: "Concurrency", Value: ($r.concurrency | tostring)} ]} ]' \
+            java_results.json > metric_data.json
+          if [ "$(jq length metric_data.json)" -gt 0 ]; then
+            aws cloudwatch put-metric-data --namespace "$NAMESPACE" \
+              --metric-data file://metric_data.json
+          fi
